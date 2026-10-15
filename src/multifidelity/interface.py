@@ -1,23 +1,41 @@
 """The shared physical interface supplied to fidelity builders."""
 
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Protocol, TypeVar
+
+from idaes.core import StateBlock
+from pyomo.core.base.block import BlockData
+from pyomo.core.base.expression import IndexedExpression
+from pyomo.core.base.set import Set
+from pyomo.core.base.var import IndexedVar, ScalarVar
+from pyomo.opt import SolverResults
+from pyomo.opt.base.solvers import OptSolver
 
 
 @dataclass(frozen=True)
 class SharedHX:
-    time: Any
-    hot_inlet: Any
-    hot_outlet: Any
-    cold_inlet: Any
-    cold_outlet: Any
-    area: Any
-    U: Any
-    length: Any
-    heat_duty: Any
+    time: Set
+    hot_inlet: StateBlock
+    hot_outlet: StateBlock
+    cold_inlet: StateBlock
+    cold_outlet: StateBlock
+    area: ScalarVar
+    U: IndexedVar
+    length: ScalarVar
+    heat_duty: IndexedExpression
 
 
-class Fidelity(Protocol):
-    def build(self, block, shared: SharedHX) -> None: ...
+SharedT = TypeVar("SharedT", contravariant=True)
 
-    def initialize(self, block, shared: SharedHX, *, solver) -> Any: ...
+
+class Fidelity(Protocol[SharedT]):
+    def build(self, block: BlockData, shared: SharedT) -> None: ...
+
+    def initialize(
+        self,
+        block: BlockData,
+        shared: SharedT,
+        *,
+        equipment: BlockData,
+        solver: OptSolver,
+    ) -> SolverResults: ...

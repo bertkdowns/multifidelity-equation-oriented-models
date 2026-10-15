@@ -1,12 +1,16 @@
 """A countercurrent 1D exchanger discretized by finite-volume balances."""
 
+from pyomo.core.base.block import BlockData
 from pyomo.environ import Block, Constraint, Expression, RangeSet, Var, value
+from pyomo.opt import SolverResults
+from pyomo.opt.base.solvers import OptSolver
 
+from ..interface import SharedHX
 from ..properties import convert, interpolate, states, stream_balance
 
 
 class DistributedHX:
-    def __init__(self, finite_elements=10):
+    def __init__(self, finite_elements: int = 10) -> None:
         if (
             isinstance(finite_elements, bool)
             or not isinstance(finite_elements, int)
@@ -15,7 +19,7 @@ class DistributedHX:
             raise ValueError("finite_elements must be a positive integer")
         self.finite_elements = finite_elements
 
-    def build(self, block, shared):
+    def build(self, block: BlockData, shared: SharedHX) -> None:
         n = self.finite_elements
         block.cells = RangeSet(0, n - 1)
         block.interior = RangeSet(1, n - 1)
@@ -75,7 +79,14 @@ class DistributedHX:
 
         block.heat_transfer = Constraint(shared.time, block.cells, rule=heat_transfer)
 
-    def initialize(self, block, shared, *, solver):
+    def initialize(
+        self,
+        block: BlockData,
+        shared: SharedHX,
+        *,
+        equipment: BlockData,
+        solver: OptSolver,
+    ) -> SolverResults:
         n = self.finite_elements
         for t in shared.time:
             for x in block.interior:
@@ -107,4 +118,4 @@ class DistributedHX:
                 )
             for x in block.cells:
                 block.cell_duty[t, x].set_value(duty_guess / n)
-        return solver.solve(block.parent_block())
+        return solver.solve(equipment)

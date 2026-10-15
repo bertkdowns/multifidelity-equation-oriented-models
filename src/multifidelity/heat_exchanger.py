@@ -1,5 +1,6 @@
 """IDAES flowsheet integration for a shared-state heat exchanger."""
 
+from collections.abc import Mapping
 from contextlib import contextmanager
 
 from idaes.core import UnitModelBlockData, declare_process_block_class
@@ -8,10 +9,12 @@ from idaes.core.util.config import is_physical_parameter_block
 from idaes.core.util.exceptions import InitializationError
 from pyomo.common.config import ConfigValue
 from pyomo.environ import Expression, Var, check_optimal_termination, value
+from pyomo.opt import SolverResults
+from pyomo.opt.base.solvers import OptSolver
 
 from .base import MultiFidelityMixin
 from .fidelities import DistributedHX, LumpedHX
-from .interface import SharedHX
+from .interface import Fidelity, SharedHX
 from .properties import convert, enthalpy_flow, interpolate, states
 
 
@@ -30,7 +33,7 @@ def fixed_inputs(variables):
 
 
 @declare_process_block_class("HeatExchanger")
-class HeatExchangerData(MultiFidelityMixin, UnitModelBlockData):
+class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
     CONFIG = UnitModelBlockData.CONFIG()
     CONFIG.declare(
         "hot_side_property_package", ConfigValue(domain=is_physical_parameter_block)
@@ -40,7 +43,7 @@ class HeatExchangerData(MultiFidelityMixin, UnitModelBlockData):
     )
     CONFIG.declare("fidelities", ConfigValue(default=None))
 
-    def build(self):
+    def build(self) -> None:
         super().build()
         if self.config.dynamic or self.config.has_holdup:
             raise ValueError("Only steady-state operation without holdup is supported")
@@ -84,7 +87,7 @@ class HeatExchangerData(MultiFidelityMixin, UnitModelBlockData):
             self.length,
             self.heat_duty,
         )
-        builders = (
+        builders: Mapping[str, Fidelity[SharedHX]] = (
             self.config.fidelities
             if self.config.fidelities is not None
             else {
@@ -94,7 +97,12 @@ class HeatExchangerData(MultiFidelityMixin, UnitModelBlockData):
         )
         self.build_fidelities(builders, self._shared)
 
-    def initialize_build(self, *, solver=None, optarg=None):
+    def initialize_build(
+        self,
+        *,
+        solver: str | OptSolver | None = None,
+        optarg: dict[str, str | int | float] | None = None,
+    ) -> SolverResults:
         """Initialize the selected formulation at the current inlet/design values."""
         solver = (
             get_solver(solver, optarg)
@@ -127,7 +135,7 @@ class HeatExchangerData(MultiFidelityMixin, UnitModelBlockData):
                             outlet.temperature.set_value(0.8 * a + 0.2 * b)
             name = self.active_fidelity
             result = self._builders[name].initialize(
-                self.fidelities[name], self._shared, solver=solver
+                self.fidelities[name], self._shared, equipment=self, solver=solver
             )
             if not check_optimal_termination(result):
                 raise InitializationError(f"{self.name}: {name} initialization failed")

@@ -83,7 +83,7 @@ class MyFidelity:
         # Use shared inlet/outlet states, area, U, length, and heat_duty directly.
         ...
 
-    def initialize(self, block, shared, *, solver):
+    def initialize(self, block, shared, *, equipment, solver):
         # Seed private states and initialize the selected equations.
         # Return Pyomo solver results.
         ...

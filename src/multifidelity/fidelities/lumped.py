@@ -1,12 +1,16 @@
 """Countercurrent lumped exchanger with a logarithmic mean driving force."""
 
+from pyomo.core.base.block import BlockData
 from pyomo.environ import Block, Constraint, Expression, log, sqrt
+from pyomo.opt import SolverResults
+from pyomo.opt.base.solvers import OptSolver
 
+from ..interface import SharedHX
 from ..properties import convert, stream_balance
 
 
 class LumpedHX:
-    def build(self, block, shared):
+    def build(self, block: BlockData, shared: SharedHX) -> None:
         block.hot = Block(shared.time)
         block.cold = Block(shared.time)
         for t in shared.time:
@@ -58,5 +62,12 @@ class LumpedHX:
             ),
         )
 
-    def initialize(self, block, shared, *, solver):
-        return solver.solve(block.parent_block())
+    def initialize(
+        self,
+        block: BlockData,
+        shared: SharedHX,
+        *,
+        equipment: BlockData,
+        solver: OptSolver,
+    ) -> SolverResults:
+        return solver.solve(equipment)
