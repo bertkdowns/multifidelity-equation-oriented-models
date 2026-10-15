@@ -1,0 +1,155 @@
+"""IDAES flowsheet integration for a shared-state heat exchanger."""
+
+from contextlib import contextmanager
+
+from idaes.core import UnitModelBlockData, declare_process_block_class
+from idaes.core.solvers import get_solver
+from idaes.core.util.config import is_physical_parameter_block
+from idaes.core.util.exceptions import InitializationError
+from pyomo.common.config import ConfigValue
+from pyomo.environ import Block, Expression, Var, check_optimal_termination, value
+
+from .fidelities import DistributedHX, LumpedHX
+from .interface import SharedHX
+from .properties import convert, enthalpy_flow, interpolate, states
+
+
+@contextmanager
+def fixed_inputs(variables):
+    """Restore temporary input fixations, including on solver failure."""
+    flags = [(v, v.fixed) for v in variables]
+    try:
+        for v, _ in flags:
+            v.fix()
+        yield
+    finally:
+        for v, was_fixed in flags:
+            if not was_fixed:
+                v.unfix()
+
+
+@declare_process_block_class("HeatExchanger")
+class HeatExchangerData(UnitModelBlockData):
+    CONFIG = UnitModelBlockData.CONFIG()
+    CONFIG.declare(
+        "hot_side_property_package", ConfigValue(domain=is_physical_parameter_block)
+    )
+    CONFIG.declare(
+        "cold_side_property_package", ConfigValue(domain=is_physical_parameter_block)
+    )
+    CONFIG.declare("fidelities", ConfigValue(default=None))
+
+    def build(self):
+        super().build()
+        if self.config.dynamic or self.config.has_holdup:
+            raise ValueError("Only steady-state operation without holdup is supported")
+        time = self.flowsheet().time
+        hot = self.config.hot_side_property_package
+        cold = self.config.cold_side_property_package
+        for name, package, inlet in (
+            ("hot_inlet", hot, True),
+            ("hot_outlet", hot, False),
+            ("cold_inlet", cold, True),
+            ("cold_outlet", cold, False),
+        ):
+            state = states(package, time, inlet=inlet)
+            self.add_component(f"{name}_state", state)
+            self.add_port(name, state)
+        units = hot.get_metadata().get_derived_units
+        self.area = Var(initialize=10, bounds=(1e-8, None), units=units("area"))
+        self.U = Var(
+            time,
+            initialize=100,
+            bounds=(1e-8, None),
+            units=units("heat_transfer_coefficient"),
+        )
+        self.length = Var(initialize=5, bounds=(1e-8, None), units=units("length"))
+        self.heat_duty = Expression(
+            time,
+            rule=lambda b, t: convert(
+                enthalpy_flow(b.cold_outlet_state[t])
+                - enthalpy_flow(b.cold_inlet_state[t]),
+                1 * units("power"),
+            ),
+        )
+        self._shared = SharedHX(
+            time,
+            self.hot_inlet_state,
+            self.hot_outlet_state,
+            self.cold_inlet_state,
+            self.cold_outlet_state,
+            self.area,
+            self.U,
+            self.length,
+            self.heat_duty,
+        )
+        self._builders = (
+            self.config.fidelities
+            if self.config.fidelities is not None
+            else {
+                "lumped": LumpedHX(),
+                "distributed": DistributedHX(),
+            }
+        )
+        if not self._builders:
+            raise ValueError("At least one fidelity is required")
+        self.formulations = Block(list(self._builders))
+        self.fidelities = {name: self.formulations[name] for name in self._builders}
+        for name, builder in self._builders.items():
+            builder.build(self.fidelities[name], self._shared)
+        self.select_fidelity(next(iter(self.fidelities)))
+
+    @property
+    def active_fidelity(self):
+        names = [name for name, block in self.fidelities.items() if block.active]
+        if len(names) != 1:
+            raise RuntimeError("Expected exactly one active fidelity")
+        return names[0]
+
+    def select_fidelity(self, name):
+        """Select equations while preserving all variable values and fixations."""
+        if name not in self.fidelities:
+            raise ValueError(
+                f"Unknown fidelity {name!r}; choose from {tuple(self.fidelities)}"
+            )
+        for candidate, block in self.fidelities.items():
+            block.activate() if candidate == name else block.deactivate()
+
+    def initialize_build(self, *, solver=None, optarg=None):
+        """Initialize the selected formulation at the current inlet/design values."""
+        solver = (
+            get_solver(solver, optarg)
+            if solver is None or isinstance(solver, str)
+            else solver
+        )
+        inputs = [self.area, self.length, *self.U.values()]
+        for port in (self.hot_inlet, self.cold_inlet):
+            for variable in port.vars.values():
+                inputs.extend(variable.values())
+        with fixed_inputs(inputs):
+            for t in self._shared.time:
+                for inlet, outlet, other in (
+                    (
+                        self.hot_inlet_state[t],
+                        self.hot_outlet_state[t],
+                        self.cold_inlet_state[t],
+                    ),
+                    (
+                        self.cold_inlet_state[t],
+                        self.cold_outlet_state[t],
+                        self.hot_inlet_state[t],
+                    ),
+                ):
+                    a = value(inlet.temperature)
+                    b = value(convert(other.temperature, inlet.temperature))
+                    if not min(a, b) < value(outlet.temperature) < max(a, b):
+                        interpolate(outlet, inlet, inlet, 0)
+                        if not outlet.temperature.fixed:
+                            outlet.temperature.set_value(0.8 * a + 0.2 * b)
+            name = self.active_fidelity
+            result = self._builders[name].initialize(
+                self.fidelities[name], self._shared, solver=solver
+            )
+            if not check_optimal_termination(result):
+                raise InitializationError(f"{self.name}: {name} initialization failed")
+        return result

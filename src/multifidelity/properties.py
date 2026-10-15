@@ -1,0 +1,50 @@
+"""State construction and stream balances using IDAES property packages."""
+
+from pyomo.environ import Constraint, units as u, value
+
+
+def states(package, *indexes, inlet=False):
+    return package.build_state_block(
+        *indexes, defined_state=inlet, has_phase_equilibrium=False
+    )
+
+
+def enthalpy_flow(state):
+    return sum(state.get_enthalpy_flow_terms(p) for p in state.phase_list)
+
+
+def convert(source, target):
+    return u.convert(source, to_units=u.get_units(target))
+
+
+def stream_balance(block, inlet, outlet, heat=None):
+    """Steady stream balance: heat is positive into the stream."""
+    block.material = Constraint(
+        inlet.component_list,
+        rule=lambda b, j: (
+            sum(inlet.get_material_flow_terms(p, j) for p in inlet.phase_list)
+            == sum(outlet.get_material_flow_terms(p, j) for p in outlet.phase_list)
+        ),
+    )
+    block.pressure = Constraint(
+        expr=outlet.pressure == convert(inlet.pressure, outlet.pressure)
+    )
+    if heat is not None:
+        block.energy = Constraint(
+            expr=enthalpy_flow(outlet) - enthalpy_flow(inlet)
+            == convert(heat, enthalpy_flow(outlet))
+        )
+
+
+def interpolate(state, inlet, outlet, fraction):
+    """Seed independent state variables; leave fixed specifications alone."""
+    for name, variable in state.define_state_vars().items():
+        start = inlet.define_state_vars()[name]
+        end = outlet.define_state_vars()[name]
+        for key, dst in variable.items():
+            if not dst.fixed:
+                dst.set_value(
+                    value(
+                        convert((1 - fraction) * start[key] + fraction * end[key], dst)
+                    )
+                )

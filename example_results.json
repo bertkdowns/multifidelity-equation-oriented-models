@@ -1,23 +1,20 @@
 [
   {
-    "fidelity": "fidelity_1",
-    "degrees_of_freedom": 0,
-    "hot_outlet_K": 353.50470314700283,
-    "cold_outlet_K": 315.19215847722967,
-    "heat_duty_W": 270768.2958196691
+    "fidelity": "lumped",
+    "hot_outlet_K": 353.5047031197992,
+    "cold_outlet_K": 315.1921585015515,
+    "heat_duty_W": 270768.2962590037
   },
   {
-    "fidelity": "fidelity_2",
-    "degrees_of_freedom": 0,
-    "hot_outlet_K": 353.5017759222032,
-    "cold_outlet_K": 315.19477672098367,
-    "heat_duty_W": 270815.57040287426
+    "fidelity": "distributed",
+    "hot_outlet_K": 353.5017989380832,
+    "cold_outlet_K": 315.1947561346329,
+    "heat_duty_W": 270815.1986981402
   },
   {
-    "fidelity": "fidelity_1",
-    "degrees_of_freedom": 0,
-    "hot_outlet_K": 353.50470314700436,
-    "cold_outlet_K": 315.19215847721773,
-    "heat_duty_W": 270768.2958196393
+    "fidelity": "lumped",
+    "hot_outlet_K": 353.5047031197992,
+    "cold_outlet_K": 315.19215850155143,
+    "heat_duty_W": 270768.2962590037
   }
 ]

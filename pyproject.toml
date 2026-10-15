@@ -1,7 +1,7 @@
 [project]
 name = "multifidelity"
 version = "0.1.0"
-description = "Add your description here"
+description = "A heat exchanger with shared public variables and selectable formulations"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
@@ -9,3 +9,14 @@ dependencies = [
     "pyomo==6.9.2",
     "pytest>=8,<10",
 ]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
