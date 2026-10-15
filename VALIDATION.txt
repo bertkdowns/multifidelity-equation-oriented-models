@@ -1,0 +1,5 @@
+Validated with Python 3.12, IDAES 2.8.0, Pyomo 6.9.2 and IPOPT 3.13.2.
+Full test suite: 5 passed.
+Failure cleanup test re-run after strengthening assertions: 1 passed.
+Final example: 0D -> 1D -> 0D, optimal termination and zero degrees of freedom at each stage.
+See example_results.json for the final numerical results.

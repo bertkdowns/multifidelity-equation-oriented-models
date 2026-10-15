@@ -1,0 +1,23 @@
+[
+  {
+    "fidelity": "fidelity_1",
+    "degrees_of_freedom": 0,
+    "hot_outlet_K": 353.50470314700283,
+    "cold_outlet_K": 315.19215847722967,
+    "heat_duty_W": 270768.2958196691
+  },
+  {
+    "fidelity": "fidelity_2",
+    "degrees_of_freedom": 0,
+    "hot_outlet_K": 353.5017759222032,
+    "cold_outlet_K": 315.19477672098367,
+    "heat_duty_W": 270815.57040287426
+  },
+  {
+    "fidelity": "fidelity_1",
+    "degrees_of_freedom": 0,
+    "hot_outlet_K": 353.50470314700436,
+    "cold_outlet_K": 315.19215847721773,
+    "heat_duty_W": 270768.2958196393
+  }
+]
