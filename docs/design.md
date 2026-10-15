@@ -68,6 +68,14 @@ holdup, or phase equilibrium. Numerical validation uses single-phase liquid BTX.
 
 ## Fidelity interface
 
+`MultiFidelityMixin` supplies `build_fidelities(builders, shared)`,
+`select_fidelity(name)`, and `active_fidelity`. Equipment models inherit it
+alongside their Pyomo/IDAES base and explicitly call `build_fidelities()` after
+constructing their public physical interface. The mixin creates the named blocks,
+calls each builder, and selects the first fidelity. It treats `shared` as opaque
+and leaves physical state construction and initialization to the equipment.
+It does not override the equipment's `build()` lifecycle.
+
 ```python
 class MyFidelity:
     def build(self, block, shared):

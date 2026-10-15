@@ -7,8 +7,9 @@ from idaes.core.solvers import get_solver
 from idaes.core.util.config import is_physical_parameter_block
 from idaes.core.util.exceptions import InitializationError
 from pyomo.common.config import ConfigValue
-from pyomo.environ import Block, Expression, Var, check_optimal_termination, value
+from pyomo.environ import Expression, Var, check_optimal_termination, value
 
+from .base import MultiFidelityMixin
 from .fidelities import DistributedHX, LumpedHX
 from .interface import SharedHX
 from .properties import convert, enthalpy_flow, interpolate, states
@@ -29,7 +30,7 @@ def fixed_inputs(variables):
 
 
 @declare_process_block_class("HeatExchanger")
-class HeatExchangerData(UnitModelBlockData):
+class HeatExchangerData(MultiFidelityMixin, UnitModelBlockData):
     CONFIG = UnitModelBlockData.CONFIG()
     CONFIG.declare(
         "hot_side_property_package", ConfigValue(domain=is_physical_parameter_block)
@@ -83,7 +84,7 @@ class HeatExchangerData(UnitModelBlockData):
             self.length,
             self.heat_duty,
         )
-        self._builders = (
+        builders = (
             self.config.fidelities
             if self.config.fidelities is not None
             else {
@@ -91,29 +92,7 @@ class HeatExchangerData(UnitModelBlockData):
                 "distributed": DistributedHX(),
             }
         )
-        if not self._builders:
-            raise ValueError("At least one fidelity is required")
-        self.formulations = Block(list(self._builders))
-        self.fidelities = {name: self.formulations[name] for name in self._builders}
-        for name, builder in self._builders.items():
-            builder.build(self.fidelities[name], self._shared)
-        self.select_fidelity(next(iter(self.fidelities)))
-
-    @property
-    def active_fidelity(self):
-        names = [name for name, block in self.fidelities.items() if block.active]
-        if len(names) != 1:
-            raise RuntimeError("Expected exactly one active fidelity")
-        return names[0]
-
-    def select_fidelity(self, name):
-        """Select equations while preserving all variable values and fixations."""
-        if name not in self.fidelities:
-            raise ValueError(
-                f"Unknown fidelity {name!r}; choose from {tuple(self.fidelities)}"
-            )
-        for candidate, block in self.fidelities.items():
-            block.activate() if candidate == name else block.deactivate()
+        self.build_fidelities(builders, self._shared)
 
     def initialize_build(self, *, solver=None, optarg=None):
         """Initialize the selected formulation at the current inlet/design values."""
