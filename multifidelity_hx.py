@@ -122,7 +122,7 @@ class MultiFidelityHeatExchangerData(UnitModelBlockData):
                     duty = sum(outlet.get_enthalpy_flow_terms(p) -
                                inlet.get_enthalpy_flow_terms(p) for p in cold.phase_list)
                     links.add(self.heat_duty[t] == _convert(duty, self.heat_duty[t]))
-        self.select_fidelity(1, seed=False)
+        self.select_fidelity(1)
 
     @property
     def active_fidelity(self):
@@ -131,11 +131,11 @@ class MultiFidelityHeatExchangerData(UnitModelBlockData):
             raise RuntimeError('Expected exactly one active fidelity.')
         return selected[0]
 
-    def select_fidelity(self, fidelity, seed=True):
+    def select_fidelity(self, fidelity):
         """Select 1 (0D), 2 (1D), or one of the child objects; preserve specs.
 
-        Seeds state variables only. This is an initial guess, not an initialization
-        solve. Use initialize() before the subsequent flowsheet solve if needed.
+        Changes activation flags only. Call initialize() to transfer guesses
+        and initialize the selected model before solving if needed.
         """
         if isinstance(fidelity, int) and not isinstance(fidelity, bool) and fidelity in (1, 2):
             target = self.levels[fidelity - 1]
@@ -149,11 +149,9 @@ class MultiFidelityHeatExchangerData(UnitModelBlockData):
                 level.activate()
             else:
                 level.deactivate()
-        if seed:
-            self.seed_active_fidelity()
         return target
 
-    def seed_active_fidelity(self):
+    def _seed_active_fidelity(self):
         """Copy public boundary guesses; linearly interpolate 1D state profiles."""
         level = self.active_fidelity
         level.area.set_value(value(_convert(self.area, level.area)))
@@ -188,7 +186,7 @@ class MultiFidelityHeatExchangerData(UnitModelBlockData):
         those of IDAES initialize_build, e.g. solver='ipopt', optarg={...}.
         """
         level = self.active_fidelity
-        self.seed_active_fidelity()
+        self._seed_active_fidelity()
         # Built-in initializers also temporarily fix variables and deactivate
         # equations. Preserve their flags even if a solver fails partway through.
         fixed = [(v, v.fixed) for v in level.component_data_objects(Var)]

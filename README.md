@@ -64,7 +64,7 @@ hx.initialize(solver='ipopt')
 result = solver.solve(m)
 assert check_optimal_termination(result)
 
-hx.select_fidelity(2)  # Automatically deactivates fidelity_1 and seeds 1D.
+hx.select_fidelity(2)  # Automatically deactivates fidelity_1.
 hx.initialize(solver='ipopt')
 result = solver.solve(m)
 assert check_optimal_termination(result)
@@ -78,7 +78,7 @@ or pass a child object with `hx.select_fidelity(hx.levels[1])`.
 `select_fidelity()`; direct child activation or deactivation bypasses mutual
 exclusion. You may still deactivate the entire wrapper normally.
 
-`select_fidelity()` selects equations and seeds guesses. It does **not** run a solver
+`select_fidelity()` changes activation flags only; existing variable guesses are preserved. It does **not** run a solver
 or automatically choose the best fidelity. The example supplies the explicit
 0D → 1D → 0D solve sequence; a flowsheet meta-algorithm can use the same API.
 Do not recursively activate all descendant blocks, since that defeats the
@@ -121,7 +121,7 @@ and numerical tests use the same liquid package on both sides.
 
 ## Initialization and failure handling
 
-Selecting a fidelity copies public boundary values and specifications into
+Initializing a fidelity copies public boundary values and specifications into
 private variables. For 1D it also interpolates state-variable guesses between
 public inlet and outlet values, respecting countercurrent flow direction.
 Derived properties and derivatives are left for IDAES initialization to solve.
@@ -136,7 +136,7 @@ failure propagates to the caller; no silent model switch occurs.
 
 A caller can catch the failure, select the other fidelity, initialize it and
 solve the flowsheet. Failed numerical iterations can leave private variable
-guesses changed; selecting a fidelity reseeds its boundary/state guesses.
+guesses changed; calling `initialize()` again reseeds its boundary/state guesses.
 
 Use ordinary initialization tolerance (e.g. `1e-6`) and the desired final solve
 tolerance separately. During development, IPOPT's MA27 solver hit a workspace

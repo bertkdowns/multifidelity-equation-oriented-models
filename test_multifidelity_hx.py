@@ -19,7 +19,9 @@ def test_exclusive_activation_and_shared_interface():
     assert isinstance(h.fidelity_2, HeatExchanger1DData)
     ports = tuple(getattr(h, n) for n in ['hot_side_inlet', 'cold_side_outlet'])
     for level in (h.fidelity_2, h.fidelity_1, h.fidelity_2):
+        guesses = [(v, v.value) for v in h.component_data_objects(Var)]
         h.select_fidelity(level)
+        assert all(v.value == guess for v, guess in guesses)
         assert h.active_fidelity is level
         assert sum(x.active for x in h.levels) == 1
         assert degrees_of_freedom(m) == 0
