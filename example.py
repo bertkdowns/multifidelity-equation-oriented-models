@@ -50,7 +50,7 @@ def run():
         raise RuntimeError('IPOPT unavailable. Install IDAES solver extensions (see README).')
     results = []
     for level in hx.levels:
-        level.activate()  # Selects this model AND deactivates its sibling.
+        hx.select_fidelity(level)  # Selects this model and deactivates its sibling.
         assert degrees_of_freedom(m) == 0
         hx.initialize(solver='ipopt', optarg={'tol': 1e-6, 'max_iter': 500})
         status = solver.solve(m, tee=False)
@@ -58,7 +58,7 @@ def run():
             raise RuntimeError(f'{level.name}: {status.solver.termination_condition}')
         results.append(summarize(m))
     # A meta-algorithm can return to 0D without changing ports or specifications.
-    hx.fidelity_1.activate()
+    hx.select_fidelity(1)
     status = solver.solve(m)
     assert check_optimal_termination(status)
     results.append(summarize(m))

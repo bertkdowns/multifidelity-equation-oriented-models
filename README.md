@@ -5,8 +5,8 @@ mutually exclusive built-in IDAES heat exchanger implementations.
 
 | Wrapper child | Implementation | Thermal model |
 | --- | --- | --- |
-| `fidelity_1` | Subclass of IDAES `HeatExchanger` | 0D, countercurrent, LMTD |
-| `fidelity_2` | Subclass of IDAES `HeatExchanger1D` | 1D, countercurrent, Radau collocation |
+| `fidelity_1` | IDAES `HeatExchanger` | 0D, countercurrent, LMTD |
+| `fidelity_2` | IDAES `HeatExchanger1D` | 1D, countercurrent, Radau collocation |
 
 Both children exist in memory, but exactly one is active. Their `interface`
 blocks contain **all** equations linking their private variables to the public
@@ -59,26 +59,26 @@ hx.length.set_value(5)
 # See example.py for a complete set of numerical inlet specifications.
 
 solver = get_solver('ipopt')
-hx.fidelity_1.activate()  # Automatically deactivates fidelity_2.
+hx.select_fidelity(1)  # Automatically deactivates fidelity_2.
 hx.initialize(solver='ipopt')
 result = solver.solve(m)
 assert check_optimal_termination(result)
 
-hx.fidelity_2.activate()  # Automatically deactivates fidelity_1 and seeds 1D.
+hx.select_fidelity(2)  # Automatically deactivates fidelity_1 and seeds 1D.
 hx.initialize(solver='ipopt')
 result = solver.solve(m)
 assert check_optimal_termination(result)
 
-hx.fidelity_1.activate()  # Switch back; ports and process specifications persist.
+hx.select_fidelity(1)  # Switch back; ports and process specifications persist.
 ```
 
-Alternative selectors: `hx.select_fidelity(1)`, `hx.select_fidelity(2)`,
-`hx.select_fidelity(hx.levels[1])`, or `hx.levels[1].activate()`.
-`hx.active_fidelity` returns the selected block. Deactivating the selected
-child directly raises an error; select the other child instead. You may
-still deactivate the entire wrapper normally.
+Select by number with `hx.select_fidelity(1)` or `hx.select_fidelity(2)`,
+or pass a child object with `hx.select_fidelity(hx.levels[1])`.
+`hx.active_fidelity` returns the selected block. Always switch through
+`select_fidelity()`; direct child activation or deactivation bypasses mutual
+exclusion. You may still deactivate the entire wrapper normally.
 
-Activation selects equations and seeds guesses. It does **not** run a solver
+`select_fidelity()` selects equations and seeds guesses. It does **not** run a solver
 or automatically choose the best fidelity. The example supplies the explicit
 0D → 1D → 0D solve sequence; a flowsheet meta-algorithm can use the same API.
 Do not recursively activate all descendant blocks, since that defeats the

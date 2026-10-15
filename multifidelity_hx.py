@@ -10,34 +10,10 @@ from pyomo.network import Port
 from idaes.core import UnitModelBlockData, declare_process_block_class
 from idaes.core.util.config import is_physical_parameter_block
 from idaes.models.unit_models.heat_exchanger import (
-    HeatExchangerData, HeatExchangerFlowPattern,
+    HeatExchanger, HeatExchangerFlowPattern,
     delta_temperature_lmtd_callback,
 )
-from idaes.models.unit_models.heat_exchanger_1D import HeatExchanger1DData
-
-
-class _ExclusiveActivation:
-    def activate(self):
-        owner = self.__dict__.get('_fidelity_owner')
-        if owner is None:
-            return super().activate()
-        owner.select_fidelity(self)
-
-    def deactivate(self):
-        owner = self.__dict__.get('_fidelity_owner')
-        if owner is not None and self.active:
-            raise RuntimeError('Activate the other fidelity instead; exactly one must remain selected.')
-        super().deactivate()
-
-
-@declare_process_block_class('SelectableHX0D')
-class SelectableHX0DData(_ExclusiveActivation, HeatExchangerData):
-    pass
-
-
-@declare_process_block_class('SelectableHX1D')
-class SelectableHX1DData(_ExclusiveActivation, HeatExchanger1DData):
-    pass
+from idaes.models.unit_models.heat_exchanger_1D import HeatExchanger1D
 
 
 _PORTS = ('hot_side_inlet', 'hot_side_outlet', 'cold_side_inlet', 'cold_side_outlet')
@@ -74,19 +50,17 @@ class MultiFidelityHeatExchangerData(UnitModelBlockData):
                   hot_side={'property_package': hot},
                   cold_side={'property_package': cold})
         # The 0D API calls this option flow_pattern; the 1D API calls it flow_type.
-        self.fidelity_1 = SelectableHX0D(
+        self.fidelity_1 = HeatExchanger(
             **kw, delta_temperature_callback=delta_temperature_lmtd_callback)
         kw['flow_type'] = kw.pop('flow_pattern')
         for side in ('hot_side', 'cold_side'):
             kw[side].update(transformation_method='dae.collocation',
                             transformation_scheme='LAGRANGE-RADAU')
-        self.fidelity_2 = SelectableHX1D(
+        self.fidelity_2 = HeatExchanger1D(
             **kw, finite_elements=self.config.finite_elements,
             collocation_points=self.config.collocation_points)
         # A Python tuple of references; these are not re-parented Pyomo components.
         self.levels = (self.fidelity_1, self.fidelity_2)
-        for level in self.levels:
-            object.__setattr__(level, '_fidelity_owner', self)
 
         units = hot.get_metadata().get_derived_units
         time = self.flowsheet().time
@@ -169,12 +143,12 @@ class MultiFidelityHeatExchangerData(UnitModelBlockData):
             target = fidelity
         else:
             raise ValueError('Choose 1, 2, fidelity_1, or fidelity_2.')
-        # Bypass our overrides, without recursively changing any constraint flags.
+        # Change only child block flags, preserving their internal constraint flags.
         for level in self.levels:
             if level is target:
-                super(_ExclusiveActivation, level).activate()
+                level.activate()
             else:
-                super(_ExclusiveActivation, level).deactivate()
+                level.deactivate()
         if seed:
             self.seed_active_fidelity()
         return target

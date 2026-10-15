@@ -19,7 +19,7 @@ def test_exclusive_activation_and_shared_interface():
     assert isinstance(h.fidelity_2, HeatExchanger1DData)
     ports = tuple(getattr(h, n) for n in ['hot_side_inlet', 'cold_side_outlet'])
     for level in (h.fidelity_2, h.fidelity_1, h.fidelity_2):
-        level.activate()
+        h.select_fidelity(level)
         assert h.active_fidelity is level
         assert sum(x.active for x in h.levels) == 1
         assert degrees_of_freedom(m) == 0
@@ -29,8 +29,6 @@ def test_exclusive_activation_and_shared_interface():
             assert all(v not in private for v in identify_variables(con.body))
         assert h.hot_side_inlet is ports[0]
         assert h.cold_side_outlet is ports[1]
-    with pytest.raises(RuntimeError):
-        h.active_fidelity.deactivate()
     with pytest.raises(ValueError):
         h.select_fidelity(3)
     assert h.area.fixed
@@ -41,7 +39,7 @@ def test_exclusive_activation_and_shared_interface():
 def test_clone_owns_its_selector():
     m = build_model(finite_elements=2)
     other = m.clone()
-    other.fs.hx.fidelity_2.activate()
+    other.fs.hx.select_fidelity(2)
     assert other.fs.hx.active_fidelity is other.fs.hx.fidelity_2
     assert m.fs.hx.active_fidelity is m.fs.hx.fidelity_1
 
@@ -50,7 +48,7 @@ def test_initializer_restores_interface_and_fixations_on_failure(monkeypatch):
     m = build_model(finite_elements=2)
     h = m.fs.hx
     for level in h.levels:
-        level.activate()
+        h.select_fidelity(level)
         before = [(v, v.fixed) for v in level.component_data_objects(Var)]
         constraints = [(c, c.active) for c in level.component_data_objects(Constraint)]
         def fail(**kwargs):
@@ -86,7 +84,7 @@ def test_round_trip_solves_and_conserves_energy():
     h = m.fs.hx
     duties = []
     for level in (h.fidelity_1, h.fidelity_2, h.fidelity_1):
-        level.activate()
+        h.select_fidelity(level)
         h.initialize(solver='ipopt', optarg={'tol': 1e-6})
         assert check_optimal_termination(solver.solve(m))
         duties.append(value(h.heat_duty[0]))
@@ -123,7 +121,7 @@ def test_upstream_arc_survives_switch():
     m.fs.connection = Arc(source=m.fs.feed.outlet, destination=h.hot_side_inlet)
     TransformationFactory('network.expand_arcs').apply_to(m)
     for level in h.levels:
-        level.activate()
+        h.select_fidelity(level)
         assert degrees_of_freedom(m) == 0
         h.initialize(solver='ipopt')
         assert check_optimal_termination(solver.solve(m))
