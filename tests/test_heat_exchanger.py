@@ -69,7 +69,7 @@ def test_round_trip_preserves_specifications_and_physics(connected, solver):
         assert duties[-1] > 0
         assert hot_loss == pytest.approx(cold_gain, rel=1e-7)
         assert duties[-1] == pytest.approx(cold_gain, rel=1e-10)
-    assert duties[0] == pytest.approx(270768.3, rel=1e-5)
+    assert duties[0] == pytest.approx(166682.4509, rel=1e-5)
     assert duties[1] == pytest.approx(duties[0], rel=1e-3)
     assert duties[2] == pytest.approx(duties[0], rel=1e-8)
 

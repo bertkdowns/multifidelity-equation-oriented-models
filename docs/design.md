@@ -64,7 +64,7 @@ Common property helpers construct states and express stream balances; they do
 not own a second representation of the equipment. Property packages must expose
 temperature, pressure, state variables, and material/enthalpy flow terms. The
 initial implementation is steady state, with no pressure drop, reactions,
-holdup, or phase equilibrium. Numerical validation uses single-phase liquid BTX.
+holdup, or phase equilibrium. Numerical validation uses single-phase liquid water.
 
 ## Fidelity interface
 

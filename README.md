@@ -21,8 +21,9 @@ uv run pytest -q
 Numerical integration tests require IPOPT. An existing IPOPT installation or
 IDAES solver extensions (`uv run idaes get-extensions`) can supply it. Tests
 skip when IPOPT is unavailable. Dependencies are declared in `pyproject.toml`.
-The water example and Helmholtz-specific tests also need the IDAES Helmholtz
-extensions. Linear-only water properties work without those extensions.
+The heat-exchanger example uses linear liquid-water properties and needs no
+Helmholtz extensions. `examples/water.py` and Helmholtz-specific tests also need
+the IDAES Helmholtz extensions.
 
 ## Use
 
@@ -68,8 +69,8 @@ The first supplied fidelity is selected initially.
 | `fidelities` | Mapping from names to formulation blocks |
 | `active_fidelity` | Selected fidelity name |
 
-Public state-variable names depend on the property package. For the liquid BTX
-example, ports expose `flow_mol`, `temperature`, `pressure`, and `mole_frac_comp`.
+Public state-variable names depend on the property package. For the liquid-water
+example, ports expose `flow_mass`, `temperature`, and `pressure`.
 Defaults are initial guesses, not specifications. To specify duty, add an
 external constraint on `heat_duty[t]` and release a suitable specification;
 expressions cannot be fixed directly.
@@ -96,10 +97,10 @@ pressure drop, holdup, reactions, or phase equilibrium. The distributed model
 uses finite-volume cell balances rather than the former IDAES collocation
 implementation. Property packages must supply temperature, pressure, independent
 state variables, and material/enthalpy flow terms. Numerical validation uses
-single-phase liquid benzene/toluene.
+single-phase liquid water.
 
-For the example's 370/300 K inlets, 100/120 mol/s flows, 10 m² area and
-500 W/m²/K U, the lumped/distributed duties are approximately 270.768/270.815 kW.
+For the example's 370/300 K inlets, 1/1.2 kg/s flows, 10 m² area and
+500 W/m²/K U, the lumped/distributed duties are approximately 166.682/166.685 kW.
 
 The small integration suite checks connected round-trip solves, unchanged public
 specifications and values on selection, common DOF, units, energy conservation,
