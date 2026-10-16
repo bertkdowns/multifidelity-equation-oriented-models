@@ -2,7 +2,7 @@
 
 This is an academic research project focused on **initialization through
 fidelity changes** and **selective flowsheet refinement**. See the
-[research purpose](docs/research.md) for its goals and scope priorities.
+[research purpose](research-ideas/README.md) for its goals and scope priorities.
 
 An IDAES unit model with one public physical interface and two selectable
 formulations: lumped (0D, smooth LMTD) and distributed (1D, finite volume).
@@ -14,7 +14,8 @@ a constant-cp linear approximation and liquid IAPWS-95 Helmholtz equations,
 using the same fidelity interface and shared state variables.
 
 The [SGHP source-loop case study](case_studies/sghp/README.md) compares direct
-nonlinear solving, staged valve initialization, and residual-based refinement.
+nonlinear solving, staged valve initialization, residual-based refinement, and
+a basic valve fallback for continued low-flow analysis.
 Its [results and conclusions](case_studies/sghp/RESULTS.md) are recorded alongside
 the experimental inputs and numerical baseline.
 

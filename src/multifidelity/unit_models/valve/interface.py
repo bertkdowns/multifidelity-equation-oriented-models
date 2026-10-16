@@ -19,6 +19,7 @@ class SharedValve:
     alpha: ScalarParam
     pressure_drop: IndexedExpression
     nonlinear_residual: IndexedExpression
+    basic_residual: IndexedExpression
     nominal_flow: ScalarExpression
     nominal_Cv: ScalarParam
     nominal_pressure_drop: ScalarParam

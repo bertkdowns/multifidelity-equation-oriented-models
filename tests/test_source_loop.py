@@ -25,7 +25,7 @@ def test_source_loop_switch_preserves_specifications_and_conserves_energy(
     m = build_source_loop(property_fidelity=properties)
     set_initial_guesses(m, "reversed_pressure")
     flags = [(v, v.fixed, v.value) for v in public_variables(m) if v.fixed]
-    for fidelity in ("linear", "pressure_flow", "linear", "pressure_flow"):
+    for fidelity in ("linear", "basic", "pressure_flow", "linear", "pressure_flow"):
         before = [(v, v.value, v.fixed) for v in public_variables(m)]
         m.fs.valve.select_fidelity(fidelity)
         assert all(v.value == old and v.fixed == fixed for v, old, fixed in before)
@@ -93,3 +93,41 @@ def test_residual_trigger_selects_required_valve_fidelity(
         "pressure_flow" if refined else "linear"
     )
     assert abs(result["final"]["nonlinear_residual"]) < (1e-6 if refined else 1e-3)
+
+
+@pytest.mark.parametrize("properties", ["linear", "helmholtz"])
+@pytest.mark.parametrize(
+    "case, factor", [("below_control_range", 0.85), ("low_demand", 0.1)]
+)
+def test_basic_fallback_continues_low_flow_analysis_without_claiming_detailed_validity(
+    properties, case, factor, solver, tmp_path
+):
+    if properties == "helmholtz" and not iapws95_available():
+        pytest.skip("IDAES Helmholtz extensions required")
+    result = run_strategy(
+        case=case,
+        property_fidelity=properties,
+        start="reversed_pressure",
+        strategy="fallback",
+        output_dir=tmp_path,
+    )
+    assert not result["stages"][0]["detailed_validated"]
+    assert result["used_fallback"]
+    assert result["accepted"]
+    assert result["outcome"] == "fallback_accepted"
+    assert not result["detailed_validated"]
+    final = result["final"]
+    assert final["active_fidelity"] == "basic"
+    assert 0 < final["opening"] < 1
+    assert final["valve_pressure_drop_Pa"] > 0
+    assert abs(final["basic_residual"]) < 1e-6
+    assert abs(final["nonlinear_residual"]) > 1e-3
+    assert final["max_mass_error_kg_s"] < 1e-6
+    assert final["max_unit_energy_error_W"] < 1e-3
+    assert final["loop_energy_error_W"] < 1e-3
+    assert final["mass_flow_kg_s"] == pytest.approx(
+        reference_case()["specifications"]["mass_flow_kg_s"] * factor
+    )
+    assert result["elapsed_seconds"] == sum(
+        s["elapsed_seconds"] for s in result["stages"]
+    )

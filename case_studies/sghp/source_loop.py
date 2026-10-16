@@ -30,7 +30,14 @@ def reference_case():
     )
 
 
-def build_source_loop(*, property_fidelity="linear", flow_factor=1.0, pressure_Pa=None):
+def build_source_loop(
+    *,
+    property_fidelity="linear",
+    flow_factor=1.0,
+    pressure_Pa=None,
+    duty_factor=1.0,
+    pump_power_factor=1.0,
+):
     data = reference_case()
     specs = data["specifications"]
     ref = data["reference_solution"]
@@ -65,8 +72,8 @@ def build_source_loop(*, property_fidelity="linear", flow_factor=1.0, pressure_P
         specs["tank_pressure_Pa"] if pressure_Pa is None else pressure_Pa
     )
     m.fs.tank.heat_duty.fix(0)
-    m.fs.evaporator.heat_duty.fix(-specs["evaporator_heat_removed_W"])
-    m.fs.pump.work.fix(specs["pump_power_W"])
+    m.fs.evaporator.heat_duty.fix(-specs["evaporator_heat_removed_W"] * duty_factor)
+    m.fs.pump.work.fix(specs["pump_power_W"] * pump_power_factor)
     m.fs.pump.efficiency.fix(specs["pump_efficiency"])
     valve = m.fs.valve
     valve.Cv.fix(specs["valve_coefficient_m3_s_Pa_half"])

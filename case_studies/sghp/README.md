@@ -1,9 +1,11 @@
 # SGHP source-loop case study
 
-Research question: can a simpler valve pressure–flow formulation help initialize
-the detailed hydraulic model, and can a residual criterion avoid unnecessary
-refinement? This first experiment reconstructs the source-water loop rather
-than the complete SGHP. See [the results and conclusions](RESULTS.md).
+Research question: can a basic valve fallback keep thermal analysis usable when
+the detailed valve characteristic is unnecessary or inappropriate for a low-flow
+operating case? Initialization and residual-based refinement remain comparisons,
+but demonstrating an initialization advantage is not the priority for this valve.
+This experiment reconstructs the source-water loop rather than the complete
+SGHP. See [the results and conclusions](RESULTS.md).
 
 ## Repository responsibilities
 
@@ -14,7 +16,7 @@ src/multifidelity/
     unit_models/
         streams.py               # State/port and stream-balance helpers
         heat_exchanger/          # Shared interface, lumped and distributed physics
-        valve/                   # Shared interface, linear and pressure-flow physics
+        valve/                   # Shared interface, tangent, detailed, basic fallback
         pump/                    # Fixed-efficiency liquid pump
         thermal_conditioner/     # Zero-pressure-drop heater/cooler
 case_studies/sghp/
@@ -84,7 +86,22 @@ m0 = Cv0 f(u0) sqrt(deltaP0 rho0 rho_water)
 ```
 
 It is affine in its hydraulic quantities; the complete loop can still be
-nonlinear through pump and property equations. Both closures add one equation
+nonlinear through pump and property equations. A third formulation, `BasicValve`,
+uses a calibrated shutoff-capable law:
+
+```text
+m = K u deltaP
+K = (m0 / (u0 deltaP0)) (Cv / Cv0)
+```
+
+It matches the nominal point and permits zero flow at zero opening. It is
+linear in pressure drop at fixed opening, but bilinear when both are unknown.
+It deliberately changes the opening characteristic rather than approximating
+the detailed model's finite minimum opening flow. Use it via
+`valve.select_fidelity("basic")`; the original tangent remains `"linear"`.
+The calibration point must have positive opening and pressure drop.
+
+All closures add one equation
 per time point and use the same variables. The nonlinear residual is divided
 by the nominal squared volume-flow/specific-gravity term for a dimensionless
 comparison. The detailed constraint also uses this normalization, so this is
@@ -97,12 +114,18 @@ not a recreation of the remote solver's equation scaling.
   switch to nonlinear, and solve again. Stop if the linear solve fails.
 - **Selective:** solve linear, then upgrade only if the absolute normalized
   nonlinear residual exceeds 1e-3. Otherwise retain the approximation.
+- **Basic:** choose the coarse valve from the outset, for comparison.
+- **Fallback:** attempt the detailed valve, then switch to basic only after
+  failure in an explicitly eligible low-flow case. Retain a successful detailed
+  solution elsewhere. Record the failed attempt and the fallback outcome.
 
 Every strategy constructs a fresh model with identical specifications and
 starting guesses. There are no hidden unit/property initialization solves.
 Four starts exercise near-reference values, reversed valve pressures, equal
-pressures, and a wide-open valve. Four operating cases cover the reference,
+pressures, and a wide-open valve. Five operating cases cover the reference,
 20% higher flow, a lower pressure anchor, and a lower-flow control-range stress.
+The additional `low_demand` case scales flow, evaporator duty, and pump power to
+10% of nominal. It is a low-demand proxy, not a model of complete shutdown.
 The full grid runs separately with linear water and Helmholtz water properties.
 Temperature guesses use the tank target, reduced by 10 K after the evaporator;
 both strategies use the same elementary constant-cp property guesses. These are
@@ -112,8 +135,26 @@ Direct/staged success requires the nonlinear block to be active, successful
 termination, normalized nonlinear residual below 1e-6, positive pressure drop,
 mass error below 1e-6 kg/s, and unit energy error below 1e-3 W. Selective
 acceptance can retain a linear block at the looser 1e-3 nonlinear residual;
-this is labeled separately from detailed validation. Engineering error is
+this is labeled separately from detailed validation. Basic/fallback acceptance
+requires the selected basic equation, successful termination, conservation,
+and positive pressure drop; it does not require agreement with the rejected
+detailed characteristic. Its detailed residual remains in the results.
+Engineering error is
 checked against a separately solved detailed root at the same operating case.
+When no admissible detailed root is available, reference errors are null.
+
+`FALLBACK_CASES` in `experiments.py` makes the eligibility assumption explicit:
+`below_control_range` and `low_demand`. This is a research policy, not proof that
+the valve is noncritical in the actual SGHP. The 85%-flow stress case retains
+nominal heat removal and must not be described as plant-off operation. No fallback
+policy is embedded in the generic fidelity mixin or valve model.
+
+Outcomes distinguish `detailed_validated`, `retained_approximation`,
+`basic_comparison`, `fallback_accepted`, and `failed`. Fallback acceptance means
+the selected model supports continued analysis, not that the original detailed
+problem has been solved. Thermal outputs in this reduced loop are strongly
+constrained by prescribed heat removal, pump work, and flow; their preservation
+does not establish irrelevance of the valve in a fully coupled SGHP.
 
 Total iterations and solve wall time include every stage. Model construction
 time is recorded separately. A diagnostic negative-opening relaxation is

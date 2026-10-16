@@ -19,6 +19,7 @@ from pyomo.environ import (
 
 from ...base import Fidelity, MultiFidelityMixin, fixed_inputs
 from ..streams import add_stream_ports, stream_balance
+from .basic import BasicValve
 from .interface import SharedValve
 from .linear import LinearValve
 from .pressure_flow import PressureFlowValve
@@ -77,6 +78,17 @@ class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
                 )
             ),
         )
+        # m = K*u*deltaP. K matches the nominal point; unlike equal-percentage
+        # opening, this deliberately coarse law permits shutoff at u=0.
+        self.basic_residual = Expression(
+            time,
+            rule=lambda b, t: (
+                b.inlet_state[t].flow_mass / b.nominal_flow
+                - (b.Cv / b.nominal_Cv)
+                * (b.opening[t] / b.nominal_opening)
+                * (b.pressure_drop[t] / b.nominal_pressure_drop)
+            ),
+        )
         self.balances = Block(time)
         for t in time:
             stream_balance(
@@ -95,6 +107,7 @@ class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
             self.alpha,
             self.pressure_drop,
             self.nonlinear_residual,
+            self.basic_residual,
             self.nominal_flow,
             self.nominal_Cv,
             self.nominal_pressure_drop,
@@ -108,6 +121,7 @@ class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
             else {
                 "linear": LinearValve(),
                 "pressure_flow": PressureFlowValve(),
+                "basic": BasicValve(),
             }
         )
         self.build_fidelities(builders, shared)

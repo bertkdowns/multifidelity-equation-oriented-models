@@ -1,6 +1,6 @@
 # Shared-state heat exchanger design
 
-These design principles serve the [research purpose](research.md): initialization
+These design principles serve the [research purpose](../research-ideas/README.md): initialization
 through fidelity changes and selective refinement. Implementation complexity
 should be justified by those aims.
 
@@ -128,6 +128,12 @@ changes flags is responsible for restoring its changes in `finally`.
 The caller owns solving the complete flowsheet, choosing fidelities, fallback
 policy, and accuracy assessment. Initialization uses current inlet values; a
 flowsheet initializer must initialize upstream equipment first.
+
+Fallback can deliberately retain a coarser model when appropriate to the
+research question. Acceptance under that model must be distinguished from
+validation of the detailed equations. The valve library therefore offers both
+a tangent approximation and a basic shutoff-capable correlation; experiment
+policy, rather than the mixin, decides whether fallback is acceptable.
 
 ## Property fidelities
 

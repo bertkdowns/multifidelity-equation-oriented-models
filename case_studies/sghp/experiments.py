@@ -1,4 +1,4 @@
-"""Controlled direct, staged, and residual-triggered valve refinement experiments.
+"""Controlled initialization, refinement, and purpose-specific fallback experiments.
 
 Run from the repository root: uv run python -m case_studies.sghp.experiments
 """
@@ -32,7 +32,12 @@ OPERATING_CASES = {
     "higher_flow": {"flow_factor": 1.2},
     "lower_pressure": {"pressure_Pa": 250000},
     "below_control_range": {"flow_factor": 0.85},
+    "low_demand": {"flow_factor": 0.1, "duty_factor": 0.1, "pump_power_factor": 0.1},
 }
+STRATEGIES = ("direct", "staged", "selective", "basic", "fallback")
+# An explicit research assumption, not an automatic judgment of plant relevance.
+# Only these low-flow cases permit accepting a different valve characteristic.
+FALLBACK_CASES = {"below_control_range", "low_demand"}
 SOLVER_OPTIONS = {"tol": 1e-8, "max_iter": 200}
 REFINEMENT_THRESHOLD = 1e-3
 
@@ -64,7 +69,12 @@ def measurements(model):
         "valve_pressure_drop_Pa": value(fs.valve.pressure_drop[0]),
         "suction_pressure_Pa": value(fs.valve.outlet.pressure[0]),
         "source_heat_added_W": value(fs.heater.heat_duty[0]),
+        "mass_flow_kg_s": value(fs.heater.outlet.flow_mass[0]),
+        "evaporator_heat_removed_W": -value(fs.evaporator.heat_duty[0]),
+        "pump_power_W": value(fs.pump.work[0]),
+        "pump_supply_temperature_K": value(fs.pump.outlet.temperature[0]),
         "nonlinear_residual": value(fs.valve.nonlinear_residual[0]),
+        "basic_residual": value(fs.valve.basic_residual[0]),
         "max_mass_error_kg_s": max(mass_errors),
         "max_unit_energy_error_W": max(unit_energy_errors),
         "loop_energy_error_W": abs(
@@ -126,10 +136,16 @@ def run_strategy(*, case, property_fidelity, start, strategy, output_dir):
     prefix = f"{property_fidelity}_{case}_{start}_{strategy}"
     initial = measurements(model)
     stages = []
-    first = "pressure_flow" if strategy == "direct" else "linear"
+    first = (
+        "pressure_flow"
+        if strategy in ("direct", "fallback")
+        else "basic"
+        if strategy == "basic"
+        else "linear"
+    )
     stages.append(solve_stage(model, first, output_dir / f"{prefix}_0.log"))
     refined = False
-    if stages[0]["successful"] and strategy != "direct":
+    if stages[0]["successful"] and strategy in ("staged", "selective"):
         refined = (
             strategy == "staged"
             or abs(stages[0]["metrics"]["nonlinear_residual"]) > REFINEMENT_THRESHOLD
@@ -138,15 +154,30 @@ def run_strategy(*, case, property_fidelity, start, strategy, output_dir):
             stages.append(
                 solve_stage(model, "pressure_flow", output_dir / f"{prefix}_1.log")
             )
+    used_fallback = False
+    if (
+        strategy == "fallback"
+        and not stages[0]["detailed_validated"]
+        and case in FALLBACK_CASES
+    ):
+        used_fallback = True
+        stages.append(
+            solve_stage(model, "basic", output_dir / f"{prefix}_fallback.log")
+        )
     final = stages[-1]
     accepted = final["successful"] and final["metrics"]["valve_pressure_drop_Pa"] >= 0
-    if strategy == "selective" and not refined:
+    if strategy == "basic" or used_fallback:
+        accepted = accepted and abs(final["metrics"]["basic_residual"]) < 1e-6
+        outcome = "fallback_accepted" if used_fallback else "basic_comparison"
+    elif strategy == "selective" and not refined:
         accepted = (
             accepted
             and abs(final["metrics"]["nonlinear_residual"]) <= REFINEMENT_THRESHOLD
         )
+        outcome = "retained_approximation"
     else:
         accepted = accepted and final["detailed_validated"]
+        outcome = "detailed_validated"
     return {
         "case": case,
         "property_fidelity": property_fidelity,
@@ -155,6 +186,12 @@ def run_strategy(*, case, property_fidelity, start, strategy, output_dir):
         "initial": initial,
         "stages": stages,
         "refined": refined,
+        "used_fallback": used_fallback,
+        "outcome": outcome if accepted else "failed",
+        "fallback_reason": "Detailed valve failed in an explicitly eligible low-flow case"
+        if used_fallback
+        else None,
+        "stage_terminations": [s["termination"] for s in stages],
         "accepted": bool(accepted),
         "detailed_validated": final["detailed_validated"],
         "build_seconds": build_seconds,
@@ -176,7 +213,7 @@ def run_experiments(output_dir=None):
     for prop in properties:
         for case in OPERATING_CASES:
             for start in reference_case()["initial_guesses"]:
-                for strategy in ("direct", "staged", "selective"):
+                for strategy in STRATEGIES:
                     result = run_strategy(
                         case=case,
                         property_fidelity=prop,
@@ -206,8 +243,16 @@ def run_experiments(output_dir=None):
             if reference["accepted"] and run["accepted"]
             else None
         )
+        run["source_heat_error_vs_reference_W"] = (
+            abs(
+                run["final"]["source_heat_added_W"]
+                - reference["final"]["source_heat_added_W"]
+            )
+            if reference["accepted"] and run["accepted"]
+            else None
+        )
     # A diagnostic relaxation, excluded from strategy statistics: a negative
-    # required opening explains why lower fidelity cannot rescue this target.
+    # required opening explains why this target cannot use the detailed law.
     probes = []
     for prop in properties:
         model = build_source_loop(
@@ -234,6 +279,10 @@ def run_experiments(output_dir=None):
         },
         "solver_options": SOLVER_OPTIONS,
         "refinement_threshold": REFINEMENT_THRESHOLD,
+        "fallback_policy": {
+            "eligible_cases": sorted(FALLBACK_CASES),
+            "rationale": "Accept conserved basic-model results for continued thermal analysis; not detailed valve validation",
+        },
         "helmholtz_available": iapws95_available(),
         "operating_cases": OPERATING_CASES,
         "reference_case": reference_case(),
@@ -250,7 +299,7 @@ def summary_table(report):
         "| --- | --- | --- | --- | --- | --- |",
     ]
     for prop in sorted({r["property_fidelity"] for r in report["runs"]}):
-        for strategy in ("direct", "staged", "selective"):
+        for strategy in STRATEGIES:
             runs = [
                 r
                 for r in report["runs"]
@@ -279,9 +328,14 @@ def save_baseline_summary(report, path):
         "accepted",
         "detailed_validated",
         "refined",
+        "used_fallback",
+        "outcome",
+        "fallback_reason",
+        "stage_terminations",
         "iterations",
         "elapsed_seconds",
         "opening_error_vs_reference",
+        "source_heat_error_vs_reference_W",
         "final",
     )
     summary = {
@@ -291,6 +345,7 @@ def save_baseline_summary(report, path):
             "environment",
             "solver_options",
             "refinement_threshold",
+            "fallback_policy",
             "operating_cases",
             "reference_case",
             "diagnostic_bound_relaxations",
