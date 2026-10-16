@@ -1,5 +1,9 @@
 # Shared-state heat exchanger design
 
+These design principles serve the [research purpose](research.md): initialization
+through fidelity changes and selective refinement. Implementation complexity
+should be justified by those aims.
+
 ## Core principles
 
 1. **Consistent physical meaning.** Every public quantity has the same meaning,
@@ -22,6 +26,19 @@
 7. **Test contracts through integration.** Verify connected solves, physical
    conservation, equal DOF under common specifications, and recovery from failed
    initialization. Do not test internal layout or helper-call sequences.
+
+## Model libraries and research cases
+
+Generic fidelity assembly, selection, and its typed protocol live in `base.py`.
+Equipment models live in `unit_models/<unit_name>/` and properties in
+`property_models/`. Shared stream helpers belong with the unit-model library.
+Equipment-specific interfaces and physics must not leak into the generic mixin.
+The top-level package exports the main models for convenient imports.
+
+`case_studies/` owns reconstruction assumptions, reference data, starting
+guesses, experimental solve strategies, and written conclusions. The first case
+is the [SGHP source loop](../case_studies/sghp/README.md). Research-specific
+nominal values are set by the case, rather than hard-coded in library models.
 
 ## Specifications and structural diagnosis
 

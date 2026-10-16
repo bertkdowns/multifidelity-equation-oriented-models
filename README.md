@@ -1,4 +1,8 @@
-# Shared-state heat exchanger
+# Multi-fidelity process modeling research
+
+This is an academic research project focused on **initialization through
+fidelity changes** and **selective flowsheet refinement**. See the
+[research purpose](docs/research.md) for its goals and scope priorities.
 
 An IDAES unit model with one public physical interface and two selectable
 formulations: lumped (0D, smooth LMTD) and distributed (1D, finite volume).
@@ -9,12 +13,23 @@ The package also provides [selectable liquid-water properties](docs/water.md):
 a constant-cp linear approximation and liquid IAPWS-95 Helmholtz equations,
 using the same fidelity interface and shared state variables.
 
+The [SGHP source-loop case study](case_studies/sghp/README.md) compares direct
+nonlinear solving, staged valve initialization, and residual-based refinement.
+Its [results and conclusions](case_studies/sghp/RESULTS.md) are recorded alongside
+the experimental inputs and numerical baseline.
+
+Reusable equipment lives under `src/multifidelity/unit_models/`, with one
+subfolder per unit model. Water properties live under `property_models/`;
+`base.py` contains the generic fidelity workflow. Case-specific construction
+and research algorithms live under `case_studies/`.
+
 ## Run
 
 ```bash
 uv sync
 uv run python examples/heat_exchanger.py
 uv run python examples/water.py
+uv run python -m case_studies.sghp.experiments
 uv run pytest -q
 ```
 

@@ -17,7 +17,15 @@ def convert(source, target):
     return u.convert(source, to_units=u.get_units(target))
 
 
-def stream_balance(block, inlet, outlet, heat=None):
+def add_stream_ports(unit, package):
+    """Create the two public state blocks of a stream-processing unit."""
+    for name in ("inlet", "outlet"):
+        state = states(package, unit.flowsheet().time, inlet=name == "inlet")
+        unit.add_component(f"{name}_state", state)
+        unit.add_port(name, state)
+
+
+def stream_balance(block, inlet, outlet, heat=None, *, preserve_pressure=True):
     """Steady stream balance: heat is positive into the stream."""
     block.material = Constraint(
         inlet.component_list,
@@ -26,9 +34,10 @@ def stream_balance(block, inlet, outlet, heat=None):
             == sum(outlet.get_material_flow_terms(p, j) for p in outlet.phase_list)
         ),
     )
-    block.pressure = Constraint(
-        expr=outlet.pressure == convert(inlet.pressure, outlet.pressure)
-    )
+    if preserve_pressure:
+        block.pressure = Constraint(
+            expr=outlet.pressure == convert(inlet.pressure, outlet.pressure)
+        )
     if heat is not None:
         block.energy = Constraint(
             expr=enthalpy_flow(outlet) - enthalpy_flow(inlet)

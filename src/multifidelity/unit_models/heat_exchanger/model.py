@@ -11,10 +11,11 @@ from pyomo.environ import Expression, Var, check_optimal_termination, value
 from pyomo.opt import SolverResults
 from pyomo.opt.base.solvers import OptSolver
 
-from .base import Fidelity, MultiFidelityMixin, fixed_inputs
-from .fidelities import DistributedHX, LumpedHX
+from ...base import Fidelity, MultiFidelityMixin, fixed_inputs
+from .distributed import DistributedHX
+from .lumped import LumpedHX
 from .interface import SharedHX
-from .properties import convert, enthalpy_flow, interpolate, states
+from ..streams import convert, enthalpy_flow, interpolate, states
 
 
 @declare_process_block_class("HeatExchanger")

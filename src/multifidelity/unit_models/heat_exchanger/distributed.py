@@ -5,8 +5,8 @@ from pyomo.environ import Block, Constraint, Expression, RangeSet, Var, value
 from pyomo.opt import SolverResults
 from pyomo.opt.base.solvers import OptSolver
 
-from ..interface import SharedHX
-from ..properties import convert, interpolate, states, stream_balance
+from .interface import SharedHX
+from ..streams import convert, interpolate, states, stream_balance
 
 
 class DistributedHX:

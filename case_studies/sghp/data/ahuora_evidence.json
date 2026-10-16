@@ -1,0 +1,2056 @@
+{
+  "flowsheet": {
+    "id": 3060,
+    "name": "Multi-steady state version",
+    "project_id": 1773,
+    "content_revision": 83,
+    "current_state_id": 2224,
+    "root_grouping_id": 4580,
+    "captured_at": "2026-10-16T02:31:32.463154Z"
+  },
+  "units": [
+    {
+      "id": 1718039,
+      "name": "HP-EVP01 Evaporator",
+      "type": "duty_heat_exchanger",
+      "properties": [
+        {
+          "key": "heat_duty",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 1300645,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 46.30839421817675,
+              "displayValue": 43.15728921070722,
+              "enabled": true,
+              "formula": null,
+              "tag": "SOVF31_SOTT31_SOTT32_calorimetry",
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "hot_side.deltaP_inverted",
+          "unit": "Pa",
+          "values": [
+            {
+              "id": 1301060,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 0,
+              "displayValue": 0,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "cold_side.deltaP_inverted",
+          "unit": "Pa",
+          "values": [
+            {
+              "id": 1301064,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 0,
+              "displayValue": 0,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1718068,
+      "name": "SO-PU01 Source-water pump",
+      "type": "pump",
+      "properties": [
+        {
+          "key": "efficiency_pump",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 1300913,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 0.7,
+              "displayValue": 0.7,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "work_mechanical",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 1300916,
+              "controlManipulated": 19789,
+              "controlManipulatedName": "Pressure",
+              "controlManipulatedId": 1718091,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": "S60",
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 0.2146112719675113,
+              "displayValue": "1",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1718070,
+      "name": "PHNIX source heat input",
+      "type": "heater",
+      "properties": [
+        {
+          "key": "heat_duty",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 1300930,
+              "controlManipulated": 19739,
+              "controlManipulatedName": "Temperature",
+              "controlManipulatedId": 1718071,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": "SO PHNIX heated return",
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 46.09378294620924,
+              "displayValue": 43.15728921070722,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 1300931,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 0,
+              "displayValue": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "control_volume.phase_fraction",
+          "unit": "",
+          "values": [
+            {
+              "id": 1300937,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [
+                "Liq"
+              ],
+              "indexedSetNames": [
+                "Liquid"
+              ],
+              "value": null,
+              "displayValue": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            },
+            {
+              "id": 1300938,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [
+                "Vap"
+              ],
+              "indexedSetNames": [
+                "Vapor"
+              ],
+              "value": null,
+              "displayValue": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "dynamics",
+          "unit": "",
+          "values": [
+            {
+              "id": 1300939,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": false,
+              "displayValue": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "initial_material_accumulation",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 1301033,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [
+                "Liq",
+                "water"
+              ],
+              "indexedSetNames": [
+                "Liquid",
+                "water"
+              ],
+              "value": 0,
+              "displayValue": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            },
+            {
+              "id": 1301034,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [
+                "Vap",
+                "water"
+              ],
+              "indexedSetNames": [
+                "Vapor",
+                "water"
+              ],
+              "value": 0,
+              "displayValue": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "initial_energy_accumulation",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 1300940,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [
+                "Liq"
+              ],
+              "indexedSetNames": [
+                "Liquid"
+              ],
+              "value": 0,
+              "displayValue": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            },
+            {
+              "id": 1300941,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [
+                "Vap"
+              ],
+              "indexedSetNames": [
+                "Vapor"
+              ],
+              "value": 0,
+              "displayValue": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1718072,
+      "name": "SO-ST01 Holdup tank (steady)",
+      "type": "cooler",
+      "properties": [
+        {
+          "key": "heat_duty_inverted",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 1300957,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 0,
+              "displayValue": 0,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 1300958,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 0,
+              "displayValue": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1718089,
+      "name": "SO net Pressure-flow Drop",
+      "type": "valve_fixed_coefficient",
+      "properties": [
+        {
+          "key": "Cv",
+          "unit": "m^3/h/(Pa^0.5)",
+          "values": [
+            {
+              "id": 1301182,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 1,
+              "displayValue": "2",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "valve_opening",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 1301183,
+              "controlManipulated": 19774,
+              "controlManipulatedName": "Mass Flow",
+              "controlManipulatedId": 1718071,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": "SO PHNIX heated return",
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": 0.033309918350096904,
+              "displayValue": "1",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        },
+        {
+          "key": "valve_function",
+          "unit": "",
+          "values": [
+            {
+              "id": 1301184,
+              "controlManipulated": null,
+              "controlManipulatedName": null,
+              "controlManipulatedId": null,
+              "controlSetPoint": null,
+              "controlSetPointName": null,
+              "controlSetPointId": null,
+              "controlManipulatedObject": null,
+              "controlSetPointObject": null,
+              "controlManipulatedStructuralValidationBypassed": false,
+              "controlSetPointStructuralValidationBypassed": false,
+              "indexedSets": [],
+              "indexedSetNames": [],
+              "value": "equal_percentage",
+              "displayValue": "equal_percentage",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "flowsheet": 3060
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "historical_runs": [
+    {
+      "run_id": 10853,
+      "run_number": 24,
+      "valve": [
+        {
+          "values": [
+            -53.23537688926537
+          ],
+          "axes": [],
+          "solve_indexes": null,
+          "child_solve_run_ids": null,
+          "source_property_value_id": 1301180,
+          "property_label": "SO net Pressure-flow Drop — Pressure Drop",
+          "owner_object_id": 1718089,
+          "unit": "kPa",
+          "source_unit": "kg/m/s**2",
+          "unknown_units": false
+        },
+        {
+          "values": [
+            1.2129415075570615
+          ],
+          "axes": [],
+          "solve_indexes": null,
+          "child_solve_run_ids": null,
+          "source_property_value_id": 1301181,
+          "property_label": "SO net Pressure-flow Drop — Pressure Ratio",
+          "owner_object_id": 1718089,
+          "unit": "dimensionless",
+          "source_unit": "dimensionless",
+          "unknown_units": false
+        },
+        {
+          "values": [
+            1
+          ],
+          "axes": [],
+          "solve_indexes": null,
+          "child_solve_run_ids": null,
+          "source_property_value_id": 1301182,
+          "property_label": "SO net Pressure-flow Drop — Valve Coefficient",
+          "owner_object_id": 1718089,
+          "unit": "m^3/h/(Pa^0.5)",
+          "source_unit": "m**3.5/kg**0.5",
+          "unknown_units": false
+        },
+        {
+          "values": [
+            0
+          ],
+          "axes": [],
+          "solve_indexes": null,
+          "child_solve_run_ids": null,
+          "source_property_value_id": 1301183,
+          "property_label": "SO net Pressure-flow Drop — Valve Opening",
+          "owner_object_id": 1718089,
+          "unit": "dimensionless",
+          "source_unit": "dimensionless",
+          "unknown_units": false
+        }
+      ],
+      "streams": [
+        [
+          {
+            "values": [
+              1.1483901678761856
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300959,
+            "property_label": "SO tank outlet — Mass Flow",
+            "owner_object_id": 1718073,
+            "unit": "kg/s",
+            "source_unit": "kg/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              63.74538352003343
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300960,
+            "property_label": "SO tank outlet — Molar Flow",
+            "owner_object_id": 1718073,
+            "unit": "mol/s",
+            "source_unit": "mol/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              63.145416666714596
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300961,
+            "property_label": "SO tank outlet — Temperature",
+            "owner_object_id": 1718073,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              250
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300962,
+            "property_label": "SO tank outlet — Pressure",
+            "owner_object_id": 1718073,
+            "unit": "kPa",
+            "source_unit": "Pa",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300963,
+            "property_label": "SO tank outlet — Vapor Fraction",
+            "owner_object_id": 1718073,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              127.41140647379848
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300964,
+            "property_label": "SO tank outlet — Bubble Point (Saturated Liquid)",
+            "owner_object_id": 1718073,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              127.41140647379848
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300965,
+            "property_label": "SO tank outlet — Dew Point (Saturated Vapor)",
+            "owner_object_id": 1718073,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              4765.366685563488
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300966,
+            "property_label": "SO tank outlet — Molar Specific Enthalpy",
+            "owner_object_id": 1718073,
+            "unit": "kJ/kmol",
+            "source_unit": "J/mol",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              264.5182234071393
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300967,
+            "property_label": "SO tank outlet — Mass Specific Enthalpy",
+            "owner_object_id": 1718073,
+            "unit": "kJ/kg",
+            "source_unit": "J/kg",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              15.681238367602672
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300968,
+            "property_label": "SO tank outlet — Molar Specific Entropy",
+            "owner_object_id": 1718073,
+            "unit": "kJ/(kmol.K)",
+            "source_unit": "J/K/mol",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0.8704415814187538
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300969,
+            "property_label": "SO tank outlet — Mass Specific Entropy",
+            "owner_object_id": 1718073,
+            "unit": "kJ/(kg.K)",
+            "source_unit": "J/K/kg",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              303.7701269848351
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300970,
+            "property_label": "SO tank outlet — Total Energy Flow",
+            "owner_object_id": 1718073,
+            "unit": "kW",
+            "source_unit": "J/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0.0011698970613701213
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300971,
+            "property_label": "SO tank outlet — Volumetric Flow",
+            "owner_object_id": 1718073,
+            "unit": "m^3/s",
+            "source_unit": "m**3/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              1
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301043,
+            "property_label": "SO tank outlet — Compounds",
+            "owner_object_id": 1718073,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              1
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301044,
+            "property_label": "SO tank outlet — Phases",
+            "owner_object_id": 1718073,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301045,
+            "property_label": "SO tank outlet — Phases",
+            "owner_object_id": 1718073,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          }
+        ],
+        [
+          {
+            "values": [
+              1.1483901678760797
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301198,
+            "property_label": "S60 — Mass Flow",
+            "owner_object_id": 1718091,
+            "unit": "kg/s",
+            "source_unit": "kg/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              63.74538352002755
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301199,
+            "property_label": "S60 — Molar Flow",
+            "owner_object_id": 1718091,
+            "unit": "mol/s",
+            "source_unit": "mol/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              63.13482525175942
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301200,
+            "property_label": "S60 — Temperature",
+            "owner_object_id": 1718091,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              303.23537688926524
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301201,
+            "property_label": "S60 — Pressure",
+            "owner_object_id": 1718091,
+            "unit": "kPa",
+            "source_unit": "Pa",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301202,
+            "property_label": "S60 — Vapor Fraction",
+            "owner_object_id": 1718091,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              133.88857465856393
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301203,
+            "property_label": "S60 — Bubble Point (Saturated Liquid)",
+            "owner_object_id": 1718091,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              133.88857465856393
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301204,
+            "property_label": "S60 — Dew Point (Saturated Vapor)",
+            "owner_object_id": 1718091,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              4765.366685563331
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301205,
+            "property_label": "S60 — Molar Specific Enthalpy",
+            "owner_object_id": 1718091,
+            "unit": "kJ/kmol",
+            "source_unit": "J/mol",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              264.51822340713056
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301206,
+            "property_label": "S60 — Mass Specific Enthalpy",
+            "owner_object_id": 1718091,
+            "unit": "kJ/kg",
+            "source_unit": "J/kg",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              15.678333108438018
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301207,
+            "property_label": "S60 — Molar Specific Entropy",
+            "owner_object_id": 1718091,
+            "unit": "kJ/(kmol.K)",
+            "source_unit": "J/K/mol",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0.8702803149216553
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301208,
+            "property_label": "S60 — Mass Specific Entropy",
+            "owner_object_id": 1718091,
+            "unit": "kJ/(kg.K)",
+            "source_unit": "J/K/kg",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              303.770126984797
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301209,
+            "property_label": "S60 — Total Energy Flow",
+            "owner_object_id": 1718091,
+            "unit": "kW",
+            "source_unit": "J/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0.0011698625301080304
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301210,
+            "property_label": "S60 — Volumetric Flow",
+            "owner_object_id": 1718091,
+            "unit": "m^3/s",
+            "source_unit": "m**3/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              1
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301230,
+            "property_label": "S60 — Compounds",
+            "owner_object_id": 1718091,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              1
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301231,
+            "property_label": "S60 — Phases",
+            "owner_object_id": 1718091,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301232,
+            "property_label": "S60 — Phases",
+            "owner_object_id": 1718091,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          }
+        ]
+      ]
+    },
+    {
+      "run_id": 10910,
+      "run_number": 27,
+      "valve": [
+        {
+          "values": [
+            128.3548312633312
+          ],
+          "axes": [],
+          "solve_indexes": null,
+          "child_solve_run_ids": null,
+          "source_property_value_id": 1301180,
+          "property_label": "SO net Pressure-flow Drop — Pressure Drop",
+          "owner_object_id": 1718089,
+          "unit": "kPa",
+          "source_unit": "kg/m/s**2",
+          "unknown_units": false
+        },
+        {
+          "values": [
+            0.6073166544528484
+          ],
+          "axes": [],
+          "solve_indexes": null,
+          "child_solve_run_ids": null,
+          "source_property_value_id": 1301181,
+          "property_label": "SO net Pressure-flow Drop — Pressure Ratio",
+          "owner_object_id": 1718089,
+          "unit": "dimensionless",
+          "source_unit": "dimensionless",
+          "unknown_units": false
+        },
+        {
+          "values": [
+            1
+          ],
+          "axes": [],
+          "solve_indexes": null,
+          "child_solve_run_ids": null,
+          "source_property_value_id": 1301182,
+          "property_label": "SO net Pressure-flow Drop — Valve Coefficient",
+          "owner_object_id": 1718089,
+          "unit": "m^3/h/(Pa^0.5)",
+          "source_unit": "m**3.5/kg**0.5",
+          "unknown_units": false
+        },
+        {
+          "values": [
+            0.033309918350096904
+          ],
+          "axes": [],
+          "solve_indexes": null,
+          "child_solve_run_ids": null,
+          "source_property_value_id": 1301183,
+          "property_label": "SO net Pressure-flow Drop — Valve Opening",
+          "owner_object_id": 1718089,
+          "unit": "dimensionless",
+          "source_unit": "dimensionless",
+          "unknown_units": false
+        }
+      ],
+      "streams": [
+        [
+          {
+            "values": [
+              1.1489061402744511
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300959,
+            "property_label": "SO tank outlet — Mass Flow",
+            "owner_object_id": 1718073,
+            "unit": "kg/s",
+            "source_unit": "kg/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              63.77402435947393
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300960,
+            "property_label": "SO tank outlet — Molar Flow",
+            "owner_object_id": 1718073,
+            "unit": "mol/s",
+            "source_unit": "mol/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              63.14541666671329
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300961,
+            "property_label": "SO tank outlet — Temperature",
+            "owner_object_id": 1718073,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              326.86599194698704
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300962,
+            "property_label": "SO tank outlet — Pressure",
+            "owner_object_id": 1718073,
+            "unit": "kPa",
+            "source_unit": "Pa",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300963,
+            "property_label": "SO tank outlet — Vapor Fraction",
+            "owner_object_id": 1718073,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              136.47113208746129
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300964,
+            "property_label": "SO tank outlet — Bubble Point (Saturated Liquid)",
+            "owner_object_id": 1718073,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              136.47113208746129
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300965,
+            "property_label": "SO tank outlet — Dew Point (Saturated Vapor)",
+            "owner_object_id": 1718073,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              4766.519843836692
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300966,
+            "property_label": "SO tank outlet — Molar Specific Enthalpy",
+            "owner_object_id": 1718073,
+            "unit": "kJ/kmol",
+            "source_unit": "J/mol",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              264.5822334609006
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300967,
+            "property_label": "SO tank outlet — Mass Specific Enthalpy",
+            "owner_object_id": 1718073,
+            "unit": "kJ/kg",
+            "source_unit": "J/kg",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              15.68047262349197
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300968,
+            "property_label": "SO tank outlet — Molar Specific Entropy",
+            "owner_object_id": 1718073,
+            "unit": "kJ/(kmol.K)",
+            "source_unit": "J/K/mol",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0.8703990761331981
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300969,
+            "property_label": "SO tank outlet — Mass Specific Entropy",
+            "owner_object_id": 1718073,
+            "unit": "kJ/(kg.K)",
+            "source_unit": "J/K/kg",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              303.98015263075706
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300970,
+            "property_label": "SO tank outlet — Total Energy Flow",
+            "owner_object_id": 1718073,
+            "unit": "kW",
+            "source_unit": "J/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0.0011703825276683252
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1300971,
+            "property_label": "SO tank outlet — Volumetric Flow",
+            "owner_object_id": 1718073,
+            "unit": "m^3/s",
+            "source_unit": "m**3/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              1
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301043,
+            "property_label": "SO tank outlet — Compounds",
+            "owner_object_id": 1718073,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              1
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301044,
+            "property_label": "SO tank outlet — Phases",
+            "owner_object_id": 1718073,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301045,
+            "property_label": "SO tank outlet — Phases",
+            "owner_object_id": 1718073,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          }
+        ],
+        [
+          {
+            "values": [
+              1.1489061402744511
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301198,
+            "property_label": "S60 — Mass Flow",
+            "owner_object_id": 1718091,
+            "unit": "kg/s",
+            "source_unit": "kg/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              63.77402435947393
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301199,
+            "property_label": "S60 — Molar Flow",
+            "owner_object_id": 1718091,
+            "unit": "mol/s",
+            "source_unit": "mol/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              63.17095204067323
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301200,
+            "property_label": "S60 — Temperature",
+            "owner_object_id": 1718091,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              198.51116068365587
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301201,
+            "property_label": "S60 — Pressure",
+            "owner_object_id": 1718091,
+            "unit": "kPa",
+            "source_unit": "Pa",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301202,
+            "property_label": "S60 — Vapor Fraction",
+            "owner_object_id": 1718091,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              119.9740458000436
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301203,
+            "property_label": "S60 — Bubble Point (Saturated Liquid)",
+            "owner_object_id": 1718091,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              119.9740458000436
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301204,
+            "property_label": "S60 — Dew Point (Saturated Vapor)",
+            "owner_object_id": 1718091,
+            "unit": "degC",
+            "source_unit": "K",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              4766.519843836563
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301205,
+            "property_label": "S60 — Molar Specific Enthalpy",
+            "owner_object_id": 1718091,
+            "unit": "kJ/kmol",
+            "source_unit": "J/mol",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              264.58223346089346
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301206,
+            "property_label": "S60 — Mass Specific Enthalpy",
+            "owner_object_id": 1718091,
+            "unit": "kJ/kg",
+            "source_unit": "J/kg",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              15.68747717606693
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301207,
+            "property_label": "S60 — Molar Specific Entropy",
+            "owner_object_id": 1718091,
+            "unit": "kJ/(kmol.K)",
+            "source_unit": "J/K/mol",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0.8707878881439303
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301208,
+            "property_label": "S60 — Mass Specific Entropy",
+            "owner_object_id": 1718091,
+            "unit": "kJ/(kg.K)",
+            "source_unit": "J/K/kg",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              303.9801526307488
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301209,
+            "property_label": "S60 — Total Energy Flow",
+            "owner_object_id": 1718091,
+            "unit": "kW",
+            "source_unit": "J/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0.0011704658310654316
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301210,
+            "property_label": "S60 — Volumetric Flow",
+            "owner_object_id": 1718091,
+            "unit": "m^3/s",
+            "source_unit": "m**3/s",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              1
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301230,
+            "property_label": "S60 — Compounds",
+            "owner_object_id": 1718091,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              1
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301231,
+            "property_label": "S60 — Phases",
+            "owner_object_id": 1718091,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          },
+          {
+            "values": [
+              0
+            ],
+            "axes": [],
+            "solve_indexes": null,
+            "child_solve_run_ids": null,
+            "source_property_value_id": 1301232,
+            "property_label": "S60 — Phases",
+            "owner_object_id": 1718091,
+            "unit": "dimensionless",
+            "source_unit": "dimensionless",
+            "unknown_units": false
+          }
+        ]
+      ]
+    }
+  ],
+  "failed_run_diagnostics": [
+    {
+      "id": 56751,
+      "severity": "warning",
+      "title": "Model diagnostic",
+      "message": "Cold-end temperature approach is only 0.235 K. Operation is close to a thermal pinch; check the heat load and exchanger size.",
+      "property_value_id": 1300591,
+      "property_label": "HP-CD01 Condenser — Heat Load",
+      "simulation_object_id": 1718033,
+      "simulation_object_label": "HP-CD01 Condenser",
+      "constraintViolation": null
+    },
+    {
+      "id": 56752,
+      "severity": "warning",
+      "title": "Model diagnostic",
+      "message": "Liquid turns partly to vapour across this valve. Flashing is outside the liquid sizing model. The equation does not account for its flow limit. The calculated coefficient is outside the supported sizing range.",
+      "property_value_id": 1300682,
+      "property_label": "R600 expansion outlet — Vapor Fraction",
+      "simulation_object_id": 1718042,
+      "simulation_object_label": "HP-EEV01 Expansion valve",
+      "constraintViolation": null
+    },
+    {
+      "id": 56753,
+      "severity": "warning",
+      "title": "Model diagnostic",
+      "message": "Liquid turns partly to vapour across this valve. Flashing is outside the liquid sizing model. The equation does not account for its flow limit. The calculated coefficient is outside the supported sizing range.",
+      "property_value_id": 1300774,
+      "property_label": "HW flash tank feed — Vapor Fraction",
+      "simulation_object_id": 1718052,
+      "simulation_object_label": "HW condenser return pressure drop",
+      "constraintViolation": null
+    },
+    {
+      "id": 56754,
+      "severity": "warning",
+      "title": "Model diagnostic",
+      "message": "The inlet is vapour or two-phase. This equation supports only single-phase liquid sizing. The calculated coefficient is outside the supported sizing range.",
+      "property_value_id": 1300725,
+      "property_label": "ST flash steam — Vapor Fraction",
+      "simulation_object_id": 1718054,
+      "simulation_object_label": "ST-GV61 Steam outlet valve",
+      "constraintViolation": null
+    },
+    {
+      "id": 56755,
+      "severity": "error",
+      "title": "Model diagnostic",
+      "message": "Outlet pressure (303235.38 Pa) is greater than inlet pressure (250000.00 Pa). Valves can only decrease pressure. Check your formulation of the upstream problem.",
+      "property_value_id": 1301201,
+      "property_label": "S60 — Pressure",
+      "simulation_object_id": 1718089,
+      "simulation_object_label": "SO net Pressure-flow Drop",
+      "constraintViolation": null
+    },
+    {
+      "id": 56756,
+      "severity": "error",
+      "title": "Pressure ratio constraint",
+      "message": "The final solver point does not satisfy this process relationship. Review the listed conditions and connected equipment for conflicting specifications, restrictive operating bounds, or an operating point outside the equipment's feasible range.",
+      "property_value_id": 1300915,
+      "property_label": "SO-PU01 Source-water pump — Pressure Ratio",
+      "simulation_object_id": 1718068,
+      "simulation_object_label": "SO-PU01 Source-water pump",
+      "constraintViolation": {
+        "label": "Pressure ratio constraint",
+        "origin": null,
+        "relation_kind": "equality",
+        "residual_unit": "Pa",
+        "unit_model_id": 1718068,
+        "required_value": 0,
+        "residual_value": 611.8021702665428,
+        "evaluated_value": -611.8021702665428,
+        "scaled_residual": 611.8021702665428,
+        "unit_display_name": "SO-PU01 Source-water pump",
+        "involved_properties": [
+          {
+            "display_name": "SO-PU01 Source-water pump — Pressure Ratio",
+            "property_value_id": 1300915
+          },
+          {
+            "display_name": "S60 — Pressure",
+            "property_value_id": 1301201
+          },
+          {
+            "display_name": "SO evaporator supply — Pressure",
+            "property_value_id": 1300920
+          }
+        ],
+        "relationship_summary": {
+          "quality": "nonlinear",
+          "left_terms": [],
+          "right_terms": [],
+          "relation_kind": "equality",
+          "left_expressions": [
+            {
+              "kind": "product",
+              "unit": "Pa",
+              "label": null,
+              "value": 249388.19782973346,
+              "arguments": [
+                {
+                  "kind": "property",
+                  "unit": "dimensionless",
+                  "label": null,
+                  "value": 0.8224244822226141,
+                  "arguments": [],
+                  "display_name": "SO-PU01 Source-water pump — Pressure Ratio",
+                  "function_name": null,
+                  "property_value_id": 1300915
+                },
+                {
+                  "kind": "property",
+                  "unit": "Pa",
+                  "label": null,
+                  "value": 303235.37688926555,
+                  "arguments": [],
+                  "display_name": "S60 — Pressure",
+                  "function_name": null,
+                  "property_value_id": 1301201
+                }
+              ],
+              "display_name": null,
+              "function_name": null,
+              "property_value_id": null
+            }
+          ],
+          "right_expressions": [
+            {
+              "kind": "property",
+              "unit": "Pa",
+              "label": null,
+              "value": 250000,
+              "arguments": [],
+              "display_name": "SO evaporator supply — Pressure",
+              "function_name": null,
+              "property_value_id": 1300920
+            }
+          ],
+          "internal_term_count": 0,
+          "omitted_named_term_count": 0
+        }
+      }
+    },
+    {
+      "id": 56757,
+      "severity": "error",
+      "title": "Pressure flow equation",
+      "message": "The final solver point does not satisfy this process relationship. Review the listed conditions and connected equipment for conflicting specifications, restrictive operating bounds, or an operating point outside the equipment's feasible range.",
+      "property_value_id": 1300960,
+      "property_label": "SO tank outlet — Molar Flow",
+      "simulation_object_id": 1718089,
+      "simulation_object_label": "SO net Pressure-flow Drop",
+      "constraintViolation": {
+        "label": "Pressure flow equation",
+        "origin": null,
+        "relation_kind": "equality",
+        "residual_unit": "m**6/s**2",
+        "unit_model_id": 1718089,
+        "required_value": 0,
+        "residual_value": 1.3042137459723349,
+        "evaluated_value": 1.3042137459723349,
+        "scaled_residual": 1.3042137459723349,
+        "unit_display_name": "SO net Pressure-flow Drop",
+        "involved_properties": [
+          {
+            "display_name": "SO tank outlet — Molar Flow",
+            "property_value_id": 1300960
+          },
+          {
+            "display_name": "SO tank outlet — Molar Specific Enthalpy",
+            "property_value_id": 1300966
+          },
+          {
+            "display_name": "SO tank outlet — Pressure",
+            "property_value_id": 1300962
+          },
+          {
+            "display_name": "SO net Pressure-flow Drop — Valve Coefficient",
+            "property_value_id": 1301182
+          },
+          {
+            "display_name": "S60 — Pressure",
+            "property_value_id": 1301201
+          },
+          {
+            "display_name": "SO net Pressure-flow Drop — Valve Opening",
+            "property_value_id": 1301183
+          }
+        ],
+        "relationship_summary": null
+      }
+    },
+    {
+      "id": 56758,
+      "severity": "error",
+      "title": "Energy balances",
+      "message": "The final solver point does not satisfy this process relationship. Review the listed conditions and connected equipment for conflicting specifications, restrictive operating bounds, or an operating point outside the equipment's feasible range.",
+      "property_value_id": 1300924,
+      "property_label": "SO evaporator supply — Molar Specific Enthalpy",
+      "simulation_object_id": 1718039,
+      "simulation_object_label": "HP-EVP01 Evaporator",
+      "constraintViolation": {
+        "label": "Energy balances",
+        "origin": null,
+        "relation_kind": "equality",
+        "residual_unit": "J/s",
+        "unit_model_id": 1718039,
+        "required_value": 0,
+        "residual_value": 0.0035149975155945867,
+        "evaluated_value": -0.0035149975155945867,
+        "scaled_residual": 0.0035149975155945867,
+        "unit_display_name": "HP-EVP01 Evaporator",
+        "involved_properties": [
+          {
+            "display_name": "SO evaporator supply — Molar Specific Enthalpy",
+            "property_value_id": 1300924
+          },
+          {
+            "display_name": "SO evaporator supply — Pressure",
+            "property_value_id": 1300920
+          },
+          {
+            "display_name": "SO evaporator supply — Molar Flow",
+            "property_value_id": 1300918
+          },
+          {
+            "display_name": "SO cooled source return — Molar Specific Enthalpy",
+            "property_value_id": 1300666
+          },
+          {
+            "display_name": "SO cooled source return — Pressure",
+            "property_value_id": 1300662
+          },
+          {
+            "display_name": "SO cooled source return — Molar Flow",
+            "property_value_id": 1300660
+          }
+        ],
+        "relationship_summary": null
+      }
+    },
+    {
+      "id": 56759,
+      "severity": "error",
+      "title": "Energy balances",
+      "message": "The final solver point does not satisfy this process relationship. Review the listed conditions and connected equipment for conflicting specifications, restrictive operating bounds, or an operating point outside the equipment's feasible range.",
+      "property_value_id": 1300666,
+      "property_label": "SO cooled source return — Molar Specific Enthalpy",
+      "simulation_object_id": 1718070,
+      "simulation_object_label": "PHNIX source heat input",
+      "constraintViolation": {
+        "label": "Energy balances",
+        "origin": null,
+        "relation_kind": "equality",
+        "residual_unit": "J/s",
+        "unit_model_id": 1718070,
+        "required_value": 0,
+        "residual_value": 0.003416081512114033,
+        "evaluated_value": 0.003416081512114033,
+        "scaled_residual": 0.003416081512114033,
+        "unit_display_name": "PHNIX source heat input",
+        "involved_properties": [
+          {
+            "display_name": "SO cooled source return — Molar Specific Enthalpy",
+            "property_value_id": 1300666
+          },
+          {
+            "display_name": "SO cooled source return — Pressure",
+            "property_value_id": 1300662
+          },
+          {
+            "display_name": "SO cooled source return — Molar Flow",
+            "property_value_id": 1300660
+          },
+          {
+            "display_name": "SO PHNIX heated return — Molar Specific Enthalpy",
+            "property_value_id": 1300951
+          },
+          {
+            "display_name": "SO PHNIX heated return — Pressure",
+            "property_value_id": 1300947
+          },
+          {
+            "display_name": "SO PHNIX heated return — Molar Flow",
+            "property_value_id": 1300945
+          },
+          {
+            "display_name": "PHNIX source heat input — Heat Added",
+            "property_value_id": 1300930
+          }
+        ],
+        "relationship_summary": {
+          "quality": "nonlinear",
+          "left_terms": [],
+          "right_terms": [],
+          "relation_kind": "equality",
+          "left_expressions": [
+            {
+              "kind": "property",
+              "unit": "J/s",
+              "label": null,
+              "value": 257372.7654096859,
+              "arguments": [],
+              "display_name": "SO cooled source return — Total Energy Flow",
+              "function_name": null,
+              "property_value_id": 1300670
+            },
+            {
+              "kind": "property",
+              "unit": "kg*m**2/s**3",
+              "label": null,
+              "value": 46397.36499121884,
+              "arguments": [],
+              "display_name": "PHNIX source heat input — Heat Added",
+              "function_name": null,
+              "property_value_id": 1300930
+            }
+          ],
+          "right_expressions": [
+            {
+              "kind": "property",
+              "unit": "J/s",
+              "label": null,
+              "value": 303770.1269848268,
+              "arguments": [],
+              "display_name": "SO PHNIX heated return — Total Energy Flow",
+              "function_name": null,
+              "property_value_id": 1300955
+            }
+          ],
+          "internal_term_count": 0,
+          "omitted_named_term_count": 0
+        }
+      }
+    },
+    {
+      "id": 56760,
+      "severity": "error",
+      "title": "SO PHNIX heated return — Mass Flow target",
+      "message": "The final solver point does not satisfy this process relationship. Review the listed conditions and connected equipment for conflicting specifications, restrictive operating bounds, or an operating point outside the equipment's feasible range.",
+      "property_value_id": 1300944,
+      "property_label": "SO PHNIX heated return — Mass Flow",
+      "simulation_object_id": 1718071,
+      "simulation_object_label": "SO PHNIX heated return",
+      "constraintViolation": {
+        "label": "SO PHNIX heated return — Mass Flow target",
+        "origin": {
+          "kind": "control_target",
+          "source_display_name": "SO PHNIX heated return — Mass Flow",
+          "source_property_value_id": 1300944,
+          "direct_reference_display_name": null,
+          "direct_reference_property_value_id": null
+        },
+        "relation_kind": "equality",
+        "residual_unit": "kg/s",
+        "unit_model_id": null,
+        "required_value": 1.1489061402744511,
+        "residual_value": 0.0005159723981285058,
+        "evaluated_value": 1.1483901678763226,
+        "scaled_residual": 0.0005159723981285058,
+        "unit_display_name": null,
+        "involved_properties": [
+          {
+            "display_name": "SO PHNIX heated return — Molar Flow",
+            "property_value_id": 1300945
+          }
+        ],
+        "relationship_summary": {
+          "quality": "direct",
+          "left_terms": [
+            {
+              "unit": "kg/s",
+              "label": null,
+              "display_name": "SO PHNIX heated return — Molar Flow",
+              "property_unit": "mol/s",
+              "property_value": 63.74538352004104,
+              "coefficient_unit": "kg/mol",
+              "coefficient_label": "Molecular weight",
+              "coefficient_value": 0.018015268,
+              "property_value_id": 1300945,
+              "contribution_value": 1.1483901678763226,
+              "coefficient_compound": "Water"
+            }
+          ],
+          "right_terms": [
+            {
+              "unit": "kg/s",
+              "label": "Required value",
+              "display_name": null,
+              "property_unit": null,
+              "property_value": null,
+              "coefficient_unit": null,
+              "coefficient_label": null,
+              "coefficient_value": null,
+              "property_value_id": null,
+              "contribution_value": 1.1489061402744511,
+              "coefficient_compound": null
+            }
+          ],
+          "relation_kind": "equality",
+          "left_expressions": [],
+          "right_expressions": [],
+          "internal_term_count": 0,
+          "omitted_named_term_count": 0
+        }
+      }
+    },
+    {
+      "id": 56761,
+      "severity": "error",
+      "title": "Pump fluid work constraint",
+      "message": "The final solver point does not satisfy this process relationship. Review the listed conditions and connected equipment for conflicting specifications, restrictive operating bounds, or an operating point outside the equipment's feasible range.",
+      "property_value_id": 1300920,
+      "property_label": "SO evaporator supply — Pressure",
+      "simulation_object_id": 1718068,
+      "simulation_object_label": "SO-PU01 Source-water pump",
+      "constraintViolation": {
+        "label": "Pump fluid work constraint",
+        "origin": null,
+        "relation_kind": "equality",
+        "residual_unit": "kg*m**2/s**3",
+        "unit_model_id": 1718068,
+        "required_value": 0,
+        "residual_value": 0.00025558016706384024,
+        "evaluated_value": -0.00025558016706384024,
+        "scaled_residual": 0.00025558016706384024,
+        "unit_display_name": "SO-PU01 Source-water pump",
+        "involved_properties": [
+          {
+            "display_name": "SO evaporator supply — Pressure",
+            "property_value_id": 1300920
+          },
+          {
+            "display_name": "S60 — Pressure",
+            "property_value_id": 1301201
+          },
+          {
+            "display_name": "SO evaporator supply — Molar Flow",
+            "property_value_id": 1300918
+          },
+          {
+            "display_name": "SO evaporator supply — Molar Specific Enthalpy",
+            "property_value_id": 1300924
+          }
+        ],
+        "relationship_summary": null
+      }
+    }
+  ]
+}

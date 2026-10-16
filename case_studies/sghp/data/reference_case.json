@@ -1,0 +1,38 @@
+{
+  "provenance": {
+    "project": "SGHP with ihx - Flow Correlations",
+    "flowsheet": "Multi-steady state version",
+    "flowsheet_id": 3060,
+    "configuration_revision": 83,
+    "reference_solve_run_id": 10910,
+    "reference_run_number": 27,
+    "failed_solve_run_id": 10853,
+    "failed_run_number": 24,
+    "valve_equation_source_commit": "f1d95218ae53bf8f59f141f3d2a0cb259bd71b42",
+    "valve_equation_source": "backend/ahuora-builder/src/ahuora_builder/unit_models/process/transport/valves/custom_valve.py:84-94; valve_common.py:46-52,89-96",
+    "note": "Current configuration and historical outputs are distinct evidence. The local loop is a reduced reconstruction with an explicit pressure anchor, not a replay of the full historical run."
+  },
+  "specifications": {
+    "mass_flow_kg_s": 1.1489061402744511,
+    "tank_temperature_K": 336.2954166667133,
+    "tank_pressure_Pa": 326865.991946987,
+    "pump_power_W": 214.6112719675113,
+    "pump_efficiency": 0.7,
+    "evaporator_heat_removed_W": 46308.39421817675,
+    "valve_coefficient_m3_s_Pa_half": 0.0002777777777777778,
+    "equal_percentage_alpha": 100
+  },
+  "reference_solution": {
+    "valve_opening": 0.033309918350096904,
+    "valve_pressure_drop_Pa": 128354.8312633312,
+    "pump_suction_pressure_Pa": 198511.16068365587,
+    "valve_inlet_density_kg_m3": 981.6501095736,
+    "source_heat_added_W": 46093.78294620924
+  },
+  "initial_guesses": {
+    "near_reference": {"opening": 0.04, "suction_pressure_fraction": 0.61, "flow_fraction": 1.0},
+    "reversed_pressure": {"opening": 0.0, "suction_pressure_fraction": 1.2, "flow_fraction": 0.8},
+    "equal_pressure": {"opening": 0.0, "suction_pressure_fraction": 1.0, "flow_fraction": 1.0},
+    "wide_open": {"opening": 1.0, "suction_pressure_fraction": 0.9, "flow_fraction": 1.2}
+  }
+}

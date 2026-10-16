@@ -1,7 +1,7 @@
 Validated with Python 3.14.0, IDAES 2.8.0, Pyomo 6.9.2, and IPOPT 3.13.2.
 
 Package installation: uv sync --offline (using existing cached dependencies).
-Integration suite: uv run --offline pytest -q -> 8 passed.
+Integration suite: uv run --offline pytest -q -> 13 passed.
 - Standalone and upstream-Arc-connected lumped -> distributed -> lumped solves.
 - Common thermal design DOF, unchanged selection guesses and specifications.
 - Consistent units, public duty meaning, and stream energy conservation.
@@ -12,6 +12,15 @@ Integration suite: uv run --offline pytest -q -> 8 passed.
   property connections, public values on selection, and specifications.
 - Energy-conserving lumped/distributed exchanger solves using both the linear
   water and IAPWS-95 liquid property formulations.
+- Source-loop valve switches with identical specifications and mass/energy
+  conservation, for linear and Helmholtz water.
+- Independent direct/staged starts reaching the same nonlinear root.
+- Retention and refinement branches of the nonlinear-residual selection rule.
+
+SGHP case study: 96 controlled strategy trials plus two diagnostic bound
+relaxations. See case_studies/sghp/RESULTS.md and baseline_summary.json.
+Direct/staged success was identical on the tested feasible cases; the original
+full-SGHP initialization difficulty has not been reproduced by the reduced loop.
 
 Example: uv run --offline python examples/heat_exchanger.py.
 See example_results.json for its numerical results.
@@ -22,8 +31,8 @@ independent initialization/solve after cloning the model.
 Water package manual checks: standard IDAES Feed initialization and independent
 indexed-state initialization after cloning -> passed.
 
-Lint: ruff check src tests examples -> passed.
-Formatting: ruff format --check src tests examples -> passed.
+Lint: ruff check src tests examples case_studies -> passed.
+Formatting: ruff format --check src tests examples case_studies -> passed.
 Whitespace: git diff --check -> passed.
 
 The 1D formulation uses countercurrent finite-volume balances with shared

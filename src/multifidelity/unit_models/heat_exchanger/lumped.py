@@ -5,8 +5,8 @@ from pyomo.environ import Block, Constraint, Expression, log, sqrt
 from pyomo.opt import SolverResults
 from pyomo.opt.base.solvers import OptSolver
 
-from ..interface import SharedHX
-from ..properties import convert, stream_balance
+from .interface import SharedHX
+from ..streams import convert, stream_balance
 
 
 class LumpedHX:
