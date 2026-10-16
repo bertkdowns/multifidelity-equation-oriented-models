@@ -1,7 +1,6 @@
 """IDAES flowsheet integration for a shared-state heat exchanger."""
 
 from collections.abc import Mapping
-from contextlib import contextmanager
 
 from idaes.core import UnitModelBlockData, declare_process_block_class
 from idaes.core.solvers import get_solver
@@ -12,24 +11,10 @@ from pyomo.environ import Expression, Var, check_optimal_termination, value
 from pyomo.opt import SolverResults
 from pyomo.opt.base.solvers import OptSolver
 
-from .base import MultiFidelityMixin
+from .base import Fidelity, MultiFidelityMixin, fixed_inputs
 from .fidelities import DistributedHX, LumpedHX
-from .interface import Fidelity, SharedHX
+from .interface import SharedHX
 from .properties import convert, enthalpy_flow, interpolate, states
-
-
-@contextmanager
-def fixed_inputs(variables):
-    """Restore temporary input fixations, including on solver failure."""
-    flags = [(v, v.fixed) for v in variables]
-    try:
-        for v, _ in flags:
-            v.fix()
-        yield
-    finally:
-        for v, was_fixed in flags:
-            if not was_fixed:
-                v.unfix()
 
 
 @declare_process_block_class("HeatExchanger")
@@ -135,7 +120,7 @@ class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
                             outlet.temperature.set_value(0.8 * a + 0.2 * b)
             name = self.active_fidelity
             result = self._builders[name].initialize(
-                self.fidelities[name], self._shared, equipment=self, solver=solver
+                self.fidelities[name], self._shared, model=self, solver=solver
             )
             if not check_optimal_termination(result):
                 raise InitializationError(f"{self.name}: {name} initialization failed")

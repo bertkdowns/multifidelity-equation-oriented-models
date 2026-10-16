@@ -1,22 +1,54 @@
 """Reusable assembly and selection of named Pyomo formulation blocks."""
 
-from collections.abc import Mapping
-from typing import Generic, TypeVar
+from collections.abc import Iterable, Iterator, Mapping
+from contextlib import contextmanager
+from typing import Generic, Protocol, TypeVar
 
 from pyomo.core.base.block import BlockData
+from pyomo.core.base.var import VarData
 from pyomo.environ import Block
+from pyomo.opt import SolverResults
+from pyomo.opt.base.solvers import OptSolver
 
-from .interface import Fidelity
+
+FidelitySharedT = TypeVar("FidelitySharedT", contravariant=True)
+
+
+class Fidelity(Protocol[FidelitySharedT]):
+    def build(self, block: BlockData, shared: FidelitySharedT) -> None: ...
+
+    def initialize(
+        self,
+        block: BlockData,
+        shared: FidelitySharedT,
+        *,
+        model: BlockData,
+        solver: OptSolver,
+    ) -> SolverResults: ...
+
+
+@contextmanager
+def fixed_inputs(variables: Iterable[VarData]) -> Iterator[None]:
+    """Restore temporary input fixations, including on solver failure."""
+    flags = [(v, v.fixed) for v in variables]
+    try:
+        for v, _ in flags:
+            v.fix()
+        yield
+    finally:
+        for v, was_fixed in flags:
+            if not was_fixed:
+                v.unfix()
 
 
 SharedT = TypeVar("SharedT")
 
 
 class MultiFidelityMixin(Generic[SharedT]):
-    """Call build_fidelities() after constructing the equipment's shared interface.
+    """Call build_fidelities() after constructing the model's shared interface.
 
     Each builder supplies build(block, shared). The shared object is passed
-    through unchanged; its physical meaning belongs to the equipment model.
+    through unchanged; its physical meaning belongs to the owning model.
     """
 
     _builders: dict[str, Fidelity[SharedT]]

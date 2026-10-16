@@ -2,7 +2,6 @@
 
 import pytest
 
-from idaes.core.solvers import get_solver
 from idaes.core.util.exceptions import InitializationError
 from idaes.core.util.model_statistics import degrees_of_freedom
 from idaes.models.unit_models import Feed
@@ -11,14 +10,6 @@ from pyomo.network import Arc
 from pyomo.util.check_units import assert_units_consistent
 
 from examples.heat_exchanger import build_model
-
-
-@pytest.fixture
-def solver():
-    solver = get_solver("ipopt", options={"tol": 1e-8, "max_iter": 500})
-    if not solver.available(False):
-        pytest.skip("IPOPT is required for numerical integration tests")
-    return solver
 
 
 def connected_model():

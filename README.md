@@ -5,17 +5,24 @@ formulations: lumped (0D, smooth LMTD) and distributed (1D, finite volume).
 Both use the same public variable objects. Switching requires no copying of
 boundary values or linking equations between duplicate variables.
 
+The package also provides [selectable liquid-water properties](docs/water.md):
+a constant-cp linear approximation and liquid IAPWS-95 Helmholtz equations,
+using the same fidelity interface and shared state variables.
+
 ## Run
 
 ```bash
 uv sync
 uv run python examples/heat_exchanger.py
+uv run python examples/water.py
 uv run pytest -q
 ```
 
 Numerical integration tests require IPOPT. An existing IPOPT installation or
 IDAES solver extensions (`uv run idaes get-extensions`) can supply it. Tests
 skip when IPOPT is unavailable. Dependencies are declared in `pyproject.toml`.
+The water example and Helmholtz-specific tests also need the IDAES Helmholtz
+extensions. Linear-only water properties work without those extensions.
 
 ## Use
 

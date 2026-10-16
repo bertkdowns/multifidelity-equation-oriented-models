@@ -84,7 +84,7 @@ class DistributedHX:
         block: BlockData,
         shared: SharedHX,
         *,
-        equipment: BlockData,
+        model: BlockData,
         solver: OptSolver,
     ) -> SolverResults:
         n = self.finite_elements
@@ -118,4 +118,4 @@ class DistributedHX:
                 )
             for x in block.cells:
                 block.cell_duty[t, x].set_value(duty_guess / n)
-        return solver.solve(equipment)
+        return solver.solve(model)

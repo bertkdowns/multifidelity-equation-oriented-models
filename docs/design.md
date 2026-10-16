@@ -83,7 +83,7 @@ class MyFidelity:
         # Use shared inlet/outlet states, area, U, length, and heat_duty directly.
         ...
 
-    def initialize(self, block, shared, *, equipment, solver):
+    def initialize(self, block, shared, *, model, solver):
         # Seed private states and initialize the selected equations.
         # Return Pyomo solver results.
         ...
@@ -93,6 +93,12 @@ Builders are supplied in a name-to-builder mapping. `SharedHX` is a frozen
 container of the physical interface, not a copy of its variables. Fidelity
 builders must not retain model-specific state on themselves; use their supplied
 block so builders can be reused and models can be cloned safely.
+
+The generic `Fidelity[SharedT]` protocol lives with `MultiFidelityMixin` in
+`base.py`. Initializers receive their solve target explicitly as `model`, which
+can be an equipment model or a property state block. Solver arguments use Pyomo's
+existing `OptSolver` type. `SharedHX` and `SharedWater` describe their respective
+physical interfaces; the mixin does not depend on either one.
 
 During initialization the parent temporarily fixes inlet and design variables
 at their current values, supplies feasible boundary temperature guesses when
@@ -105,3 +111,14 @@ changes flags is responsible for restoring its changes in `finally`.
 The caller owns solving the complete flowsheet, choosing fidelities, fallback
 policy, and accuracy assessment. Initialization uses current inlet values; a
 flowsheet initializer must initialize upstream equipment first.
+
+## Property fidelities
+
+The same ownership and selection principles apply to properties. The water
+parameter block owns constants and builder configuration; every water state
+block owns flow, temperature, pressure, and the public property variables.
+Linear and Helmholtz builders add equations using those same objects. Phase
+property aliases and enthalpy-flow terms are defined once outside the fidelity
+blocks, so existing unit equations remain connected across switches.
+
+See [water.md](water.md) for the equations, scope, and runnable example.

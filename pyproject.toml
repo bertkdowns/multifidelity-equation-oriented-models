@@ -1,7 +1,7 @@
 [project]
 name = "multifidelity"
 version = "0.1.0"
-description = "A heat exchanger with shared public variables and selectable formulations"
+description = "Equipment and liquid-water properties with shared variables and selectable formulations"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

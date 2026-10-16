@@ -67,7 +67,7 @@ class LumpedHX:
         block: BlockData,
         shared: SharedHX,
         *,
-        equipment: BlockData,
+        model: BlockData,
         solver: OptSolver,
     ) -> SolverResults:
-        return solver.solve(equipment)
+        return solver.solve(model)
