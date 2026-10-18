@@ -25,7 +25,9 @@ def add_stream_ports(unit, package):
         unit.add_port(name, state)
 
 
-def stream_balance(block, inlet, outlet, heat=None, *, preserve_pressure=True):
+def stream_balance(
+    block, inlet, outlet, heat=None, *, preserve_pressure=True, pressure_drop=None
+):
     """Steady stream balance: heat is positive into the stream."""
     block.material = Constraint(
         inlet.component_list,
@@ -36,7 +38,13 @@ def stream_balance(block, inlet, outlet, heat=None, *, preserve_pressure=True):
     )
     if preserve_pressure:
         block.pressure = Constraint(
-            expr=outlet.pressure == convert(inlet.pressure, outlet.pressure)
+            expr=outlet.pressure
+            == convert(inlet.pressure, outlet.pressure)
+            - (
+                0 * outlet.pressure
+                if pressure_drop is None
+                else convert(pressure_drop, outlet.pressure)
+            )
         )
     if heat is not None:
         block.energy = Constraint(

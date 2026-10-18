@@ -6,7 +6,7 @@ from idaes.core import UnitModelBlockData, declare_process_block_class
 from idaes.core.solvers import get_solver
 from idaes.core.util.config import is_physical_parameter_block
 from idaes.core.util.exceptions import InitializationError
-from pyomo.common.config import ConfigValue
+from pyomo.common.config import ConfigValue, In
 from pyomo.environ import (
     Block,
     Expression,
@@ -30,6 +30,12 @@ class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
     CONFIG = UnitModelBlockData.CONFIG()
     CONFIG.declare("property_package", ConfigValue(domain=is_physical_parameter_block))
     CONFIG.declare("fidelities", ConfigValue(default=None))
+    CONFIG.declare(
+        "characteristic",
+        ConfigValue(
+            default="equal_percentage", domain=In(["linear", "equal_percentage"])
+        ),
+    )
 
     def build(self) -> None:
         super().build()
@@ -48,7 +54,11 @@ class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
         self.nominal_opening = Param(initialize=0.5, mutable=True)
         self.nominal_flow = Expression(
             expr=self.nominal_Cv
-            * self.alpha ** (self.nominal_opening - 1)
+            * (
+                self.nominal_opening
+                if self.config.characteristic == "linear"
+                else self.alpha ** (self.nominal_opening - 1)
+            )
             * sqrt(
                 self.nominal_pressure_drop
                 * self.nominal_density
@@ -60,7 +70,12 @@ class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
             rule=lambda b, t: b.inlet_state[t].pressure - b.outlet_state[t].pressure,
         )
         self.characteristic = Expression(
-            time, rule=lambda b, t: b.alpha ** (b.opening[t] - 1)
+            time,
+            rule=lambda b, t: (
+                b.opening[t]
+                if b.config.characteristic == "linear"
+                else b.alpha ** (b.opening[t] - 1)
+            ),
         )
         # The normalization changes neither the law nor its roots, and gives an
         # interpretable dimensionless detailed-model residual at a simple solution.
@@ -113,6 +128,7 @@ class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
             self.nominal_pressure_drop,
             self.nominal_density,
             self.nominal_opening,
+            self.config.characteristic,
         )
         self._shared = shared
         builders: Mapping[str, Fidelity[SharedValve]] = (

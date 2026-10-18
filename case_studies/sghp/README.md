@@ -1,5 +1,11 @@
 # SGHP source-loop case study
 
+The subsequent [complete SGHP study](FULL_STUDY.md) now reconstructs the
+refrigerant/IHX, steam, warm-water, and source circuits, with nine selectable
+equipment models and flowsheet-level selection algorithms. See
+[FULL_RESULTS.md](FULL_RESULTS.md). This document describes the original
+controlled source-loop experiment, which remains independently runnable.
+
 Research question: can a basic valve fallback keep thermal analysis usable when
 the detailed valve characteristic is unnecessary or inappropriate for a low-flow
 operating case? Initialization and residual-based refinement remain comparisons,
@@ -58,8 +64,8 @@ pressure, pump shaft power and efficiency, evaporator heat removal, tank duty
 zero, and valve coefficient. Heater duty and valve opening are calculated. The
 absolute pressure anchor is an explicit assumption of this reduced experiment,
 chosen from Run 27's state; it is not claimed to reproduce every historical
-pressure specification. No full refrigerant cycle, IHX, flash circulation,
-measured time series, or Ahuora initialization sequence is recreated yet.
+pressure specification. This reduced experiment omits the refrigerant cycle, IHX, flash circulation,
+measured time series, and Ahuora initialization sequence.
 
 ## Valve formulations
 

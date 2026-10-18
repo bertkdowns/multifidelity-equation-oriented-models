@@ -19,10 +19,16 @@ class LumpedHX:
                 shared.hot_inlet[t],
                 shared.hot_outlet[t],
                 -shared.heat_duty[t],
+                pressure_drop=shared.hot_pressure_drop[t],
             )
             # Duty is already defined by the parent cold-stream enthalpy change.
             # Add only material/pressure balances here to avoid a duplicate equation.
-            stream_balance(block.cold[t], shared.cold_inlet[t], shared.cold_outlet[t])
+            stream_balance(
+                block.cold[t],
+                shared.cold_inlet[t],
+                shared.cold_outlet[t],
+                pressure_drop=shared.cold_pressure_drop[t],
+            )
 
         block.delta_in = Expression(
             shared.time,

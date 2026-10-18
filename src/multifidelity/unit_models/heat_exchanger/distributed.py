@@ -55,10 +55,18 @@ class DistributedHX:
         for t in shared.time:
             for x in block.cells:
                 stream_balance(
-                    block.hot[t, x], hot(t, x), hot(t, x + 1), -block.cell_duty[t, x]
+                    block.hot[t, x],
+                    hot(t, x),
+                    hot(t, x + 1),
+                    -block.cell_duty[t, x],
+                    pressure_drop=shared.hot_pressure_drop[t] / n,
                 )
                 stream_balance(
-                    block.cold[t, x], cold(t, x + 1), cold(t, x), block.cell_duty[t, x]
+                    block.cold[t, x],
+                    cold(t, x + 1),
+                    cold(t, x),
+                    block.cell_duty[t, x],
+                    pressure_drop=shared.cold_pressure_drop[t] / n,
                 )
 
         def heat_transfer(b, t, x):

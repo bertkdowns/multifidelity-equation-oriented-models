@@ -19,3 +19,5 @@ class SharedHX:
     U: IndexedVar
     length: ScalarVar
     heat_duty: IndexedExpression
+    hot_pressure_drop: IndexedVar
+    cold_pressure_drop: IndexedVar

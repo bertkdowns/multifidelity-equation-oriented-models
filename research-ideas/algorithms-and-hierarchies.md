@@ -19,6 +19,58 @@ representation depths. Define reliability for each question before comparing
 selection strategies, using prediction error, uncertainty, or decision quality
 as appropriate. This is a direction to develop, not a finalized experiment.
 
+### First planned experiment: predicting electrical consumption
+
+**Research outcome to revisit: measurement-based model specification.** Develop
+a method to map available measurements to a well-posed prediction or estimation
+problem: distinguish fixed inputs, noisy observations, unknown states, estimable
+parameters, and explicit assumptions; identify missing or redundant information.
+Study this both with and without multi-fidelity selection. It is a research
+outcome in its own right, not just preprocessing for fidelity selection.
+
+Model selection is the primary aim. Flowsheet initialization is deferred to
+later work; initially use established initialization routines and record solve
+failures without developing a new initialization algorithm.
+
+Start with steady-state electrical power prediction for a heat pump at specified
+operating conditions. Energy consumption over a period would additionally
+require an operating schedule and integration of power; it is outside this
+first experiment unless explicitly added.
+
+Compare an aggregate COP representation with an explicit cycle and a bounded
+set of component refinements. Begin with the smallest hierarchy that can test
+whether additional detail improves power prediction. Add compressor maps,
+exchanger resolution, valve correlations, or property alternatives only when
+they provide a relevant candidate distinction and their required inputs exist.
+
+Use the same available measurement set for every candidate. Separate measured
+inputs and calibration observations from held-out electrical power observations
+used for evaluation. If measured power is used to estimate COP during calibration,
+evaluate on other operating points; predicting that same observation is not
+evidence of predictive performance. Record measurement uncertainties and all
+assumed or independently known parameters.
+
+The selection algorithm should choose the simplest supported representation
+expected to meet a stated power-prediction tolerance. Define simplicity using
+explicit measures such as solve cost, required parameters, and measurement
+requirements rather than representation depth alone. Compare against always
+using the aggregate model and always using the most detailed admissible model.
+Use exhaustive candidate evaluation, where affordable, as an offline benchmark
+for selection quality; do not expose held-out evaluation observations to the
+selector.
+
+Report held-out power error, uncertainty interval coverage if intervals are
+produced, frequency of meeting the tolerance, selected representations, and
+total calibration/selection/solve cost. Allow the selector to report that no
+candidate supports the requested reliability instead of forcing a selection.
+
+Open design choices are the operating envelope, available data source and
+measurement locations, independently known equipment information, candidate
+hierarchy, and engineering tolerance. Synthetic data can support an initial
+controlled experiment, with its generating assumptions stated explicitly.
+Later experiments can vary measurement availability and change the target
+engineering question while retaining the same selection framework.
+
 Initialization research should emphasize the wider coupled flowsheet, especially
 recycle loops, rather than assume that individual unit operations need better
 initializers. Existing unit routines may already work well in isolation. The

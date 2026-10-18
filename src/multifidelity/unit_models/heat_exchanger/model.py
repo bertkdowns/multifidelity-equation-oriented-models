@@ -54,6 +54,10 @@ class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
             units=units("heat_transfer_coefficient"),
         )
         self.length = Var(initialize=5, bounds=(1e-8, None), units=units("length"))
+        self.hot_pressure_drop = Var(time, initialize=0, units=units("pressure"))
+        self.cold_pressure_drop = Var(time, initialize=0, units=units("pressure"))
+        self.hot_pressure_drop.fix(0)
+        self.cold_pressure_drop.fix(0)
         self.heat_duty = Expression(
             time,
             rule=lambda b, t: convert(
@@ -72,6 +76,8 @@ class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
             self.U,
             self.length,
             self.heat_duty,
+            self.hot_pressure_drop,
+            self.cold_pressure_drop,
         )
         builders: Mapping[str, Fidelity[SharedHX]] = (
             self.config.fidelities
@@ -95,7 +101,13 @@ class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
             if solver is None or isinstance(solver, str)
             else solver
         )
-        inputs = [self.area, self.length, *self.U.values()]
+        inputs = [
+            self.area,
+            self.length,
+            *self.U.values(),
+            *self.hot_pressure_drop.values(),
+            *self.cold_pressure_drop.values(),
+        ]
         for port in (self.hot_inlet, self.cold_inlet):
             for variable in port.vars.values():
                 inputs.extend(variable.values())
@@ -117,8 +129,22 @@ class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
                     b = value(convert(other.temperature, inlet.temperature))
                     if not min(a, b) < value(outlet.temperature) < max(a, b):
                         interpolate(outlet, inlet, inlet, 0)
-                        if not outlet.temperature.fixed:
-                            outlet.temperature.set_value(0.8 * a + 0.2 * b)
+                        independent = outlet.define_state_vars()
+                        guess = 0.8 * a + 0.2 * b
+                        if "temperature" in independent:
+                            if not independent["temperature"].fixed:
+                                independent["temperature"].set_value(guess)
+                        elif "enth_mass" in independent:
+                            if not independent["enth_mass"].fixed:
+                                independent["enth_mass"].set_value(
+                                    outlet.params.htpx(
+                                        T=guess
+                                        * outlet.params.get_metadata().get_derived_units(
+                                            "temperature"
+                                        ),
+                                        p=outlet.pressure,
+                                    )
+                                )
             name = self.active_fidelity
             result = self._builders[name].initialize(
                 self.fidelities[name], self._shared, model=self, solver=solver

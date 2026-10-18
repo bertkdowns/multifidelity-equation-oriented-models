@@ -1,7 +1,7 @@
 Validated with Python 3.14.0, IDAES 2.8.0, Pyomo 6.9.2, and IPOPT 3.13.2.
 
 Package installation: uv sync --offline (using existing cached dependencies).
-Integration suite: uv run --offline pytest -q -> 17 passed.
+Integration suite: uv run --offline pytest -q -> 21 passed.
 - Standalone and upstream-Arc-connected lumped -> distributed -> lumped solves.
 - Common thermal design DOF, unchanged selection guesses and specifications.
 - Consistent units, public duty meaning, and stream energy conservation.
@@ -19,6 +19,11 @@ Integration suite: uv run --offline pytest -q -> 17 passed.
 - Basic valve fallback continuing both low-flow cases under both water models,
   with unchanged specifications, conserved balances, and explicit distinction
   between fallback acceptance and detailed-model validation.
+- Complete coupled SGHP conservation, units, common DOF/specifications across
+  all nine choices, and fully matched initial all-high DM structure.
+- Mixed full-flowsheet solutions at low source flow and low demand, retaining
+  eight high formulations and allowing consistent IHX heat-flow reversal.
+- Restoration of the last accepted process state after failed refinement.
 
 SGHP case study: 200 controlled strategy trials plus two diagnostic bound
 relaxations. See case_studies/sghp/RESULTS.md and baseline_summary.json.
@@ -27,6 +32,16 @@ full-SGHP initialization difficulty has not been reproduced by the reduced loop.
 Basic fallback continued all 16 low-flow trials rejected by the detailed valve.
 These are accepted approximations, not validated detailed-valve solutions.
 The fixed thermal budget limits conclusions about full-flowsheet relevance.
+
+Complete SGHP study: 72 trials / 188 attempted solves, using all five exchangers
+and four valves as selectable models with fixed phase-capable water/n-butane
+properties. 57 final assignments accepted. Source-first and operating-context
+strategies accepted 8/8 each; uniform all-high accepted 2/8. All-low accepted
+6/8 and failed both low-demand starts. Source control-range conflicts were also
+checked analytically without solving. See case_studies/sghp/FULL_STUDY.md,
+FULL_RESULTS.md, full_baseline_summary.json, and data/full_source_control_range.json.
+This is a complete topology reconstruction with calibrated rating assumptions,
+not a historical control/initialization replay or independently validated plant.
 
 Example: uv run --offline python examples/heat_exchanger.py.
 See example_results.json for its numerical results.

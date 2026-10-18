@@ -13,7 +13,13 @@ The package also provides [selectable liquid-water properties](docs/water.md):
 a constant-cp linear approximation and liquid IAPWS-95 Helmholtz equations,
 using the same fidelity interface and shared state variables.
 
-The [SGHP source-loop case study](case_studies/sghp/README.md) compares direct
+The [complete SGHP case study](case_studies/sghp/FULL_STUDY.md) reconstructs the
+coupled refrigerant, IHX, flash-steam, warm-water, and source circuits. All five
+exchangers and four valves have low/high formulations. It compares nine baseline
+and selection strategies, including residual- and structure-guided switching.
+See its [results](case_studies/sghp/FULL_RESULTS.md).
+
+The earlier [SGHP source-loop case study](case_studies/sghp/README.md) compares direct
 nonlinear solving, staged valve initialization, residual-based refinement, and
 a basic valve fallback for continued low-flow analysis.
 Its [results and conclusions](case_studies/sghp/RESULTS.md) are recorded alongside
@@ -21,8 +27,9 @@ the experimental inputs and numerical baseline.
 
 Reusable equipment lives under `src/multifidelity/unit_models/`, with one
 subfolder per unit model. Water properties live under `property_models/`;
-`base.py` contains the generic fidelity workflow. Case-specific construction
-and research algorithms live under `case_studies/`.
+`base.py` contains fidelity assembly and selection; `workflow.py` contains
+flowsheet-level searches and rollback. Case-specific construction, acceptance,
+and research policies live under `case_studies/`.
 
 ## Run
 
@@ -31,6 +38,7 @@ uv sync
 uv run python examples/heat_exchanger.py
 uv run python examples/water.py
 uv run python -m case_studies.sghp.experiments
+uv run python -m case_studies.sghp.full_experiments
 uv run pytest -q
 ```
 
@@ -82,6 +90,7 @@ The first supplied fidelity is selected initially.
 | `U[t]` | Shared heat-transfer coefficient variable, uniform over the distributed exchanger |
 | `length` | Shared length variable; normally fixed, unused by the lumped formulation |
 | `heat_duty[t]` | Expression for cold-stream enthalpy gain, positive into the cold stream |
+| `hot_pressure_drop[t]`, `cold_pressure_drop[t]` | Shared pressure-drop variables, fixed to zero by default |
 | `fidelities` | Mapping from names to formulation blocks |
 | `active_fidelity` | Selected fidelity name |
 
@@ -106,14 +115,16 @@ inputs; arbitrary alternative specifications are left to flowsheet solving.
 ## Scope and design
 
 See [docs/design.md](docs/design.md) for the agreed principles, ownership,
-fidelity-builder interface, and deferred structural diagnosis work.
+fidelity-builder interface, and flowsheet selection workflow.
 
-The implementation is steady state, countercurrent, with uniform U and no
-pressure drop, holdup, reactions, or phase equilibrium. The distributed model
+The implementation is steady state, countercurrent, with uniform U, specified
+pressure drops, no holdup, and no reactions. The distributed model
 uses finite-volume cell balances rather than the former IDAES collocation
 implementation. Property packages must supply temperature, pressure, independent
 state variables, and material/enthalpy flow terms. Numerical validation uses
-single-phase liquid water.
+single-phase liquid water and, in the full SGHP study, phase-capable n-butane and
+water PH states. `ChenHX` and `SegmentedHX` provide the study's lumped and
+mixed-cell alternatives; the original defaults remain available.
 
 For the example's 370/300 K inlets, 1/1.2 kg/s flows, 10 m² area and
 500 W/m²/K U, the lumped/distributed duties are approximately 166.682/166.685 kW.

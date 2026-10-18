@@ -18,7 +18,12 @@ class LinearValve:
                 / (2 * shared.nominal_pressure_drop)
                 + (shared.inlet[t].dens_mass - shared.nominal_density)
                 / (2 * shared.nominal_density)
-                + log(shared.alpha) * (shared.opening[t] - shared.nominal_opening)
+                + (
+                    1 / shared.nominal_opening
+                    if shared.trim == "linear"
+                    else log(shared.alpha)
+                )
+                * (shared.opening[t] - shared.nominal_opening)
             )
 
         block.pressure_flow = Constraint(shared.time, rule=pressure_flow)

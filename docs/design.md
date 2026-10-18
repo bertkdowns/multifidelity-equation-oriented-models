@@ -55,8 +55,9 @@ appearing in active equalities, so a completely unused free public variable may
 not appear in that diagnostic. Integration tests compare DOF with geometry fixed
 and with the common thermal design variables released.
 
-Specification-mode checks and Dulmage–Mendelsohn structural diagnosis are
-deferred to future work.
+General specification-mode checks remain deferred. The complete SGHP case
+study now uses Dulmage–Mendelsohn decomposition for determinacy checks and
+strongly connected equation groups for experimental group switching.
 
 ## Ownership and equations
 
@@ -64,8 +65,8 @@ The parent is an IDAES `UnitModelBlockData`. It constructs four thermodynamic
 state blocks, ports into those states, area, U, length, and a common heat-duty
 expression. Different hot and cold property packages may be supplied.
 
-The lumped formulation adds stream material balances, equal inlet/outlet
-pressures, overall energy conservation, and an LMTD heat-transfer relation.
+The lumped formulation adds stream material balances, specified pressure drops
+(zero by default), overall energy conservation, and an LMTD heat-transfer relation.
 It uses the smooth log-mean approximation used by IDAES (Kazi et al., 2020),
 which is defined at equal terminal temperature differences. Terminal differences
 must have the same sign; temperature-crossing cases are outside its domain.
@@ -80,8 +81,10 @@ model. Increasing `finite_elements` refines the mesh.
 Common property helpers construct states and express stream balances; they do
 not own a second representation of the equipment. Property packages must expose
 temperature, pressure, state variables, and material/enthalpy flow terms. The
-initial implementation is steady state, with no pressure drop, reactions,
-holdup, or phase equilibrium. Numerical validation uses single-phase liquid water.
+implementation is steady state, without reactions or holdup. The complete SGHP
+study additionally uses phase-capable PH properties and specified pressure drops.
+Its `ChenHX` and `SegmentedHX` builders add bounded lumped and implicit mixed-cell
+closures; see [the study](../case_studies/sghp/FULL_STUDY.md).
 
 ## Fidelity interface
 
@@ -145,3 +148,13 @@ property aliases and enthalpy-flow terms are defined once outside the fidelity
 blocks, so existing unit equations remain connected across switches.
 
 See [water.md](water.md) for the equations, scope, and runnable example.
+
+## Flowsheet-level selection
+
+`workflow.py` supplies small research searches over named `FidelityChoice`
+objects. Equipment remains responsible for equations; a solve callback supplies
+numerical acceptance, cost, and diagnostics. Refinement rolls failed candidates
+back to the last accepted state and assignment. Relaxation retries from the
+original guesses after ranking a failed point. Policies and validity checks
+belong to the case study, not the assembly mixin. Greedy searches do not imply
+global optimality or physical accuracy.

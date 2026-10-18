@@ -25,3 +25,4 @@ class SharedValve:
     nominal_pressure_drop: ScalarParam
     nominal_density: ScalarParam
     nominal_opening: ScalarParam
+    trim: str

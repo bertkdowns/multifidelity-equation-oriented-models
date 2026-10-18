@@ -5,12 +5,24 @@ This directory collects research aims and exploratory directions. See
 for adaptive initialization, selective refinement, and measurement-aware
 hierarchical heat-pump models.
 
+The [coupled SGHP selection study](sghp-selection.md) is now implemented as a
+complementary feasibility experiment: reconstruct the complete circuits, give
+every valve and exchanger fidelity choices, and compare single-unit and coupled
+group switching. Its direct simultaneous solves are separate from a future
+benchmark of established flowsheet initialization routines.
+
 The emerging unifying question is: **given an engineering question, available
 measurements, and a hierarchy of representations, what is the simplest model
 that supports a sufficiently reliable answer?** Initialization work should
 focus on coupled flowsheets and recycle loops, where simpler representations
 may help establish consistent states, while making use of established
 individual-unit initialization routines.
+
+The first planned experiment prioritizes **model selection for heat-pump
+electrical power prediction** at steady operating conditions. Flowsheet
+initialization algorithms are deferred. See the
+[experiment outline](algorithms-and-hierarchies.md#first-planned-experiment-predicting-electrical-consumption)
+for candidate models, evaluation principles, and remaining design choices.
 
 This is an academic research project investigating multi-fidelity process
 models. Its purpose is to explore algorithms and demonstrate research ideas,
