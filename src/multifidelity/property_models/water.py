@@ -24,7 +24,6 @@ from pyomo.opt.base.solvers import OptSolver
 
 from ..base import Fidelity, MultiFidelityMixin, fixed_inputs
 from .helmholtz import HelmholtzWater
-from .interface import SharedWater
 from .linear import LinearWater
 
 
@@ -55,7 +54,7 @@ class WaterParameterData(PhysicalParameterBlock):
         self.compressibility_ref = Param(
             initialize=4.6e-10, mutable=True, units=1 / u.Pa
         )
-        self.builders: Mapping[str, Fidelity[SharedWater]] = (
+        self.builders: Mapping[str, Fidelity["WaterStateData"]] = (
             self.config.fidelities
             if self.config.fidelities is not None
             else {
@@ -127,7 +126,7 @@ class _WaterStateBlock(StateBlock):
 
 
 @declare_process_block_class("WaterStateBlock", block_class=_WaterStateBlock)
-class WaterStateData(MultiFidelityMixin[SharedWater], StateBlockData):
+class WaterStateData(MultiFidelityMixin["WaterStateData"], StateBlockData):
     def build(self) -> None:
         super().build()
         self.flow_mass = Var(initialize=1, bounds=(0, None), units=u.kg / u.s)
@@ -150,17 +149,7 @@ class WaterStateData(MultiFidelityMixin[SharedWater], StateBlockData):
         self.energy_internal_mass_phase = Expression(
             self.phase_list, rule=lambda b, p: b.enth_mass - b.pressure / b.dens_mass
         )
-        self._shared = SharedWater(
-            self.params,
-            self.flow_mass,
-            self.temperature,
-            self.pressure,
-            self.enth_mass,
-            self.entr_mass,
-            self.dens_mass,
-            self.cp_mass,
-        )
-        self.build_fidelities(self.params.builders, self._shared)
+        self.build_fidelities(self.params.builders, self)
 
     def define_state_vars(self) -> dict[str, ScalarVar]:
         return {
@@ -204,7 +193,7 @@ class WaterStateData(MultiFidelityMixin[SharedWater], StateBlockData):
         with fixed_inputs(self.define_state_vars().values()):
             name = self.active_fidelity
             result = self._builders[name].initialize(
-                self.fidelities[name], self._shared, model=self, solver=solver
+                self.fidelities[name], self, model=self, solver=solver
             )
             if not check_optimal_termination(result):
                 raise InitializationError(f"{self.name}: {name} initialization failed")

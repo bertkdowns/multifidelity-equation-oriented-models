@@ -1,37 +1,40 @@
 """First-order approximation of the liquid equal-percentage pressure-flow law."""
 
+from typing import TYPE_CHECKING
+
 from pyomo.core.base.block import BlockData
 from pyomo.environ import Constraint, log
 from pyomo.opt import SolverResults
 from pyomo.opt.base.solvers import OptSolver
 
-from .interface import SharedValve
+if TYPE_CHECKING:
+    from .model import ValveData
 
 
 class LinearValve:
-    def build(self, block: BlockData, shared: SharedValve) -> None:
+    def build(self, block: BlockData, valve: "ValveData") -> None:
         def pressure_flow(b, t):
-            return shared.inlet[t].flow_mass == shared.nominal_flow * (
+            return valve.inlet_state[t].flow_mass == valve.nominal_flow * (
                 1
-                + (shared.Cv - shared.nominal_Cv) / shared.nominal_Cv
-                + (shared.pressure_drop[t] - shared.nominal_pressure_drop)
-                / (2 * shared.nominal_pressure_drop)
-                + (shared.inlet[t].dens_mass - shared.nominal_density)
-                / (2 * shared.nominal_density)
+                + (valve.Cv - valve.nominal_Cv) / valve.nominal_Cv
+                + (valve.pressure_drop[t] - valve.nominal_pressure_drop)
+                / (2 * valve.nominal_pressure_drop)
+                + (valve.inlet_state[t].dens_mass - valve.nominal_density)
+                / (2 * valve.nominal_density)
                 + (
-                    1 / shared.nominal_opening
-                    if shared.trim == "linear"
-                    else log(shared.alpha)
+                    1 / valve.nominal_opening
+                    if valve.config.characteristic == "linear"
+                    else log(valve.alpha)
                 )
-                * (shared.opening[t] - shared.nominal_opening)
+                * (valve.opening[t] - valve.nominal_opening)
             )
 
-        block.pressure_flow = Constraint(shared.time, rule=pressure_flow)
+        block.pressure_flow = Constraint(valve.flowsheet().time, rule=pressure_flow)
 
     def initialize(
         self,
         block: BlockData,
-        shared: SharedValve,
+        valve: "ValveData",
         *,
         model: BlockData,
         solver: OptSolver,

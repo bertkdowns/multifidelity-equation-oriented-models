@@ -14,19 +14,20 @@ from pyomo.environ import (
     Var,
     check_optimal_termination,
     sqrt,
+)
+from pyomo.environ import (
     units as u,
 )
 
 from ...base import Fidelity, MultiFidelityMixin, fixed_inputs
 from ..streams import add_stream_ports, stream_balance
 from .basic import BasicValve
-from .interface import SharedValve
 from .linear import LinearValve
 from .pressure_flow import PressureFlowValve
 
 
 @declare_process_block_class("Valve")
-class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
+class ValveData(MultiFidelityMixin["ValveData"], UnitModelBlockData):
     CONFIG = UnitModelBlockData.CONFIG()
     CONFIG.declare("property_package", ConfigValue(domain=is_physical_parameter_block))
     CONFIG.declare("fidelities", ConfigValue(default=None))
@@ -113,25 +114,7 @@ class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
                 0 * u.W,
                 preserve_pressure=False,
             )
-        shared = SharedValve(
-            time,
-            self.inlet_state,
-            self.outlet_state,
-            self.Cv,
-            self.opening,
-            self.alpha,
-            self.pressure_drop,
-            self.nonlinear_residual,
-            self.basic_residual,
-            self.nominal_flow,
-            self.nominal_Cv,
-            self.nominal_pressure_drop,
-            self.nominal_density,
-            self.nominal_opening,
-            self.config.characteristic,
-        )
-        self._shared = shared
-        builders: Mapping[str, Fidelity[SharedValve]] = (
+        builders: Mapping[str, Fidelity[ValveData]] = (
             self.config.fidelities
             if self.config.fidelities is not None
             else {
@@ -140,7 +123,7 @@ class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
                 "basic": BasicValve(),
             }
         )
-        self.build_fidelities(builders, shared)
+        self.build_fidelities(builders, self)
 
     def initialize_build(self, *, solver=None, optarg=None):
         solver = (
@@ -154,7 +137,7 @@ class ValveData(MultiFidelityMixin[SharedValve], UnitModelBlockData):
         with fixed_inputs(inputs):
             name = self.active_fidelity
             result = self._builders[name].initialize(
-                self.fidelities[name], self._shared, model=self, solver=solver
+                self.fidelities[name], self, model=self, solver=solver
             )
             if not check_optimal_termination(result):
                 raise InitializationError(f"{self.name}: {name} initialization failed")

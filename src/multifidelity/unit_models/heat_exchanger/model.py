@@ -12,14 +12,13 @@ from pyomo.opt import SolverResults
 from pyomo.opt.base.solvers import OptSolver
 
 from ...base import Fidelity, MultiFidelityMixin, fixed_inputs
+from ..streams import convert, enthalpy_flow, interpolate, states
 from .distributed import DistributedHX
 from .lumped import LumpedHX
-from .interface import SharedHX
-from ..streams import convert, enthalpy_flow, interpolate, states
 
 
 @declare_process_block_class("HeatExchanger")
-class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
+class HeatExchangerData(MultiFidelityMixin["HeatExchangerData"], UnitModelBlockData):
     CONFIG = UnitModelBlockData.CONFIG()
     CONFIG.declare(
         "hot_side_property_package", ConfigValue(domain=is_physical_parameter_block)
@@ -66,20 +65,7 @@ class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
                 1 * units("power"),
             ),
         )
-        self._shared = SharedHX(
-            time,
-            self.hot_inlet_state,
-            self.hot_outlet_state,
-            self.cold_inlet_state,
-            self.cold_outlet_state,
-            self.area,
-            self.U,
-            self.length,
-            self.heat_duty,
-            self.hot_pressure_drop,
-            self.cold_pressure_drop,
-        )
-        builders: Mapping[str, Fidelity[SharedHX]] = (
+        builders: Mapping[str, Fidelity[HeatExchangerData]] = (
             self.config.fidelities
             if self.config.fidelities is not None
             else {
@@ -87,7 +73,7 @@ class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
                 "distributed": DistributedHX(),
             }
         )
-        self.build_fidelities(builders, self._shared)
+        self.build_fidelities(builders, self)
 
     def initialize_build(
         self,
@@ -112,7 +98,7 @@ class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
             for variable in port.vars.values():
                 inputs.extend(variable.values())
         with fixed_inputs(inputs):
-            for t in self._shared.time:
+            for t in self.flowsheet().time:
                 for inlet, outlet, other in (
                     (
                         self.hot_inlet_state[t],
@@ -147,7 +133,7 @@ class HeatExchangerData(MultiFidelityMixin[SharedHX], UnitModelBlockData):
                                 )
             name = self.active_fidelity
             result = self._builders[name].initialize(
-                self.fidelities[name], self._shared, model=self, solver=solver
+                self.fidelities[name], self, model=self, solver=solver
             )
             if not check_optimal_termination(result):
                 raise InitializationError(f"{self.name}: {name} initialization failed")

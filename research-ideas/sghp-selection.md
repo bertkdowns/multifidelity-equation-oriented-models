@@ -56,6 +56,20 @@ model with better predictions for the requested analysis.
 6. Does switching help full-flowsheet initialization compared with established
    IDAES unit routines and a comparable recycle strategy? That requires a
    separate controlled benchmark; direct simultaneous solves do not answer it.
+7. Does selection generalize across examples? The present source-valve failure
+   has a known answer, favoring informed policies. Include multiple flowsheets
+   and operating conditions with different model weaknesses, and less clear-cut
+   cases involving interacting limitations. Keep case-specific answers out of
+   general selection algorithms and distinguish informed from blind policies.
+8. Can explicit activation conditions guide selection? Separate validity domains
+   (such as a detailed correlation requiring sufficient flow) from permission
+   to approximate (such as a simplified model having negligible effect on a
+   chosen output at low flow). Explore MINLP formulations with discrete fidelity
+   choices and conditional equations/domain constraints, alongside metaheuristics
+   that search admissible assignments. Enforce conditions on solved operating
+   states, since switching can itself change flow. Study threshold selection,
+   domain overlap/gaps, and output relevance rather than treating low flow as
+   automatic evidence that an approximation is adequate.
 
 The source-loop case remains a controlled example. This coupled study is the
 next layer, alongside the broader electrical-consumption prediction direction.

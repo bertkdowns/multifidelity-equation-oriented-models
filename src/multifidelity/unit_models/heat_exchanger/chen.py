@@ -4,29 +4,31 @@ Positive terminal differences are private variables so fractional powers remain
 in their domain during solver iterations. Common balances come from LumpedHX.
 """
 
+from typing import TYPE_CHECKING
+
 from pyomo.core.base.block import BlockData
-from pyomo.environ import Constraint, Var, units as u
+from pyomo.environ import Constraint, Var
+from pyomo.environ import units as u
 
 from .lumped import LumpedHX
-from .interface import SharedHX
+
+if TYPE_CHECKING:
+    from .model import HeatExchangerData
 
 
 class ChenHX(LumpedHX):
-    def build(self, block: BlockData, shared: SharedHX) -> None:
-        super().build(block, shared)
-        block.hot_approach = Var(
-            shared.time, initialize=10, bounds=(1e-6, None), units=u.K
-        )
-        block.cold_approach = Var(
-            shared.time, initialize=10, bounds=(1e-6, None), units=u.K
-        )
+    def build(self, block: BlockData, hx: "HeatExchangerData") -> None:
+        time = hx.flowsheet().time
+        super().build(block, hx)
+        block.hot_approach = Var(time, initialize=10, bounds=(1e-6, None), units=u.K)
+        block.cold_approach = Var(time, initialize=10, bounds=(1e-6, None), units=u.K)
         block.hot_approach_definition = Constraint(
-            shared.time, rule=lambda b, t: b.hot_approach[t] == b.delta_in[t]
+            time, rule=lambda b, t: b.hot_approach[t] == b.delta_in[t]
         )
         block.cold_approach_definition = Constraint(
-            shared.time, rule=lambda b, t: b.cold_approach[t] == b.delta_out[t]
+            time, rule=lambda b, t: b.cold_approach[t] == b.delta_out[t]
         )
-        for t in shared.time:
+        for t in time:
             a = block.hot_approach[t]
             b = block.cold_approach[t]
             block.delta_temperature[t].set_value((a * b * (a + b) / 2) ** (1 / 3))

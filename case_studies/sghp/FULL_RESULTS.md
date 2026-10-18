@@ -213,6 +213,23 @@ missing validation reference.
 5. **The next selection objective should include engineering outputs.** Count of
    high units is a convenient metric, not accuracy. Compare output-error budgets,
    weighted component relevance, and retained detail at a common total effort.
+6. **The principal failure has a known answer.** The source-valve control-range
+   conflict makes this a useful controlled example, but favors policies supplied
+   with that knowledge. Broaden evaluation to multiple flowsheets and operating
+   conditions where different formulations become unsuitable, including cases
+   without an obvious single responsible component or preferred fidelity. A
+   collection of known weaknesses can test general selection behavior, provided
+   the algorithm is not given each case's answer in advance.
+7. **Investigate conditions governing fidelity activation.** For example, permit
+   a detailed valve law only above a minimum flow, or permit a simplified law
+   only where low flow makes its effect on the requested outputs sufficiently
+   small. Distinguish a formulation's validity domain from an approximation's
+   acceptable output error: low flow alone does not establish irrelevance.
+   Treat these conditions as part of the selection problem, potentially using
+   MINLP with conditional formulation constraints or a metaheuristic over
+   admissible fidelity assignments. Flow-dependent conditions must hold at the
+   resulting solution, rather than only at the initial guess; overlapping
+   domains and cases with no admissible assignment also need examination.
 
 The current pressure/flow anchors make source-valve simplification change its
 required opening without changing the thermal rating at reference. This is a

@@ -15,12 +15,13 @@ FidelitySharedT = TypeVar("FidelitySharedT", contravariant=True)
 
 
 class Fidelity(Protocol[FidelitySharedT]):
-    def build(self, block: BlockData, shared: FidelitySharedT) -> None: ...
+    def build(self, block: BlockData, shared: FidelitySharedT, /) -> None: ...
 
     def initialize(
         self,
         block: BlockData,
         shared: FidelitySharedT,
+        /,
         *,
         model: BlockData,
         solver: OptSolver,

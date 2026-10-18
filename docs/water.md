@@ -6,13 +6,17 @@ The property implementation is separate from the exchanger:
 src/multifidelity/
     base.py                       # Generic Fidelity, mixin, temporary fixations
     property_models/
-        interface.py              # Typed SharedWater interface
         water.py                  # IDAES parameter and state blocks
         linear.py                 # Constant-cp affine liquid approximation
         helmholtz.py              # IAPWS-95 liquid property equations
 examples/water.py
 tests/test_water_properties.py
 ```
+
+Property builders receive the parent `WaterStateData` directly, with concrete
+type annotations and type-only imports. They use its public property variables
+and access shared constants through `state.params`; no separate reference
+container or attribute mapping is needed.
 
 ## Public interface
 

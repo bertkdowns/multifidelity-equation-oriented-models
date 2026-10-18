@@ -109,16 +109,24 @@ class MyFidelity:
         ...
 ```
 
-Builders are supplied in a name-to-builder mapping. `SharedHX` is a frozen
-container of the physical interface, not a copy of its variables. Fidelity
-builders must not retain model-specific state on themselves; use their supplied
-block so builders can be reused and models can be cloned safely.
+Builders are supplied in a name-to-builder mapping. Valve and exchanger builders
+receive their parent `ValveData` or `HeatExchangerData` directly. They access its
+public physical attributes (`inlet_state`, `hot_inlet_state`, geometry, and so
+on), and obtain time from `parent.flowsheet().time`. There is no separate shared
+reference container or field mapping. Concrete parent annotations use
+`TYPE_CHECKING` imports to avoid runtime import cycles.
+
+Builders must not retain model-specific state on themselves; use their supplied
+formulation block so builders can be reused and models can be cloned safely.
 
 The generic `Fidelity[SharedT]` protocol lives with `MultiFidelityMixin` in
 `base.py`. Initializers receive their solve target explicitly as `model`, which
 can be an equipment model or a property state block. Solver arguments use Pyomo's
-existing `OptSolver` type. `SharedHX` and `SharedWater` describe their respective
-physical interfaces; the mixin does not depend on either one.
+existing `OptSolver` type. Equipment builder mappings are typed with their parent
+model; property builders receive `WaterStateData`, accessing constants and
+configuration through `state.params`. All use type-only imports where needed.
+The mixin treats the supplied object as opaque and does not depend on equipment
+or property interfaces.
 
 During initialization the parent temporarily fixes inlet and design variables
 at their current values, supplies feasible boundary temperature guesses when

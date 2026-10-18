@@ -1,8 +1,7 @@
-from .distributed import DistributedHX
 from .chen import ChenHX
-from .segmented import SegmentedHX
+from .distributed import DistributedHX
 from .lumped import LumpedHX
-
 from .model import HeatExchanger
+from .segmented import SegmentedHX
 
 __all__ = ["HeatExchanger", "LumpedHX", "DistributedHX", "ChenHX", "SegmentedHX"]
