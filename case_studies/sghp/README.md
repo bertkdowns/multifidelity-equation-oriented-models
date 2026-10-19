@@ -6,6 +6,10 @@ equipment models and flowsheet-level selection algorithms. See
 [FULL_RESULTS.md](FULL_RESULTS.md). This document describes the original
 controlled source-loop experiment, which remains independently runnable.
 
+The [isolated heat-pump example](HEAT_PUMP_CYCLE.md) retains only the n-butane
+refrigerant cycle, including subcooler and IHX, behind the aggregate heat pump's
+external source/sink interface.
+
 Research question: can a basic valve fallback keep thermal analysis usable when
 the detailed valve characteristic is unnecessary or inappropriate for a low-flow
 operating case? Initialization and residual-based refinement remain comparisons,
