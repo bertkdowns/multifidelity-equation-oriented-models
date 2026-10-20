@@ -1,6 +1,7 @@
 """Equipment and properties with interchangeable mathematical formulations."""
 
 from .base import Fidelity, MultiFidelityMixin
+from .unit_models.milk_evaporator import MilkEvaporator, AggregateMilkEvaporator, DetailedMilkEvaporator
 from .unit_models.heat_pump import HeatPump, COPHeatPump, CycleHeatPump
 from .workflow import FidelityChoice, SolveOutcome, SelectionResult, run_selection
 from .unit_models.heat_exchanger import (
@@ -21,6 +22,9 @@ from .unit_models.splitter import Splitter
 from .unit_models.flash_separator import FlashSeparator
 
 __all__ = [
+    "MilkEvaporator",
+    "AggregateMilkEvaporator",
+    "DetailedMilkEvaporator",
     "CycleHeatPump",
     "HeatPump",
     "COPHeatPump",

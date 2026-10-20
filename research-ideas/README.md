@@ -5,6 +5,11 @@ This directory collects research aims and exploratory directions. See
 for adaptive initialization, selective refinement, and measurement-aware
 hierarchical heat-pump models.
 
+All fidelities of a unit must use the same default specified and unspecified
+public variables, as defined in the [design principles](../docs/design.md).
+Matching specifications does not require identical feasible regions or guarantee
+that every fidelity can solve a given operating point.
+
 The [coupled SGHP selection study](sghp-selection.md) is now implemented as a
 complementary feasibility experiment: reconstruct the complete circuits, give
 every valve and exchanger fidelity choices, and compare single-unit and coupled

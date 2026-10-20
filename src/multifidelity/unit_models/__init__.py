@@ -2,6 +2,7 @@
 
 from .heat_exchanger import DistributedHX, HeatExchanger, LumpedHX, ChenHX, SegmentedHX
 from .pump import Pump
+from .milk_evaporator import MilkEvaporator, AggregateMilkEvaporator, DetailedMilkEvaporator
 from .heat_pump import HeatPump, COPHeatPump, CycleHeatPump
 from .thermal_conditioner import ThermalConditioner
 from .valve import BasicValve, LinearValve, PressureFlowValve, Valve
@@ -12,6 +13,9 @@ from .splitter import Splitter
 from .flash_separator import FlashSeparator
 
 __all__ = [
+    "MilkEvaporator",
+    "AggregateMilkEvaporator",
+    "DetailedMilkEvaporator",
     "CycleHeatPump",
     "HeatPump",
     "COPHeatPump",

@@ -9,9 +9,12 @@ should be justified by those aims.
 1. **Consistent physical meaning.** Every public quantity has the same meaning,
    units, and sign convention in every fidelity. Heat duty is positive heat
    gained by the cold stream and is defined once from its boundary enthalpy flows.
-2. **Consistent public degrees of freedom.** Each formulation requires the same
-   number of independent public specifications. Internal states and equations
-   may differ. The normal fixed specifications remain unchanged across switches.
+2. **Identical default public specifications.** Every fidelity of a unit model
+   must have the same public variables specified (fixed) and unspecified (free)
+   by default. Matching only the number of degrees of freedom is insufficient:
+   the identities and physical meanings of the specified and calculated public
+   quantities must match. Internal states, equations, and private parameters may
+   differ, but must not silently change this public specification contract.
 3. **Preserved specifications.** Selecting a fidelity changes block activation
    only. It preserves all public values and fixation flags and performs no solve.
 4. **Single ownership.** The parent owns public states and design variables.
@@ -41,6 +44,25 @@ is the [SGHP source loop](../case_studies/sghp/README.md). Research-specific
 nominal values are set by the case, rather than hard-coded in library models.
 
 ## Specifications and structural diagnosis
+
+The common default specification contract applies to all multi-fidelity unit
+models, including composite models. Switching fidelity must not fix or release
+public variables, substitute different operating specifications, or quietly
+replace an input with a calculated output. A caller may explicitly choose an
+alternative specification mode, but fidelity selection itself preserves that
+choice.
+
+Identical public specifications do not guarantee a solution in every fidelity,
+identical feasible regions, or identical predictions. Physical or numerical
+infeasibility under the unchanged specifications is an acceptable experimental
+outcome; do not automatically alter specifications to make a fidelity solve.
+
+For the milk evaporator, the agreed default inputs are feed conditions, MVR
+power, operating pressure, and heat-recovery effectiveness in both fidelities.
+Outlet streams and heat duty are calculated; the detailed model additionally
+calculates exchanger area, with its heat-transfer coefficient supplied. A shared
+parent-owned effectiveness variable and heat-recovery equation enforce this
+contract in both formulations; area is not a default specification.
 
 Length remains a public variable and is normally fixed in both formulations.
 The lumped formulation does not use it. The distributed formulation uses it

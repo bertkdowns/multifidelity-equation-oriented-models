@@ -4,6 +4,10 @@ This is an academic research project focused on **initialization through
 fidelity changes** and **selective flowsheet refinement**. See the
 [research purpose](research-ideas/README.md) for its goals and scope priorities.
 
+The [milk evaporator example](case_studies/milk_evaporator/README.md) compares
+aggregate balances and heat recovery against an explicit valve/exchanger/
+separator/translator/MVR effect using published Ahuora packages.
+
 An IDAES unit model with one public physical interface and two selectable
 formulations: lumped (0D, smooth LMTD) and distributed (1D, finite volume).
 Both use the same public variable objects. Switching requires no copying of
