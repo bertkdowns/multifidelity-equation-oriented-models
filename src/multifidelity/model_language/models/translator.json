@@ -1,0 +1,54 @@
+{
+  "id": "translator",
+  "description": "Topology scaffold: identity translation, no composition or property-basis conversion.",
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "identity": {
+      "models": {},
+      "constraints": {
+        "eq_1": {
+          "lhs": "outlet.flow",
+          "rhs": "inlet.flow"
+        },
+        "eq_2": {
+          "lhs": "outlet.pressure",
+          "rhs": "inlet.pressure"
+        },
+        "eq_3": {
+          "lhs": "outlet.enthalpy",
+          "rhs": "inlet.enthalpy"
+        }
+      },
+      "connections": {}
+    }
+  }
+}

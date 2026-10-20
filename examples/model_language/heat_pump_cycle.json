@@ -1,0 +1,36 @@
+{
+  "model": "heat_pump",
+  "relationship": "cycle",
+  "submodels": {
+    "compressor": {
+      "model": "compressor",
+      "relationship": "energy_balance",
+      "submodels": {}
+    },
+    "condenser": {
+      "model": "heat_exchanger",
+      "relationship": "lumped",
+      "submodels": {}
+    },
+    "subcooler": {
+      "model": "heat_exchanger",
+      "relationship": "lumped",
+      "submodels": {}
+    },
+    "ihx": {
+      "model": "heat_exchanger",
+      "relationship": "lumped",
+      "submodels": {}
+    },
+    "expansion_valve": {
+      "model": "valve",
+      "relationship": "isenthalpic",
+      "submodels": {}
+    },
+    "evaporator": {
+      "model": "heat_exchanger",
+      "relationship": "lumped",
+      "submodels": {}
+    }
+  }
+}

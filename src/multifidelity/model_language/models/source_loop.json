@@ -1,0 +1,49 @@
+{
+  "id": "source_loop",
+  "description": "Source-loop topology from case_studies/sghp/source_loop.py; inputs remain unspecified.",
+  "structs": {},
+  "relationships": {
+    "loop": {
+      "models": {
+        "valve": {
+          "model": "valve"
+        },
+        "pump": {
+          "model": "pump"
+        },
+        "evaporator": {
+          "model": "thermal_conditioner"
+        },
+        "heater": {
+          "model": "thermal_conditioner"
+        },
+        "tank": {
+          "model": "thermal_conditioner"
+        }
+      },
+      "constraints": {},
+      "connections": {
+        "link_1": {
+          "from": "valve.outlet",
+          "to": "pump.inlet"
+        },
+        "link_2": {
+          "from": "pump.outlet",
+          "to": "evaporator.inlet"
+        },
+        "link_3": {
+          "from": "evaporator.outlet",
+          "to": "heater.inlet"
+        },
+        "link_4": {
+          "from": "heater.outlet",
+          "to": "tank.inlet"
+        },
+        "link_5": {
+          "from": "tank.outlet",
+          "to": "valve.inlet"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "id": "heat_pump",
+  "description": "Scalar illustrative equations, not a numerical reproduction of the existing property-package models.",
+  "structs": {
+    "source_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "source_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "sink_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "sink_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "electrical_power": {
+          "unit": "W"
+        },
+        "cop": {
+          "unit": "dimensionless"
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "heating_duty": {
+          "unit": "W"
+        },
+        "cooling_duty": {
+          "unit": "W"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "aggregate": {
+      "models": {},
+      "constraints": {
+        "eq_1": {
+          "lhs": "performance.heating_duty",
+          "rhs": "parameters.cop * parameters.electrical_power"
+        },
+        "eq_2": {
+          "lhs": "performance.cooling_duty",
+          "rhs": "performance.heating_duty - parameters.electrical_power"
+        },
+        "eq_3": {
+          "lhs": "source_outlet.flow",
+          "rhs": "source_inlet.flow"
+        },
+        "eq_4": {
+          "lhs": "source_outlet.pressure",
+          "rhs": "source_inlet.pressure"
+        },
+        "eq_5": {
+          "lhs": "source_outlet.flow * source_outlet.enthalpy",
+          "rhs": "source_inlet.flow * source_inlet.enthalpy - performance.cooling_duty"
+        },
+        "eq_6": {
+          "lhs": "sink_outlet.flow",
+          "rhs": "sink_inlet.flow"
+        },
+        "eq_7": {
+          "lhs": "sink_outlet.pressure",
+          "rhs": "sink_inlet.pressure"
+        },
+        "eq_8": {
+          "lhs": "sink_outlet.flow * sink_outlet.enthalpy",
+          "rhs": "sink_inlet.flow * sink_inlet.enthalpy + performance.heating_duty"
+        }
+      },
+      "connections": {}
+    },
+    "cycle": {
+      "models": {
+        "compressor": {
+          "model": "compressor"
+        },
+        "condenser": {
+          "model": "heat_exchanger"
+        },
+        "subcooler": {
+          "model": "heat_exchanger"
+        },
+        "ihx": {
+          "model": "heat_exchanger"
+        },
+        "expansion_valve": {
+          "model": "valve"
+        },
+        "evaporator": {
+          "model": "heat_exchanger"
+        }
+      },
+      "constraints": {
+        "eq_1": {
+          "lhs": "parameters.electrical_power",
+          "rhs": "compressor.parameters.work"
+        },
+        "eq_2": {
+          "lhs": "performance.heating_duty",
+          "rhs": "sink_outlet.flow * sink_outlet.enthalpy - sink_inlet.flow * sink_inlet.enthalpy"
+        },
+        "eq_3": {
+          "lhs": "performance.cooling_duty",
+          "rhs": "source_inlet.flow * source_inlet.enthalpy - source_outlet.flow * source_outlet.enthalpy"
+        }
+      },
+      "connections": {
+        "link_1": {
+          "from": "compressor.outlet",
+          "to": "condenser.hot_inlet"
+        },
+        "link_2": {
+          "from": "condenser.hot_outlet",
+          "to": "subcooler.hot_inlet"
+        },
+        "link_3": {
+          "from": "subcooler.hot_outlet",
+          "to": "ihx.hot_inlet"
+        },
+        "link_4": {
+          "from": "ihx.hot_outlet",
+          "to": "expansion_valve.inlet"
+        },
+        "link_5": {
+          "from": "expansion_valve.outlet",
+          "to": "evaporator.cold_inlet"
+        },
+        "link_6": {
+          "from": "evaporator.cold_outlet",
+          "to": "ihx.cold_inlet"
+        },
+        "link_7": {
+          "from": "ihx.cold_outlet",
+          "to": "compressor.inlet"
+        },
+        "link_8": {
+          "from": "source_inlet",
+          "to": "evaporator.hot_inlet"
+        },
+        "link_9": {
+          "from": "evaporator.hot_outlet",
+          "to": "source_outlet"
+        },
+        "link_10": {
+          "from": "sink_inlet",
+          "to": "subcooler.cold_inlet"
+        },
+        "link_11": {
+          "from": "subcooler.cold_outlet",
+          "to": "condenser.cold_inlet"
+        },
+        "link_12": {
+          "from": "condenser.cold_outlet",
+          "to": "sink_outlet"
+        }
+      }
+    }
+  }
+}

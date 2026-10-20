@@ -1,0 +1,92 @@
+{
+  "id": "splitter",
+  "description": "Topology scaffold: prescribed flow split; no phase equilibrium or composition closure.",
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "main": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "branch": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "fraction": {
+          "unit": "dimensionless",
+          "bounds": {
+            "min": 0,
+            "max": 1
+          }
+        }
+      }
+    }
+  },
+  "relationships": {
+    "split": {
+      "models": {},
+      "constraints": {
+        "eq_1": {
+          "lhs": "main.flow",
+          "rhs": "inlet.flow * parameters.fraction"
+        },
+        "eq_2": {
+          "lhs": "branch.flow",
+          "rhs": "inlet.flow - main.flow"
+        },
+        "eq_3": {
+          "lhs": "main.pressure",
+          "rhs": "inlet.pressure"
+        },
+        "eq_4": {
+          "lhs": "main.enthalpy",
+          "rhs": "inlet.enthalpy"
+        },
+        "eq_5": {
+          "lhs": "branch.pressure",
+          "rhs": "inlet.pressure"
+        },
+        "eq_6": {
+          "lhs": "branch.enthalpy",
+          "rhs": "inlet.enthalpy"
+        }
+      },
+      "connections": {}
+    }
+  }
+}

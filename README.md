@@ -136,3 +136,12 @@ For the example's 370/300 K inlets, 1/1.2 kg/s flows, 10 m² area and
 The small integration suite checks connected round-trip solves, unchanged public
 specifications and values on selection, common DOF, units, energy conservation,
 and recovery after actual solver initialization failures.
+
+## JSON model language
+
+The experimental [JSON model language](src/multifidelity/model_language/README.md)
+provides reusable model definitions, recursive relationship selections, and
+construction of an IDAES/Pyomo equation hierarchy without solving. Bundled
+examples cover the heat pump, SGHP source loop, full SGHP topology, and milk
+evaporator. Their simplified equations are construction examples, not numerical
+replacements for the existing case studies.

@@ -20,7 +20,7 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.setuptools.package-data]
-multifidelity = ["property_models/data/*.json", "property_models/data/*.nl"]
+multifidelity = ["property_models/data/*.json", "property_models/data/*.nl", "model_language/models/*.json", "model_language/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

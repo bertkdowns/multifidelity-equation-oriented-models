@@ -1,0 +1,101 @@
+{
+  "model": "steam_generating_heat_pump",
+  "relationship": "flowsheet",
+  "submodels": {
+    "condenser": {
+      "model": "heat_exchanger",
+      "relationship": "lumped",
+      "submodels": {}
+    },
+    "subcooler": {
+      "model": "heat_exchanger",
+      "relationship": "lumped",
+      "submodels": {}
+    },
+    "evaporator": {
+      "model": "heat_exchanger",
+      "relationship": "lumped",
+      "submodels": {}
+    },
+    "cooling_exchanger": {
+      "model": "heat_exchanger",
+      "relationship": "lumped",
+      "submodels": {}
+    },
+    "ihx": {
+      "model": "heat_exchanger",
+      "relationship": "lumped",
+      "submodels": {}
+    },
+    "expansion_valve": {
+      "model": "valve",
+      "relationship": "isenthalpic",
+      "submodels": {}
+    },
+    "hot_water_valve": {
+      "model": "valve",
+      "relationship": "isenthalpic",
+      "submodels": {}
+    },
+    "steam_valve": {
+      "model": "valve",
+      "relationship": "isenthalpic",
+      "submodels": {}
+    },
+    "source_valve": {
+      "model": "valve",
+      "relationship": "isenthalpic",
+      "submodels": {}
+    },
+    "compressor": {
+      "model": "compressor",
+      "relationship": "energy_balance",
+      "submodels": {}
+    },
+    "flash": {
+      "model": "flash_separator",
+      "relationship": "split",
+      "submodels": {}
+    },
+    "hot_water_pump": {
+      "model": "pump",
+      "relationship": "energy_balance",
+      "submodels": {}
+    },
+    "hot_water_mixer": {
+      "model": "mixer",
+      "relationship": "balance",
+      "submodels": {}
+    },
+    "warm_water_pump": {
+      "model": "pump",
+      "relationship": "energy_balance",
+      "submodels": {}
+    },
+    "splitter": {
+      "model": "splitter",
+      "relationship": "split",
+      "submodels": {}
+    },
+    "warm_water_mixer": {
+      "model": "mixer",
+      "relationship": "balance",
+      "submodels": {}
+    },
+    "source_pump": {
+      "model": "pump",
+      "relationship": "energy_balance",
+      "submodels": {}
+    },
+    "source_heater": {
+      "model": "thermal_conditioner",
+      "relationship": "energy_balance",
+      "submodels": {}
+    },
+    "source_tank": {
+      "model": "thermal_conditioner",
+      "relationship": "energy_balance",
+      "submodels": {}
+    }
+  }
+}

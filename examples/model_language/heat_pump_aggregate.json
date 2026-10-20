@@ -1,0 +1,5 @@
+{
+  "model": "heat_pump",
+  "relationship": "aggregate",
+  "submodels": {}
+}

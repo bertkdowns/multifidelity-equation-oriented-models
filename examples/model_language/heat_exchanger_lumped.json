@@ -1,0 +1,5 @@
+{
+  "model": "heat_exchanger",
+  "relationship": "lumped",
+  "submodels": {}
+}

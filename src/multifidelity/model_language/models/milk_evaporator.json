@@ -1,0 +1,134 @@
+{
+  "id": "milk_evaporator",
+  "description": "Topology scaffold of the milk MVR evaporator. Aggregate balances are unclosed; detailed structure omits milk composition, phase equilibrium, carryover and effectiveness closure. Not numerically equivalent to the existing case.",
+  "structs": {
+    "milk_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "milk_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "water_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "mvr_power": {
+          "unit": "W"
+        },
+        "effectiveness": {
+          "unit": "dimensionless"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "aggregate": {
+      "models": {},
+      "constraints": {
+        "eq_1": {
+          "lhs": "milk_inlet.flow",
+          "rhs": "milk_outlet.flow + water_outlet.flow"
+        },
+        "eq_2": {
+          "lhs": "milk_inlet.flow * milk_inlet.enthalpy + parameters.mvr_power",
+          "rhs": "milk_outlet.flow * milk_outlet.enthalpy + water_outlet.flow * water_outlet.enthalpy"
+        }
+      },
+      "connections": {}
+    },
+    "detailed": {
+      "models": {
+        "valve": {
+          "model": "valve"
+        },
+        "heat_exchanger": {
+          "model": "heat_exchanger"
+        },
+        "separator": {
+          "model": "flash_separator"
+        },
+        "translator": {
+          "model": "translator"
+        },
+        "mvr": {
+          "model": "compressor"
+        }
+      },
+      "constraints": {
+        "eq_1": {
+          "lhs": "parameters.mvr_power",
+          "rhs": "mvr.parameters.work"
+        }
+      },
+      "connections": {
+        "link_1": {
+          "from": "milk_inlet",
+          "to": "valve.inlet"
+        },
+        "link_2": {
+          "from": "valve.outlet",
+          "to": "heat_exchanger.cold_inlet"
+        },
+        "link_3": {
+          "from": "heat_exchanger.cold_outlet",
+          "to": "separator.inlet"
+        },
+        "link_4": {
+          "from": "separator.liquid",
+          "to": "milk_outlet"
+        },
+        "link_5": {
+          "from": "separator.vapor",
+          "to": "translator.inlet"
+        },
+        "link_6": {
+          "from": "translator.outlet",
+          "to": "mvr.inlet"
+        },
+        "link_7": {
+          "from": "mvr.outlet",
+          "to": "heat_exchanger.hot_inlet"
+        },
+        "link_8": {
+          "from": "heat_exchanger.hot_outlet",
+          "to": "water_outlet"
+        }
+      }
+    }
+  }
+}

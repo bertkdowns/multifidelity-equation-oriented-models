@@ -1,0 +1,62 @@
+{
+  "id": "thermal_conditioner",
+  "description": "Scalar illustrative equations, not a numerical reproduction of the existing property-package models.",
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "heat_duty": {
+          "unit": "W"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "energy_balance": {
+      "models": {},
+      "constraints": {
+        "eq_1": {
+          "lhs": "outlet.flow",
+          "rhs": "inlet.flow"
+        },
+        "eq_2": {
+          "lhs": "outlet.pressure",
+          "rhs": "inlet.pressure"
+        },
+        "eq_3": {
+          "lhs": "outlet.flow * outlet.enthalpy",
+          "rhs": "inlet.flow * inlet.enthalpy + parameters.heat_duty"
+        }
+      },
+      "connections": {}
+    }
+  }
+}

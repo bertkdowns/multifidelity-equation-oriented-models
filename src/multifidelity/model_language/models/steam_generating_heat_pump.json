@@ -1,0 +1,167 @@
+{
+  "id": "steam_generating_heat_pump",
+  "description": "Full captured SGHP equipment/stream topology; primitive equations are illustrative and do not reproduce calibrated PH/phase-equilibrium models.",
+  "structs": {},
+  "relationships": {
+    "flowsheet": {
+      "models": {
+        "condenser": {
+          "model": "heat_exchanger"
+        },
+        "subcooler": {
+          "model": "heat_exchanger"
+        },
+        "evaporator": {
+          "model": "heat_exchanger"
+        },
+        "cooling_exchanger": {
+          "model": "heat_exchanger"
+        },
+        "ihx": {
+          "model": "heat_exchanger"
+        },
+        "expansion_valve": {
+          "model": "valve"
+        },
+        "hot_water_valve": {
+          "model": "valve"
+        },
+        "steam_valve": {
+          "model": "valve"
+        },
+        "source_valve": {
+          "model": "valve"
+        },
+        "compressor": {
+          "model": "compressor"
+        },
+        "flash": {
+          "model": "flash_separator"
+        },
+        "hot_water_pump": {
+          "model": "pump"
+        },
+        "hot_water_mixer": {
+          "model": "mixer"
+        },
+        "warm_water_pump": {
+          "model": "pump"
+        },
+        "splitter": {
+          "model": "splitter"
+        },
+        "warm_water_mixer": {
+          "model": "mixer"
+        },
+        "source_pump": {
+          "model": "pump"
+        },
+        "source_heater": {
+          "model": "thermal_conditioner"
+        },
+        "source_tank": {
+          "model": "thermal_conditioner"
+        }
+      },
+      "constraints": {},
+      "connections": {
+        "link_1": {
+          "from": "compressor.outlet",
+          "to": "condenser.hot_inlet"
+        },
+        "link_2": {
+          "from": "condenser.cold_outlet",
+          "to": "hot_water_valve.inlet"
+        },
+        "link_3": {
+          "from": "condenser.hot_outlet",
+          "to": "subcooler.hot_inlet"
+        },
+        "link_4": {
+          "from": "subcooler.cold_outlet",
+          "to": "splitter.inlet"
+        },
+        "link_5": {
+          "from": "subcooler.hot_outlet",
+          "to": "ihx.hot_inlet"
+        },
+        "link_6": {
+          "from": "evaporator.cold_outlet",
+          "to": "ihx.cold_inlet"
+        },
+        "link_7": {
+          "from": "evaporator.hot_outlet",
+          "to": "source_heater.inlet"
+        },
+        "link_8": {
+          "from": "expansion_valve.outlet",
+          "to": "evaporator.cold_inlet"
+        },
+        "link_9": {
+          "from": "flash.liquid",
+          "to": "hot_water_mixer.main"
+        },
+        "link_10": {
+          "from": "flash.vapor",
+          "to": "steam_valve.inlet"
+        },
+        "link_11": {
+          "from": "hot_water_pump.outlet",
+          "to": "condenser.cold_inlet"
+        },
+        "link_12": {
+          "from": "hot_water_mixer.outlet",
+          "to": "hot_water_pump.inlet"
+        },
+        "link_13": {
+          "from": "hot_water_valve.outlet",
+          "to": "flash.inlet"
+        },
+        "link_14": {
+          "from": "warm_water_pump.outlet",
+          "to": "subcooler.cold_inlet"
+        },
+        "link_15": {
+          "from": "cooling_exchanger.hot_outlet",
+          "to": "warm_water_mixer.main"
+        },
+        "link_16": {
+          "from": "splitter.main",
+          "to": "cooling_exchanger.hot_inlet"
+        },
+        "link_17": {
+          "from": "splitter.branch",
+          "to": "hot_water_mixer.makeup"
+        },
+        "link_18": {
+          "from": "warm_water_mixer.outlet",
+          "to": "warm_water_pump.inlet"
+        },
+        "link_19": {
+          "from": "source_pump.outlet",
+          "to": "evaporator.hot_inlet"
+        },
+        "link_20": {
+          "from": "source_heater.outlet",
+          "to": "source_tank.inlet"
+        },
+        "link_21": {
+          "from": "source_tank.outlet",
+          "to": "source_valve.inlet"
+        },
+        "link_22": {
+          "from": "ihx.cold_outlet",
+          "to": "compressor.inlet"
+        },
+        "link_23": {
+          "from": "ihx.hot_outlet",
+          "to": "expansion_valve.inlet"
+        },
+        "link_24": {
+          "from": "source_valve.outlet",
+          "to": "source_pump.inlet"
+        }
+      }
+    }
+  }
+}

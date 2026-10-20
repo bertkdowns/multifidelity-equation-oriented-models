@@ -1,0 +1,31 @@
+{
+  "model": "milk_evaporator",
+  "relationship": "detailed",
+  "submodels": {
+    "valve": {
+      "model": "valve",
+      "relationship": "isenthalpic",
+      "submodels": {}
+    },
+    "heat_exchanger": {
+      "model": "heat_exchanger",
+      "relationship": "lumped",
+      "submodels": {}
+    },
+    "separator": {
+      "model": "flash_separator",
+      "relationship": "split",
+      "submodels": {}
+    },
+    "translator": {
+      "model": "translator",
+      "relationship": "identity",
+      "submodels": {}
+    },
+    "mvr": {
+      "model": "compressor",
+      "relationship": "energy_balance",
+      "submodels": {}
+    }
+  }
+}

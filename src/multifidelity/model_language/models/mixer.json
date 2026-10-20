@@ -1,0 +1,68 @@
+{
+  "id": "mixer",
+  "description": "Scalar illustrative equations, not a numerical reproduction of the existing property-package models.",
+  "structs": {
+    "main": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "makeup": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "balance": {
+      "models": {},
+      "constraints": {
+        "eq_1": {
+          "lhs": "outlet.flow",
+          "rhs": "main.flow + makeup.flow"
+        },
+        "eq_2": {
+          "lhs": "outlet.flow * outlet.enthalpy",
+          "rhs": "main.flow * main.enthalpy + makeup.flow * makeup.enthalpy"
+        },
+        "eq_3": {
+          "lhs": "outlet.pressure",
+          "rhs": "main.pressure"
+        }
+      },
+      "connections": {}
+    }
+  }
+}

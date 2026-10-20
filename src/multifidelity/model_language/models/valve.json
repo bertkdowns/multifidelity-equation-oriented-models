@@ -1,0 +1,62 @@
+{
+  "id": "valve",
+  "description": "Scalar illustrative equations, not a numerical reproduction of the existing property-package models.",
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "pressure_drop": {
+          "unit": "Pa"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "isenthalpic": {
+      "models": {},
+      "constraints": {
+        "eq_1": {
+          "lhs": "outlet.flow",
+          "rhs": "inlet.flow"
+        },
+        "eq_2": {
+          "lhs": "outlet.enthalpy",
+          "rhs": "inlet.enthalpy"
+        },
+        "eq_3": {
+          "lhs": "outlet.pressure",
+          "rhs": "inlet.pressure - parameters.pressure_drop"
+        }
+      },
+      "connections": {}
+    }
+  }
+}

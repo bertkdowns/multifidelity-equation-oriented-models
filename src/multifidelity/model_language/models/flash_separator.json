@@ -1,0 +1,92 @@
+{
+  "id": "flash_separator",
+  "description": "Topology scaffold: prescribed flow split; no phase equilibrium or composition closure.",
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "fraction": {
+          "unit": "dimensionless",
+          "bounds": {
+            "min": 0,
+            "max": 1
+          }
+        }
+      }
+    },
+    "liquid": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "vapor": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "split": {
+      "models": {},
+      "constraints": {
+        "eq_1": {
+          "lhs": "liquid.flow",
+          "rhs": "inlet.flow * parameters.fraction"
+        },
+        "eq_2": {
+          "lhs": "vapor.flow",
+          "rhs": "inlet.flow - liquid.flow"
+        },
+        "eq_3": {
+          "lhs": "liquid.pressure",
+          "rhs": "inlet.pressure"
+        },
+        "eq_4": {
+          "lhs": "liquid.enthalpy",
+          "rhs": "inlet.enthalpy"
+        },
+        "eq_5": {
+          "lhs": "vapor.pressure",
+          "rhs": "inlet.pressure"
+        },
+        "eq_6": {
+          "lhs": "vapor.enthalpy",
+          "rhs": "inlet.enthalpy"
+        }
+      },
+      "connections": {}
+    }
+  }
+}
