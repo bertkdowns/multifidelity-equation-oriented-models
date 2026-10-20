@@ -6,6 +6,7 @@ import operator
 from pathlib import Path
 
 from idaes.core import FlowsheetBlock
+from pyomo.core.expr.visitor import identify_variables
 from pyomo.environ import Block, ConcreteModel, Constraint, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
@@ -164,6 +165,36 @@ def build_model(model_id, implementation, *, library=None):
                 return children[alias][rest]
             raise ValueError(f"{path}: unknown or inaccessible variable {reference!r}")
 
+        # Only parent outputs and immediate child inputs may be determined here.
+        # Other child inputs may remain unspecified for a future instance to set.
+        outputs = {
+            f"{s}.{v}"
+            for s, struct in definition["structs"].items()
+            if struct["direction"] == "output"
+            for v in struct["variables"]
+        }
+        allowed = outputs | {
+            f"{alias}.{s}.{v}"
+            for alias, reference in refs.items()
+            for s, struct in library.get(reference["model"])["structs"].items()
+            if struct["direction"] == "input"
+            for v in struct["variables"]
+        }
+        determinations = {}
+
+        def determine(target, source):
+            if not isinstance(target, str) or target not in allowed:
+                raise ValueError(
+                    f"{path}.{relationship_id}: {source} determines invalid target "
+                    f"{target!r}; expected a parent output or immediate child input"
+                )
+            if target in determinations:
+                raise ValueError(
+                    f"{path}.{relationship_id}: duplicate determination of {target!r} "
+                    f"by {determinations[target]} and {source}"
+                )
+            determinations[target] = source
+
         active.constraints = Block()
         for name, equation in relationship.get("constraints", {}).items():
             _name(name)
@@ -173,6 +204,14 @@ def build_model(model_id, implementation, *, library=None):
             # a symbolic equation, and cannot constrain the constructed model.
             if isinstance(lhs == rhs, bool):
                 raise ValueError(f"{path}.{name}: equation must involve variables")
+            target = equation.get("determines")
+            determine(target, f"constraint {name}")
+            target_var = resolve(target)
+            if not any(v is target_var for v in identify_variables(lhs - rhs)):
+                raise ValueError(
+                    f"{path}.{relationship_id}: constraint {name} determines "
+                    f"{target!r}, but it does not occur in the equation"
+                )
             active.constraints.add_component(name, Constraint(expr=lhs == rhs))
         active.connections = Block()
         # Connections are shorthand for field-by-field equality constraints;
@@ -213,6 +252,7 @@ def build_model(model_id, implementation, *, library=None):
             connection_block = Block()
             active.connections.add_component(name, connection_block)
             for field in source[0]["variables"]:
+                determine(target[1] + "." + field, f"connection {name}")
                 a, b = (
                     resolve(source[1] + "." + field),
                     resolve(target[1] + "." + field),
@@ -222,6 +262,12 @@ def build_model(model_id, implementation, *, library=None):
                     field,
                     Constraint(expr=a == units.convert(b, to_units=units.get_units(a))),
                 )
+        missing = sorted(outputs - determinations.keys())
+        if missing:
+            raise ValueError(
+                f"{path}.{relationship_id}: missing output determinations: "
+                + ", ".join(missing)
+            )
         # Export only this model's interface, preserving encapsulation when the
         # containing relationship resolves references to this occurrence.
         return variables

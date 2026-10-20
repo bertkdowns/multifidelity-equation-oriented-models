@@ -37,15 +37,18 @@
       "constraints": {
         "eq_1": {
           "lhs": "outlet.flow",
-          "rhs": "inlet.flow"
+          "rhs": "inlet.flow",
+          "determines": "outlet.flow"
         },
         "eq_2": {
           "lhs": "outlet.pressure",
-          "rhs": "inlet.pressure"
+          "rhs": "inlet.pressure",
+          "determines": "outlet.pressure"
         },
         "eq_3": {
           "lhs": "outlet.enthalpy",
-          "rhs": "inlet.enthalpy"
+          "rhs": "inlet.enthalpy",
+          "determines": "outlet.enthalpy"
         }
       },
       "connections": {}

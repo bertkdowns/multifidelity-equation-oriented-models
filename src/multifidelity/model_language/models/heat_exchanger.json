@@ -84,31 +84,38 @@
       "constraints": {
         "eq_1": {
           "lhs": "hot_outlet.flow",
-          "rhs": "hot_inlet.flow"
+          "rhs": "hot_inlet.flow",
+          "determines": "hot_outlet.flow"
         },
         "eq_2": {
           "lhs": "hot_outlet.pressure",
-          "rhs": "hot_inlet.pressure"
+          "rhs": "hot_inlet.pressure",
+          "determines": "hot_outlet.pressure"
         },
         "eq_3": {
           "lhs": "hot_outlet.flow * hot_outlet.enthalpy",
-          "rhs": "hot_inlet.flow * hot_inlet.enthalpy - performance.heat_duty"
+          "rhs": "hot_inlet.flow * hot_inlet.enthalpy - performance.heat_duty",
+          "determines": "hot_outlet.enthalpy"
         },
         "eq_4": {
           "lhs": "cold_outlet.flow",
-          "rhs": "cold_inlet.flow"
+          "rhs": "cold_inlet.flow",
+          "determines": "cold_outlet.flow"
         },
         "eq_5": {
           "lhs": "cold_outlet.pressure",
-          "rhs": "cold_inlet.pressure"
+          "rhs": "cold_inlet.pressure",
+          "determines": "cold_outlet.pressure"
         },
         "eq_6": {
           "lhs": "cold_outlet.flow * cold_outlet.enthalpy",
-          "rhs": "cold_inlet.flow * cold_inlet.enthalpy + performance.heat_duty"
+          "rhs": "cold_inlet.flow * cold_inlet.enthalpy + performance.heat_duty",
+          "determines": "cold_outlet.enthalpy"
         },
         "eq_7": {
           "lhs": "performance.heat_duty",
-          "rhs": "parameters.conductance * parameters.temperature_difference"
+          "rhs": "parameters.conductance * parameters.temperature_difference",
+          "determines": "performance.heat_duty"
         }
       },
       "connections": {}

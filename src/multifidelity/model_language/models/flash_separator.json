@@ -63,27 +63,33 @@
       "constraints": {
         "eq_1": {
           "lhs": "liquid.flow",
-          "rhs": "inlet.flow * parameters.fraction"
+          "rhs": "inlet.flow * parameters.fraction",
+          "determines": "liquid.flow"
         },
         "eq_2": {
           "lhs": "vapor.flow",
-          "rhs": "inlet.flow - liquid.flow"
+          "rhs": "inlet.flow - liquid.flow",
+          "determines": "vapor.flow"
         },
         "eq_3": {
           "lhs": "liquid.pressure",
-          "rhs": "inlet.pressure"
+          "rhs": "inlet.pressure",
+          "determines": "liquid.pressure"
         },
         "eq_4": {
           "lhs": "liquid.enthalpy",
-          "rhs": "inlet.enthalpy"
+          "rhs": "inlet.enthalpy",
+          "determines": "liquid.enthalpy"
         },
         "eq_5": {
           "lhs": "vapor.pressure",
-          "rhs": "inlet.pressure"
+          "rhs": "inlet.pressure",
+          "determines": "vapor.pressure"
         },
         "eq_6": {
           "lhs": "vapor.enthalpy",
-          "rhs": "inlet.enthalpy"
+          "rhs": "inlet.enthalpy",
+          "determines": "vapor.enthalpy"
         }
       },
       "connections": {}

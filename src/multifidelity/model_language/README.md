@@ -72,7 +72,11 @@ A model contains `id`, optional `description`, `structs`, and `relationships`:
     "no_pressure_drop": {
       "models": {},
       "constraints": {
-        "pressure": {"lhs": "outlet.pressure", "rhs": "inlet.pressure"}
+        "pressure": {
+          "lhs": "outlet.pressure",
+          "rhs": "inlet.pressure",
+          "determines": "outlet.pressure"
+        }
       },
       "connections": {}
     }
@@ -89,11 +93,31 @@ values, automatic input fixation, or permanent input/output role on variables is
 introduced.
 
 Constraints have `lhs` and `rhs` expression strings and always mean equality.
+Each constraint also requires a `determines` variable reference.
 There is no separate expression object, assignment, or `solves_for` hint. Derived
 quantities are variables with defining equations. Supported arithmetic is
 `+`, `-`, `*`, `/`, `**`, unary signs, numeric literals and parentheses.
 References are `struct.variable` or `child_alias.struct.variable`. Units use
 Pyomo unit names, for example `kg/s`, `J/kg`, `W/K`, and `dimensionless`.
+`determines` is a validation contract, not an assignment or optional solver hint.
+Its target must be a parent output or an immediate child input, and must occur
+in the equation. It may appear on either side or inside an arithmetic expression.
+For example, a balance `outlet.flow * outlet.enthalpy = ...` can determine
+`outlet.enthalpy`. Parent inputs and child outputs cannot be targets here.
+
+Each selected relationship must determine every parent output exactly once.
+Connections implicitly determine every variable in their destination struct and
+share the same determination registry as explicit constraints. Two constraints,
+two connections, or a constraint and a connection targeting the same variable
+are rejected with both source names. Missing outputs are listed together.
+Validation is local to each selected relationship and is repeated recursively;
+unselected alternatives are not validated by a build.
+
+Child inputs without a determination are permitted: they remain specifications
+for a future instance to supply. This check neither fixes them nor proves that
+outputs can be calculated: cycles, dependent equations, singularities and multiple
+solutions require further analysis. Required-input reporting remains future work.
+
 Python calls, subscripts, imports and arbitrary code are not supported; expression
 strings are parsed using a restricted AST interpreter, never `eval`.
 
@@ -201,7 +225,11 @@ live in `examples/model_language/`; these are examples, not an instance framewor
 
 These definitions demonstrate construction, ownership, scope and topology. They
 are **not numerical reproductions** of the existing cases. In particular, the milk
-aggregate balances are unclosed, effectiveness is declared but not enforced, and
+aggregate balances are unclosed, so selecting that relationship now fails validation
+with four missing output determinations (`milk_outlet.flow`,
+`milk_outlet.enthalpy`, `milk_outlet.pressure`, `water_outlet.pressure`).
+No placeholder equations were added to conceal those missing closures.
+Effectiveness is declared but not enforced, and
 the detailed scaffold omits composition, phase carryover and property correlations.
 The flash scaffold performs a prescribed split rather than phase separation.
 Some composite inputs remain unused by these initial formulations. Closed loops
@@ -218,4 +246,5 @@ consistency do not establish determinacy, physical validity or solvability.
 - Solver integration, initialization algorithms and fidelity switching in place.
 
 The builder checks selected references, scope, names, directions, connection fields
-and equation units. It is not yet a comprehensive document-schema validator.
+equation units, explicit determination targets, duplicate determinations and missing
+outputs. It is not yet a comprehensive document-schema validator.

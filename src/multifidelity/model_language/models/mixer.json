@@ -51,15 +51,18 @@
       "constraints": {
         "eq_1": {
           "lhs": "outlet.flow",
-          "rhs": "main.flow + makeup.flow"
+          "rhs": "main.flow + makeup.flow",
+          "determines": "outlet.flow"
         },
         "eq_2": {
           "lhs": "outlet.flow * outlet.enthalpy",
-          "rhs": "main.flow * main.enthalpy + makeup.flow * makeup.enthalpy"
+          "rhs": "main.flow * main.enthalpy + makeup.flow * makeup.enthalpy",
+          "determines": "outlet.enthalpy"
         },
         "eq_3": {
           "lhs": "outlet.pressure",
-          "rhs": "main.pressure"
+          "rhs": "main.pressure",
+          "determines": "outlet.pressure"
         }
       },
       "connections": {}

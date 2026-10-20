@@ -87,35 +87,43 @@
       "constraints": {
         "eq_1": {
           "lhs": "performance.heating_duty",
-          "rhs": "parameters.cop * parameters.electrical_power"
+          "rhs": "parameters.cop * parameters.electrical_power",
+          "determines": "performance.heating_duty"
         },
         "eq_2": {
           "lhs": "performance.cooling_duty",
-          "rhs": "performance.heating_duty - parameters.electrical_power"
+          "rhs": "performance.heating_duty - parameters.electrical_power",
+          "determines": "performance.cooling_duty"
         },
         "eq_3": {
           "lhs": "source_outlet.flow",
-          "rhs": "source_inlet.flow"
+          "rhs": "source_inlet.flow",
+          "determines": "source_outlet.flow"
         },
         "eq_4": {
           "lhs": "source_outlet.pressure",
-          "rhs": "source_inlet.pressure"
+          "rhs": "source_inlet.pressure",
+          "determines": "source_outlet.pressure"
         },
         "eq_5": {
           "lhs": "source_outlet.flow * source_outlet.enthalpy",
-          "rhs": "source_inlet.flow * source_inlet.enthalpy - performance.cooling_duty"
+          "rhs": "source_inlet.flow * source_inlet.enthalpy - performance.cooling_duty",
+          "determines": "source_outlet.enthalpy"
         },
         "eq_6": {
           "lhs": "sink_outlet.flow",
-          "rhs": "sink_inlet.flow"
+          "rhs": "sink_inlet.flow",
+          "determines": "sink_outlet.flow"
         },
         "eq_7": {
           "lhs": "sink_outlet.pressure",
-          "rhs": "sink_inlet.pressure"
+          "rhs": "sink_inlet.pressure",
+          "determines": "sink_outlet.pressure"
         },
         "eq_8": {
           "lhs": "sink_outlet.flow * sink_outlet.enthalpy",
-          "rhs": "sink_inlet.flow * sink_inlet.enthalpy + performance.heating_duty"
+          "rhs": "sink_inlet.flow * sink_inlet.enthalpy + performance.heating_duty",
+          "determines": "sink_outlet.enthalpy"
         }
       },
       "connections": {}
@@ -144,15 +152,18 @@
       "constraints": {
         "eq_1": {
           "lhs": "parameters.electrical_power",
-          "rhs": "compressor.parameters.work"
+          "rhs": "compressor.parameters.work",
+          "determines": "compressor.parameters.work"
         },
         "eq_2": {
           "lhs": "performance.heating_duty",
-          "rhs": "sink_outlet.flow * sink_outlet.enthalpy - sink_inlet.flow * sink_inlet.enthalpy"
+          "rhs": "sink_outlet.flow * sink_outlet.enthalpy - sink_inlet.flow * sink_inlet.enthalpy",
+          "determines": "performance.heating_duty"
         },
         "eq_3": {
           "lhs": "performance.cooling_duty",
-          "rhs": "source_inlet.flow * source_inlet.enthalpy - source_outlet.flow * source_outlet.enthalpy"
+          "rhs": "source_inlet.flow * source_inlet.enthalpy - source_outlet.flow * source_outlet.enthalpy",
+          "determines": "performance.cooling_duty"
         }
       },
       "connections": {

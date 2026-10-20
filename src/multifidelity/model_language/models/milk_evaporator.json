@@ -62,11 +62,13 @@
       "constraints": {
         "eq_1": {
           "lhs": "milk_inlet.flow",
-          "rhs": "milk_outlet.flow + water_outlet.flow"
+          "rhs": "milk_outlet.flow + water_outlet.flow",
+          "determines": "water_outlet.flow"
         },
         "eq_2": {
           "lhs": "milk_inlet.flow * milk_inlet.enthalpy + parameters.mvr_power",
-          "rhs": "milk_outlet.flow * milk_outlet.enthalpy + water_outlet.flow * water_outlet.enthalpy"
+          "rhs": "milk_outlet.flow * milk_outlet.enthalpy + water_outlet.flow * water_outlet.enthalpy",
+          "determines": "water_outlet.enthalpy"
         }
       },
       "connections": {}
@@ -92,7 +94,8 @@
       "constraints": {
         "eq_1": {
           "lhs": "parameters.mvr_power",
-          "rhs": "mvr.parameters.work"
+          "rhs": "mvr.parameters.work",
+          "determines": "mvr.parameters.work"
         }
       },
       "connections": {

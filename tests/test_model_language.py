@@ -27,6 +27,13 @@ def test_every_bundled_relationship_builds_without_solver():
     library = Library()
     for name, definition in library.models.items():
         for relationship in definition["relationships"]:
+            if name == "milk_evaporator" and relationship == "aggregate":
+                # This documented scaffold deliberately lacks physical closures.
+                with pytest.raises(ValueError, match="missing output determinations"):
+                    build_model(
+                        name, select(library, name, relationship), library=library
+                    )
+                continue
             model = build_model(
                 name, select(library, name, relationship), library=library
             )
@@ -128,3 +135,85 @@ def test_library_rejects_duplicate_ids(tmp_path):
         (tmp_path / f"{name}.json").write_text(json.dumps(document))
     with pytest.raises(ValueError, match="Duplicate"):
         Library(tmp_path)
+
+
+def test_missing_outputs_are_listed():
+    library = Library()
+    constraints = library.models["valve"]["relationships"]["isenthalpic"]["constraints"]
+    del constraints["eq_1"]
+    del constraints["eq_2"]
+    with pytest.raises(
+        ValueError,
+        match=r"valve.isenthalpic: missing output determinations: outlet.enthalpy, outlet.flow",
+    ):
+        build_model("valve", select(library, "valve"), library=library)
+
+
+def test_duplicate_constraints_name_both_sources():
+    library = Library()
+    constraints = library.models["valve"]["relationships"]["isenthalpic"]["constraints"]
+    constraints["another_flow"] = dict(constraints["eq_1"])
+    with pytest.raises(
+        ValueError, match=r"duplicate determination.*outlet.flow.*eq_1.*another_flow"
+    ):
+        build_model("valve", select(library, "valve"), library=library)
+
+
+@pytest.mark.parametrize("kind", ["connection", "constraint"])
+def test_connections_share_determination_namespace(kind):
+    library = Library()
+    relationship = library.models["heat_pump"]["relationships"]["cycle"]
+    if kind == "connection":
+        relationship["connections"]["duplicate"] = dict(
+            relationship["connections"]["link_1"]
+        )
+    else:
+        relationship["constraints"]["duplicate"] = {
+            "lhs": "condenser.hot_inlet.flow",
+            "rhs": "compressor.outlet.flow",
+            "determines": "condenser.hot_inlet.flow",
+        }
+    with pytest.raises(
+        ValueError, match=r"duplicate determination.*condenser.hot_inlet.flow"
+    ):
+        build_model("heat_pump", select(library, "heat_pump", "cycle"), library=library)
+
+
+@pytest.mark.parametrize(
+    "target", [None, "inlet.flow", "missing.value", "outlet.pressure", ["outlet.flow"]]
+)
+def test_constraint_target_must_be_valid_and_occur_in_equation(target):
+    library = Library()
+    equation = library.models["valve"]["relationships"]["isenthalpic"]["constraints"][
+        "eq_1"
+    ]
+    if target is None:
+        equation.pop("determines")
+    else:
+        equation["determines"] = target
+    with pytest.raises(ValueError, match="invalid target|does not occur"):
+        build_model("valve", select(library, "valve"), library=library)
+
+
+def test_child_output_cannot_be_determined_by_containing_relationship():
+    library = Library()
+    library.models["heat_pump"]["relationships"]["cycle"]["constraints"]["bad"] = {
+        "lhs": "compressor.outlet.flow",
+        "rhs": "compressor.inlet.flow",
+        "determines": "compressor.outlet.flow",
+    }
+    with pytest.raises(ValueError, match="invalid target"):
+        build_model("heat_pump", select(library, "heat_pump", "cycle"), library=library)
+
+
+def test_incomplete_milk_scaffold_reports_exact_missing_outputs():
+    library = Library()
+    with pytest.raises(ValueError) as error:
+        build_model(
+            "milk_evaporator",
+            select(library, "milk_evaporator", "aggregate"),
+            library=library,
+        )
+    assert str(error.value).endswith(
+        "milk_outlet.enthalpy, milk_outlet.flow, milk_outlet.pressure, water_outlet.pressure"
+    )
