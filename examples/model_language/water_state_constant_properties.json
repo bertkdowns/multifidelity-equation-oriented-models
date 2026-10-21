@@ -1,0 +1,5 @@
+{
+  "model": "water_state",
+  "relationship": "constant_properties",
+  "submodels": {}
+}

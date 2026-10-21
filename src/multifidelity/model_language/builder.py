@@ -7,6 +7,7 @@ from pathlib import Path
 
 from idaes.core import FlowsheetBlock
 from pyomo.core.expr.visitor import identify_variables
+from pyomo.core.base.units_container import UnitsError
 from pyomo.environ import Block, ConcreteModel, Constraint, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
@@ -92,11 +93,80 @@ def build_model(model_id, implementation, *, library=None):
         implementation = json.loads(Path(implementation).read_text())
     if implementation.get("model") != model_id:
         raise ValueError("Root implementation must identify the requested model")
+    if library.get(model_id).get("model_parameters"):
+        raise ValueError(
+            "Root generic models are not supported; use a concrete wrapper"
+        )
+
+    def check_interface(definition, requirement, path):
+        # Requirements are structural: extra structs and properties are allowed.
+        for struct_id, expected in requirement.get("requires", {}).items():
+            actual = definition["structs"].get(struct_id)
+            if actual is None or actual["direction"] != expected["direction"]:
+                raise ValueError(f"{path}: incompatible required struct {struct_id!r}")
+            for name, variable in expected["variables"].items():
+                supplied = actual["variables"].get(name)
+                if supplied is None:
+                    raise ValueError(
+                        f"{path}: missing required variable {struct_id}.{name}"
+                    )
+                for key, default in (("value_type", "real"), ("dimensions", [])):
+                    if supplied.get(key, default) != variable.get(key, default):
+                        raise ValueError(
+                            f"{path}: incompatible {key} for {struct_id}.{name}"
+                        )
+
+                def unit(spec):
+                    return _expression(
+                        spec.get("unit", "dimensionless"),
+                        lambda name: getattr(units, name),
+                    )
+
+                try:
+                    units.convert(unit(supplied), to_units=unit(variable))
+                except UnitsError as error:
+                    raise ValueError(
+                        f"{path}: incompatible units for {struct_id}.{name}"
+                    ) from error
+
+    def reference_target(reference, parameters, path):
+        """Resolve definitions and generic arguments without changing library data.
+
+        Parameter environments belong to occurrences, not reusable definitions;
+        two uses of a generic model can therefore supply different arguments.
+        """
+        if ("model" in reference) == ("model_parameter" in reference):
+            raise ValueError(f"{path}: specify exactly one of model or model_parameter")
+        if "model_parameter" in reference:
+            name = reference["model_parameter"]
+            if name not in parameters:
+                raise ValueError(f"{path}: unknown model parameter {name!r}")
+            if "model_arguments" in reference:
+                raise ValueError(
+                    f"{path}: forwarded parameters already have their arguments"
+                )
+            return parameters[name]
+        target = reference["model"]
+        definition = library.get(target)
+        declarations = definition.get("model_parameters", {})
+        arguments = reference.get("model_arguments", {})
+        if set(arguments) != set(declarations):
+            raise ValueError(
+                f"{path}: model arguments must be exactly {sorted(declarations)}"
+            )
+        resolved = {}
+        for name, requirement in declarations.items():
+            _name(name)
+            argument = reference_target(arguments[name], parameters, f"{path}<{name}>")
+            check_interface(library.get(argument[0]), requirement, f"{path}<{name}>")
+            resolved[name] = argument
+        return target, resolved
+
     model = ConcreteModel()
     model.fs = FlowsheetBlock(dynamic=False)
     model.fs.root = Block()
 
-    def populate(block, definition_id, selection, path):
+    def populate(block, definition_id, selection, path, parameters):
         """Build one occurrence and return only its public variable references.
 
         Each call creates fresh components, even when several occurrences share
@@ -112,6 +182,10 @@ def build_model(model_id, implementation, *, library=None):
             )
         relationship = definition["relationships"][relationship_id]
         refs = relationship.get("models", {})
+        targets = {
+            alias: reference_target(reference, parameters, f"{path}.{alias}")
+            for alias, reference in refs.items()
+        }
         selected = selection.get("submodels", {})
         # Validate against the selected relationship only: alternatives may have
         # entirely different children and are not materialized in this build.
@@ -152,7 +226,11 @@ def build_model(model_id, implementation, *, library=None):
             child = Block()
             active.models.add_component(alias, child)
             children[alias] = populate(
-                child, reference["model"], selected[alias], f"{path}.{alias}"
+                child,
+                targets[alias][0],
+                selected[alias],
+                f"{path}.{alias}",
+                targets[alias][1],
             )
 
         def resolve(reference):
@@ -175,8 +253,8 @@ def build_model(model_id, implementation, *, library=None):
         }
         allowed = outputs | {
             f"{alias}.{s}.{v}"
-            for alias, reference in refs.items()
-            for s, struct in library.get(reference["model"])["structs"].items()
+            for alias, (target_id, _) in targets.items()
+            for s, struct in library.get(target_id)["structs"].items()
             if struct["direction"] == "input"
             for v in struct["variables"]
         }
@@ -229,7 +307,7 @@ def build_model(model_id, implementation, *, library=None):
                         raise ValueError(
                             f"{path}: unknown child in connection {endpoint}"
                         )
-                    doc = library.get(refs[alias]["model"])
+                    doc = library.get(targets[alias][0])
                     prefix = alias + "."
                 else:
                     doc, struct_id, prefix = definition, alias, ""
@@ -272,7 +350,7 @@ def build_model(model_id, implementation, *, library=None):
         # containing relationship resolves references to this occurrence.
         return variables
 
-    populate(model.fs.root, model_id, implementation, model_id)
+    populate(model.fs.root, model_id, implementation, model_id, {})
     # Check the complete equation tree without fixing values or calling a solver.
     assert_units_consistent(model)
     return model

@@ -1,0 +1,19 @@
+{
+  "model": "water_property_pair",
+  "relationship": "evaluate",
+  "submodels": {
+    "states": {
+      "relationship": "evaluate",
+      "submodels": {
+        "inlet": {
+          "relationship": "constant_properties",
+          "submodels": {}
+        },
+        "outlet": {
+          "relationship": "constant_properties",
+          "submodels": {}
+        }
+      }
+    }
+  }
+}

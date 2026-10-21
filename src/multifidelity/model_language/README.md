@@ -146,6 +146,96 @@ field names with dimensionally compatible units. Connections convert units as
 needed. General equations require authors to use consistent units; construction
 checks dimensional consistency. Connecting structs does not fix either endpoint.
 
+## Generic model parameters
+
+A model can declare named dependencies on other model definitions. These select
+**definitions**, while implementation documents still select **relationships**.
+For example, a generic property-state pair declares:
+
+```json
+"model_parameters": {
+  "FluidProperties": {
+    "requires": {
+      "state": {
+        "direction": "input",
+        "variables": {
+          "pressure": {"unit": "Pa"},
+          "temperature": {"unit": "K"}
+        }
+      },
+      "properties": {
+        "direction": "output",
+        "variables": {"enthalpy": {"unit": "J/kg"}}
+      }
+    }
+  }
+}
+```
+
+Relationships use that dependency through named model references:
+
+```json
+"models": {
+  "inlet": {"model_parameter": "FluidProperties"},
+  "outlet": {"model_parameter": "FluidProperties"}
+}
+```
+
+A containing relationship supplies all arguments at its concrete reference:
+
+```json
+"models": {
+  "states": {
+    "model": "property_pair",
+    "model_arguments": {
+      "FluidProperties": {"model": "water_state"}
+    }
+  }
+}
+```
+
+A generic containing model can forward its own argument instead:
+
+```json
+"model_arguments": {
+  "FluidProperties": {"model_parameter": "SourceFluid"}
+}
+```
+
+Every reference must specify exactly one of `model` or `model_parameter`.
+Arguments must exactly match the target's declarations; missing or extra arguments
+and unknown parameter names are errors. A forwarded parameter already carries its
+resolved arguments and cannot be given replacement `model_arguments`. Concrete
+arguments may themselves name generic models with explicit nested arguments.
+Parameter names are local to the declaring model; they are not inherited implicitly.
+
+`requires` is a minimum structural interface. Supplied definitions may contain
+extra structs or variables, but required fields must exist with matching directions,
+value types and dimensions, and compatible units. This checks interface structure,
+not physical meaning or numerical validity. If an interface does not constrain
+something, the selected concrete model still determines its actual structure.
+Normal connection checks still require matching complete field sets.
+
+Resolved arguments belong to each occurrence and never modify shared model
+definitions. The same generic model can be used with different property models
+in separate branches. Constraint namespaces, `determines` rules and struct ownership
+remain unchanged. Implementations still explicitly select the resolved children's
+relationships; a supplied child `model` ID must match its resolved argument.
+
+Root generic models are deliberately unsupported. Use a concrete wrapper such as
+`water_property_pair` to supply the arguments, then build it normally:
+
+```bash
+.venv/bin/python -m multifidelity.model_language water_property_pair \
+  examples/model_language/water_property_pair_evaluate.json
+```
+
+The bundled `property_pair` exposes two state inputs, a coefficient input struct,
+and two property output structs. Its two property-model references use the same
+`FluidProperties` argument, with separate variables and explicit parameter
+connections. The wrapper supplies `water_state`. This demonstrates the mechanism
+without changing the existing equipment examples or adding bindings.
+
 ## Implementations and construction
 
 An implementation identifies the root model and chooses its relationship:
@@ -204,7 +294,8 @@ root.relationship.connections
 
 This is a generic equation structure inside IDAES, not an automatic translation
 into the existing custom `UnitModelBlockData` equipment classes or thermodynamic
-state blocks. Property packages and process-specific adapters are future work.
+state blocks. Configurable property dependencies, shared material data, and
+process-specific adapters are future work.
 
 ## Bundled models and provenance
 
@@ -216,6 +307,8 @@ live in `examples/model_language/`; these are examples, not an instance framewor
 | `heat_exchanger` | Scalar lumped balance/conductance example inspired by `unit_models/heat_exchanger`; no segmented/distributed physics |
 | `valve`, `pump`, `compressor` | Basic scalar pressure/energy equations; no characteristic curves or isentropic property calculations |
 | `thermal_conditioner` | Scalar stream heating balance |
+| `water_state` | Pressure/temperature liquid state with affine enthalpy and constant density, heat capacity and viscosity |
+| `property_pair`, `water_property_pair` | Generic two-state property calculation and a concrete water specialization |
 | `mixer`, `splitter` | Scalar mixing and prescribed split |
 | `flash_separator`, `translator` | Topology scaffolds; no equilibrium, composition or basis conversion |
 | `heat_pump` | Aggregate COP equations and the cycle topology from `unit_models/heat_pump/cycle.py`, including subcooler and IHX |
@@ -236,15 +329,53 @@ Some composite inputs remain unused by these initial formulations. Closed loops
 may contain redundant continuity constraints. Construction success and dimensional
 consistency do not establish determinacy, physical validity or solvability.
 
+## Water state property model
+
+`water_state` is an ordinary reusable model, not a new special type. Its
+`constant_properties` relationship determines all four output properties:
+
+- `state` (input): pressure in Pa and temperature in K.
+- `parameters` (input): reference pressure, temperature and mass-specific enthalpy,
+  plus constant density, mass-specific heat capacity and dynamic viscosity.
+- `properties` (output): mass-specific enthalpy, density, mass-specific heat
+  capacity, and dynamic viscosity.
+
+The enthalpy equation is
+`h = h_ref + cp * (T - T_ref) + (P - P_ref) / rho`.
+The other three outputs equal their supplied coefficients. This is a simple
+single-phase liquid approximation, not a steam/phase-equilibrium model or a
+validated water correlation. Its enthalpy form follows the existing
+`property_models/linear.py`, while density here remains constant and viscosity
+is a supplied constant. No detailed-water alternative is declared until it has
+actual property equations.
+
+```bash
+.venv/bin/python -m multifidelity.model_language water_state \
+  examples/model_language/water_state_constant_properties.json
+```
+
+Like other model builds, this creates free variables without values or solving.
+A caller must eventually specify both the state and the coefficients. For
+example, an illustrative coefficient set is `T_ref = 298.15 K`,
+`P_ref = 101325 Pa`, `h_ref = 104920.1198085 J/kg`, `cp = 4180 J/(kg K)`,
+`rho = 997 kg/m³`, and `mu = 0.00089 Pa s`; these are not built-in defaults.
+
+An equipment relationship can reference separate `water_state` models for inlet
+and outlet property calculations and determine their state inputs through
+constraints or connections. These occurrences each own their variables. The generic `property_pair` example uses this model through a configurable model
+parameter. Existing equipment definitions are not yet parameterized, and shared
+material coefficients remain undecided.
+
 ## Deferred decisions
 
 - Time/space dimensions, discretization and derivatives.
 - Default values, instance documents, fixed/free specifications and initial guesses.
 - Replacing input specifications with selected output specifications.
-- Thermodynamics, component mixtures, validated detailed equations and calibration.
+- Detailed thermodynamics, component mixtures, shared material data, configurable
+  equipment property dependencies, validated detailed equations and calibration.
 - JSON Schema authoring support, definition version pinning and broader diagnostics.
 - Solver integration, initialization algorithms and fidelity switching in place.
 
-The builder checks selected references, scope, names, directions, connection fields
+The builder checks selected references, scope, names, directions, connection fields,
 equation units, explicit determination targets, duplicate determinations and missing
 outputs. It is not yet a comprehensive document-schema validator.

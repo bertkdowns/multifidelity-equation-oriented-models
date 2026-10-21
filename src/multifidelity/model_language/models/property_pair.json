@@ -1,0 +1,181 @@
+{
+  "id": "property_pair",
+  "description": "Generic two-state property calculation demonstrating model parameters and explicit coefficient connections.",
+  "model_parameters": {
+    "FluidProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa"
+            },
+            "temperature": {
+              "unit": "K"
+            }
+          }
+        },
+        "parameters": {
+          "direction": "input",
+          "variables": {
+            "reference_pressure": {
+              "unit": "Pa"
+            },
+            "reference_temperature": {
+              "unit": "K"
+            },
+            "reference_enthalpy": {
+              "unit": "J/kg"
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K"
+            },
+            "density": {
+              "unit": "kg/m**3"
+            },
+            "viscosity": {
+              "unit": "Pa*s"
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "enthalpy": {
+              "unit": "J/kg"
+            },
+            "density": {
+              "unit": "kg/m**3"
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K"
+            },
+            "viscosity": {
+              "unit": "Pa*s"
+            }
+          }
+        }
+      }
+    }
+  },
+  "structs": {
+    "inlet_state": {
+      "direction": "input",
+      "variables": {
+        "pressure": {
+          "unit": "Pa"
+        },
+        "temperature": {
+          "unit": "K"
+        }
+      }
+    },
+    "outlet_state": {
+      "direction": "input",
+      "variables": {
+        "pressure": {
+          "unit": "Pa"
+        },
+        "temperature": {
+          "unit": "K"
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "reference_pressure": {
+          "unit": "Pa"
+        },
+        "reference_temperature": {
+          "unit": "K"
+        },
+        "reference_enthalpy": {
+          "unit": "J/kg"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        }
+      }
+    },
+    "inlet_properties": {
+      "direction": "output",
+      "variables": {
+        "enthalpy": {
+          "unit": "J/kg"
+        },
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        }
+      }
+    },
+    "outlet_properties": {
+      "direction": "output",
+      "variables": {
+        "enthalpy": {
+          "unit": "J/kg"
+        },
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "evaluate": {
+      "models": {
+        "inlet": {
+          "model_parameter": "FluidProperties"
+        },
+        "outlet": {
+          "model_parameter": "FluidProperties"
+        }
+      },
+      "constraints": {},
+      "connections": {
+        "inlet_state": {
+          "from": "inlet_state",
+          "to": "inlet.state"
+        },
+        "inlet_parameters": {
+          "from": "parameters",
+          "to": "inlet.parameters"
+        },
+        "inlet_properties": {
+          "from": "inlet.properties",
+          "to": "inlet_properties"
+        },
+        "outlet_state": {
+          "from": "outlet_state",
+          "to": "outlet.state"
+        },
+        "outlet_parameters": {
+          "from": "parameters",
+          "to": "outlet.parameters"
+        },
+        "outlet_properties": {
+          "from": "outlet.properties",
+          "to": "outlet_properties"
+        }
+      }
+    }
+  }
+}

@@ -10,22 +10,32 @@ from pyomo.util.check_units import assert_units_consistent
 from multifidelity.model_language import Library, build_model
 
 
-def select(library, model, relationship=None):
+def select(library, model, relationship=None, parameters=None):
+    parameters = parameters or {}
     definition = library.get(model)
     relationship = relationship or next(iter(definition["relationships"]))
-    return {
-        "model": model,
-        "relationship": relationship,
-        "submodels": {
-            name: select(library, ref["model"])
-            for name, ref in definition["relationships"][relationship]["models"].items()
-        },
-    }
+    children = {}
+    for name, ref in definition["relationships"][relationship]["models"].items():
+        if "model_parameter" in ref:
+            child_model = parameters[ref["model_parameter"]]
+            child_parameters = {}
+        else:
+            child_model = ref["model"]
+            child_parameters = {
+                key: arg["model"]
+                if "model" in arg
+                else parameters[arg["model_parameter"]]
+                for key, arg in ref.get("model_arguments", {}).items()
+            }
+        children[name] = select(library, child_model, parameters=child_parameters)
+    return {"model": model, "relationship": relationship, "submodels": children}
 
 
 def test_every_bundled_relationship_builds_without_solver():
     library = Library()
     for name, definition in library.models.items():
+        if definition.get("model_parameters"):
+            continue  # Generic definitions are exercised through concrete wrappers.
         for relationship in definition["relationships"]:
             if name == "milk_evaporator" and relationship == "aggregate":
                 # This documented scaffold deliberately lacks physical closures.
@@ -217,3 +227,192 @@ def test_incomplete_milk_scaffold_reports_exact_missing_outputs():
     assert str(error.value).endswith(
         "milk_outlet.enthalpy, milk_outlet.flow, milk_outlet.pressure, water_outlet.pressure"
     )
+
+
+@pytest.mark.parametrize("temperature,pressure", [(298.15, 101325), (308.15, 201325)])
+def test_water_state_property_equations(temperature, pressure):
+    library = Library()
+    model = build_model("water_state", select(library, "water_state"), library=library)
+    root = model.fs.root
+    root.structs.state.temperature.set_value(temperature)
+    root.structs.state.pressure.set_value(pressure)
+    coefficients = {
+        "reference_temperature": 298.15,
+        "reference_pressure": 101325,
+        "reference_enthalpy": 104920.1198085,
+        "heat_capacity": 4180,
+        "density": 997,
+        "viscosity": 0.00089,
+    }
+    for name, number in coefficients.items():
+        getattr(root.structs.parameters, name).set_value(number)
+    expected = {
+        "enthalpy": coefficients["reference_enthalpy"]
+        + 4180 * (temperature - 298.15)
+        + (pressure - 101325) / 997,
+        "density": 997,
+        "heat_capacity": 4180,
+        "viscosity": 0.00089,
+    }
+    for name, number in expected.items():
+        variable = getattr(root.structs.properties, name)
+        equation = getattr(root.relationship.constraints, name)
+        variable.set_value(number)
+        assert value(equation.body) == pytest.approx(0, abs=1e-9)
+        variable.set_value(number + 1)
+        assert abs(value(equation.body)) == pytest.approx(1)
+    assert_units_consistent(model)
+
+
+def test_generic_property_arguments_create_distinct_state_occurrences():
+    library = Library()
+    original = json.dumps(library.models, sort_keys=True)
+    model = build_model(
+        "water_property_pair", select(library, "water_property_pair"), library=library
+    )
+    pair = model.fs.root.relationship.models.states
+    inlet = pair.relationship.models.inlet.structs
+    outlet = pair.relationship.models.outlet.structs
+    assert inlet.state.pressure is not outlet.state.pressure
+    pair.structs.parameters.density.set_value(997)
+    inlet.parameters.density.set_value(997)
+    assert value(pair.relationship.connections.inlet_parameters.density.body) == 0
+    assert json.dumps(library.models, sort_keys=True) == original
+
+
+def test_model_parameter_forwarding():
+    library = Library()
+    library.models["forwarder"] = {
+        "id": "forwarder",
+        "structs": {},
+        "model_parameters": library.get("property_pair")["model_parameters"],
+        "relationships": {
+            "forward": {
+                "models": {
+                    "pair": {
+                        "model": "property_pair",
+                        "model_arguments": {
+                            "FluidProperties": {"model_parameter": "FluidProperties"}
+                        },
+                    }
+                },
+                "constraints": {},
+                "connections": {},
+            }
+        },
+    }
+    library.models["water_property_pair"]["relationships"]["evaluate"]["models"][
+        "states"
+    ]["model"] = "forwarder"
+    model = build_model(
+        "water_property_pair", select(library, "water_property_pair"), library=library
+    )
+    assert (
+        model.fs.root.relationship.models.states.relationship.models.pair.relationship.models.inlet.structs.properties.enthalpy
+        is not None
+    )
+
+
+@pytest.mark.parametrize(
+    "change",
+    ["missing", "extra", "unknown_model", "unknown_parameter", "both", "neither"],
+)
+def test_invalid_model_arguments_fail(change):
+    library = Library()
+    selection = select(library, "water_property_pair")
+    ref = library.models["water_property_pair"]["relationships"]["evaluate"]["models"][
+        "states"
+    ]
+    if change == "missing":
+        ref["model_arguments"] = {}
+    elif change == "extra":
+        ref["model_arguments"]["Extra"] = {"model": "water_state"}
+    elif change == "unknown_model":
+        ref["model_arguments"]["FluidProperties"]["model"] = "absent"
+    elif change == "unknown_parameter":
+        ref["model_arguments"]["FluidProperties"] = {"model_parameter": "Absent"}
+    elif change == "both":
+        ref["model_parameter"] = "FluidProperties"
+    else:
+        del ref["model"]
+    with pytest.raises(ValueError):
+        build_model("water_property_pair", selection, library=library)
+
+
+@pytest.mark.parametrize(
+    "change", ["struct", "direction", "variable", "unit", "type", "dimensions"]
+)
+def test_generic_argument_interface_is_checked(change):
+    library = Library()
+    selection = select(library, "water_property_pair")
+    state = library.models["water_state"]["structs"]
+    if change == "struct":
+        del state["properties"]
+    elif change == "direction":
+        state["properties"]["direction"] = "input"
+    elif change == "variable":
+        del state["properties"]["variables"]["enthalpy"]
+    else:
+        variable = state["properties"]["variables"]["enthalpy"]
+        key, val = {
+            "unit": ("unit", "K"),
+            "type": ("value_type", "integer"),
+            "dimensions": ("dimensions", ["time"]),
+        }[change]
+        variable[key] = val
+    with pytest.raises(ValueError, match="required|incompatible"):
+        build_model("water_property_pair", selection, library=library)
+
+
+def test_generic_root_is_explicitly_unsupported():
+    with pytest.raises(ValueError, match="Root generic models"):
+        build_model(
+            "property_pair", {"model": "property_pair", "relationship": "evaluate"}
+        )
+
+
+def test_generic_argument_allows_extra_properties():
+    library = Library()
+    required = library.models["property_pair"]["model_parameters"]["FluidProperties"][
+        "requires"
+    ]
+    # The generic definition only asks for two of the four calculated properties.
+    del required["properties"]["variables"]["viscosity"]
+    del required["properties"]["variables"]["heat_capacity"]
+    build_model(
+        "water_property_pair", select(library, "water_property_pair"), library=library
+    )
+
+
+def test_generic_arguments_are_local_to_each_occurrence():
+    from copy import deepcopy
+
+    library = Library()
+    alternative = deepcopy(library.get("water_state"))
+    alternative["id"] = "alternative_state"
+    alternative["relationships"]["constant_properties"]["constraints"]["density"][
+        "rhs"
+    ] = "2 * parameters.density"
+    library.models["alternative_state"] = alternative
+    refs = library.models["water_property_pair"]["relationships"]["evaluate"]["models"]
+    refs["other_states"] = deepcopy(refs["states"])
+    refs["other_states"]["model_arguments"]["FluidProperties"]["model"] = (
+        "alternative_state"
+    )
+    model = build_model(
+        "water_property_pair", select(library, "water_property_pair"), library=library
+    )
+    pairs = model.fs.root.relationship.models
+    for pair, density in [(pairs.states, 997), (pairs.other_states, 1994)]:
+        child = pair.relationship.models.inlet
+        child.structs.parameters.density.set_value(997)
+        child.structs.properties.density.set_value(density)
+        assert value(child.relationship.constraints.density.body) == pytest.approx(0)
+
+
+def test_generic_child_selection_must_match_resolved_model():
+    library = Library()
+    selection = select(library, "water_property_pair")
+    selection["submodels"]["states"]["submodels"]["inlet"]["model"] = "valve"
+    with pytest.raises(ValueError, match="does not match reference"):
+        build_model("water_property_pair", selection, library=library)
