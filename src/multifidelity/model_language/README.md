@@ -67,9 +67,9 @@ model.relationships["basic"].models
 
 `Library` loads every JSON document into these types. Both `library.models["valve"]`
 and `library.get("valve")` return a `Model`, and the builder consumes its typed
-structs, relationships and reference variants directly. Definitions retain model
-IDs and generic parameter references; they do not yet resolve references, unroll
-a tree, or select implementations independently of construction.
+structs, relationships and reference variants directly. Definition documents retain model IDs and generic references for serialization.
+Resolved navigation is supplied separately by `resolution.py`; it does not unroll
+a tree or select implementations.
 
 Document-shape validation rejects unknown fields, invalid component names,
 missing required fields, unsupported variable types, invalid directions and
@@ -79,7 +79,45 @@ equation units and determination checks remain in the builder and apply to the
 selected implementation. Implementation selections remain dictionaries for now.
 Serialize definitions with `model_dump(by_alias=True)` or
 `model_dump_json(by_alias=True)` to preserve JSON names (`Connection.from_` in
-Python is `from` in JSON). Instance and implementation types are deferred.
+Python is `from` in JSON). Instance types remain deferred; implementation types are described below.
+
+## Resolved definition navigation
+
+`resolution.py` owns library loading, model-reference resolution and generic
+interface checks. `builder.py` consumes these same resolved views when constructing
+Pyomo objects; it no longer contains its own generic resolver.
+
+```python
+from multifidelity.model_language.resolution import Library
+
+library = Library()
+root = library.resolve("water_property_pair")
+pair = root.relationships["evaluate"].models["states"]
+inlet = pair.relationships["evaluate"].models["inlet"]
+inlet.id  # "water_state"
+inlet.structs["state"].variables["pressure"].unit  # "Pa"
+```
+
+`ResolvedModel.definition` is the shared typed JSON definition. Its `structs` and
+its relationships' `constraints`/`connections` expose those same definition objects.
+The resolved `models` collection maps local aliases directly to resolved model
+views; each carries the generic arguments and path for its own reference context.
+There is no per-reference `resolve()` call and no solver construction involved.
+
+Relationship children are resolved on first access, then cached on that view.
+This allows recursive definitions without eager unrolling and keeps unused
+alternatives from forcing unrelated references to resolve. Errors in references
+or generic interfaces surface when the corresponding children are accessed.
+The builder accesses only its selected relationship at each level.
+
+Treat definitions as unchanged while using a resolved view. After editing the
+library, call `library.resolve(...)` again to obtain a fresh view. Resolved views
+are navigation objects, not simulation instances: repeated references share their
+definition, while the backend still creates distinct solver variables per occurrence.
+
+Unit compatibility uses Pint here, without importing Pyomo in the resolution
+module. Equation compilation, determination checks and Pyomo-specific validation
+remain in the builder. Root generics remain unsupported.
 
 ## Documents
 
@@ -269,6 +307,27 @@ without changing the existing equipment examples or adding bindings.
 
 ## Implementations and construction
 
+`implementation.py` defines the Pydantic `Implementation` root and recursive
+`ImplementationSelection` type. Every node requires an explicit `relationship`;
+`submodels` maps local child reference names to further selections. The root
+requires `model`, while nested model IDs may be omitted because references already
+determine them. Leaves have an empty `submodels` map by default.
+
+```python
+from multifidelity.model_language.implementation import Implementation
+
+implementation = Implementation.model_validate_json(implementation_json)
+implementation.submodels["states"].submodels["inlet"].relationship
+```
+
+These types check document shape only. They do not resolve references, check that
+all children of a selected relationship are present, choose relationships
+implicitly, or specify numerical values. Instance types remain deferred. The
+builder still accepts the existing dictionary/JSON format; use
+`implementation.model_dump(exclude_none=True)` to pass a typed selection to it
+until direct integration is added.
+
+
 An implementation identifies the root model and chooses its relationship:
 
 ```json
@@ -396,6 +455,21 @@ and outlet property calculations and determine their state inputs through
 constraints or connections. These occurrences each own their variables. The generic `property_pair` example uses this model through a configurable model
 parameter. Existing equipment definitions are not yet parameterized, and shared
 material coefficients remain undecided.
+
+## Future idea: measurement-directed fidelity selection
+
+A possible future query is: **which relationship (fidelity) choices can influence
+this measured output?** This would derive dependencies through equations,
+connections and nested model references, rather than merely list definition fields.
+It could help a selection algorithm focus refinement on parts of the model that
+affect measured quantities.
+
+This is an exploration idea, not an implemented feature. Structural dependencies
+may be obtainable from the definition expressions and `determines` declarations;
+numerical sensitivity and the magnitude of a fidelity's effect would require
+additional analysis, potentially using the Pyomo backend. Cycles, implicit coupled
+equations and changing internal topology would need careful treatment. A dependency
+path alone does not establish a nonzero effect or quantify its importance.
 
 ## Deferred decisions
 

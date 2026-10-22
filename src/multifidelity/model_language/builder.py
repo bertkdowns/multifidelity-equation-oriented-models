@@ -7,39 +7,10 @@ from pathlib import Path
 
 from idaes.core import FlowsheetBlock
 from pyomo.core.expr.visitor import identify_variables
-from pyomo.core.base.units_container import UnitsError
 from pyomo.environ import Block, ConcreteModel, Constraint, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
-from .definitions import (
-    Model,
-    ModelParameter,
-    ParameterModelReference,
-    ModelReference,
-    Variable,
-)
-
-
-class Library:
-    """An ID-indexed collection of model documents."""
-
-    def __init__(self, directory=None):
-        directory = Path(directory) if directory else Path(__file__).parent / "models"
-        self.models: dict[str, Model] = {}
-        # References use document IDs, so moving or renaming a file does not
-        # change which definition a relationship refers to.
-        for path in sorted(directory.glob("*.json")):
-            document = Model.model_validate_json(path.read_text())
-            name = document.id
-            if name in self.models:
-                raise ValueError(f"Duplicate model ID: {name}")
-            self.models[name] = document
-
-    def get(self, name: str) -> Model:
-        try:
-            return self.models[name]
-        except KeyError:
-            raise ValueError(f"Unknown model: {name}") from None
+from .resolution import Library, ResolvedModel
 
 
 _BINARY = {
@@ -94,79 +65,20 @@ def build_model(model_id, implementation, *, library=None):
         implementation = json.loads(Path(implementation).read_text())
     if implementation.get("model") != model_id:
         raise ValueError("Root implementation must identify the requested model")
-    if library.get(model_id).model_parameters:
-        raise ValueError(
-            "Root generic models are not supported; use a concrete wrapper"
-        )
-
-    def check_interface(definition: Model, requirement: ModelParameter, path: str):
-        # Requirements are structural: extra structs and properties are allowed.
-        for struct_id, expected in requirement.requires.items():
-            actual = definition.structs.get(struct_id)
-            if actual is None or actual.direction != expected.direction:
-                raise ValueError(f"{path}: incompatible required struct {struct_id!r}")
-            for name, variable in expected.variables.items():
-                supplied = actual.variables.get(name)
-                if supplied is None:
-                    raise ValueError(
-                        f"{path}: missing required variable {struct_id}.{name}"
-                    )
-                for key in ("value_type", "dimensions"):
-                    if getattr(supplied, key) != getattr(variable, key):
-                        raise ValueError(
-                            f"{path}: incompatible {key} for {struct_id}.{name}"
-                        )
-
-                def unit(spec: Variable):
-                    return _expression(
-                        spec.unit,
-                        lambda name: getattr(units, name),
-                    )
-
-                try:
-                    units.convert(unit(supplied), to_units=unit(variable))
-                except UnitsError as error:
-                    raise ValueError(
-                        f"{path}: incompatible units for {struct_id}.{name}"
-                    ) from error
-
-    def reference_target(reference: ModelReference, parameters, path: str):
-        """Resolve definitions and generic arguments without changing library data.
-
-        Parameter environments belong to occurrences, not reusable definitions;
-        two uses of a generic model can therefore supply different arguments.
-        """
-        if isinstance(reference, ParameterModelReference):
-            name = reference.model_parameter
-            if name not in parameters:
-                raise ValueError(f"{path}: unknown model parameter {name!r}")
-            return parameters[name]
-        target = reference.model
-        definition = library.get(target)
-        declarations = definition.model_parameters
-        arguments = reference.model_arguments
-        if set(arguments) != set(declarations):
-            raise ValueError(
-                f"{path}: model arguments must be exactly {sorted(declarations)}"
-            )
-        resolved = {}
-        for name, requirement in declarations.items():
-            argument = reference_target(arguments[name], parameters, f"{path}<{name}>")
-            check_interface(library.get(argument[0]), requirement, f"{path}<{name}>")
-            resolved[name] = argument
-        return target, resolved
+    root = library.resolve(model_id)
 
     model = ConcreteModel()
     model.fs = FlowsheetBlock(dynamic=False)
     model.fs.root = Block()
 
-    def populate(block, definition_id, selection, path, parameters):
+    def populate(block, resolved: ResolvedModel, selection):
         """Build one occurrence and return only its public variable references.
 
         Each call creates fresh components, even when several occurrences share
         a definition. ``path`` identifies the occurrence in validation errors.
         """
-        definition = library.get(definition_id)
+        definition = resolved.definition
+        definition_id, path = resolved.id, resolved.path
         if selection.get("model", definition_id) != definition_id:
             raise ValueError(f"{path}: implementation model does not match reference")
         relationship_id = selection.get("relationship")
@@ -174,12 +86,8 @@ def build_model(model_id, implementation, *, library=None):
             raise ValueError(
                 f"{path}: unknown or missing relationship {relationship_id!r}"
             )
-        relationship = definition.relationships[relationship_id]
+        relationship = resolved.relationships[relationship_id]
         refs = relationship.models
-        targets = {
-            alias: reference_target(reference, parameters, f"{path}.{alias}")
-            for alias, reference in refs.items()
-        }
         selected = selection.get("submodels", {})
         # Validate against the selected relationship only: alternatives may have
         # entirely different children and are not materialized in this build.
@@ -213,10 +121,8 @@ def build_model(model_id, implementation, *, library=None):
             active.models.add_component(alias, child)
             children[alias] = populate(
                 child,
-                targets[alias][0],
+                reference,
                 selected[alias],
-                f"{path}.{alias}",
-                targets[alias][1],
             )
 
         def resolve(reference):
@@ -239,8 +145,8 @@ def build_model(model_id, implementation, *, library=None):
         }
         allowed = outputs | {
             f"{alias}.{s}.{v}"
-            for alias, (target_id, _) in targets.items()
-            for s, struct in library.get(target_id).structs.items()
+            for alias, child_model in refs.items()
+            for s, struct in child_model.structs.items()
             if struct.direction == "input"
             for v in struct.variables
         }
@@ -291,7 +197,7 @@ def build_model(model_id, implementation, *, library=None):
                         raise ValueError(
                             f"{path}: unknown child in connection {endpoint}"
                         )
-                    doc = library.get(targets[alias][0])
+                    doc = refs[alias]
                     prefix = alias + "."
                 else:
                     doc, struct_id, prefix = definition, alias, ""
@@ -334,7 +240,7 @@ def build_model(model_id, implementation, *, library=None):
         # containing relationship resolves references to this occurrence.
         return variables
 
-    populate(model.fs.root, model_id, implementation, model_id, {})
+    populate(model.fs.root, root, implementation)
     # Check the complete equation tree without fixing values or calling a solver.
     assert_units_consistent(model)
     return model

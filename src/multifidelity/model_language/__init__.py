@@ -1,5 +1,13 @@
 """Load declarative model definitions and build explicitly selected IDAES structures."""
 
-from .builder import Library, build_model
+from .resolution import Library, ResolvedModel, ResolvedRelationship
 
-__all__ = ["Library", "build_model"]
+
+def build_model(model_id, implementation, *, library=None):
+    """Convert a selected implementation using the Pyomo backend on demand."""
+    from .builder import build_model as build
+
+    return build(model_id, implementation, library=library)
+
+
+__all__ = ["Library", "ResolvedModel", "ResolvedRelationship", "build_model"]
