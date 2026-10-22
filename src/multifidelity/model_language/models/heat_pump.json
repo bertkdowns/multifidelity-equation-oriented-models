@@ -63,9 +63,6 @@
       "variables": {
         "electrical_power": {
           "unit": "W"
-        },
-        "cop": {
-          "unit": "dimensionless"
         }
       }
     },
@@ -77,17 +74,24 @@
         },
         "cooling_duty": {
           "unit": "W"
+        },
+        "cop": {
+          "unit": "dimensionless"
         }
       }
     }
   },
   "relationships": {
     "aggregate": {
-      "models": {},
+      "models": {
+        "cop_model": {
+          "model": "prescribed_cop"
+        }
+      },
       "constraints": {
         "eq_1": {
           "lhs": "performance.heating_duty",
-          "rhs": "parameters.cop * parameters.electrical_power",
+          "rhs": "cop_model.performance.cop * parameters.electrical_power",
           "determines": "performance.heating_duty"
         },
         "eq_2": {
@@ -124,6 +128,11 @@
           "lhs": "sink_outlet.flow * sink_outlet.enthalpy",
           "rhs": "sink_inlet.flow * sink_inlet.enthalpy + performance.heating_duty",
           "determines": "sink_outlet.enthalpy"
+        },
+        "cop": {
+          "lhs": "performance.cop",
+          "rhs": "cop_model.performance.cop",
+          "determines": "performance.cop"
         }
       },
       "connections": {}
@@ -164,6 +173,11 @@
           "lhs": "performance.cooling_duty",
           "rhs": "source_inlet.flow * source_inlet.enthalpy - source_outlet.flow * source_outlet.enthalpy",
           "determines": "performance.cooling_duty"
+        },
+        "cop": {
+          "lhs": "performance.cop * parameters.electrical_power",
+          "rhs": "performance.heating_duty",
+          "determines": "performance.cop"
         }
       },
       "connections": {

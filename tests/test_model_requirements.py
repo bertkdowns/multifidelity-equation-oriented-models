@@ -62,6 +62,9 @@ def test_recursive_connections_do_not_duplicate_parameter_requirements(monkeypat
 
 def test_constraints_supply_individual_child_inputs():
     required = required_inputs("heat_pump", EXAMPLES / "heat_pump_cycle.json")
+    assert len(required) == 17
+    assert "parameters.cop" not in required
+    assert "performance.cop" not in required
     assert "parameters.electrical_power" in required
     assert "compressor.parameters.work" not in required
     assert "compressor.parameters.pressure_rise" in required
@@ -97,7 +100,8 @@ def test_only_selected_relationships_are_traversed():
         "heat_pump", EXAMPLES / "heat_pump_aggregate.json", library=library
     )
     assert len(required) == 8
-    assert all(".parameters." not in path for path in required)
+    assert "cop_model.parameters.cop" in required
+    assert "parameters.cop" not in required
 
 
 @pytest.mark.parametrize(

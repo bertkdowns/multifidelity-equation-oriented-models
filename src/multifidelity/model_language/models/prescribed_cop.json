@@ -1,0 +1,35 @@
+{
+  "id": "prescribed_cop",
+  "description": "Prescribed heating COP for an aggregate heat-pump relationship.",
+  "structs": {
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "cop": {
+          "unit": "dimensionless"
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "cop": {
+          "unit": "dimensionless"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "specified": {
+      "models": {},
+      "constraints": {
+        "cop": {
+          "lhs": "performance.cop",
+          "rhs": "parameters.cop",
+          "determines": "performance.cop"
+        }
+      },
+      "connections": {}
+    }
+  }
+}

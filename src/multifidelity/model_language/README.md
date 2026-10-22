@@ -474,6 +474,21 @@ Some composite inputs remain unused by these initial formulations. Closed loops
 may contain redundant continuity constraints. Construction success and dimensional
 consistency do not establish determinacy, physical validity or solvability.
 
+## Heat-pump COP ownership
+
+Both heat-pump relationships expose heating COP as `performance.cop`, an output.
+The aggregate relationship references `prescribed_cop` as `cop_model`; its
+`cop_model.parameters.cop` input supplies the aggregate calculation and the public
+COP output. The cycle relationship instead determines COP through
+`performance.cop * parameters.electrical_power = performance.heating_duty`.
+COP is undefined at zero electrical power; this construction-only language does
+not enforce a nonzero operating specification.
+
+The aggregate example requires 8 scalar inputs, including the nested COP input;
+the cycle example requires 17, with no specified COP. Parent relationships see
+the same public interface regardless of the selected heat-pump relationship.
+
+
 ## Water state property model
 
 `water_state` is an ordinary reusable model, not a new special type. Its

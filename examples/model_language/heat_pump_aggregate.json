@@ -1,5 +1,10 @@
 {
   "model": "heat_pump",
   "relationship": "aggregate",
-  "submodels": {}
+  "submodels": {
+    "cop_model": {
+      "relationship": "specified",
+      "submodels": {}
+    }
+  }
 }

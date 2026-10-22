@@ -55,6 +55,27 @@ def test_every_bundled_relationship_builds_without_solver():
             assert all((v.value is None for v in model.component_data_objects(Var)))
 
 
+@pytest.mark.parametrize("relationship", ["aggregate", "cycle"])
+def test_heat_pump_cop_is_a_public_output(relationship):
+    library = Library()
+    model = build_model("heat_pump", select(library, "heat_pump", relationship))
+    root = model.fs.root
+    assert "cop" not in library.get("heat_pump").structs["parameters"].variables
+    root.structs.performance.cop.set_value(4)
+    root.structs.parameters.electrical_power.set_value(1000)
+    root.structs.performance.heating_duty.set_value(4000)
+    if relationship == "aggregate":
+        child = root.relationship.models.cop_model
+        child.structs.parameters.cop.set_value(4)
+        child.structs.performance.cop.set_value(4)
+        assert value(child.relationship.constraints.cop.body) == pytest.approx(0)
+        assert value(root.relationship.constraints.eq_1.body) == pytest.approx(0)
+    equation = root.relationship.constraints.cop
+    assert value(equation.body) == pytest.approx(0)
+    root.structs.performance.cop.set_value(3)
+    assert abs(value(equation.body)) > 0
+
+
 def test_reused_definition_has_distinct_occurrences_and_connection_equations(tmp_path):
     library = Library()
     selection = select(library, "heat_pump", "cycle")
@@ -112,7 +133,7 @@ def test_unselected_relationship_is_not_loaded():
     model = build_model(
         "heat_pump", select(library, "heat_pump", "aggregate"), library=library
     )
-    assert len(list(model.fs.root.relationship.models.component_objects())) == 0
+    assert set(model.fs.root.relationship.models.component_map()) == {"cop_model"}
 
 
 def test_only_selected_child_interface_is_accessible():
