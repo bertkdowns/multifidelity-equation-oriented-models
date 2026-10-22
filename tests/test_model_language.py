@@ -126,6 +126,8 @@ def test_only_selected_child_interface_is_accessible():
             }
         )
     )
+    # Keep a single determination so this test isolates reference visibility.
+    del library.models["heat_pump"].relationships["cycle"].constraints["eq_2"]
     with pytest.raises(ValueError, match="inaccessible"):
         build_model("heat_pump", select(library, "heat_pump", "cycle"), library=library)
 
@@ -201,6 +203,11 @@ def test_constraint_target_must_be_valid_and_occur_in_equation(target):
     library = Library()
     equation = library.models["valve"].relationships["isenthalpic"].constraints["eq_1"]
     equation.determines = target
+    if target == "outlet.pressure":
+        # Swap targets to retain complete coverage without duplicate targets.
+        library.models["valve"].relationships["isenthalpic"].constraints[
+            "eq_3"
+        ].determines = "outlet.flow"
     with pytest.raises(ValueError, match="invalid target|does not occur"):
         build_model("valve", select(library, "valve"), library=library)
 

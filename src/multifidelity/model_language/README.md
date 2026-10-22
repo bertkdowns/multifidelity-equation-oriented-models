@@ -185,7 +185,7 @@ unselected alternatives do not undergo determination validation during a build
 Child inputs without a determination are permitted: they remain specifications
 for a future instance to supply. This check neither fixes them nor proves that
 outputs can be calculated: cycles, dependent equations, singularities and multiple
-solutions require further analysis. Required-input reporting remains future work.
+solutions require further analysis. Required inputs can be listed using the methods described below.
 
 Python calls, subscripts, imports and arbitrary code are not supported; expression
 strings are parsed using a restricted AST interpreter, never `eval`.
@@ -386,6 +386,61 @@ This is a generic equation structure inside IDAES, not an automatic translation
 into the existing custom `UnitModelBlockData` equipment classes or thermodynamic
 state blocks. Configurable property dependencies, shared material data, and
 process-specific adapters are future work.
+
+## List required input specifications
+
+Before assigning any values, inspect the inputs required by a **complete selected
+implementation**, including its nested models:
+
+```python
+from multifidelity.model_language import required_inputs, print_required_inputs
+
+required = required_inputs(
+    "water_property_pair",
+    "examples/model_language/water_property_pair_evaluate.json",
+)
+# Sorted dictionary: root-relative variable path -> typed Variable declaration.
+required["states.inlet_state.pressure"].unit  # "Pa"
+
+print_required_inputs(
+    "water_property_pair",
+    "examples/model_language/water_property_pair_evaluate.json",
+)
+```
+
+The same listing is available from the command line:
+
+```bash
+.venv/bin/python -m multifidelity.model_language water_property_pair \
+  examples/model_language/water_property_pair_evaluate.json --required-inputs
+```
+
+It prints entries such as `states.inlet_state.pressure [Pa]`, one variable per
+line. Both methods accept a typed `Implementation`, a dictionary, or a JSON file
+path, and an optional `library`. `print_required_inputs` accepts `file` for writing
+to a stream. Paths use local model-reference aliases and omit the root model ID.
+
+Every root input is required. At each selected relationship, its constraints'
+`determines` declarations and each connection's destination fields supply child
+inputs. Only the remaining child input variables are listed, recursively. A
+constraint may supply one member of a struct while the other members remain
+required. Repeated uses of the same definition have distinct paths. Inputs remain
+required even if the selected equations do not use them.
+
+The water-property-pair example requires its two state structs and one parameter
+struct: 10 variables. Its inlet/outlet property-model state and coefficient inputs
+are supplied by connections and are not listed again. Selecting a different
+relationship can change the list; unselected alternatives are not traversed.
+
+The query checks the implementation's root/model identities, explicit relationship
+choices and complete child selections. It shares target coverage, duplicate
+determination and connection direction/field checks with the backend. It does
+not compile expressions, check equation units, establish mathematical determinacy,
+create solver objects, fix variables, or fill any values. It relies on declared
+`determines` targets; the Pyomo builder still verifies their actual occurrence in
+equations. An incomplete definition such as the aggregate milk scaffold raises
+its missing-output error instead of returning a misleading requirements list.
+Instance data and applying specifications are deliberately left for the next step.
 
 ## Bundled models and provenance
 

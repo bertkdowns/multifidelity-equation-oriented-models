@@ -11,6 +11,7 @@ from pyomo.environ import Block, ConcreteModel, Constraint, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
 from .resolution import Library, ResolvedModel
+from .requirements import connection_endpoints, determination_sources
 
 
 _BINARY = {
@@ -135,35 +136,8 @@ def build_model(model_id, implementation, *, library=None):
                 return children[alias][rest]
             raise ValueError(f"{path}: unknown or inaccessible variable {reference!r}")
 
-        # Only parent outputs and immediate child inputs may be determined here.
-        # Other child inputs may remain unspecified for a future instance to set.
-        outputs = {
-            f"{s}.{v}"
-            for s, struct in definition.structs.items()
-            if struct.direction == "output"
-            for v in struct.variables
-        }
-        allowed = outputs | {
-            f"{alias}.{s}.{v}"
-            for alias, child_model in refs.items()
-            for s, struct in child_model.structs.items()
-            if struct.direction == "input"
-            for v in struct.variables
-        }
-        determinations = {}
-
-        def determine(target, source):
-            if target not in allowed:
-                raise ValueError(
-                    f"{path}.{relationship_id}: {source} determines invalid target "
-                    f"{target!r}; expected a parent output or immediate child input"
-                )
-            if target in determinations:
-                raise ValueError(
-                    f"{path}.{relationship_id}: duplicate determination of {target!r} "
-                    f"by {determinations[target]} and {source}"
-                )
-            determinations[target] = source
+        # Pure definition checks are shared with required-input discovery.
+        determination_sources(resolved, relationship_id)
 
         active.constraints = Block()
         for name, equation in relationship.constraints.items():
@@ -174,7 +148,6 @@ def build_model(model_id, implementation, *, library=None):
             if isinstance(lhs == rhs, bool):
                 raise ValueError(f"{path}.{name}: equation must involve variables")
             target = equation.determines
-            determine(target, f"constraint {name}")
             target_var = resolve(target)
             if not any(v is target_var for v in identify_variables(lhs - rhs)):
                 raise ValueError(
@@ -186,41 +159,12 @@ def build_model(model_id, implementation, *, library=None):
         # Connections are shorthand for field-by-field equality constraints;
         # no Arc objects, variable aliases, or arc expansion are involved.
         for name, connection in relationship.connections.items():
-            endpoints = []
-            for endpoint in (connection.from_, connection.to):
-                # "struct" names a parent interface; "child.struct" names a
-                # child interface. Record whether each endpoint is a child so
-                # direction can be interpreted from inside this relationship.
-                alias, sep, struct_id = endpoint.partition(".")
-                if sep:
-                    if alias not in refs:
-                        raise ValueError(
-                            f"{path}: unknown child in connection {endpoint}"
-                        )
-                    doc = refs[alias]
-                    prefix = alias + "."
-                else:
-                    doc, struct_id, prefix = definition, alias, ""
-                if struct_id not in doc.structs:
-                    raise ValueError(f"{path}: unknown struct {endpoint}")
-                endpoints.append(
-                    (doc.structs[struct_id], prefix + struct_id, bool(sep))
-                )
-            source, target = endpoints
-            # Parent inputs feed children; child outputs feed parent outputs.
-            expected_source = "output" if source[2] else "input"
-            expected_target = "input" if target[2] else "output"
-            if (
-                source[0].direction != expected_source
-                or target[0].direction != expected_target
-            ):
-                raise ValueError(f"{path}.{name}: invalid connection direction")
-            if set(source[0].variables) != set(target[0].variables):
-                raise ValueError(f"{path}.{name}: connection fields differ")
+            source, target = connection_endpoints(
+                resolved, relationship, connection, f"{path}.{name}"
+            )
             connection_block = Block()
             active.connections.add_component(name, connection_block)
             for field in source[0].variables:
-                determine(target[1] + "." + field, f"connection {name}")
                 a, b = (
                     resolve(source[1] + "." + field),
                     resolve(target[1] + "." + field),
@@ -230,12 +174,6 @@ def build_model(model_id, implementation, *, library=None):
                     field,
                     Constraint(expr=a == units.convert(b, to_units=units.get_units(a))),
                 )
-        missing = sorted(outputs - determinations.keys())
-        if missing:
-            raise ValueError(
-                f"{path}.{relationship_id}: missing output determinations: "
-                + ", ".join(missing)
-            )
         # Export only this model's interface, preserving encapsulation when the
         # containing relationship resolves references to this occurrence.
         return variables
