@@ -51,6 +51,36 @@ them: callers cannot reach through a child to its grandchildren. Relationships
 own no variables. Extra internal quantities must be declared on a model's struct,
 possibly on a dedicated internal model referenced by the relationship.
 
+## Typed definition documents
+
+`definitions.py` defines Pydantic types matching the JSON definitions. They can
+be parsed and navigated without constructing solver objects:
+
+```python
+from pathlib import Path
+from multifidelity.model_language.definitions import Model
+
+model = Model.model_validate_json(Path("my_model.json").read_text())
+model.structs["inlet"].variables["pressure"].unit
+model.relationships["basic"].models
+```
+
+`Library` loads every JSON document into these types. Both `library.models["valve"]`
+and `library.get("valve")` return a `Model`, and the builder consumes its typed
+structs, relationships and reference variants directly. Definitions retain model
+IDs and generic parameter references; they do not yet resolve references, unroll
+a tree, or select implementations independently of construction.
+
+Document-shape validation rejects unknown fields, invalid component names,
+missing required fields, unsupported variable types, invalid directions and
+ambiguous reference kinds at load time, including in unselected alternatives.
+Scope, generic interface compatibility, dimensions supported by the backend,
+equation units and determination checks remain in the builder and apply to the
+selected implementation. Implementation selections remain dictionaries for now.
+Serialize definitions with `model_dump(by_alias=True)` or
+`model_dump_json(by_alias=True)` to preserve JSON names (`Connection.from_` in
+Python is `from` in JSON). Instance and implementation types are deferred.
+
 ## Documents
 
 A model contains `id`, optional `description`, `structs`, and `relationships`:
@@ -111,7 +141,8 @@ share the same determination registry as explicit constraints. Two constraints,
 two connections, or a constraint and a connection targeting the same variable
 are rejected with both source names. Missing outputs are listed together.
 Validation is local to each selected relationship and is repeated recursively;
-unselected alternatives are not validated by a build.
+unselected alternatives do not undergo determination validation during a build
+(their document shape is still validated when the library loads).
 
 Child inputs without a determination are permitted: they remain specifications
 for a future instance to supply. This check neither fixes them nor proves that

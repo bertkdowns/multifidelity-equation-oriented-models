@@ -11,23 +11,31 @@ from pyomo.core.base.units_container import UnitsError
 from pyomo.environ import Block, ConcreteModel, Constraint, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
+from .definitions import (
+    Model,
+    ModelParameter,
+    ParameterModelReference,
+    ModelReference,
+    Variable,
+)
+
 
 class Library:
     """An ID-indexed collection of model documents."""
 
     def __init__(self, directory=None):
         directory = Path(directory) if directory else Path(__file__).parent / "models"
-        self.models = {}
+        self.models: dict[str, Model] = {}
         # References use document IDs, so moving or renaming a file does not
         # change which definition a relationship refers to.
         for path in sorted(directory.glob("*.json")):
-            document = json.loads(path.read_text())
-            name = document["id"]
+            document = Model.model_validate_json(path.read_text())
+            name = document.id
             if name in self.models:
                 raise ValueError(f"Duplicate model ID: {name}")
             self.models[name] = document
 
-    def get(self, name):
+    def get(self, name: str) -> Model:
         try:
             return self.models[name]
         except KeyError:
@@ -74,13 +82,6 @@ def _expression(text, resolve):
     return visit(ast.parse(text, mode="eval").body)
 
 
-def _name(name):
-    """Keep component names compatible with dotted references; reserve '_' names."""
-    if not name.isidentifier() or name.startswith("_"):
-        raise ValueError(f"Invalid identifier: {name!r}")
-    return name
-
-
 def build_model(model_id, implementation, *, library=None):
     """Construct, without fixing inputs or solving, a selected model tree.
 
@@ -93,32 +94,32 @@ def build_model(model_id, implementation, *, library=None):
         implementation = json.loads(Path(implementation).read_text())
     if implementation.get("model") != model_id:
         raise ValueError("Root implementation must identify the requested model")
-    if library.get(model_id).get("model_parameters"):
+    if library.get(model_id).model_parameters:
         raise ValueError(
             "Root generic models are not supported; use a concrete wrapper"
         )
 
-    def check_interface(definition, requirement, path):
+    def check_interface(definition: Model, requirement: ModelParameter, path: str):
         # Requirements are structural: extra structs and properties are allowed.
-        for struct_id, expected in requirement.get("requires", {}).items():
-            actual = definition["structs"].get(struct_id)
-            if actual is None or actual["direction"] != expected["direction"]:
+        for struct_id, expected in requirement.requires.items():
+            actual = definition.structs.get(struct_id)
+            if actual is None or actual.direction != expected.direction:
                 raise ValueError(f"{path}: incompatible required struct {struct_id!r}")
-            for name, variable in expected["variables"].items():
-                supplied = actual["variables"].get(name)
+            for name, variable in expected.variables.items():
+                supplied = actual.variables.get(name)
                 if supplied is None:
                     raise ValueError(
                         f"{path}: missing required variable {struct_id}.{name}"
                     )
-                for key, default in (("value_type", "real"), ("dimensions", [])):
-                    if supplied.get(key, default) != variable.get(key, default):
+                for key in ("value_type", "dimensions"):
+                    if getattr(supplied, key) != getattr(variable, key):
                         raise ValueError(
                             f"{path}: incompatible {key} for {struct_id}.{name}"
                         )
 
-                def unit(spec):
+                def unit(spec: Variable):
                     return _expression(
-                        spec.get("unit", "dimensionless"),
+                        spec.unit,
                         lambda name: getattr(units, name),
                     )
 
@@ -129,34 +130,27 @@ def build_model(model_id, implementation, *, library=None):
                         f"{path}: incompatible units for {struct_id}.{name}"
                     ) from error
 
-    def reference_target(reference, parameters, path):
+    def reference_target(reference: ModelReference, parameters, path: str):
         """Resolve definitions and generic arguments without changing library data.
 
         Parameter environments belong to occurrences, not reusable definitions;
         two uses of a generic model can therefore supply different arguments.
         """
-        if ("model" in reference) == ("model_parameter" in reference):
-            raise ValueError(f"{path}: specify exactly one of model or model_parameter")
-        if "model_parameter" in reference:
-            name = reference["model_parameter"]
+        if isinstance(reference, ParameterModelReference):
+            name = reference.model_parameter
             if name not in parameters:
                 raise ValueError(f"{path}: unknown model parameter {name!r}")
-            if "model_arguments" in reference:
-                raise ValueError(
-                    f"{path}: forwarded parameters already have their arguments"
-                )
             return parameters[name]
-        target = reference["model"]
+        target = reference.model
         definition = library.get(target)
-        declarations = definition.get("model_parameters", {})
-        arguments = reference.get("model_arguments", {})
+        declarations = definition.model_parameters
+        arguments = reference.model_arguments
         if set(arguments) != set(declarations):
             raise ValueError(
                 f"{path}: model arguments must be exactly {sorted(declarations)}"
             )
         resolved = {}
         for name, requirement in declarations.items():
-            _name(name)
             argument = reference_target(arguments[name], parameters, f"{path}<{name}>")
             check_interface(library.get(argument[0]), requirement, f"{path}<{name}>")
             resolved[name] = argument
@@ -176,12 +170,12 @@ def build_model(model_id, implementation, *, library=None):
         if selection.get("model", definition_id) != definition_id:
             raise ValueError(f"{path}: implementation model does not match reference")
         relationship_id = selection.get("relationship")
-        if relationship_id not in definition["relationships"]:
+        if relationship_id not in definition.relationships:
             raise ValueError(
                 f"{path}: unknown or missing relationship {relationship_id!r}"
             )
-        relationship = definition["relationships"][relationship_id]
-        refs = relationship.get("models", {})
+        relationship = definition.relationships[relationship_id]
+        refs = relationship.models
         targets = {
             alias: reference_target(reference, parameters, f"{path}.{alias}")
             for alias, reference in refs.items()
@@ -195,24 +189,17 @@ def build_model(model_id, implementation, *, library=None):
         variables = {}
         # Struct blocks own variables. This lookup contains references to those
         # same objects, not copies; input direction does not imply fixation.
-        for struct_id, struct in definition["structs"].items():
-            _name(struct_id)
-            if struct["direction"] not in ("input", "output"):
-                raise ValueError(f"{path}.{struct_id}: invalid direction")
+        for struct_id, struct in definition.structs.items():
             struct_block = Block()
             block.structs.add_component(struct_id, struct_block)
-            for variable_id, variable in struct["variables"].items():
-                _name(variable_id)
-                if variable.get("dimensions"):
+            for variable_id, variable in struct.variables.items():
+                if variable.dimensions:
                     raise ValueError(f"{path}: indexed variables are not supported yet")
-                if variable.get("value_type", "real") != "real":
-                    raise ValueError(f"{path}: only real variables are supported")
                 unit = _expression(
-                    variable.get("unit", "dimensionless"),
+                    variable.unit,
                     lambda name: getattr(units, name),
                 )
-                bounds = variable.get("bounds", {})
-                var = Var(bounds=(bounds.get("min"), bounds.get("max")), units=unit)
+                var = Var(bounds=(variable.bounds.min, variable.bounds.max), units=unit)
                 struct_block.add_component(variable_id, var)
                 variables[f"{struct_id}.{variable_id}"] = var
         block.relationship = Block()
@@ -222,7 +209,6 @@ def build_model(model_id, implementation, *, library=None):
         # Build children before equations so all referenced variables exist.
         # Local aliases distinguish repeated uses of the same model definition.
         for alias, reference in refs.items():
-            _name(alias)
             child = Block()
             active.models.add_component(alias, child)
             children[alias] = populate(
@@ -247,21 +233,21 @@ def build_model(model_id, implementation, *, library=None):
         # Other child inputs may remain unspecified for a future instance to set.
         outputs = {
             f"{s}.{v}"
-            for s, struct in definition["structs"].items()
-            if struct["direction"] == "output"
-            for v in struct["variables"]
+            for s, struct in definition.structs.items()
+            if struct.direction == "output"
+            for v in struct.variables
         }
         allowed = outputs | {
             f"{alias}.{s}.{v}"
             for alias, (target_id, _) in targets.items()
-            for s, struct in library.get(target_id)["structs"].items()
-            if struct["direction"] == "input"
-            for v in struct["variables"]
+            for s, struct in library.get(target_id).structs.items()
+            if struct.direction == "input"
+            for v in struct.variables
         }
         determinations = {}
 
         def determine(target, source):
-            if not isinstance(target, str) or target not in allowed:
+            if target not in allowed:
                 raise ValueError(
                     f"{path}.{relationship_id}: {source} determines invalid target "
                     f"{target!r}; expected a parent output or immediate child input"
@@ -274,15 +260,14 @@ def build_model(model_id, implementation, *, library=None):
             determinations[target] = source
 
         active.constraints = Block()
-        for name, equation in relationship.get("constraints", {}).items():
-            _name(name)
-            lhs = _expression(equation["lhs"], resolve)
-            rhs = _expression(equation["rhs"], resolve)
+        for name, equation in relationship.constraints.items():
+            lhs = _expression(equation.lhs, resolve)
+            rhs = _expression(equation.rhs, resolve)
             # A comparison of plain numbers produces a Python bool rather than
             # a symbolic equation, and cannot constrain the constructed model.
             if isinstance(lhs == rhs, bool):
                 raise ValueError(f"{path}.{name}: equation must involve variables")
-            target = equation.get("determines")
+            target = equation.determines
             determine(target, f"constraint {name}")
             target_var = resolve(target)
             if not any(v is target_var for v in identify_variables(lhs - rhs)):
@@ -294,10 +279,9 @@ def build_model(model_id, implementation, *, library=None):
         active.connections = Block()
         # Connections are shorthand for field-by-field equality constraints;
         # no Arc objects, variable aliases, or arc expansion are involved.
-        for name, connection in relationship.get("connections", {}).items():
-            _name(name)
+        for name, connection in relationship.connections.items():
             endpoints = []
-            for endpoint in (connection["from"], connection["to"]):
+            for endpoint in (connection.from_, connection.to):
                 # "struct" names a parent interface; "child.struct" names a
                 # child interface. Record whether each endpoint is a child so
                 # direction can be interpreted from inside this relationship.
@@ -311,25 +295,25 @@ def build_model(model_id, implementation, *, library=None):
                     prefix = alias + "."
                 else:
                     doc, struct_id, prefix = definition, alias, ""
-                if struct_id not in doc["structs"]:
+                if struct_id not in doc.structs:
                     raise ValueError(f"{path}: unknown struct {endpoint}")
                 endpoints.append(
-                    (doc["structs"][struct_id], prefix + struct_id, bool(sep))
+                    (doc.structs[struct_id], prefix + struct_id, bool(sep))
                 )
             source, target = endpoints
             # Parent inputs feed children; child outputs feed parent outputs.
             expected_source = "output" if source[2] else "input"
             expected_target = "input" if target[2] else "output"
             if (
-                source[0]["direction"] != expected_source
-                or target[0]["direction"] != expected_target
+                source[0].direction != expected_source
+                or target[0].direction != expected_target
             ):
                 raise ValueError(f"{path}.{name}: invalid connection direction")
-            if set(source[0]["variables"]) != set(target[0]["variables"]):
+            if set(source[0].variables) != set(target[0].variables):
                 raise ValueError(f"{path}.{name}: connection fields differ")
             connection_block = Block()
             active.connections.add_component(name, connection_block)
-            for field in source[0]["variables"]:
+            for field in source[0].variables:
                 determine(target[1] + "." + field, f"connection {name}")
                 a, b = (
                     resolve(source[1] + "." + field),
