@@ -61,16 +61,16 @@ def test_recursive_connections_do_not_duplicate_parameter_requirements(monkeypat
 
 
 def test_constraints_supply_individual_child_inputs():
-    required = required_inputs("heat_pump", EXAMPLES / "heat_pump_cycle.json")
-    assert len(required) == 17
-    assert "parameters.cop" not in required
-    assert "performance.cop" not in required
-    assert "parameters.electrical_power" in required
-    assert "compressor.parameters.work" not in required
-    assert "compressor.parameters.pressure_rise" in required
-    assert "condenser.parameters.conductance" in required
-    assert "subcooler.parameters.conductance" in required
-    assert "condenser.hot_inlet.flow" not in required
+    required = required_inputs("heat_pump_flowsheet", EXAMPLES / "heat_pump_cycle.json")
+    assert len(required) == 29
+    assert "heat_pump.parameters.cop" not in required
+    assert "heat_pump.performance.cop" not in required
+    assert "heat_pump.parameters.electrical_power" in required
+    assert "heat_pump.compressor.parameters.work" not in required
+    assert "heat_pump.compressor.parameters.pressure_rise" in required
+    assert "heat_pump.condenser.parameters.conductance" in required
+    assert "heat_pump.subcooler.parameters.conductance" in required
+    assert "heat_pump.condenser.hot_inlet.flow" not in required
 
 
 def test_partial_child_struct_still_lists_other_inputs():
@@ -97,11 +97,11 @@ def test_only_selected_relationships_are_traversed():
         "compressor"
     ].model = "absent"
     required = required_inputs(
-        "heat_pump", EXAMPLES / "heat_pump_aggregate.json", library=library
+        "heat_pump_flowsheet", EXAMPLES / "heat_pump_aggregate.json", library=library
     )
-    assert len(required) == 8
-    assert "cop_model.parameters.cop" in required
-    assert "parameters.cop" not in required
+    assert len(required) == 20
+    assert "heat_pump.cop_model.parameters.cop" in required
+    assert "heat_pump.parameters.cop" not in required
 
 
 @pytest.mark.parametrize(

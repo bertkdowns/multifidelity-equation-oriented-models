@@ -1,0 +1,85 @@
+{
+  "id": "water_state_ph",
+  "description": "Pressure-enthalpy inverse of the affine constant-property liquid-water model. Requires nonzero heat capacity and density; no phase equilibrium.",
+  "structs": {
+    "state": {
+      "direction": "input",
+      "variables": {
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "reference_pressure": {
+          "unit": "Pa"
+        },
+        "reference_temperature": {
+          "unit": "K"
+        },
+        "reference_enthalpy": {
+          "unit": "J/kg"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        }
+      }
+    },
+    "properties": {
+      "direction": "output",
+      "variables": {
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        },
+        "temperature": {
+          "unit": "K"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "constant_properties": {
+      "models": {},
+      "constraints": {
+        "density": {
+          "lhs": "properties.density",
+          "rhs": "parameters.density",
+          "determines": "properties.density"
+        },
+        "heat_capacity": {
+          "lhs": "properties.heat_capacity",
+          "rhs": "parameters.heat_capacity",
+          "determines": "properties.heat_capacity"
+        },
+        "viscosity": {
+          "lhs": "properties.viscosity",
+          "rhs": "parameters.viscosity",
+          "determines": "properties.viscosity"
+        },
+        "temperature": {
+          "lhs": "properties.temperature",
+          "rhs": "parameters.reference_temperature + (state.enthalpy - parameters.reference_enthalpy - (state.pressure - parameters.reference_pressure) / parameters.density) / parameters.heat_capacity",
+          "determines": "properties.temperature"
+        }
+      },
+      "connections": {}
+    }
+  }
+}

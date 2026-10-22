@@ -6,6 +6,28 @@ inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constrai
 It does not solve, set initial guesses, fix inputs, or construct instance documents.
 Here "build" means creating Python modelling objects, not numerical initialization.
 
+## Current blocking task: shared property-package bindings
+
+Before extending the heat-pump property integration further, define how state
+models bind to a shared, configured property package. Generic model arguments
+currently select definitions; they do not bind repeated state occurrences to
+shared coefficient values. The existing Python property packages already provide
+shared parameter ownership through `state.params`, but the model language has
+no equivalent mechanism yet.
+
+The intended behaviour is to configure each property package once and let state
+models reuse its parameters without passing coefficients through every containing
+model. Hot-side and cold-side packages must remain independently selectable.
+The heat pump should expose its stream flow, pressure and enthalpy, electrical
+power and performance outputs; property coefficients and calculated temperatures
+can remain internal to its selected relationship.
+
+The current `hot_property_parameters`, `cold_property_parameters` and public
+`*_properties` structs are provisional plumbing, not the intended final interface.
+Resolve binding syntax, package ownership, scope and forwarding, and how shared
+parameters appear in required-input discovery before revising that plumbing or
+adding the Carnot-efficiency relationship.
+
 ## Why a separate specification language?
 
 The existing Python models combine physical equations, IDAES property packages,
@@ -292,7 +314,8 @@ remain unchanged. Implementations still explicitly select the resolved children'
 relationships; a supplied child `model` ID must match its resolved argument.
 
 Root generic models are deliberately unsupported. Use a concrete wrapper such as
-`water_property_pair` to supply the arguments, then build it normally:
+`water_property_pair` or `heat_pump_flowsheet` to supply model arguments on its
+child reference, then build the wrapper normally:
 
 ```bash
 .venv/bin/python -m multifidelity.model_language water_property_pair \
@@ -332,15 +355,61 @@ An implementation identifies the root model and chooses its relationship:
 
 ```json
 {
-  "model": "heat_pump",
-  "relationship": "cycle",
+  "model": "heat_pump_flowsheet",
+  "relationship": "flowsheet",
   "submodels": {
-    "compressor": {"relationship": "energy_balance", "submodels": {}},
-    "condenser": {"relationship": "lumped", "submodels": {}},
-    "subcooler": {"relationship": "lumped", "submodels": {}},
-    "ihx": {"relationship": "lumped", "submodels": {}},
-    "expansion_valve": {"relationship": "isenthalpic", "submodels": {}},
-    "evaporator": {"relationship": "lumped", "submodels": {}}
+    "heat_pump": {
+      "model": "heat_pump",
+      "relationship": "cycle",
+      "submodels": {
+        "compressor": {
+          "model": "compressor",
+          "relationship": "energy_balance",
+          "submodels": {}
+        },
+        "condenser": {
+          "model": "heat_exchanger",
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "subcooler": {
+          "model": "heat_exchanger",
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "ihx": {
+          "model": "heat_exchanger",
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "expansion_valve": {
+          "model": "valve",
+          "relationship": "isenthalpic",
+          "submodels": {}
+        },
+        "evaporator": {
+          "model": "heat_exchanger",
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "source_inlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {}
+        },
+        "source_outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {}
+        },
+        "sink_inlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {}
+        },
+        "sink_outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {}
+        }
+      }
+    }
   }
 }
 ```
@@ -354,7 +423,7 @@ occurs in the loader. Recursive references require a finite implementation tree.
 From the repository root:
 
 ```bash
-.venv/bin/python -m multifidelity.model_language heat_pump \
+.venv/bin/python -m multifidelity.model_language heat_pump_flowsheet \
   examples/model_language/heat_pump_cycle.json
 ```
 
@@ -364,7 +433,7 @@ Or in Python:
 from multifidelity.model_language import Library, build_model
 
 model = build_model(
-    "heat_pump",
+    "heat_pump_flowsheet",
     "examples/model_language/heat_pump_cycle.json",
     library=Library(),  # Bundled definitions; or Library("my/models")
 )
@@ -375,7 +444,7 @@ The result is a `ConcreteModel` with `model.fs` as a steady IDAES flowsheet.
 Its root definition is materialized at `model.fs.root`:
 
 ```python
-root = model.fs.root
+root = model.fs.root.relationship.models.heat_pump
 root.structs.source_inlet.flow
 root.relationship.models.compressor.structs.parameters.work
 root.relationship.constraints
@@ -453,9 +522,11 @@ live in `examples/model_language/`; these are examples, not an instance framewor
 | `valve`, `pump`, `compressor` | Basic scalar pressure/energy equations; no characteristic curves or isentropic property calculations |
 | `thermal_conditioner` | Scalar stream heating balance |
 | `water_state` | Pressure/temperature liquid state with affine enthalpy and constant density, heat capacity and viscosity |
+| `water_state_ph` | Pressure/enthalpy inverse of `water_state`, calculating temperature with the same coefficients |
 | `property_pair`, `water_property_pair` | Generic two-state property calculation and a concrete water specialization |
 | `mixer`, `splitter` | Scalar mixing and prescribed split |
 | `flash_separator`, `translator` | Topology scaffolds; no equilibrium, composition or basis conversion |
+| `heat_pump_flowsheet` | Concrete wrapper supplying independent property-model arguments to `heat_pump` |
 | `heat_pump` | Aggregate COP equations and the cycle topology from `unit_models/heat_pump/cycle.py`, including subcooler and IHX |
 | `source_loop` | Valve/pump/evaporator/heater/tank recycle from `case_studies/sghp/source_loop.py` |
 | `milk_evaporator` | Aggregate mass/energy balances and MVR topology from `unit_models/milk_evaporator/detailed.py` |
@@ -484,8 +555,9 @@ COP output. The cycle relationship instead determines COP through
 COP is undefined at zero electrical power; this construction-only language does
 not enforce a nonzero operating specification.
 
-The aggregate example requires 8 scalar inputs, including the nested COP input;
-the cycle example requires 17, with no specified COP. Parent relationships see
+With the bundled water property arguments, the aggregate example requires 20
+scalar inputs, including the nested COP input; the cycle example requires 29,
+with no specified COP. Both include 12 property coefficients (six per side). Parent relationships see
 the same public interface regardless of the selected heat-pump relationship.
 
 
@@ -523,8 +595,39 @@ example, an illustrative coefficient set is `T_ref = 298.15 K`,
 An equipment relationship can reference separate `water_state` models for inlet
 and outlet property calculations and determine their state inputs through
 constraints or connections. These occurrences each own their variables. The generic `property_pair` example uses this model through a configurable model
-parameter. Existing equipment definitions are not yet parameterized, and shared
-material coefficients remain undecided.
+parameter. The heat pump uses independently configurable pressure-enthalpy
+property models, described below; other equipment definitions are not yet
+parameterized.
+
+## Heat-pump hot-side and cold-side properties
+
+`heat_pump` declares two independent generic parameters: `HotSideProperties`
+for the sink and `ColdSideProperties` for the source. Both relationships create
+separate inlet/outlet state occurrences on each side. Their pressure and enthalpy
+are supplied from the corresponding stream; their temperature is exposed through
+`source_inlet_properties`, `source_outlet_properties`, `sink_inlet_properties`,
+and `sink_outlet_properties`. All four are output structs containing `temperature`.
+
+Each argument must accept `state.pressure`, `state.enthalpy`, and the six
+coefficients used by the existing constant-property interface; it must output
+`properties.temperature`. Extra fields are permitted. The heat pump supplies
+coefficients from `hot_property_parameters` and `cold_property_parameters`,
+sharing a side's coefficients across its two state occurrences. Additional
+package-specific inputs remain discoverable by `required_inputs()`.
+
+`heat_pump_flowsheet` supplies `water_state_ph` for each argument on its
+`heat_pump` reference. Both examples select this concrete flowsheet as the root;
+its heat-pump child selects either `aggregate` or `cycle`. This is the
+pressure-enthalpy inverse of `water_state`, using
+`T = T_ref + (h - h_ref - (P - P_ref) / rho) / cp`, with nonzero `cp` and `rho`.
+It remains a single-phase liquid approximation, not a refrigerant or steam
+property package. Compatible models can be selected independently for each side.
+When used as a submodel, the parent's heat-pump reference supplies these two
+`model_arguments`; relationship selection remains in the implementation tree.
+
+The existing heat-duty equations are unchanged: exchanger temperature differences
+remain explicit inputs. Adding state properties does not yet couple them to
+exchanger duties or introduce a Carnot relationship.
 
 ## Future idea: measurement-directed fidelity selection
 

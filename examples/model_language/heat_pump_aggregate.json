@@ -1,10 +1,32 @@
 {
-  "model": "heat_pump",
-  "relationship": "aggregate",
+  "model": "heat_pump_flowsheet",
+  "relationship": "flowsheet",
   "submodels": {
-    "cop_model": {
-      "relationship": "specified",
-      "submodels": {}
+    "heat_pump": {
+      "model": "heat_pump",
+      "relationship": "aggregate",
+      "submodels": {
+        "cop_model": {
+          "relationship": "specified",
+          "submodels": {}
+        },
+        "source_inlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {}
+        },
+        "source_outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {}
+        },
+        "sink_inlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {}
+        },
+        "sink_outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {}
+        }
+      }
     }
   }
 }

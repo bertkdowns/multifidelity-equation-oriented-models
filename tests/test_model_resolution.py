@@ -47,8 +47,11 @@ def test_unused_alternatives_need_not_resolve():
     library.get("heat_pump").relationships["cycle"].models[
         "compressor"
     ].model = "absent"
-    root = library.resolve("heat_pump")
-    assert set(root.relationships["aggregate"].models) == {"cop_model"}
+    root = library.resolve("heat_pump_flowsheet").relationships["flowsheet"].models["heat_pump"]
+    assert set(root.relationships["aggregate"].models) == {
+        "cop_model", "source_inlet_state", "source_outlet_state",
+        "sink_inlet_state", "sink_outlet_state",
+    }
     assert root.relationships["aggregate"].models["cop_model"].id == "prescribed_cop"
     with pytest.raises(ValueError, match="Unknown model"):
         root.relationships["cycle"].models

@@ -79,6 +79,84 @@
           "unit": "dimensionless"
         }
       }
+    },
+    "hot_property_parameters": {
+      "direction": "input",
+      "variables": {
+        "reference_pressure": {
+          "unit": "Pa"
+        },
+        "reference_temperature": {
+          "unit": "K"
+        },
+        "reference_enthalpy": {
+          "unit": "J/kg"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        }
+      }
+    },
+    "cold_property_parameters": {
+      "direction": "input",
+      "variables": {
+        "reference_pressure": {
+          "unit": "Pa"
+        },
+        "reference_temperature": {
+          "unit": "K"
+        },
+        "reference_enthalpy": {
+          "unit": "J/kg"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        }
+      }
+    },
+    "source_inlet_properties": {
+      "direction": "output",
+      "variables": {
+        "temperature": {
+          "unit": "K"
+        }
+      }
+    },
+    "source_outlet_properties": {
+      "direction": "output",
+      "variables": {
+        "temperature": {
+          "unit": "K"
+        }
+      }
+    },
+    "sink_inlet_properties": {
+      "direction": "output",
+      "variables": {
+        "temperature": {
+          "unit": "K"
+        }
+      }
+    },
+    "sink_outlet_properties": {
+      "direction": "output",
+      "variables": {
+        "temperature": {
+          "unit": "K"
+        }
+      }
     }
   },
   "relationships": {
@@ -86,6 +164,18 @@
       "models": {
         "cop_model": {
           "model": "prescribed_cop"
+        },
+        "source_inlet_state": {
+          "model_parameter": "ColdSideProperties"
+        },
+        "source_outlet_state": {
+          "model_parameter": "ColdSideProperties"
+        },
+        "sink_inlet_state": {
+          "model_parameter": "HotSideProperties"
+        },
+        "sink_outlet_state": {
+          "model_parameter": "HotSideProperties"
         }
       },
       "constraints": {
@@ -133,6 +223,186 @@
           "lhs": "performance.cop",
           "rhs": "cop_model.performance.cop",
           "determines": "performance.cop"
+        },
+        "source_inlet_state_pressure": {
+          "lhs": "source_inlet_state.state.pressure",
+          "rhs": "source_inlet.pressure",
+          "determines": "source_inlet_state.state.pressure"
+        },
+        "source_inlet_state_enthalpy": {
+          "lhs": "source_inlet_state.state.enthalpy",
+          "rhs": "source_inlet.enthalpy",
+          "determines": "source_inlet_state.state.enthalpy"
+        },
+        "source_inlet_state_temperature": {
+          "lhs": "source_inlet_properties.temperature",
+          "rhs": "source_inlet_state.properties.temperature",
+          "determines": "source_inlet_properties.temperature"
+        },
+        "source_inlet_state_reference_pressure": {
+          "lhs": "source_inlet_state.parameters.reference_pressure",
+          "rhs": "cold_property_parameters.reference_pressure",
+          "determines": "source_inlet_state.parameters.reference_pressure"
+        },
+        "source_inlet_state_reference_temperature": {
+          "lhs": "source_inlet_state.parameters.reference_temperature",
+          "rhs": "cold_property_parameters.reference_temperature",
+          "determines": "source_inlet_state.parameters.reference_temperature"
+        },
+        "source_inlet_state_reference_enthalpy": {
+          "lhs": "source_inlet_state.parameters.reference_enthalpy",
+          "rhs": "cold_property_parameters.reference_enthalpy",
+          "determines": "source_inlet_state.parameters.reference_enthalpy"
+        },
+        "source_inlet_state_heat_capacity": {
+          "lhs": "source_inlet_state.parameters.heat_capacity",
+          "rhs": "cold_property_parameters.heat_capacity",
+          "determines": "source_inlet_state.parameters.heat_capacity"
+        },
+        "source_inlet_state_density": {
+          "lhs": "source_inlet_state.parameters.density",
+          "rhs": "cold_property_parameters.density",
+          "determines": "source_inlet_state.parameters.density"
+        },
+        "source_inlet_state_viscosity": {
+          "lhs": "source_inlet_state.parameters.viscosity",
+          "rhs": "cold_property_parameters.viscosity",
+          "determines": "source_inlet_state.parameters.viscosity"
+        },
+        "source_outlet_state_pressure": {
+          "lhs": "source_outlet_state.state.pressure",
+          "rhs": "source_outlet.pressure",
+          "determines": "source_outlet_state.state.pressure"
+        },
+        "source_outlet_state_enthalpy": {
+          "lhs": "source_outlet_state.state.enthalpy",
+          "rhs": "source_outlet.enthalpy",
+          "determines": "source_outlet_state.state.enthalpy"
+        },
+        "source_outlet_state_temperature": {
+          "lhs": "source_outlet_properties.temperature",
+          "rhs": "source_outlet_state.properties.temperature",
+          "determines": "source_outlet_properties.temperature"
+        },
+        "source_outlet_state_reference_pressure": {
+          "lhs": "source_outlet_state.parameters.reference_pressure",
+          "rhs": "cold_property_parameters.reference_pressure",
+          "determines": "source_outlet_state.parameters.reference_pressure"
+        },
+        "source_outlet_state_reference_temperature": {
+          "lhs": "source_outlet_state.parameters.reference_temperature",
+          "rhs": "cold_property_parameters.reference_temperature",
+          "determines": "source_outlet_state.parameters.reference_temperature"
+        },
+        "source_outlet_state_reference_enthalpy": {
+          "lhs": "source_outlet_state.parameters.reference_enthalpy",
+          "rhs": "cold_property_parameters.reference_enthalpy",
+          "determines": "source_outlet_state.parameters.reference_enthalpy"
+        },
+        "source_outlet_state_heat_capacity": {
+          "lhs": "source_outlet_state.parameters.heat_capacity",
+          "rhs": "cold_property_parameters.heat_capacity",
+          "determines": "source_outlet_state.parameters.heat_capacity"
+        },
+        "source_outlet_state_density": {
+          "lhs": "source_outlet_state.parameters.density",
+          "rhs": "cold_property_parameters.density",
+          "determines": "source_outlet_state.parameters.density"
+        },
+        "source_outlet_state_viscosity": {
+          "lhs": "source_outlet_state.parameters.viscosity",
+          "rhs": "cold_property_parameters.viscosity",
+          "determines": "source_outlet_state.parameters.viscosity"
+        },
+        "sink_inlet_state_pressure": {
+          "lhs": "sink_inlet_state.state.pressure",
+          "rhs": "sink_inlet.pressure",
+          "determines": "sink_inlet_state.state.pressure"
+        },
+        "sink_inlet_state_enthalpy": {
+          "lhs": "sink_inlet_state.state.enthalpy",
+          "rhs": "sink_inlet.enthalpy",
+          "determines": "sink_inlet_state.state.enthalpy"
+        },
+        "sink_inlet_state_temperature": {
+          "lhs": "sink_inlet_properties.temperature",
+          "rhs": "sink_inlet_state.properties.temperature",
+          "determines": "sink_inlet_properties.temperature"
+        },
+        "sink_inlet_state_reference_pressure": {
+          "lhs": "sink_inlet_state.parameters.reference_pressure",
+          "rhs": "hot_property_parameters.reference_pressure",
+          "determines": "sink_inlet_state.parameters.reference_pressure"
+        },
+        "sink_inlet_state_reference_temperature": {
+          "lhs": "sink_inlet_state.parameters.reference_temperature",
+          "rhs": "hot_property_parameters.reference_temperature",
+          "determines": "sink_inlet_state.parameters.reference_temperature"
+        },
+        "sink_inlet_state_reference_enthalpy": {
+          "lhs": "sink_inlet_state.parameters.reference_enthalpy",
+          "rhs": "hot_property_parameters.reference_enthalpy",
+          "determines": "sink_inlet_state.parameters.reference_enthalpy"
+        },
+        "sink_inlet_state_heat_capacity": {
+          "lhs": "sink_inlet_state.parameters.heat_capacity",
+          "rhs": "hot_property_parameters.heat_capacity",
+          "determines": "sink_inlet_state.parameters.heat_capacity"
+        },
+        "sink_inlet_state_density": {
+          "lhs": "sink_inlet_state.parameters.density",
+          "rhs": "hot_property_parameters.density",
+          "determines": "sink_inlet_state.parameters.density"
+        },
+        "sink_inlet_state_viscosity": {
+          "lhs": "sink_inlet_state.parameters.viscosity",
+          "rhs": "hot_property_parameters.viscosity",
+          "determines": "sink_inlet_state.parameters.viscosity"
+        },
+        "sink_outlet_state_pressure": {
+          "lhs": "sink_outlet_state.state.pressure",
+          "rhs": "sink_outlet.pressure",
+          "determines": "sink_outlet_state.state.pressure"
+        },
+        "sink_outlet_state_enthalpy": {
+          "lhs": "sink_outlet_state.state.enthalpy",
+          "rhs": "sink_outlet.enthalpy",
+          "determines": "sink_outlet_state.state.enthalpy"
+        },
+        "sink_outlet_state_temperature": {
+          "lhs": "sink_outlet_properties.temperature",
+          "rhs": "sink_outlet_state.properties.temperature",
+          "determines": "sink_outlet_properties.temperature"
+        },
+        "sink_outlet_state_reference_pressure": {
+          "lhs": "sink_outlet_state.parameters.reference_pressure",
+          "rhs": "hot_property_parameters.reference_pressure",
+          "determines": "sink_outlet_state.parameters.reference_pressure"
+        },
+        "sink_outlet_state_reference_temperature": {
+          "lhs": "sink_outlet_state.parameters.reference_temperature",
+          "rhs": "hot_property_parameters.reference_temperature",
+          "determines": "sink_outlet_state.parameters.reference_temperature"
+        },
+        "sink_outlet_state_reference_enthalpy": {
+          "lhs": "sink_outlet_state.parameters.reference_enthalpy",
+          "rhs": "hot_property_parameters.reference_enthalpy",
+          "determines": "sink_outlet_state.parameters.reference_enthalpy"
+        },
+        "sink_outlet_state_heat_capacity": {
+          "lhs": "sink_outlet_state.parameters.heat_capacity",
+          "rhs": "hot_property_parameters.heat_capacity",
+          "determines": "sink_outlet_state.parameters.heat_capacity"
+        },
+        "sink_outlet_state_density": {
+          "lhs": "sink_outlet_state.parameters.density",
+          "rhs": "hot_property_parameters.density",
+          "determines": "sink_outlet_state.parameters.density"
+        },
+        "sink_outlet_state_viscosity": {
+          "lhs": "sink_outlet_state.parameters.viscosity",
+          "rhs": "hot_property_parameters.viscosity",
+          "determines": "sink_outlet_state.parameters.viscosity"
         }
       },
       "connections": {}
@@ -156,6 +426,18 @@
         },
         "evaporator": {
           "model": "heat_exchanger"
+        },
+        "source_inlet_state": {
+          "model_parameter": "ColdSideProperties"
+        },
+        "source_outlet_state": {
+          "model_parameter": "ColdSideProperties"
+        },
+        "sink_inlet_state": {
+          "model_parameter": "HotSideProperties"
+        },
+        "sink_outlet_state": {
+          "model_parameter": "HotSideProperties"
         }
       },
       "constraints": {
@@ -178,6 +460,186 @@
           "lhs": "performance.cop * parameters.electrical_power",
           "rhs": "performance.heating_duty",
           "determines": "performance.cop"
+        },
+        "source_inlet_state_pressure": {
+          "lhs": "source_inlet_state.state.pressure",
+          "rhs": "source_inlet.pressure",
+          "determines": "source_inlet_state.state.pressure"
+        },
+        "source_inlet_state_enthalpy": {
+          "lhs": "source_inlet_state.state.enthalpy",
+          "rhs": "source_inlet.enthalpy",
+          "determines": "source_inlet_state.state.enthalpy"
+        },
+        "source_inlet_state_temperature": {
+          "lhs": "source_inlet_properties.temperature",
+          "rhs": "source_inlet_state.properties.temperature",
+          "determines": "source_inlet_properties.temperature"
+        },
+        "source_inlet_state_reference_pressure": {
+          "lhs": "source_inlet_state.parameters.reference_pressure",
+          "rhs": "cold_property_parameters.reference_pressure",
+          "determines": "source_inlet_state.parameters.reference_pressure"
+        },
+        "source_inlet_state_reference_temperature": {
+          "lhs": "source_inlet_state.parameters.reference_temperature",
+          "rhs": "cold_property_parameters.reference_temperature",
+          "determines": "source_inlet_state.parameters.reference_temperature"
+        },
+        "source_inlet_state_reference_enthalpy": {
+          "lhs": "source_inlet_state.parameters.reference_enthalpy",
+          "rhs": "cold_property_parameters.reference_enthalpy",
+          "determines": "source_inlet_state.parameters.reference_enthalpy"
+        },
+        "source_inlet_state_heat_capacity": {
+          "lhs": "source_inlet_state.parameters.heat_capacity",
+          "rhs": "cold_property_parameters.heat_capacity",
+          "determines": "source_inlet_state.parameters.heat_capacity"
+        },
+        "source_inlet_state_density": {
+          "lhs": "source_inlet_state.parameters.density",
+          "rhs": "cold_property_parameters.density",
+          "determines": "source_inlet_state.parameters.density"
+        },
+        "source_inlet_state_viscosity": {
+          "lhs": "source_inlet_state.parameters.viscosity",
+          "rhs": "cold_property_parameters.viscosity",
+          "determines": "source_inlet_state.parameters.viscosity"
+        },
+        "source_outlet_state_pressure": {
+          "lhs": "source_outlet_state.state.pressure",
+          "rhs": "source_outlet.pressure",
+          "determines": "source_outlet_state.state.pressure"
+        },
+        "source_outlet_state_enthalpy": {
+          "lhs": "source_outlet_state.state.enthalpy",
+          "rhs": "source_outlet.enthalpy",
+          "determines": "source_outlet_state.state.enthalpy"
+        },
+        "source_outlet_state_temperature": {
+          "lhs": "source_outlet_properties.temperature",
+          "rhs": "source_outlet_state.properties.temperature",
+          "determines": "source_outlet_properties.temperature"
+        },
+        "source_outlet_state_reference_pressure": {
+          "lhs": "source_outlet_state.parameters.reference_pressure",
+          "rhs": "cold_property_parameters.reference_pressure",
+          "determines": "source_outlet_state.parameters.reference_pressure"
+        },
+        "source_outlet_state_reference_temperature": {
+          "lhs": "source_outlet_state.parameters.reference_temperature",
+          "rhs": "cold_property_parameters.reference_temperature",
+          "determines": "source_outlet_state.parameters.reference_temperature"
+        },
+        "source_outlet_state_reference_enthalpy": {
+          "lhs": "source_outlet_state.parameters.reference_enthalpy",
+          "rhs": "cold_property_parameters.reference_enthalpy",
+          "determines": "source_outlet_state.parameters.reference_enthalpy"
+        },
+        "source_outlet_state_heat_capacity": {
+          "lhs": "source_outlet_state.parameters.heat_capacity",
+          "rhs": "cold_property_parameters.heat_capacity",
+          "determines": "source_outlet_state.parameters.heat_capacity"
+        },
+        "source_outlet_state_density": {
+          "lhs": "source_outlet_state.parameters.density",
+          "rhs": "cold_property_parameters.density",
+          "determines": "source_outlet_state.parameters.density"
+        },
+        "source_outlet_state_viscosity": {
+          "lhs": "source_outlet_state.parameters.viscosity",
+          "rhs": "cold_property_parameters.viscosity",
+          "determines": "source_outlet_state.parameters.viscosity"
+        },
+        "sink_inlet_state_pressure": {
+          "lhs": "sink_inlet_state.state.pressure",
+          "rhs": "sink_inlet.pressure",
+          "determines": "sink_inlet_state.state.pressure"
+        },
+        "sink_inlet_state_enthalpy": {
+          "lhs": "sink_inlet_state.state.enthalpy",
+          "rhs": "sink_inlet.enthalpy",
+          "determines": "sink_inlet_state.state.enthalpy"
+        },
+        "sink_inlet_state_temperature": {
+          "lhs": "sink_inlet_properties.temperature",
+          "rhs": "sink_inlet_state.properties.temperature",
+          "determines": "sink_inlet_properties.temperature"
+        },
+        "sink_inlet_state_reference_pressure": {
+          "lhs": "sink_inlet_state.parameters.reference_pressure",
+          "rhs": "hot_property_parameters.reference_pressure",
+          "determines": "sink_inlet_state.parameters.reference_pressure"
+        },
+        "sink_inlet_state_reference_temperature": {
+          "lhs": "sink_inlet_state.parameters.reference_temperature",
+          "rhs": "hot_property_parameters.reference_temperature",
+          "determines": "sink_inlet_state.parameters.reference_temperature"
+        },
+        "sink_inlet_state_reference_enthalpy": {
+          "lhs": "sink_inlet_state.parameters.reference_enthalpy",
+          "rhs": "hot_property_parameters.reference_enthalpy",
+          "determines": "sink_inlet_state.parameters.reference_enthalpy"
+        },
+        "sink_inlet_state_heat_capacity": {
+          "lhs": "sink_inlet_state.parameters.heat_capacity",
+          "rhs": "hot_property_parameters.heat_capacity",
+          "determines": "sink_inlet_state.parameters.heat_capacity"
+        },
+        "sink_inlet_state_density": {
+          "lhs": "sink_inlet_state.parameters.density",
+          "rhs": "hot_property_parameters.density",
+          "determines": "sink_inlet_state.parameters.density"
+        },
+        "sink_inlet_state_viscosity": {
+          "lhs": "sink_inlet_state.parameters.viscosity",
+          "rhs": "hot_property_parameters.viscosity",
+          "determines": "sink_inlet_state.parameters.viscosity"
+        },
+        "sink_outlet_state_pressure": {
+          "lhs": "sink_outlet_state.state.pressure",
+          "rhs": "sink_outlet.pressure",
+          "determines": "sink_outlet_state.state.pressure"
+        },
+        "sink_outlet_state_enthalpy": {
+          "lhs": "sink_outlet_state.state.enthalpy",
+          "rhs": "sink_outlet.enthalpy",
+          "determines": "sink_outlet_state.state.enthalpy"
+        },
+        "sink_outlet_state_temperature": {
+          "lhs": "sink_outlet_properties.temperature",
+          "rhs": "sink_outlet_state.properties.temperature",
+          "determines": "sink_outlet_properties.temperature"
+        },
+        "sink_outlet_state_reference_pressure": {
+          "lhs": "sink_outlet_state.parameters.reference_pressure",
+          "rhs": "hot_property_parameters.reference_pressure",
+          "determines": "sink_outlet_state.parameters.reference_pressure"
+        },
+        "sink_outlet_state_reference_temperature": {
+          "lhs": "sink_outlet_state.parameters.reference_temperature",
+          "rhs": "hot_property_parameters.reference_temperature",
+          "determines": "sink_outlet_state.parameters.reference_temperature"
+        },
+        "sink_outlet_state_reference_enthalpy": {
+          "lhs": "sink_outlet_state.parameters.reference_enthalpy",
+          "rhs": "hot_property_parameters.reference_enthalpy",
+          "determines": "sink_outlet_state.parameters.reference_enthalpy"
+        },
+        "sink_outlet_state_heat_capacity": {
+          "lhs": "sink_outlet_state.parameters.heat_capacity",
+          "rhs": "hot_property_parameters.heat_capacity",
+          "determines": "sink_outlet_state.parameters.heat_capacity"
+        },
+        "sink_outlet_state_density": {
+          "lhs": "sink_outlet_state.parameters.density",
+          "rhs": "hot_property_parameters.density",
+          "determines": "sink_outlet_state.parameters.density"
+        },
+        "sink_outlet_state_viscosity": {
+          "lhs": "sink_outlet_state.parameters.viscosity",
+          "rhs": "hot_property_parameters.viscosity",
+          "determines": "sink_outlet_state.parameters.viscosity"
         }
       },
       "connections": {
@@ -228,6 +690,100 @@
         "link_12": {
           "from": "condenser.cold_outlet",
           "to": "sink_outlet"
+        }
+      }
+    }
+  },
+  "model_parameters": {
+    "HotSideProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa"
+            },
+            "enthalpy": {
+              "unit": "J/kg"
+            }
+          }
+        },
+        "parameters": {
+          "direction": "input",
+          "variables": {
+            "reference_pressure": {
+              "unit": "Pa"
+            },
+            "reference_temperature": {
+              "unit": "K"
+            },
+            "reference_enthalpy": {
+              "unit": "J/kg"
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K"
+            },
+            "density": {
+              "unit": "kg/m**3"
+            },
+            "viscosity": {
+              "unit": "Pa*s"
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "temperature": {
+              "unit": "K"
+            }
+          }
+        }
+      }
+    },
+    "ColdSideProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa"
+            },
+            "enthalpy": {
+              "unit": "J/kg"
+            }
+          }
+        },
+        "parameters": {
+          "direction": "input",
+          "variables": {
+            "reference_pressure": {
+              "unit": "Pa"
+            },
+            "reference_temperature": {
+              "unit": "K"
+            },
+            "reference_enthalpy": {
+              "unit": "J/kg"
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K"
+            },
+            "density": {
+              "unit": "kg/m**3"
+            },
+            "viscosity": {
+              "unit": "Pa*s"
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "temperature": {
+              "unit": "K"
+            }
+          }
         }
       }
     }

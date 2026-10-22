@@ -1,0 +1,24 @@
+{
+  "id": "heat_pump_flowsheet",
+  "description": "Concrete flowsheet supplying independent hot-side and cold-side water property models to a generic heat pump.",
+  "structs": {},
+  "relationships": {
+    "flowsheet": {
+      "models": {
+        "heat_pump": {
+          "model": "heat_pump",
+          "model_arguments": {
+            "HotSideProperties": {
+              "model": "water_state_ph"
+            },
+            "ColdSideProperties": {
+              "model": "water_state_ph"
+            }
+          }
+        }
+      },
+      "constraints": {},
+      "connections": {}
+    }
+  }
+}

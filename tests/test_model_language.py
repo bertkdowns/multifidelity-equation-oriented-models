@@ -16,6 +16,8 @@ from multifidelity.model_language.definitions import (
 
 def select(library, model, relationship=None, parameters=None):
     parameters = parameters or {}
+    if model == "heat_pump" and not parameters:
+        parameters = {"HotSideProperties": "water_state_ph", "ColdSideProperties": "water_state_ph"}
     definition = library.get(model)
     relationship = relationship or next(iter(definition.relationships))
     children = {}
@@ -32,7 +34,24 @@ def select(library, model, relationship=None, parameters=None):
                 for key, arg in ref.model_arguments.items()
             }
         children[name] = select(library, child_model, parameters=child_parameters)
-    return {"model": model, "relationship": relationship, "submodels": children}
+    selection = {"model": model, "relationship": relationship, "submodels": children}
+    return selection
+
+
+def heat_pump_flowsheet_selection(selection):
+    return {"model": "heat_pump_flowsheet", "relationship": "flowsheet",
+            "submodels": {"heat_pump": selection}}
+
+
+def build_heat_pump(selection, *, library=None):
+    """Build through the concrete flowsheet and return its heat-pump block."""
+    from pathlib import Path
+
+    if isinstance(selection, Path):
+        selection = json.loads(selection.read_text())
+    model = build_model("heat_pump_flowsheet", heat_pump_flowsheet_selection(selection),
+                        library=library)
+    return model.fs.root.relationship.models.heat_pump
 
 
 def test_every_bundled_relationship_builds_without_solver():
@@ -58,8 +77,8 @@ def test_every_bundled_relationship_builds_without_solver():
 @pytest.mark.parametrize("relationship", ["aggregate", "cycle"])
 def test_heat_pump_cop_is_a_public_output(relationship):
     library = Library()
-    model = build_model("heat_pump", select(library, "heat_pump", relationship))
-    root = model.fs.root
+    model = build_heat_pump(select(library, "heat_pump", relationship))
+    root = model
     assert "cop" not in library.get("heat_pump").structs["parameters"].variables
     root.structs.performance.cop.set_value(4)
     root.structs.parameters.electrical_power.set_value(1000)
@@ -76,13 +95,97 @@ def test_heat_pump_cop_is_a_public_output(relationship):
     assert abs(value(equation.body)) > 0
 
 
+@pytest.mark.parametrize("relationship", ["aggregate", "cycle"])
+def test_heat_pump_property_packages_are_independent_and_connected(relationship):
+    from copy import deepcopy
+    from multifidelity.model_language import required_inputs
+
+    library = Library()
+    alternative = deepcopy(library.get("water_state_ph"))
+    alternative.id = "alternative_ph"
+    alternative.relationships["constant_properties"].constraints["temperature"].rhs += (
+        " + parameters.reference_temperature"
+    )
+    library.models[alternative.id] = alternative
+    selection = select(library, "heat_pump", relationship, parameters={
+        "HotSideProperties": "alternative_ph", "ColdSideProperties": "water_state_ph",
+    })
+    reference = library.get("heat_pump_flowsheet").relationships["flowsheet"].models["heat_pump"]
+    reference.model_arguments["HotSideProperties"].model = "alternative_ph"
+    resolved = library.resolve("heat_pump_flowsheet").relationships["flowsheet"].models["heat_pump"]
+    states = resolved.relationships[relationship].models
+    assert states["sink_inlet_state"].id == "alternative_ph"
+    assert states["sink_outlet_state"].id == "alternative_ph"
+    assert states["source_inlet_state"].id == "water_state_ph"
+    assert states["source_outlet_state"].id == "water_state_ph"
+    model = build_heat_pump(selection, library=library)
+    root = model
+    coefficients = dict(reference_pressure=100000, reference_temperature=300,
+                        reference_enthalpy=0, heat_capacity=4000,
+                        density=1000, viscosity=0.001)
+    for side in ("hot", "cold"):
+        for name, number in coefficients.items():
+            getattr(getattr(root.structs, side + "_property_parameters"), name).set_value(number)
+    for stream in ("source_inlet", "source_outlet", "sink_inlet", "sink_outlet"):
+        child = getattr(root.relationship.models, stream + "_state")
+        boundary = getattr(root.structs, stream)
+        boundary.pressure.set_value(100000)
+        boundary.enthalpy.set_value(40000)
+        child.structs.state.pressure.set_value(100000)
+        child.structs.state.enthalpy.set_value(40000)
+        for name, number in coefficients.items():
+            getattr(child.structs.parameters, name).set_value(number)
+        temperature = 610 if stream.startswith("sink") else 310
+        child.structs.properties.temperature.set_value(temperature)
+        getattr(root.structs, stream + "_properties").temperature.set_value(temperature)
+        assert value(child.relationship.constraints.temperature.body) == pytest.approx(0)
+        for field in ("pressure", "enthalpy", "temperature", *coefficients):
+            equation = getattr(root.relationship.constraints, stream + "_state_" + field)
+            assert value(equation.body) == pytest.approx(0)
+    required = required_inputs("heat_pump_flowsheet", heat_pump_flowsheet_selection(selection), library=library)
+    assert len(required) == (20 if relationship == "aggregate" else 29)
+    assert not any("_state." in path for path in required)
+    assert_units_consistent(model)
+
+
+def test_parent_supplies_heat_pump_property_arguments():
+    from multifidelity.model_language import required_inputs
+
+    library = Library()
+    selection = heat_pump_flowsheet_selection(select(library, "heat_pump", "aggregate"))
+    build_model("heat_pump_flowsheet", selection, library=library)
+    required = required_inputs("heat_pump_flowsheet", selection, library=library)
+    assert len(required) == 20
+    assert "heat_pump.hot_property_parameters.heat_capacity" in required
+    assert "heat_pump.cold_property_parameters.heat_capacity" in required
+
+
+@pytest.mark.parametrize("change", ["missing", "extra", "incompatible"])
+def test_heat_pump_property_arguments_are_validated_on_parent_reference(change):
+    from multifidelity.model_language import required_inputs
+
+    library = Library()
+    selection = heat_pump_flowsheet_selection(select(library, "heat_pump", "aggregate"))
+    reference = library.get("heat_pump_flowsheet").relationships["flowsheet"].models["heat_pump"]
+    arguments = reference.model_arguments
+    if change == "missing":
+        del arguments["HotSideProperties"]
+    elif change == "extra":
+        arguments["Extra"] = ConcreteModelReference(model="water_state_ph")
+    else:
+        arguments["HotSideProperties"].model = "water_state"
+    for method in (build_model, required_inputs):
+        with pytest.raises(ValueError, match="model arguments|missing required variable"):
+            method("heat_pump_flowsheet", selection, library=library)
+
+
 def test_reused_definition_has_distinct_occurrences_and_connection_equations(tmp_path):
     library = Library()
     selection = select(library, "heat_pump", "cycle")
     path = tmp_path / "implementation.json"
     path.write_text(json.dumps(selection))
-    model = build_model("heat_pump", path, library=library)
-    parts = model.fs.root.relationship.models
+    model = build_heat_pump(path, library=library)
+    parts = model.relationship.models
     a, b = (
         parts.condenser.structs.hot_inlet.flow,
         parts.subcooler.structs.hot_inlet.flow,
@@ -90,7 +193,7 @@ def test_reused_definition_has_distinct_occurrences_and_connection_equations(tmp
     assert a is not b
     a.set_value(3)
     assert b.value is None
-    equation = model.fs.root.relationship.connections.link_2.flow
+    equation = model.relationship.connections.link_2.flow
     parts.condenser.structs.hot_outlet.flow.set_value(3)
     b.set_value(2)
     assert abs(value(equation.body)) == 1
@@ -107,7 +210,7 @@ def test_incomplete_or_invalid_selections_fail(change):
     else:
         selection["submodels"]["compressor"]["relationship"] = "nonexistent"
     with pytest.raises(ValueError):
-        build_model("heat_pump", selection, library=library)
+        build_heat_pump(selection, library=library)
 
 
 @pytest.mark.parametrize(
@@ -130,10 +233,12 @@ def test_unselected_relationship_is_not_loaded():
     library.models["heat_pump"].relationships["cycle"].models[
         "compressor"
     ].model = "absent"
-    model = build_model(
-        "heat_pump", select(library, "heat_pump", "aggregate"), library=library
+    model = build_heat_pump(select(library, "heat_pump", "aggregate"), library=library
     )
-    assert set(model.fs.root.relationship.models.component_map()) == {"cop_model"}
+    assert set(model.relationship.models.component_map()) == {
+        "cop_model", "source_inlet_state", "source_outlet_state",
+        "sink_inlet_state", "sink_outlet_state",
+    }
 
 
 def test_only_selected_child_interface_is_accessible():
@@ -150,7 +255,7 @@ def test_only_selected_child_interface_is_accessible():
     # Keep a single determination so this test isolates reference visibility.
     del library.models["heat_pump"].relationships["cycle"].constraints["eq_2"]
     with pytest.raises(ValueError, match="inaccessible"):
-        build_model("heat_pump", select(library, "heat_pump", "cycle"), library=library)
+        build_heat_pump(select(library, "heat_pump", "cycle"), library=library)
 
 
 @pytest.mark.parametrize("change", ["fields", "direction", "units"])
@@ -216,7 +321,7 @@ def test_connections_share_determination_namespace(kind):
     with pytest.raises(
         ValueError, match="duplicate determination.*condenser.hot_inlet.flow"
     ):
-        build_model("heat_pump", select(library, "heat_pump", "cycle"), library=library)
+        build_heat_pump(select(library, "heat_pump", "cycle"), library=library)
 
 
 @pytest.mark.parametrize("target", ["inlet.flow", "missing.value", "outlet.pressure"])
@@ -245,7 +350,7 @@ def test_child_output_cannot_be_determined_by_containing_relationship():
         )
     )
     with pytest.raises(ValueError, match="invalid target"):
-        build_model("heat_pump", select(library, "heat_pump", "cycle"), library=library)
+        build_heat_pump(select(library, "heat_pump", "cycle"), library=library)
 
 
 def test_incomplete_milk_scaffold_reports_exact_missing_outputs():
