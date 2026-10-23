@@ -33,7 +33,9 @@ def test_recursive_selections_can_be_navigated():
     assert isinstance(inlet, ImplementationSelection)
     assert inlet.relationship == "constant_properties"
     assert inlet.model is None
-    assert inlet.submodels == {}
+    assert set(inlet.submodels) == {"water"}
+    assert inlet.submodels["water"].relationship == "constant_properties"
+    assert inlet.submodels["water"].submodels == {}
 
 
 @pytest.mark.parametrize(

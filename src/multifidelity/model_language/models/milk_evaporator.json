@@ -88,14 +88,22 @@
           "model": "translator"
         },
         "mvr": {
-          "model": "compressor"
+          "model": "compressor",
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            },
+            "IsentropicProperties": {
+              "model": "water_isentropic_package"
+            }
+          }
         }
       },
       "constraints": {
         "eq_1": {
           "lhs": "parameters.mvr_power",
-          "rhs": "mvr.parameters.work",
-          "determines": "mvr.parameters.work"
+          "rhs": "mvr.performance.work",
+          "determines": "mvr.parameters.pressure_rise"
         }
       },
       "connections": {

@@ -9,7 +9,12 @@
           "model": "valve"
         },
         "pump": {
-          "model": "pump"
+          "model": "pump",
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            }
+          }
         },
         "evaporator": {
           "model": "thermal_conditioner"

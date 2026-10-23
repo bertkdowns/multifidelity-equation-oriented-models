@@ -7,11 +7,21 @@
       "submodels": {
         "inlet": {
           "relationship": "constant_properties",
-          "submodels": {}
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
         },
         "outlet": {
           "relationship": "constant_properties",
-          "submodels": {}
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
         }
       }
     }

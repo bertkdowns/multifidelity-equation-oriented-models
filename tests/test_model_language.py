@@ -17,7 +17,8 @@ from multifidelity.model_language.definitions import (
 def select(library, model, relationship=None, parameters=None):
     parameters = parameters or {}
     if model == "heat_pump" and not parameters:
-        parameters = {"HotSideProperties": "water_state_ph", "ColdSideProperties": "water_state_ph"}
+        parameters = {"HotSideProperties": "water_property_package", "ColdSideProperties": "water_property_package",
+                      "RefrigerantProperties": "water_property_package", "IsentropicProperties": "water_isentropic_package"}
     definition = library.get(model)
     relationship = relationship or next(iter(definition.relationships))
     children = {}
@@ -79,15 +80,17 @@ def test_heat_pump_cop_is_a_public_output(relationship):
     library = Library()
     model = build_heat_pump(select(library, "heat_pump", relationship))
     root = model
-    assert "cop" not in library.get("heat_pump").structs["parameters"].variables
+    assert "parameters" not in library.get("heat_pump").structs
     root.structs.performance.cop.set_value(4)
-    root.structs.parameters.electrical_power.set_value(1000)
+    root.structs.performance.electrical_power.set_value(1000)
     root.structs.performance.heating_duty.set_value(4000)
     if relationship == "aggregate":
         child = root.relationship.models.cop_model
         child.structs.parameters.cop.set_value(4)
         child.structs.performance.cop.set_value(4)
         assert value(child.relationship.constraints.cop.body) == pytest.approx(0)
+        root.relationship.models.power_model.structs.performance.electrical_power.set_value(1000)
+        assert value(root.relationship.constraints.power.body) == pytest.approx(0)
         assert value(root.relationship.constraints.eq_1.body) == pytest.approx(0)
     equation = root.relationship.constraints.cop
     assert value(equation.body) == pytest.approx(0)
@@ -101,51 +104,72 @@ def test_heat_pump_property_packages_are_independent_and_connected(relationship)
     from multifidelity.model_language import required_inputs
 
     library = Library()
-    alternative = deepcopy(library.get("water_state_ph"))
-    alternative.id = "alternative_ph"
-    alternative.relationships["constant_properties"].constraints["temperature"].rhs += (
-        " + parameters.reference_temperature"
-    )
+    alternative = deepcopy(library.get("water_property_package"))
+    alternative.id = "alternative_package"
+    alternative.relationships["constant_properties"].constraints[
+        "reference_temperature"
+    ].rhs = "310 * units.K"
     library.models[alternative.id] = alternative
-    selection = select(library, "heat_pump", relationship, parameters={
-        "HotSideProperties": "alternative_ph", "ColdSideProperties": "water_state_ph",
-    })
     reference = library.get("heat_pump_flowsheet").relationships["flowsheet"].models["heat_pump"]
-    reference.model_arguments["HotSideProperties"].model = "alternative_ph"
+    reference.model_arguments["HotSideProperties"].model = alternative.id
+    selection = select(library, "heat_pump", relationship, parameters={
+        "HotSideProperties": alternative.id, "ColdSideProperties": "water_property_package",
+        "RefrigerantProperties": "water_property_package", "IsentropicProperties": "water_isentropic_package",
+    })
     resolved = library.resolve("heat_pump_flowsheet").relationships["flowsheet"].models["heat_pump"]
     states = resolved.relationships[relationship].models
-    assert states["sink_inlet_state"].id == "alternative_ph"
-    assert states["sink_outlet_state"].id == "alternative_ph"
-    assert states["source_inlet_state"].id == "water_state_ph"
-    assert states["source_outlet_state"].id == "water_state_ph"
-    model = build_heat_pump(selection, library=library)
-    root = model
-    coefficients = dict(reference_pressure=100000, reference_temperature=300,
-                        reference_enthalpy=0, heat_capacity=4000,
-                        density=1000, viscosity=0.001)
-    for side in ("hot", "cold"):
-        for name, number in coefficients.items():
-            getattr(getattr(root.structs, side + "_property_parameters"), name).set_value(number)
     for stream in ("source_inlet", "source_outlet", "sink_inlet", "sink_outlet"):
-        child = getattr(root.relationship.models, stream + "_state")
+        assert states[stream + "_state"].id == (
+            alternative.id if stream.startswith("sink") else "water_property_package"
+        )
+    root = build_heat_pump(selection, library=library)
+    assert set(library.get("heat_pump").structs) == {
+        "source_inlet", "source_outlet", "sink_inlet", "sink_outlet",
+        "performance",
+    }
+    coefficients = dict(reference_pressure=101325, reference_temperature=298.15,
+                        reference_enthalpy=104920.1198085, heat_capacity=4180,
+                        density=997, viscosity=0.00089, reference_entropy=367.1996421,
+                        thermal_expansion=0.000257)
+    for stream in ("source_inlet", "source_outlet", "sink_inlet", "sink_outlet"):
+        package = getattr(root.relationship.models, stream + "_state")
+        water = package.relationship.models.water
         boundary = getattr(root.structs, stream)
-        boundary.pressure.set_value(100000)
-        boundary.enthalpy.set_value(40000)
-        child.structs.state.pressure.set_value(100000)
-        child.structs.state.enthalpy.set_value(40000)
-        for name, number in coefficients.items():
-            getattr(child.structs.parameters, name).set_value(number)
-        temperature = 610 if stream.startswith("sink") else 310
-        child.structs.properties.temperature.set_value(temperature)
-        getattr(root.structs, stream + "_properties").temperature.set_value(temperature)
-        assert value(child.relationship.constraints.temperature.body) == pytest.approx(0)
-        for field in ("pressure", "enthalpy", "temperature", *coefficients):
-            equation = getattr(root.relationship.constraints, stream + "_state_" + field)
+        boundary.pressure.set_value(200000)
+        boundary.enthalpy.set_value(140000)
+        for state in (package.structs.state, water.structs.state):
+            state.pressure.set_value(200000)
+            state.enthalpy.set_value(140000)
+        values = dict(coefficients)
+        if stream.startswith("sink"):
+            values["reference_temperature"] = 310
+        for name, number in values.items():
+            getattr(water.structs.parameters, name).set_value(number)
+            equation = getattr(package.relationship.constraints, name)
+            assert value(equation.body) == pytest.approx(value(equation.lower))
+        temperature = values["reference_temperature"] + (
+            140000 - values["reference_enthalpy"] - (200000 - 101325) / 997
+        ) / 4180
+        entropy = values["reference_entropy"] + 4180 / values["reference_temperature"] * (temperature - values["reference_temperature"]) - values["thermal_expansion"] / 997 * (200000 - 101325)
+        for properties in (package.structs.properties, water.structs.properties):
+            properties.temperature.set_value(temperature)
+            properties.entropy.set_value(entropy)
+            for name in ("density", "heat_capacity", "viscosity"):
+                getattr(properties, name).set_value(values[name])
+        for equation in water.relationship.constraints.component_data_objects():
             assert value(equation.body) == pytest.approx(0)
+        for field in ("pressure", "enthalpy"):
+            assert value(getattr(root.relationship.constraints, stream + "_state_" + field).body) == pytest.approx(0)
+            assert value(getattr(package.relationship.connections.state, field).body) == pytest.approx(0)
+        for field in ("temperature", "density", "heat_capacity", "viscosity", "entropy"):
+            assert value(getattr(package.relationship.connections.properties, field).body) == pytest.approx(0)
     required = required_inputs("heat_pump_flowsheet", heat_pump_flowsheet_selection(selection), library=library)
-    assert len(required) == (20 if relationship == "aggregate" else 29)
+    assert len(required) == (8 if relationship == "aggregate" else 17)
     assert not any("_state." in path for path in required)
-    assert_units_consistent(model)
+    inlet = root.relationship.models.source_inlet_state.relationship.models.water
+    outlet = root.relationship.models.source_outlet_state.relationship.models.water
+    assert inlet.structs.parameters.heat_capacity is not outlet.structs.parameters.heat_capacity
+    assert_units_consistent(root)
 
 
 def test_parent_supplies_heat_pump_property_arguments():
@@ -155,9 +179,29 @@ def test_parent_supplies_heat_pump_property_arguments():
     selection = heat_pump_flowsheet_selection(select(library, "heat_pump", "aggregate"))
     build_model("heat_pump_flowsheet", selection, library=library)
     required = required_inputs("heat_pump_flowsheet", selection, library=library)
-    assert len(required) == 20
-    assert "heat_pump.hot_property_parameters.heat_capacity" in required
-    assert "heat_pump.cold_property_parameters.heat_capacity" in required
+    assert len(required) == 8
+    assert not any("property_parameters" in path or "_state." in path for path in required)
+
+
+@pytest.mark.parametrize("expression", [
+    "units.__class__", "units.K.__class__", "units.get_units", "units.not_a_unit",
+])
+def test_unit_literals_reject_non_unit_attributes(expression):
+    library = Library()
+    library.get("water_property_package").relationships["constant_properties"].constraints[
+        "reference_temperature"
+    ].rhs = expression
+    with pytest.raises(ValueError, match="unknown or inaccessible"):
+        build_model("water_property_package", select(library, "water_property_package"), library=library)
+
+
+def test_configured_property_package_checks_coefficient_units():
+    library = Library()
+    library.get("water_property_package").relationships["constant_properties"].constraints[
+        "reference_temperature"
+    ].rhs = "298.15 * units.Pa"
+    with pytest.raises(UnitsError):
+        build_model("water_property_package", select(library, "water_property_package"), library=library)
 
 
 @pytest.mark.parametrize("change", ["missing", "extra", "incompatible"])
@@ -237,7 +281,7 @@ def test_unselected_relationship_is_not_loaded():
     )
     assert set(model.relationship.models.component_map()) == {
         "cop_model", "source_inlet_state", "source_outlet_state",
-        "sink_inlet_state", "sink_outlet_state",
+        "sink_inlet_state", "sink_outlet_state", "power_model",
     }
 
 
@@ -380,6 +424,8 @@ def test_water_state_property_equations(temperature, pressure):
         "heat_capacity": 4180,
         "density": 997,
         "viscosity": 0.00089,
+        "reference_entropy": 367.1996421,
+        "thermal_expansion": 0.000257,
     }
     for name, number in coefficients.items():
         getattr(root.structs.parameters, name).set_value(number)
@@ -390,6 +436,8 @@ def test_water_state_property_equations(temperature, pressure):
         "density": 997,
         "heat_capacity": 4180,
         "viscosity": 0.00089,
+        "entropy": 367.1996421 + 4180 / 298.15 * (temperature - 298.15)
+        - 0.000257 / 997 * (pressure - 101325),
     }
     for name, number in expected.items():
         variable = getattr(root.structs.properties, name)
@@ -414,9 +462,16 @@ def test_generic_property_arguments_create_distinct_state_occurrences():
     inlet = pair.relationship.models.inlet.structs
     outlet = pair.relationship.models.outlet.structs
     assert inlet.state.pressure is not outlet.state.pressure
-    pair.structs.parameters.density.set_value(997)
-    inlet.parameters.density.set_value(997)
-    assert value(pair.relationship.connections.inlet_parameters.density.body) == 0
+    assert not hasattr(pair.structs, "parameters")
+    pair.structs.inlet_state.enthalpy.set_value(140000)
+    inlet.state.enthalpy.set_value(140000)
+    assert value(pair.relationship.connections.inlet_state.enthalpy.body) == 0
+    pair.structs.inlet_properties.temperature.set_value(310)
+    inlet.properties.temperature.set_value(310)
+    assert value(pair.relationship.connections.inlet_properties.temperature.body) == 0
+    a = pair.relationship.models.inlet.relationship.models.water.structs.parameters.density
+    b = pair.relationship.models.outlet.relationship.models.water.structs.parameters.density
+    assert a is not b
     assert (
         json.dumps(
             {k: v.model_dump(by_alias=True) for k, v in library.models.items()},
@@ -458,7 +513,7 @@ def test_model_parameter_forwarding():
         "water_property_pair", select(library, "water_property_pair"), library=library
     )
     assert (
-        model.fs.root.relationship.models.states.relationship.models.pair.relationship.models.inlet.structs.properties.enthalpy
+        model.fs.root.relationship.models.states.relationship.models.pair.relationship.models.inlet.structs.properties.temperature
         is not None
     )
 
@@ -494,17 +549,17 @@ def test_invalid_model_arguments_fail(change):
 def test_generic_argument_interface_is_checked(change):
     library = Library()
     selection = select(library, "water_property_pair")
-    state = library.models["water_state"].structs
+    state = library.models["water_property_package"].structs
     if change == "struct":
         del state["properties"]
     elif change == "direction":
         state["properties"].direction = "input"
     elif change == "variable":
-        del state["properties"].variables["enthalpy"]
+        del state["properties"].variables["temperature"]
     else:
-        variable = state["properties"].variables["enthalpy"]
+        variable = state["properties"].variables["temperature"]
         key, val = {
-            "unit": ("unit", "K"),
+            "unit": ("unit", "Pa"),
             "type": ("value_type", "integer"),
             "dimensions": ("dimensions", ["time"]),
         }[change]
@@ -536,11 +591,11 @@ def test_generic_arguments_are_local_to_each_occurrence():
     from copy import deepcopy
 
     library = Library()
-    alternative = deepcopy(library.get("water_state"))
+    alternative = deepcopy(library.get("water_property_package"))
     alternative.id = "alternative_state"
     alternative.relationships["constant_properties"].constraints[
         "density"
-    ].rhs = "2 * parameters.density"
+    ].rhs = "1994 * units.kg / units.m**3"
     library.models["alternative_state"] = alternative
     refs = library.models["water_property_pair"].relationships["evaluate"].models
     refs["other_states"] = deepcopy(refs["states"])
@@ -551,9 +606,10 @@ def test_generic_arguments_are_local_to_each_occurrence():
     pairs = model.fs.root.relationship.models
     for pair, density in [(pairs.states, 997), (pairs.other_states, 1994)]:
         child = pair.relationship.models.inlet
-        child.structs.parameters.density.set_value(997)
-        child.structs.properties.density.set_value(density)
-        assert value(child.relationship.constraints.density.body) == pytest.approx(0)
+        water = child.relationship.models.water
+        water.structs.parameters.density.set_value(density)
+        equation = child.relationship.constraints.density
+        assert value(equation.body) == pytest.approx(value(equation.lower))
 
 
 def test_generic_child_selection_must_match_resolved_model():

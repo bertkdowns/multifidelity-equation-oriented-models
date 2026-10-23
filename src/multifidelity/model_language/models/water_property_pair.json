@@ -1,6 +1,6 @@
 {
   "id": "water_property_pair",
-  "description": "Concrete wrapper selecting water_state for the generic property_pair definition.",
+  "description": "Concrete wrapper selecting configured water_property_package for property_pair.",
   "structs": {},
   "relationships": {
     "evaluate": {
@@ -9,7 +9,7 @@
           "model": "property_pair",
           "model_arguments": {
             "FluidProperties": {
-              "model": "water_state"
+              "model": "water_property_package"
             }
           }
         }

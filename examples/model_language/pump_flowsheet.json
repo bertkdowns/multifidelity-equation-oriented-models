@@ -1,0 +1,20 @@
+{
+  "model": "pump_flowsheet",
+  "relationship": "flowsheet",
+  "submodels": {
+    "pump": {
+      "relationship": "incompressible",
+      "submodels": {
+        "outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

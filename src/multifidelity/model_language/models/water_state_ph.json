@@ -33,6 +33,12 @@
         },
         "viscosity": {
           "unit": "Pa*s"
+        },
+        "reference_entropy": {
+          "unit": "J/kg/K"
+        },
+        "thermal_expansion": {
+          "unit": "1/K"
         }
       }
     },
@@ -50,6 +56,9 @@
         },
         "temperature": {
           "unit": "K"
+        },
+        "entropy": {
+          "unit": "J/kg/K"
         }
       }
     }
@@ -77,6 +86,11 @@
           "lhs": "properties.temperature",
           "rhs": "parameters.reference_temperature + (state.enthalpy - parameters.reference_enthalpy - (state.pressure - parameters.reference_pressure) / parameters.density) / parameters.heat_capacity",
           "determines": "properties.temperature"
+        },
+        "entropy": {
+          "lhs": "properties.entropy",
+          "rhs": "parameters.reference_entropy + parameters.heat_capacity / parameters.reference_temperature * (properties.temperature - parameters.reference_temperature) - parameters.thermal_expansion / parameters.density * (state.pressure - parameters.reference_pressure)",
+          "determines": "properties.entropy"
         }
       },
       "connections": {}

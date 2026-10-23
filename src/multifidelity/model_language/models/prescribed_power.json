@@ -1,0 +1,35 @@
+{
+  "id": "prescribed_power",
+  "description": "Prescribed electrical power for an aggregate relationship.",
+  "structs": {
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "electrical_power": {
+          "unit": "W"
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "electrical_power": {
+          "unit": "W"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "specified": {
+      "models": {},
+      "constraints": {
+        "power": {
+          "lhs": "performance.electrical_power",
+          "rhs": "parameters.electrical_power",
+          "determines": "performance.electrical_power"
+        }
+      },
+      "connections": {}
+    }
+  }
+}

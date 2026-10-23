@@ -3,27 +3,32 @@
   "relationship": "loop",
   "submodels": {
     "valve": {
-      "model": "valve",
       "relationship": "isenthalpic",
       "submodels": {}
     },
     "pump": {
-      "model": "pump",
-      "relationship": "energy_balance",
-      "submodels": {}
+      "relationship": "incompressible",
+      "submodels": {
+        "outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        }
+      }
     },
     "evaporator": {
-      "model": "thermal_conditioner",
       "relationship": "energy_balance",
       "submodels": {}
     },
     "heater": {
-      "model": "thermal_conditioner",
       "relationship": "energy_balance",
       "submodels": {}
     },
     "tank": {
-      "model": "thermal_conditioner",
       "relationship": "energy_balance",
       "submodels": {}
     }

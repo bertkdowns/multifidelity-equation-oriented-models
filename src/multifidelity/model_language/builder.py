@@ -7,6 +7,7 @@ from pathlib import Path
 
 from idaes.core import FlowsheetBlock
 from pyomo.core.expr.visitor import identify_variables
+from pyomo.core.expr.numvalue import NumericValue
 from pyomo.environ import Block, ConcreteModel, Constraint, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
@@ -71,6 +72,19 @@ def build_model(model_id, implementation, *, library=None):
     model = ConcreteModel()
     model.fs = FlowsheetBlock(dynamic=False)
     model.fs.root = Block()
+    dependencies: dict[int, set[int]] = {}
+
+    def depends_on(expression_variables, target, graph):
+        pending = list(expression_variables)
+        visited = set()
+        while pending:
+            current = pending.pop()
+            if current == target:
+                return True
+            if current not in visited:
+                visited.add(current)
+                pending.extend(graph.get(current, ()))
+        return False
 
     def populate(block, resolved: ResolvedModel, selection):
         """Build one occurrence and return only its public variable references.
@@ -134,12 +148,23 @@ def build_model(model_id, implementation, *, library=None):
             alias, _, rest = reference.partition(".")
             if alias in children and rest in children[alias]:
                 return children[alias][rest]
+            # Dimensioned constants, e.g. 298.15 * units.K. Only a single
+            # public unit name is allowed, never arbitrary attribute traversal.
+            if alias == "units" and rest.isidentifier() and not rest.startswith("_"):
+                try:
+                    unit = getattr(units, rest)
+                except (AttributeError, ValueError):
+                    unit = None
+                if isinstance(unit, NumericValue):
+                    return unit
             raise ValueError(f"{path}: unknown or inaccessible variable {reference!r}")
 
         # Pure definition checks are shared with required-input discovery.
         determination_sources(resolved, relationship_id)
+        descendant_dependencies = dict(dependencies)
 
         active.constraints = Block()
+        checks = []
         for name, equation in relationship.constraints.items():
             lhs = _expression(equation.lhs, resolve)
             rhs = _expression(equation.rhs, resolve)
@@ -149,12 +174,10 @@ def build_model(model_id, implementation, *, library=None):
                 raise ValueError(f"{path}.{name}: equation must involve variables")
             target = equation.determines
             target_var = resolve(target)
-            if not any(v is target_var for v in identify_variables(lhs - rhs)):
-                raise ValueError(
-                    f"{path}.{relationship_id}: constraint {name} determines "
-                    f"{target!r}, but it does not occur in the equation"
-                )
+            references = {id(v) for v in identify_variables(lhs - rhs)}
+            checks.append((name, target, id(target_var), references))
             active.constraints.add_component(name, Constraint(expr=lhs == rhs))
+            dependencies[id(target_var)] = references - {id(target_var)}
         active.connections = Block()
         # Connections are shorthand for field-by-field equality constraints;
         # no Arc objects, variable aliases, or arc expansion are involved.
@@ -173,6 +196,15 @@ def build_model(model_id, implementation, *, library=None):
                 connection_block.add_component(
                     field,
                     Constraint(expr=a == units.convert(b, to_units=units.get_units(a))),
+                )
+                dependencies[id(b)] = {id(a)}
+        # Only previously validated descendants can justify an indirect target.
+        # Local declarations must not validate one another through invented cycles.
+        for name, target, target_id, references in checks:
+            if not depends_on(references, target_id, descendant_dependencies):
+                raise ValueError(
+                    f"{path}.{relationship_id}: constraint {name} determines "
+                    f"{target!r}, but it does not occur in the equation or its child dependencies"
                 )
         # Export only this model's interface, preserving encapsulation when the
         # containing relationship resolves references to this occurrence.

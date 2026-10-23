@@ -33,19 +33,37 @@
           "model": "valve"
         },
         "compressor": {
-          "model": "compressor"
+          "model": "compressor",
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            },
+            "IsentropicProperties": {
+              "model": "water_isentropic_package"
+            }
+          }
         },
         "flash": {
           "model": "flash_separator"
         },
         "hot_water_pump": {
-          "model": "pump"
+          "model": "pump",
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            }
+          }
         },
         "hot_water_mixer": {
           "model": "mixer"
         },
         "warm_water_pump": {
-          "model": "pump"
+          "model": "pump",
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            }
+          }
         },
         "splitter": {
           "model": "splitter"
@@ -54,7 +72,12 @@
           "model": "mixer"
         },
         "source_pump": {
-          "model": "pump"
+          "model": "pump",
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            }
+          }
         },
         "source_heater": {
           "model": "thermal_conditioner"

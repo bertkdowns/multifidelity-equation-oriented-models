@@ -1,0 +1,24 @@
+{
+  "id": "compressor_flowsheet",
+  "description": "Concrete water-package example for the generic compressor.",
+  "structs": {},
+  "relationships": {
+    "flowsheet": {
+      "models": {
+        "compressor": {
+          "model": "compressor",
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            },
+            "IsentropicProperties": {
+              "model": "water_isentropic_package"
+            }
+          }
+        }
+      },
+      "constraints": {},
+      "connections": {}
+    }
+  }
+}

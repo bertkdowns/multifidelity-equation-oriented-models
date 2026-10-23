@@ -47,13 +47,9 @@ def test_recursive_connections_do_not_duplicate_parameter_requirements(monkeypat
     )
     assert set(required) == {
         "states.inlet_state.pressure",
-        "states.inlet_state.temperature",
+        "states.inlet_state.enthalpy",
         "states.outlet_state.pressure",
-        "states.outlet_state.temperature",
-        *(
-            "states.parameters." + name
-            for name in library.get("water_state").structs["parameters"].variables
-        ),
+        "states.outlet_state.enthalpy",
     }
     assert {
         name: model.model_dump() for name, model in library.models.items()
@@ -62,15 +58,23 @@ def test_recursive_connections_do_not_duplicate_parameter_requirements(monkeypat
 
 def test_constraints_supply_individual_child_inputs():
     required = required_inputs("heat_pump_flowsheet", EXAMPLES / "heat_pump_cycle.json")
-    assert len(required) == 29
+    assert len(required) == 17
     assert "heat_pump.parameters.cop" not in required
     assert "heat_pump.performance.cop" not in required
-    assert "heat_pump.parameters.electrical_power" in required
+    assert "heat_pump.performance.electrical_power" not in required
+    assert "heat_pump.compressor.parameters.efficiency" in required
     assert "heat_pump.compressor.parameters.work" not in required
     assert "heat_pump.compressor.parameters.pressure_rise" in required
     assert "heat_pump.condenser.parameters.conductance" in required
     assert "heat_pump.subcooler.parameters.conductance" in required
     assert "heat_pump.condenser.hot_inlet.flow" not in required
+
+
+def test_configured_water_package_only_requires_state():
+    required = required_inputs(
+        "water_property_package", EXAMPLES / "water_property_package_constant_properties.json"
+    )
+    assert set(required) == {"state.pressure", "state.enthalpy"}
 
 
 def test_partial_child_struct_still_lists_other_inputs():
@@ -87,7 +91,7 @@ def test_partial_child_struct_still_lists_other_inputs():
         library=library,
     )
     assert "states.inlet_state.pressure" not in required
-    assert "states.inlet_state.temperature" in required
+    assert "states.inlet_state.enthalpy" in required
     assert "states.outlet_state.pressure" in required
 
 
@@ -99,7 +103,7 @@ def test_only_selected_relationships_are_traversed():
     required = required_inputs(
         "heat_pump_flowsheet", EXAMPLES / "heat_pump_aggregate.json", library=library
     )
-    assert len(required) == 20
+    assert len(required) == 8
     assert "heat_pump.cop_model.parameters.cop" in required
     assert "heat_pump.parameters.cop" not in required
 

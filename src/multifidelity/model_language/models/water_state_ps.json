@@ -1,0 +1,107 @@
+{
+  "id": "water_state_ps",
+  "description": "Pressure-entropy inverse of the affine liquid-water approximation, for an isentropic reference state; not a vapor property model.",
+  "structs": {
+    "state": {
+      "direction": "input",
+      "variables": {
+        "pressure": {
+          "unit": "Pa"
+        },
+        "entropy": {
+          "unit": "J/kg/K"
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "reference_pressure": {
+          "unit": "Pa"
+        },
+        "reference_temperature": {
+          "unit": "K"
+        },
+        "reference_enthalpy": {
+          "unit": "J/kg"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        },
+        "reference_entropy": {
+          "unit": "J/kg/K"
+        },
+        "thermal_expansion": {
+          "unit": "1/K"
+        }
+      }
+    },
+    "properties": {
+      "direction": "output",
+      "variables": {
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        },
+        "temperature": {
+          "unit": "K"
+        },
+        "entropy": {
+          "unit": "J/kg/K"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "constant_properties": {
+      "models": {},
+      "constraints": {
+        "density": {
+          "lhs": "properties.density",
+          "rhs": "parameters.density",
+          "determines": "properties.density"
+        },
+        "heat_capacity": {
+          "lhs": "properties.heat_capacity",
+          "rhs": "parameters.heat_capacity",
+          "determines": "properties.heat_capacity"
+        },
+        "viscosity": {
+          "lhs": "properties.viscosity",
+          "rhs": "parameters.viscosity",
+          "determines": "properties.viscosity"
+        },
+        "temperature": {
+          "lhs": "properties.temperature",
+          "rhs": "parameters.reference_temperature + parameters.reference_temperature / parameters.heat_capacity * (state.entropy - parameters.reference_entropy + parameters.thermal_expansion / parameters.density * (state.pressure - parameters.reference_pressure))",
+          "determines": "properties.temperature"
+        },
+        "entropy": {
+          "lhs": "properties.entropy",
+          "rhs": "state.entropy",
+          "determines": "properties.entropy"
+        },
+        "enthalpy": {
+          "lhs": "properties.enthalpy",
+          "rhs": "parameters.reference_enthalpy + parameters.heat_capacity * (properties.temperature - parameters.reference_temperature) + (state.pressure - parameters.reference_pressure) / parameters.density",
+          "determines": "properties.enthalpy"
+        }
+      },
+      "connections": {}
+    }
+  }
+}

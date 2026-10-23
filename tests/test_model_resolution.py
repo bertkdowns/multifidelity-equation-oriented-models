@@ -12,9 +12,9 @@ def test_generic_references_are_resolved_during_navigation():
     pair = root.relationships["evaluate"].models["states"]
     assert isinstance(pair, ResolvedModel)
     assert pair.id == "property_pair"
-    assert pair.model_arguments["FluidProperties"].id == "water_state"
+    assert pair.model_arguments["FluidProperties"].id == "water_property_package"
     states = pair.relationships["evaluate"].models
-    assert states["inlet"].definition is library.get("water_state")
+    assert states["inlet"].definition is library.get("water_property_package")
     assert states["outlet"].definition is states["inlet"].definition
     assert states["inlet"].path != states["outlet"].path
     assert states["inlet"].structs["state"].variables["pressure"].unit == "Pa"
@@ -23,7 +23,7 @@ def test_generic_references_are_resolved_during_navigation():
         .relationships["constant_properties"]
         .constraints["density"]
         .determines
-        == "properties.density"
+        == "water.parameters.density"
     )
 
 
@@ -50,7 +50,7 @@ def test_unused_alternatives_need_not_resolve():
     root = library.resolve("heat_pump_flowsheet").relationships["flowsheet"].models["heat_pump"]
     assert set(root.relationships["aggregate"].models) == {
         "cop_model", "source_inlet_state", "source_outlet_state",
-        "sink_inlet_state", "sink_outlet_state",
+        "sink_inlet_state", "sink_outlet_state", "power_model",
     }
     assert root.relationships["aggregate"].models["cop_model"].id == "prescribed_cop"
     with pytest.raises(ValueError, match="Unknown model"):
@@ -59,7 +59,7 @@ def test_unused_alternatives_need_not_resolve():
 
 def test_interface_errors_are_available_without_conversion():
     library = Library()
-    library.get("water_state").structs["state"].direction = "output"
+    library.get("water_property_package").structs["state"].direction = "output"
     with pytest.raises(ValueError, match="incompatible required struct"):
         library.resolve("water_property_pair").relationships["evaluate"].models
 

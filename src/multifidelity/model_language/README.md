@@ -6,27 +6,22 @@ inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constrai
 It does not solve, set initial guesses, fix inputs, or construct instance documents.
 Here "build" means creating Python modelling objects, not numerical initialization.
 
-## Current blocking task: shared property-package bindings
+## Property-package configuration decision
 
-Before extending the heat-pump property integration further, define how state
-models bind to a shared, configured property package. Generic model arguments
-currently select definitions; they do not bind repeated state occurrences to
-shared coefficient values. The existing Python property packages already provide
-shared parameter ownership through `state.params`, but the model language has
-no equivalent mechanism yet.
+The earlier shared-binding blocker is resolved for the current use case through
+configured package wrappers. The heat pump keeps flow, pressure and enthalpy on
+its public stream interface. Temperatures and property coefficients remain inside
+its selected relationship's property models.
 
-The intended behaviour is to configure each property package once and let state
-models reuse its parameters without passing coefficients through every containing
-model. Hot-side and cold-side packages must remain independently selectable.
-The heat pump should expose its stream flow, pressure and enthalpy, electrical
-power and performance outputs; property coefficients and calculated temperatures
-can remain internal to its selected relationship.
+`water_property_package` wraps `water_state_ph` and determines all eight coefficient
+inputs with constant equations. Each occurrence has its own coefficient variables;
+shared coefficient identity is not required. These inputs are excluded from
+`required_inputs()` because the wrapper supplies them. The construction-only
+backend does not call `.fix()`: coefficients are constrained to constants and may
+still appear in solver equations until preprocessing eliminates them.
 
-The current `hot_property_parameters`, `cold_property_parameters` and public
-`*_properties` structs are provisional plumbing, not the intended final interface.
-Resolve binding syntax, package ownership, scope and forwarding, and how shared
-parameters appear in required-input discovery before revising that plumbing or
-adding the Carnot-efficiency relationship.
+A separate shared-binding mechanism is not needed to continue this integration.
+The Carnot-efficiency relationship remains future work.
 
 ## Why a separate specification language?
 
@@ -116,7 +111,7 @@ library = Library()
 root = library.resolve("water_property_pair")
 pair = root.relationships["evaluate"].models["states"]
 inlet = pair.relationships["evaluate"].models["inlet"]
-inlet.id  # "water_state"
+inlet.id  # "water_property_package"
 inlet.structs["state"].variables["pressure"].unit  # "Pa"
 ```
 
@@ -187,11 +182,18 @@ Each constraint also requires a `determines` variable reference.
 There is no separate expression object, assignment, or `solves_for` hint. Derived
 quantities are variables with defining equations. Supported arithmetic is
 `+`, `-`, `*`, `/`, `**`, unary signs, numeric literals and parentheses.
-References are `struct.variable` or `child_alias.struct.variable`. Units use
+References are `struct.variable` or `child_alias.struct.variable`. Dimensioned
+constants use explicit unit literals, for example `298.15 * units.K` or
+`4180 * units.J / units.kg / units.K`. The `units` namespace allows only a
+single public unit name, not method calls or nested attribute access. Existing
+variable references take precedence over unit literals. Units use
 Pyomo unit names, for example `kg/s`, `J/kg`, `W/K`, and `dimensionless`.
 `determines` is a validation contract, not an assignment or optional solver hint.
-Its target must be a parent output or an immediate child input, and must occur
-in the equation. It may appear on either side or inside an arithmetic expression.
+Its target must be a parent output or an immediate child input. It must occur
+in the equation directly, or influence it through already validated descendant
+equations and connections. Local declarations cannot justify one another through
+a dependency cycle. This is a structural dependency check, not proof of nonzero
+sensitivity or mathematical determinacy. It may appear on either side or inside an arithmetic expression.
 For example, a balance `outlet.flow * outlet.enthalpy = ...` can determine
 `outlet.enthalpy`. Parent inputs and child outputs cannot be targets here.
 
@@ -251,12 +253,12 @@ For example, a generic property-state pair declares:
         "direction": "input",
         "variables": {
           "pressure": {"unit": "Pa"},
-          "temperature": {"unit": "K"}
+          "enthalpy": {"unit": "J/kg"}
         }
       },
       "properties": {
         "direction": "output",
-        "variables": {"enthalpy": {"unit": "J/kg"}}
+        "variables": {"temperature": {"unit": "K"}}
       }
     }
   }
@@ -279,7 +281,7 @@ A containing relationship supplies all arguments at its concrete reference:
   "states": {
     "model": "property_pair",
     "model_arguments": {
-      "FluidProperties": {"model": "water_state"}
+      "FluidProperties": {"model": "water_property_package"}
     }
   }
 }
@@ -322,11 +324,12 @@ child reference, then build the wrapper normally:
   examples/model_language/water_property_pair_evaluate.json
 ```
 
-The bundled `property_pair` exposes two state inputs, a coefficient input struct,
-and two property output structs. Its two property-model references use the same
-`FluidProperties` argument, with separate variables and explicit parameter
-connections. The wrapper supplies `water_state`. This demonstrates the mechanism
-without changing the existing equipment examples or adding bindings.
+The bundled `property_pair` exposes two pressure-enthalpy state inputs and two
+property output structs (temperature, entropy, density, heat capacity and viscosity).
+Its two property-model references use the same `FluidProperties` argument but
+create separate occurrences. `water_property_pair` supplies the configured
+`water_property_package`, which determines its coefficients internally. There
+is no coefficient struct or coefficient plumbing on the pair.
 
 ## Implementations and construction
 
@@ -359,54 +362,95 @@ An implementation identifies the root model and chooses its relationship:
   "relationship": "flowsheet",
   "submodels": {
     "heat_pump": {
-      "model": "heat_pump",
       "relationship": "cycle",
       "submodels": {
         "compressor": {
-          "model": "compressor",
-          "relationship": "energy_balance",
-          "submodels": {}
+          "relationship": "isentropic",
+          "submodels": {
+            "inlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "outlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "isentropic_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            }
+          }
         },
         "condenser": {
-          "model": "heat_exchanger",
           "relationship": "lumped",
           "submodels": {}
         },
         "subcooler": {
-          "model": "heat_exchanger",
           "relationship": "lumped",
           "submodels": {}
         },
         "ihx": {
-          "model": "heat_exchanger",
           "relationship": "lumped",
           "submodels": {}
         },
         "expansion_valve": {
-          "model": "valve",
           "relationship": "isenthalpic",
           "submodels": {}
         },
         "evaporator": {
-          "model": "heat_exchanger",
           "relationship": "lumped",
           "submodels": {}
         },
         "source_inlet_state": {
           "relationship": "constant_properties",
-          "submodels": {}
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
         },
         "source_outlet_state": {
           "relationship": "constant_properties",
-          "submodels": {}
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
         },
         "sink_inlet_state": {
           "relationship": "constant_properties",
-          "submodels": {}
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
         },
         "sink_outlet_state": {
           "relationship": "constant_properties",
-          "submodels": {}
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
         }
       }
     }
@@ -446,7 +490,7 @@ Its root definition is materialized at `model.fs.root`:
 ```python
 root = model.fs.root.relationship.models.heat_pump
 root.structs.source_inlet.flow
-root.relationship.models.compressor.structs.parameters.work
+root.relationship.models.compressor.structs.performance.work
 root.relationship.constraints
 root.relationship.connections
 ```
@@ -496,9 +540,9 @@ constraint may supply one member of a struct while the other members remain
 required. Repeated uses of the same definition have distinct paths. Inputs remain
 required even if the selected equations do not use them.
 
-The water-property-pair example requires its two state structs and one parameter
-struct: 10 variables. Its inlet/outlet property-model state and coefficient inputs
-are supplied by connections and are not listed again. Selecting a different
+The water-property-pair example requires only four variables: inlet and outlet
+pressure and enthalpy. The pair supplies each package state through connections;
+each configured package supplies its coefficients internally, so none are listed. Selecting a different
 relationship can change the list; unselected alternatives are not traversed.
 
 The query checks the implementation's root/model identities, explicit relationship
@@ -506,8 +550,8 @@ choices and complete child selections. It shares target coverage, duplicate
 determination and connection direction/field checks with the backend. It does
 not compile expressions, check equation units, establish mathematical determinacy,
 create solver objects, fix variables, or fill any values. It relies on declared
-`determines` targets; the Pyomo builder still verifies their actual occurrence in
-equations. An incomplete definition such as the aggregate milk scaffold raises
+`determines` targets; the Pyomo builder additionally verifies direct occurrence
+or a dependency path through validated descendants. An incomplete definition such as the aggregate milk scaffold raises
 its missing-output error instead of returning a misleading requirements list.
 Instance data and applying specifications are deliberately left for the next step.
 
@@ -519,10 +563,13 @@ live in `examples/model_language/`; these are examples, not an instance framewor
 | Model | Existing source and scope |
 | --- | --- |
 | `heat_exchanger` | Scalar lumped balance/conductance example inspired by `unit_models/heat_exchanger`; no segmented/distributed physics |
-| `valve`, `pump`, `compressor` | Basic scalar pressure/energy equations; no characteristic curves or isentropic property calculations |
+| `valve` | Isenthalpic pressure-drop equations |
+| `pump`, `compressor` | Incompressible pump efficiency and isentropic compressor efficiency with generic property arguments |
+| `pump_flowsheet`, `compressor_flowsheet` | Concrete water-package examples for the pressure changers |
 | `thermal_conditioner` | Scalar stream heating balance |
 | `water_state` | Pressure/temperature liquid state with affine enthalpy and constant density, heat capacity and viscosity |
-| `water_state_ph` | Pressure/enthalpy inverse of `water_state`, calculating temperature with the same coefficients |
+| `water_state_ph`, `water_state_ps` | Pressure/enthalpy and pressure/entropy forms of the affine liquid-water model |
+| `water_property_package`, `water_isentropic_package` | Configured PH and PS water-state wrappers supplying their own illustrative coefficients |
 | `property_pair`, `water_property_pair` | Generic two-state property calculation and a concrete water specialization |
 | `mixer`, `splitter` | Scalar mixing and prescribed split |
 | `flash_separator`, `translator` | Topology scaffolds; no equilibrium, composition or basis conversion |
@@ -551,30 +598,37 @@ Both heat-pump relationships expose heating COP as `performance.cop`, an output.
 The aggregate relationship references `prescribed_cop` as `cop_model`; its
 `cop_model.parameters.cop` input supplies the aggregate calculation and the public
 COP output. The cycle relationship instead determines COP through
-`performance.cop * parameters.electrical_power = performance.heating_duty`.
+`performance.cop * performance.electrical_power = performance.heating_duty`.
+Electrical power is also a public output in both relationships. The aggregate
+relationship obtains prescribed power from `power_model.parameters.electrical_power`;
+the cycle calculates it from `compressor.performance.work`. Compressor pressure
+rise and efficiency are specified in the cycle.
 COP is undefined at zero electrical power; this construction-only language does
 not enforce a nonzero operating specification.
 
-With the bundled water property arguments, the aggregate example requires 20
-scalar inputs, including the nested COP input; the cycle example requires 29,
-with no specified COP. Both include 12 property coefficients (six per side). Parent relationships see
+With the configured water property arguments, the aggregate example requires 8
+scalar inputs, including the nested COP input; the cycle example requires 17,
+with no specified COP. Neither requires external coefficient specifications. Parent relationships see
 the same public interface regardless of the selected heat-pump relationship.
 
 
 ## Water state property model
 
 `water_state` is an ordinary reusable model, not a new special type. Its
-`constant_properties` relationship determines all four output properties:
+`constant_properties` relationship determines five output properties:
 
 - `state` (input): pressure in Pa and temperature in K.
 - `parameters` (input): reference pressure, temperature and mass-specific enthalpy,
-  plus constant density, mass-specific heat capacity and dynamic viscosity.
-- `properties` (output): mass-specific enthalpy, density, mass-specific heat
-  capacity, and dynamic viscosity.
+  reference entropy, thermal expansion, constant density, mass-specific heat
+  capacity and dynamic viscosity.
+- `properties` (output): mass-specific enthalpy and entropy, density,
+  mass-specific heat capacity, and dynamic viscosity.
 
 The enthalpy equation is
 `h = h_ref + cp * (T - T_ref) + (P - P_ref) / rho`.
-The other three outputs equal their supplied coefficients. This is a simple
+Entropy uses the same affine approximation as the Python `LinearWater` model:
+`s = s_ref + cp / T_ref * (T - T_ref) - alpha / rho * (P - P_ref)`.
+Density, heat capacity and viscosity equal their supplied coefficients. This is a simple
 single-phase liquid approximation, not a steam/phase-equilibrium model or a
 validated water correlation. Its enthalpy form follows the existing
 `property_models/linear.py`, while density here remains constant and viscosity
@@ -590,44 +644,106 @@ Like other model builds, this creates free variables without values or solving.
 A caller must eventually specify both the state and the coefficients. For
 example, an illustrative coefficient set is `T_ref = 298.15 K`,
 `P_ref = 101325 Pa`, `h_ref = 104920.1198085 J/kg`, `cp = 4180 J/(kg K)`,
-`rho = 997 kg/m³`, and `mu = 0.00089 Pa s`; these are not built-in defaults.
+`rho = 997 kg/m³`, `mu = 0.00089 Pa s`, `s_ref = 367.1996421 J/(kg K)`,
+and `alpha = 0.000257 / K`; these are not built-in defaults on raw state models.
 
 An equipment relationship can reference separate `water_state` models for inlet
 and outlet property calculations and determine their state inputs through
-constraints or connections. These occurrences each own their variables. The generic `property_pair` example uses this model through a configurable model
-parameter. The heat pump uses independently configurable pressure-enthalpy
+constraints or connections. These occurrences each own their variables. The generic
+`property_pair` example instead uses the configured PH `water_property_package`. The heat pump uses independently configurable pressure-enthalpy
 property models, described below; other equipment definitions are not yet
 parameterized.
 
 ## Heat-pump hot-side and cold-side properties
 
-`heat_pump` declares two independent generic parameters: `HotSideProperties`
-for the sink and `ColdSideProperties` for the source. Both relationships create
-separate inlet/outlet state occurrences on each side. Their pressure and enthalpy
-are supplied from the corresponding stream; their temperature is exposed through
-`source_inlet_properties`, `source_outlet_properties`, `sink_inlet_properties`,
-and `sink_outlet_properties`. All four are output structs containing `temperature`.
+`heat_pump` declares `HotSideProperties` for the sink and `ColdSideProperties`
+for the source, plus `RefrigerantProperties` (PH) and `IsentropicProperties`
+(PS) for the compressor reference calculation. Both relationships create
+separate inlet/outlet package occurrences on each side. Pressure and enthalpy
+are supplied from the corresponding public stream. Calculated temperature stays
+on each internal package's `properties.temperature`; it is not a public heat-pump
+output. The heat pump has no property-coefficient input structs.
 
-Each argument must accept `state.pressure`, `state.enthalpy`, and the six
-coefficients used by the existing constant-property interface; it must output
-`properties.temperature`. Extra fields are permitted. The heat pump supplies
-coefficients from `hot_property_parameters` and `cold_property_parameters`,
-sharing a side's coefficients across its two state occurrences. Additional
-package-specific inputs remain discoverable by `required_inputs()`.
+Each argument must accept `state.pressure` and `state.enthalpy` and output
+`properties.temperature`. No particular coefficient interface is required.
+Additional fields are permitted; any unsupplied package-specific inputs remain
+discoverable by `required_inputs()`.
 
-`heat_pump_flowsheet` supplies `water_state_ph` for each argument on its
-`heat_pump` reference. Both examples select this concrete flowsheet as the root;
-its heat-pump child selects either `aggregate` or `cycle`. This is the
-pressure-enthalpy inverse of `water_state`, using
-`T = T_ref + (h - h_ref - (P - P_ref) / rho) / cp`, with nonzero `cp` and `rho`.
-It remains a single-phase liquid approximation, not a refrigerant or steam
-property package. Compatible models can be selected independently for each side.
-When used as a submodel, the parent's heat-pump reference supplies these two
-`model_arguments`; relationship selection remains in the implementation tree.
+`heat_pump_flowsheet` supplies `water_property_package` independently for the
+source, sink and refrigerant PH arguments and `water_isentropic_package` for
+the PS argument on its `heat_pump` reference. Both examples select this concrete
+flowsheet as the root; its heat-pump child selects either `aggregate` or `cycle`.
+Root generic models remain unsupported. A parent chooses the property definitions
+through `model_arguments`; the implementation selects their relationships.
+
+`water_property_package` wraps the pressure-enthalpy model `water_state_ph`,
+supplying its eight coefficients with dimensioned constant equations and forwarding
+its state and property structs. It uses `T_ref = 298.15 K`, `P_ref = 101325 Pa`,
+`h_ref = 104920.1198085 J/kg`, `cp = 4180 J/(kg K)`, `rho = 997 kg/m³`, and
+`mu = 0.00089 Pa s`, `s_ref = 367.1996421 J/(kg K)`, and
+`alpha = 0.000257 / K`. These are illustrative liquid-water coefficients owned by
+this concrete package; the reusable `water_state_ph` itself still requires
+explicit coefficients. Its temperature equation is
+`T = T_ref + (h - h_ref - (P - P_ref) / rho) / cp`.
+This is a single-phase liquid approximation, not a refrigerant or steam package.
+
+The configured package requires only pressure and enthalpy:
+
+```bash
+.venv/bin/python -m multifidelity.model_language water_property_package \
+  examples/model_language/water_property_package_constant_properties.json --required-inputs
+```
 
 The existing heat-duty equations are unchanged: exchanger temperature differences
-remain explicit inputs. Adding state properties does not yet couple them to
-exchanger duties or introduce a Carnot relationship.
+remain explicit inputs. Internal property calculations do not yet couple those
+temperature differences to exchanger duties or introduce a Carnot relationship.
+
+## Efficiency-based pressure changers
+
+Both `pump` and `compressor` expose inlet/outlet mass flow, pressure and specific
+enthalpy. They take `parameters.pressure_rise` and `parameters.efficiency`, and
+calculate `performance.work` (positive work into the fluid). With the inlet
+state specified, each concrete example needs five scalar specifications. No
+power specification is required for these pressure-driven examples.
+
+The pump's `incompressible` relationship follows IDAES's incompressible pump
+assumption: `fluid_work = pressure_rise * outlet.flow / outlet_density`,
+`efficiency * work = fluid_work`, and the adiabatic enthalpy-flow balance.
+It takes a PH `FluidProperties` argument exposing density and reports fluid
+work as `performance.fluid_work`.
+
+The compressor's `isentropic` relationship uses PH `FluidProperties` for the
+actual inlet/outlet states and PS `IsentropicProperties` for a hypothetical
+reference state. The reference has the actual outlet pressure and inlet entropy.
+`isentropic_work = inlet.flow * (reference_enthalpy - inlet.enthalpy)`,
+`efficiency * work = isentropic_work`, and the adiabatic energy balance determine
+actual work and outlet enthalpy. `performance.isentropic_work` is also exposed.
+These two arguments represent input forms of the same fluid property model and
+must use consistent coefficients, units and enthalpy/entropy reference conventions;
+the structural interface check cannot establish their physical compatibility.
+
+The configured `water_isentropic_package` wraps `water_state_ps`, which inverts
+the same affine entropy equation:
+`T = T_ref + T_ref / cp * (s - s_ref + alpha / rho * (P - P_ref))`.
+It then evaluates enthalpy from pressure and temperature. All PT, PH and PS water
+forms expose entropy; the pair exposes entropy alongside its other properties.
+The default liquid-water examples demonstrate the equations and do not provide
+validated vapor-compressor physics. Pressure ratio curves, motor efficiency,
+heat loss and machinery performance maps are not included.
+
+`pump_flowsheet` and `compressor_flowsheet` supply the concrete package arguments:
+
+```bash
+.venv/bin/python -m multifidelity.model_language pump_flowsheet \
+  examples/model_language/pump_flowsheet.json --required-inputs
+.venv/bin/python -m multifidelity.model_language compressor_flowsheet \
+  examples/model_language/compressor_flowsheet.json --required-inputs
+```
+
+The detailed milk example retains specified MVR power and efficiency, with its
+power equation determining the MVR compressor's pressure-rise input through the
+child work calculation. This uses the descendant-dependency validation described
+above. It does not establish numerical solvability of the full milk scaffold.
 
 ## Future idea: measurement-directed fidelity selection
 

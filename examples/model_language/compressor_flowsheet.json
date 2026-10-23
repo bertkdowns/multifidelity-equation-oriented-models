@@ -1,0 +1,38 @@
+{
+  "model": "compressor_flowsheet",
+  "relationship": "flowsheet",
+  "submodels": {
+    "compressor": {
+      "relationship": "isentropic",
+      "submodels": {
+        "inlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        },
+        "outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        },
+        "isentropic_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

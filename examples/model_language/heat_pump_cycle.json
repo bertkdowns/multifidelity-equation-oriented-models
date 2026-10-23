@@ -3,54 +3,95 @@
   "relationship": "flowsheet",
   "submodels": {
     "heat_pump": {
-      "model": "heat_pump",
       "relationship": "cycle",
       "submodels": {
         "compressor": {
-          "model": "compressor",
-          "relationship": "energy_balance",
-          "submodels": {}
+          "relationship": "isentropic",
+          "submodels": {
+            "inlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "outlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "isentropic_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            }
+          }
         },
         "condenser": {
-          "model": "heat_exchanger",
           "relationship": "lumped",
           "submodels": {}
         },
         "subcooler": {
-          "model": "heat_exchanger",
           "relationship": "lumped",
           "submodels": {}
         },
         "ihx": {
-          "model": "heat_exchanger",
           "relationship": "lumped",
           "submodels": {}
         },
         "expansion_valve": {
-          "model": "valve",
           "relationship": "isenthalpic",
           "submodels": {}
         },
         "evaporator": {
-          "model": "heat_exchanger",
           "relationship": "lumped",
           "submodels": {}
         },
         "source_inlet_state": {
           "relationship": "constant_properties",
-          "submodels": {}
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
         },
         "source_outlet_state": {
           "relationship": "constant_properties",
-          "submodels": {}
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
         },
         "sink_inlet_state": {
           "relationship": "constant_properties",
-          "submodels": {}
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
         },
         "sink_outlet_state": {
           "relationship": "constant_properties",
-          "submodels": {}
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
         }
       }
     }

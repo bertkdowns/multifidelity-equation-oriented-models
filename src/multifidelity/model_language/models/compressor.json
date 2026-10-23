@@ -1,6 +1,54 @@
 {
   "id": "compressor",
-  "description": "Scalar illustrative equations, not a numerical reproduction of the existing property-package models.",
+  "description": "Efficiency-based steady pressure changer using property-model arguments; adiabatic energy balance, no kinetic or potential energy changes.",
+  "model_parameters": {
+    "FluidProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa"
+            },
+            "enthalpy": {
+              "unit": "J/kg"
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "entropy": {
+              "unit": "J/kg/K"
+            }
+          }
+        }
+      }
+    },
+    "IsentropicProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa"
+            },
+            "entropy": {
+              "unit": "J/kg/K"
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "enthalpy": {
+              "unit": "J/kg"
+            }
+          }
+        }
+      }
+    }
+  },
   "structs": {
     "inlet": {
       "direction": "input",
@@ -34,32 +82,103 @@
       "direction": "input",
       "variables": {
         "pressure_rise": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "bounds": {
+            "min": 0
+          }
         },
+        "efficiency": {
+          "unit": "dimensionless",
+          "bounds": {
+            "min": 1e-06,
+            "max": 1
+          }
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
         "work": {
+          "unit": "W",
+          "bounds": {
+            "min": 0
+          }
+        },
+        "isentropic_work": {
           "unit": "W"
         }
       }
     }
   },
   "relationships": {
-    "energy_balance": {
-      "models": {},
+    "isentropic": {
+      "models": {
+        "inlet_state": {
+          "model_parameter": "FluidProperties"
+        },
+        "outlet_state": {
+          "model_parameter": "FluidProperties"
+        },
+        "isentropic_state": {
+          "model_parameter": "IsentropicProperties"
+        }
+      },
       "constraints": {
-        "eq_1": {
+        "mass_balance": {
           "lhs": "outlet.flow",
           "rhs": "inlet.flow",
           "determines": "outlet.flow"
         },
-        "eq_2": {
+        "pressure": {
           "lhs": "outlet.pressure",
           "rhs": "inlet.pressure + parameters.pressure_rise",
           "determines": "outlet.pressure"
         },
-        "eq_3": {
+        "energy_balance": {
           "lhs": "outlet.flow * outlet.enthalpy",
-          "rhs": "inlet.flow * inlet.enthalpy + parameters.work",
+          "rhs": "inlet.flow * inlet.enthalpy + performance.work",
           "determines": "outlet.enthalpy"
+        },
+        "inlet_pressure": {
+          "lhs": "inlet_state.state.pressure",
+          "rhs": "inlet.pressure",
+          "determines": "inlet_state.state.pressure"
+        },
+        "inlet_enthalpy": {
+          "lhs": "inlet_state.state.enthalpy",
+          "rhs": "inlet.enthalpy",
+          "determines": "inlet_state.state.enthalpy"
+        },
+        "outlet_pressure": {
+          "lhs": "outlet_state.state.pressure",
+          "rhs": "outlet.pressure",
+          "determines": "outlet_state.state.pressure"
+        },
+        "outlet_enthalpy": {
+          "lhs": "outlet_state.state.enthalpy",
+          "rhs": "outlet.enthalpy",
+          "determines": "outlet_state.state.enthalpy"
+        },
+        "isentropic_pressure": {
+          "lhs": "isentropic_state.state.pressure",
+          "rhs": "outlet.pressure",
+          "determines": "isentropic_state.state.pressure"
+        },
+        "isentropic_entropy": {
+          "lhs": "isentropic_state.state.entropy",
+          "rhs": "inlet_state.properties.entropy",
+          "determines": "isentropic_state.state.entropy"
+        },
+        "isentropic_work": {
+          "lhs": "performance.isentropic_work",
+          "rhs": "inlet.flow * (isentropic_state.properties.enthalpy - inlet.enthalpy)",
+          "determines": "performance.isentropic_work"
+        },
+        "efficiency": {
+          "lhs": "parameters.efficiency * performance.work",
+          "rhs": "performance.isentropic_work",
+          "determines": "performance.work"
         }
       },
       "connections": {}

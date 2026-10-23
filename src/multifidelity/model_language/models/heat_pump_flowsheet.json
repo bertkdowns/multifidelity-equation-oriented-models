@@ -9,10 +9,16 @@
           "model": "heat_pump",
           "model_arguments": {
             "HotSideProperties": {
-              "model": "water_state_ph"
+              "model": "water_property_package"
             },
             "ColdSideProperties": {
-              "model": "water_state_ph"
+              "model": "water_property_package"
+            },
+            "RefrigerantProperties": {
+              "model": "water_property_package"
+            },
+            "IsentropicProperties": {
+              "model": "water_isentropic_package"
             }
           }
         }

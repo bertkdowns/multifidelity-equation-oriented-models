@@ -1,0 +1,101 @@
+{
+  "id": "water_isentropic_package",
+  "description": "Configured pressure-entropy liquid-water package for isentropic reference states; uses the same affine coefficients as water_property_package.",
+  "structs": {
+    "state": {
+      "direction": "input",
+      "variables": {
+        "pressure": {
+          "unit": "Pa"
+        },
+        "entropy": {
+          "unit": "J/kg/K"
+        }
+      }
+    },
+    "properties": {
+      "direction": "output",
+      "variables": {
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        },
+        "temperature": {
+          "unit": "K"
+        },
+        "entropy": {
+          "unit": "J/kg/K"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "constant_properties": {
+      "models": {
+        "water": {
+          "model": "water_state_ps"
+        }
+      },
+      "constraints": {
+        "reference_pressure": {
+          "lhs": "water.parameters.reference_pressure",
+          "rhs": "101325 * units.Pa",
+          "determines": "water.parameters.reference_pressure"
+        },
+        "reference_temperature": {
+          "lhs": "water.parameters.reference_temperature",
+          "rhs": "298.15 * units.K",
+          "determines": "water.parameters.reference_temperature"
+        },
+        "reference_enthalpy": {
+          "lhs": "water.parameters.reference_enthalpy",
+          "rhs": "104920.1198085 * units.J / units.kg",
+          "determines": "water.parameters.reference_enthalpy"
+        },
+        "heat_capacity": {
+          "lhs": "water.parameters.heat_capacity",
+          "rhs": "4180 * units.J / units.kg / units.K",
+          "determines": "water.parameters.heat_capacity"
+        },
+        "density": {
+          "lhs": "water.parameters.density",
+          "rhs": "997 * units.kg / units.m**3",
+          "determines": "water.parameters.density"
+        },
+        "viscosity": {
+          "lhs": "water.parameters.viscosity",
+          "rhs": "0.00089 * units.Pa * units.s",
+          "determines": "water.parameters.viscosity"
+        },
+        "reference_entropy": {
+          "lhs": "water.parameters.reference_entropy",
+          "rhs": "367.1996421 * units.J / units.kg / units.K",
+          "determines": "water.parameters.reference_entropy"
+        },
+        "thermal_expansion": {
+          "lhs": "water.parameters.thermal_expansion",
+          "rhs": "0.000257 / units.K",
+          "determines": "water.parameters.thermal_expansion"
+        }
+      },
+      "connections": {
+        "state": {
+          "from": "state",
+          "to": "water.state"
+        },
+        "properties": {
+          "from": "water.properties",
+          "to": "properties"
+        }
+      }
+    }
+  }
+}
