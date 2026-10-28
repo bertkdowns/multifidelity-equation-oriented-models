@@ -745,6 +745,92 @@ power equation determining the MVR compressor's pressure-rise input through the
 child work calculation. This uses the descendant-dependency validation described
 above. It does not establish numerical solvability of the full milk scaffold.
 
+## Proposed information model
+
+Record available evidence separately from the model definitions and from decisions
+about how to specify or estimate a particular instance. This is an agreed data
+shape, not an implemented information-processing or prioritization layer.
+
+Information is a **list of records**, not a dictionary keyed by variable path.
+Multiple records may target the same variable: for example, a sensor reading,
+control setpoint and assumption may all refer to the same temperature. Preserve
+those records independently rather than overwriting one with another.
+
+Each record has:
+
+| Field | Meaning |
+| --- | --- |
+| `id` | Unique identity of the information record |
+| `tag` | Tag name for linking to external systems; distinct from the record identity |
+| `information_type` | One of `sensor_reading`, `control_setpoint`, `equipment_specification`, `parameter`, or `assumption` |
+| `variable_path` | Path to the variable in the model, using the existing model-variable path convention |
+| `value` | Numerical observation, specification, estimate or assumed value |
+| `unit` | Unit in which the value and its standard deviation are expressed |
+| `standard_deviation` | Optional nonnegative uncertainty in the same unit as `value` |
+
+For now, use variable paths directly. Assume shared public variables retain their
+paths and physical meanings across fidelity choices; do not introduce a separate
+physical-quantity identity/mapping system at this stage. Paths to relationship-
+specific internal variables still need to exist in the selected implementation.
+
+Standard deviation is the only uncertainty representation for now. Omitted means
+unknown uncertainty; zero explicitly means the value is treated as exact. Do not
+interpret omitted uncertainty as zero or introduce percentage/bound variants.
+
+```json
+[
+  {
+    "id": "sink_temperature_observation",
+    "tag": "TT101",
+    "information_type": "sensor_reading",
+    "variable_path": "sink_inlet.temperature",
+    "value": 323.15,
+    "unit": "K",
+    "standard_deviation": 0.2
+  },
+  {
+    "id": "sink_temperature_target",
+    "tag": "TSP101",
+    "information_type": "control_setpoint",
+    "variable_path": "sink_inlet.temperature",
+    "value": 324.15,
+    "unit": "K"
+  }
+]
+```
+
+Information type describes the source or nature of a record; it does not yet
+choose its mathematical role. A record does not automatically fix a model variable,
+and a control setpoint does not automatically establish the actual achieved value.
+How to select, combine, prioritize or resolve conflicting records is deferred.
+Whether tag definitions and timestamped values should be separated is also open;
+no time-series schema or instance-application behavior is specified here.
+
+## Proposed quantity-of-interest specification
+
+Identify what we want to predict with a list of target variable paths:
+
+```json
+{
+  "quantities": [
+    { "variable_path": "performance.electrical_power" },
+    { "variable_path": "sink_outlet.temperature" }
+  ]
+}
+```
+
+Each entry contains only `variable_path`, using the same model-variable path
+convention as information records. Prefer shared public variables so the targets
+retain their meaning across fidelity choices. Paths must exist in the model used
+for the analysis; the example does not imply every model exposes both quantities.
+
+Omit tolerances, accuracy requirements and uncertainty thresholds for now. The
+specification does not select an implementation, fix target values, reference a
+model, or contain references to information records. Combining it with the model
+and information table defines the analysis task; no separate analysis-task data
+structure is introduced here. This section records the agreed shape only, not an
+implemented selection or prediction algorithm.
+
 ## Future idea: measurement-directed fidelity selection
 
 A possible future query is: **which relationship (fidelity) choices can influence
@@ -759,6 +845,27 @@ numerical sensitivity and the magnitude of a fidelity's effect would require
 additional analysis, potentially using the Pyomo backend. Cycles, implicit coupled
 equations and changing internal topology would need careful treatment. A dependency
 path alone does not establish a nonzero effect or quantify its importance.
+
+## Future integration questions outside the core algorithm
+
+The following areas will need investigation, but are not central to the current
+algorithm for choosing fidelities and specifying models from available information
+and quantities of interest. They are open questions, not implementation commitments
+or prerequisites for the initial bounded experiments.
+
+- **1D unit operations:** How should JSON represent spatial domains, indexed
+  variables, distributed equations, boundary conditions and discretization?
+- **Dynamic models and steady/dynamic switching:** How should we represent time,
+  derivatives, holdup and initial conditions? How should a model move between
+  steady-state and dynamic representations, including transferring state and
+  preserving the meaning of its public variables?
+- **External Pyomo and machine-learning models:** How can externally implemented
+  models participate alongside JSON-defined relationships, with compatible
+  variable interfaces and explicit inputs and outputs?
+- **Parameter estimation:** How does estimation interact with our implementation
+  selection and instance-specification methods, including information records,
+  uncertainty and quantities of interest? What should be fixed, estimated or
+  treated as an observation for a selected representation?
 
 ## Deferred decisions
 
