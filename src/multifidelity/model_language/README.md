@@ -767,6 +767,7 @@ Each record has:
 | `value` | Numerical observation, specification, estimate or assumed value |
 | `unit` | Unit in which the value and its standard deviation are expressed |
 | `standard_deviation` | Optional nonnegative uncertainty in the same unit as `value` |
+| `trust_rank` | Integer from 1 to 10; higher ranks are prioritized when selecting specifications |
 
 For now, use variable paths directly. Assume shared public variables retain their
 paths and physical meanings across fidelity choices; do not introduce a separate
@@ -786,7 +787,8 @@ interpret omitted uncertainty as zero or introduce percentage/bound variants.
     "variable_path": "sink_inlet.temperature",
     "value": 323.15,
     "unit": "K",
-    "standard_deviation": 0.2
+    "standard_deviation": 0.2,
+    "trust_rank": 10
   },
   {
     "id": "sink_temperature_target",
@@ -794,7 +796,8 @@ interpret omitted uncertainty as zero or introduce percentage/bound variants.
     "information_type": "control_setpoint",
     "variable_path": "sink_inlet.temperature",
     "value": 324.15,
-    "unit": "K"
+    "unit": "K",
+    "trust_rank": 5
   }
 ]
 ```
@@ -802,7 +805,24 @@ interpret omitted uncertainty as zero or introduce percentage/bound variants.
 Information type describes the source or nature of a record; it does not yet
 choose its mathematical role. A record does not automatically fix a model variable,
 and a control setpoint does not automatically establish the actual achieved value.
-How to select, combine, prioritize or resolve conflicting records is deferred.
+The proposed baseline selects records by descending `trust_rank`: for example,
+10 may describe highly trusted actual plant data and 1 a rough estimate. Rank is
+an assigned ordinal priority, separate from information type and standard deviation;
+it is not a probability or inverse variance. Do not compare raw standard deviations
+across different quantities to establish trust. Equal ranks initially use record
+ID as a deterministic tie-break.
+
+Records for one variable are alternatives. Normally use the highest-ranked
+applicable record; retain lower-ranked records as fallbacks when the preferred
+record cannot be used. They do not supply additional independent specifications
+and are not averaged or fixed simultaneously. For the initial algorithm, selected
+central values are fixed as an approximation, even for noisy records, with their
+uncertainty retained in the audit trail. Fallback estimates used to close the
+model are fixed assumptions, distinct from solver initial guesses.
+
+See the [trust-ranked DM specification algorithm and separate experiment outlines](../../../research-ideas/information-directed-specification.md)
+for structural candidate selection, auditable specification plans, and future
+noise/conditioning studies. This algorithm is proposed, not yet implemented.
 Whether tag definitions and timestamped values should be separated is also open;
 no time-series schema or instance-application behavior is specified here.
 

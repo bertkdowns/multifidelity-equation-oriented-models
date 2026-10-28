@@ -26,7 +26,10 @@ a method to map available measurements to a well-posed prediction or estimation
 problem: distinguish fixed inputs, noisy observations, unknown states, estimable
 parameters, and explicit assumptions; identify missing or redundant information.
 Study this both with and without multi-fidelity selection. It is a research
-outcome in its own right, not just preprocessing for fidelity selection.
+outcome in its own right, not just preprocessing for fidelity selection. The
+[trust-ranked DM specification proposal](information-directed-specification.md)
+now gives an initial algorithm and separate experiment outlines for fixed-fidelity
+specification and measurement-directed selection.
 
 Model selection is the primary aim. Flowsheet initialization is deferred to
 later work; initially use established initialization routines and record solve
