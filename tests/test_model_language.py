@@ -2,7 +2,7 @@
 
 import json
 import pytest
-from pyomo.environ import Var, value
+from pyomo.environ import Constraint as PyomoConstraint, Var, value
 from pyomo.core.base.units_container import UnitsError
 from pyomo.util.check_units import assert_units_consistent
 from multifidelity.model_language import Library, build_model
@@ -34,7 +34,11 @@ def select(library, model, relationship=None, parameters=None):
                 else parameters[arg.model_parameter]
                 for key, arg in ref.model_arguments.items()
             }
-        children[name] = select(library, child_model, parameters=child_parameters)
+        children[name] = select(
+            library, child_model,
+            relationship="detailed" if child_model == "milk_evaporator" else None,
+            parameters=child_parameters,
+        )
     selection = {"model": model, "relationship": relationship, "submodels": children}
     return selection
 
@@ -654,3 +658,31 @@ def test_library_exposes_typed_definitions():
         library.models["water_state"].structs["state"].variables["pressure"].unit
         == "Pa"
     )
+
+
+def test_heat_pump_evaporator_example_connects_steam_and_serial_effects():
+    from pathlib import Path
+    from pyomo.core.expr.visitor import identify_variables
+
+    implementation = Path("examples/model_language/heat_pump_evaporator_flowsheet.json")
+    model = build_model("heat_pump_evaporator_flowsheet", implementation)
+    assert_units_consistent(model)
+    root = model.fs.root
+    children = root.relationship.models
+    connections = root.relationship.connections
+    # Connections retain separate boundary variables and couple the intended units.
+    for name, source, destination in [
+        ("steam_supply", children.heat_pump.structs.steam_outlet,
+         children.steam_injection.structs.makeup),
+        ("milk_transfer_1", children.effect_1.structs.milk_outlet,
+         children.effect_2.structs.milk_inlet),
+        ("milk_transfer_2", children.effect_2.structs.milk_outlet,
+         children.effect_3.structs.milk_inlet),
+    ]:
+        block = getattr(connections, name)
+        variables = {id(v) for c in block.component_data_objects(
+            PyomoConstraint
+        ) for v in identify_variables(c.body)}
+        for field in ("flow", "pressure", "enthalpy"):
+            assert id(getattr(source, field)) in variables
+            assert id(getattr(destination, field)) in variables

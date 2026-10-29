@@ -947,3 +947,40 @@ or prerequisites for the initial bounded experiments.
 The builder checks selected references, scope, names, directions, connection fields,
 equation units, explicit determination targets, duplicate determinations and missing
 outputs. It is not yet a comprehensive document-schema validator.
+
+## Heat-pump milk-evaporator flowsheet
+
+`heat_pump_evaporator_flowsheet` combines the full
+`steam_generating_heat_pump`, a direct-steam-injection `mixer`, and three
+`milk_evaporator` occurrences (`effect_1` through `effect_3`). Milk passes
+through the injection mixer and then each effect in order. Each effect has its
+own exported `water_outlet_1`, `water_outlet_2`, or `water_outlet_3`; the last
+effect supplies `milk_outlet`. The root inputs are `milk_inlet` and
+`makeup_inlet` (fresh water for the SGHP warm-water loop).
+
+The SGHP now exposes `steam_outlet` from its steam valve and `makeup_inlet`
+to its warm-water mixer. These public boundaries allow composition without
+reaching through its internal equipment. The injection mixer combines SGHP
+steam with the milk feed by mass and enthalpy balances. Its pressure follows
+its main milk inlet, as in the existing mixer definition; steam pressure
+matching, condensation and milk composition are not modelled.
+
+The topology follows the direct steam injection described in the older
+[Python milk-effect case](../../../case_studies/milk_evaporator/README.md),
+which starts after injection and builds only one effect. Three effects are an
+explicit illustrative choice, not a recovered full-case configuration. They
+are serial MVR effects, each with its own compressor, rather than a vapor-fed
+multi-effect cascade. There is no condensate return to the SGHP.
+
+```bash
+.venv/bin/python -m multifidelity.model_language heat_pump_evaporator_flowsheet \
+  examples/model_language/heat_pump_evaporator_flowsheet.json --required-inputs
+```
+
+The example selects the SGHP `flowsheet`, injection `balance`, and `detailed`
+for all three milk effects. Each occurrence can select its implementation
+independently, although the existing milk `aggregate` relationship is unclosed
+and is rejected by construction validation. Equipment parameters and remaining
+boundary inputs are discoverable with `--required-inputs`. This builds and
+validates equation structure and units; it does not initialize or solve the
+flowsheet, supply phase-equilibrium closure, or reproduce the calibrated case.

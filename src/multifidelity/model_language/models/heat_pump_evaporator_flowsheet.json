@@ -1,0 +1,154 @@
+{
+  "id": "heat_pump_evaporator_flowsheet",
+  "description": "Steam-generating heat pump with direct steam injection into milk and three serial MVR milk evaporators. Illustrative construction-only topology; no milk composition or steam/milk phase-equilibrium closure, and no calibrated numerical equivalence to the original case.",
+  "structs": {
+    "milk_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "makeup_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "milk_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "water_outlet_1": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "water_outlet_2": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "water_outlet_3": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "flowsheet": {
+      "models": {
+        "heat_pump": {
+          "model": "steam_generating_heat_pump"
+        },
+        "steam_injection": {
+          "model": "mixer"
+        },
+        "effect_1": {
+          "model": "milk_evaporator"
+        },
+        "effect_2": {
+          "model": "milk_evaporator"
+        },
+        "effect_3": {
+          "model": "milk_evaporator"
+        }
+      },
+      "constraints": {},
+      "connections": {
+        "milk_feed": {
+          "from": "milk_inlet",
+          "to": "steam_injection.main"
+        },
+        "makeup_feed": {
+          "from": "makeup_inlet",
+          "to": "heat_pump.makeup_inlet"
+        },
+        "steam_supply": {
+          "from": "heat_pump.steam_outlet",
+          "to": "steam_injection.makeup"
+        },
+        "heated_feed": {
+          "from": "steam_injection.outlet",
+          "to": "effect_1.milk_inlet"
+        },
+        "milk_transfer_1": {
+          "from": "effect_1.milk_outlet",
+          "to": "effect_2.milk_inlet"
+        },
+        "milk_transfer_2": {
+          "from": "effect_2.milk_outlet",
+          "to": "effect_3.milk_inlet"
+        },
+        "milk_product": {
+          "from": "effect_3.milk_outlet",
+          "to": "milk_outlet"
+        },
+        "water_product_1": {
+          "from": "effect_1.water_outlet",
+          "to": "water_outlet_1"
+        },
+        "water_product_2": {
+          "from": "effect_2.water_outlet",
+          "to": "water_outlet_2"
+        },
+        "water_product_3": {
+          "from": "effect_3.water_outlet",
+          "to": "water_outlet_3"
+        }
+      }
+    }
+  }
+}

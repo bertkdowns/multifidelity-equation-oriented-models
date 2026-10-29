@@ -1,7 +1,36 @@
 {
   "id": "steam_generating_heat_pump",
   "description": "Full captured SGHP equipment/stream topology; primitive equations are illustrative and do not reproduce calibrated PH/phase-equilibrium models.",
-  "structs": {},
+  "structs": {
+    "makeup_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "steam_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    }
+  },
   "relationships": {
     "flowsheet": {
       "models": {
@@ -183,6 +212,14 @@
         "link_24": {
           "from": "source_valve.outlet",
           "to": "source_pump.inlet"
+        },
+        "makeup_feed": {
+          "from": "makeup_inlet",
+          "to": "warm_water_mixer.makeup"
+        },
+        "steam_export": {
+          "from": "steam_valve.outlet",
+          "to": "steam_outlet"
         }
       }
     }

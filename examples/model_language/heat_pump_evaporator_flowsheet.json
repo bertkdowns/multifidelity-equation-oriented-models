@@ -1,0 +1,312 @@
+{
+  "model": "heat_pump_evaporator_flowsheet",
+  "relationship": "flowsheet",
+  "submodels": {
+    "heat_pump": {
+      "model": "steam_generating_heat_pump",
+      "relationship": "flowsheet",
+      "submodels": {
+        "condenser": {
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "subcooler": {
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "evaporator": {
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "cooling_exchanger": {
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "ihx": {
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "expansion_valve": {
+          "relationship": "isenthalpic",
+          "submodels": {}
+        },
+        "hot_water_valve": {
+          "relationship": "isenthalpic",
+          "submodels": {}
+        },
+        "steam_valve": {
+          "relationship": "isenthalpic",
+          "submodels": {}
+        },
+        "source_valve": {
+          "relationship": "isenthalpic",
+          "submodels": {}
+        },
+        "compressor": {
+          "relationship": "isentropic",
+          "submodels": {
+            "inlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "outlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "isentropic_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            }
+          }
+        },
+        "flash": {
+          "relationship": "split",
+          "submodels": {}
+        },
+        "hot_water_pump": {
+          "relationship": "incompressible",
+          "submodels": {
+            "outlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            }
+          }
+        },
+        "hot_water_mixer": {
+          "relationship": "balance",
+          "submodels": {}
+        },
+        "warm_water_pump": {
+          "relationship": "incompressible",
+          "submodels": {
+            "outlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            }
+          }
+        },
+        "splitter": {
+          "relationship": "split",
+          "submodels": {}
+        },
+        "warm_water_mixer": {
+          "relationship": "balance",
+          "submodels": {}
+        },
+        "source_pump": {
+          "relationship": "incompressible",
+          "submodels": {
+            "outlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            }
+          }
+        },
+        "source_heater": {
+          "relationship": "energy_balance",
+          "submodels": {}
+        },
+        "source_tank": {
+          "relationship": "energy_balance",
+          "submodels": {}
+        }
+      }
+    },
+    "steam_injection": {
+      "relationship": "balance",
+      "submodels": {}
+    },
+    "effect_1": {
+      "model": "milk_evaporator",
+      "relationship": "detailed",
+      "submodels": {
+        "valve": {
+          "relationship": "isenthalpic",
+          "submodels": {}
+        },
+        "heat_exchanger": {
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "separator": {
+          "relationship": "split",
+          "submodels": {}
+        },
+        "translator": {
+          "relationship": "identity",
+          "submodels": {}
+        },
+        "mvr": {
+          "relationship": "isentropic",
+          "submodels": {
+            "inlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "outlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "isentropic_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "effect_2": {
+      "model": "milk_evaporator",
+      "relationship": "detailed",
+      "submodels": {
+        "valve": {
+          "relationship": "isenthalpic",
+          "submodels": {}
+        },
+        "heat_exchanger": {
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "separator": {
+          "relationship": "split",
+          "submodels": {}
+        },
+        "translator": {
+          "relationship": "identity",
+          "submodels": {}
+        },
+        "mvr": {
+          "relationship": "isentropic",
+          "submodels": {
+            "inlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "outlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "isentropic_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "effect_3": {
+      "model": "milk_evaporator",
+      "relationship": "detailed",
+      "submodels": {
+        "valve": {
+          "relationship": "isenthalpic",
+          "submodels": {}
+        },
+        "heat_exchanger": {
+          "relationship": "lumped",
+          "submodels": {}
+        },
+        "separator": {
+          "relationship": "split",
+          "submodels": {}
+        },
+        "translator": {
+          "relationship": "identity",
+          "submodels": {}
+        },
+        "mvr": {
+          "relationship": "isentropic",
+          "submodels": {
+            "inlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "outlet_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            },
+            "isentropic_state": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties",
+                  "submodels": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
