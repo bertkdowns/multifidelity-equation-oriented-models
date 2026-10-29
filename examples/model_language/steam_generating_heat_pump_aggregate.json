@@ -1,0 +1,14 @@
+{
+  "model": "steam_generating_heat_pump",
+  "relationship": "aggregate",
+  "submodels": {
+    "cop_model": {
+      "relationship": "specified",
+      "submodels": {}
+    },
+    "power_model": {
+      "relationship": "specified",
+      "submodels": {}
+    }
+  }
+}

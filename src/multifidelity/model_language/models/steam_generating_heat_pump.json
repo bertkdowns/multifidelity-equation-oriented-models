@@ -1,6 +1,6 @@
 {
   "id": "steam_generating_heat_pump",
-  "description": "Full captured SGHP equipment/stream topology; primitive equations are illustrative and do not reproduce calibrated PH/phase-equilibrium models.",
+  "description": "Steam-generating heat pump with aggregate COP/power and captured equipment-flowsheet alternatives. Illustrative equations; neither alternative guarantees steam phase equilibrium or calibrated numerical equivalence.",
   "structs": {
     "makeup_inlet": {
       "direction": "input",
@@ -222,6 +222,34 @@
           "to": "steam_outlet"
         }
       }
+    },
+    "aggregate": {
+      "models": {
+        "cop_model": {
+          "model": "prescribed_cop"
+        },
+        "power_model": {
+          "model": "prescribed_power"
+        }
+      },
+      "constraints": {
+        "mass_balance": {
+          "lhs": "steam_outlet.flow",
+          "rhs": "makeup_inlet.flow",
+          "determines": "steam_outlet.flow"
+        },
+        "pressure": {
+          "lhs": "steam_outlet.pressure",
+          "rhs": "makeup_inlet.pressure",
+          "determines": "steam_outlet.pressure"
+        },
+        "energy_balance": {
+          "lhs": "steam_outlet.flow * steam_outlet.enthalpy",
+          "rhs": "makeup_inlet.flow * makeup_inlet.enthalpy + cop_model.performance.cop * power_model.performance.electrical_power",
+          "determines": "steam_outlet.enthalpy"
+        }
+      },
+      "connections": {}
     }
   }
 }

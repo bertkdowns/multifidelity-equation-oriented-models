@@ -989,3 +989,20 @@ and is rejected by construction validation. Equipment parameters and remaining
 boundary inputs are discoverable with `--required-inputs`. This builds and
 validates equation structure and units; it does not initialize or solve the
 flowsheet, supply phase-equilibrium closure, or reproduce the calibrated case.
+
+### Aggregate steam-generating heat pump
+
+`steam_generating_heat_pump` offers `flowsheet` and `aggregate` relationships with
+identical `makeup_inlet` and `steam_outlet` structs. The aggregate uses
+`prescribed_cop` and `prescribed_power` children. It conserves mass, assumes
+`steam_outlet.pressure = makeup_inlet.pressure`, and balances enthalpy flow with
+added heat `COP * electrical_power`. Supply the makeup flow, pressure, enthalpy,
+COP and electrical power as instance specifications. This illustrative closure
+assumes nonzero makeup flow when computing outlet enthalpy; it does not guarantee
+a vapor outlet, model saturation/latent heat explicitly, or expose source-side
+heat extraction. The full flowsheet remains the default first relationship.
+
+`examples/model_language/steam_generating_heat_pump_aggregate.json` selects the
+aggregate and both children's `specified` relationships. It can also replace the
+heat-pump child selection in the heat-pump evaporator flowsheet without changing
+its steam connection. In the viewer, explore that child and select `aggregate`.

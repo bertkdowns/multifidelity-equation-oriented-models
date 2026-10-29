@@ -107,7 +107,7 @@ def test_heat_pump_cop_is_a_public_output(relationship):
         assert value(child.relationship.constraints.cop.body) == pytest.approx(0)
         root.relationship.models.power_model.structs.performance.electrical_power.set_value(1000)
         assert value(root.relationship.constraints.power.body) == pytest.approx(0)
-        assert value(root.relationship.constraints.eq_1.body) == pytest.approx(0)
+        assert value(root.relationship.constraints.heating_duty_from_cop.body) == pytest.approx(0)
     equation = root.relationship.constraints.cop
     assert value(equation.body) == pytest.approx(0)
     root.structs.performance.cop.set_value(3)
@@ -313,7 +313,7 @@ def test_only_selected_child_interface_is_accessible():
         )
     )
     # Keep a single determination so this test isolates reference visibility.
-    del library.models["heat_pump"].relationships["cycle"].constraints["eq_2"]
+    del library.models["heat_pump"].relationships["cycle"].constraints["sink_heat_balance"]
     with pytest.raises(ValueError, match="inaccessible"):
         build_heat_pump(select(library, "heat_pump", "cycle"), library=library)
 
@@ -343,8 +343,8 @@ def test_library_rejects_duplicate_ids(tmp_path):
 def test_missing_outputs_are_listed():
     library = Library()
     constraints = library.models["valve"].relationships["isenthalpic"].constraints
-    del constraints["eq_1"]
-    del constraints["eq_2"]
+    del constraints["mass_balance"]
+    del constraints["enthalpy_balance"]
     with pytest.raises(
         ValueError,
         match="valve.isenthalpic: missing output determinations: outlet.enthalpy, outlet.flow",
@@ -355,9 +355,9 @@ def test_missing_outputs_are_listed():
 def test_duplicate_constraints_name_both_sources():
     library = Library()
     constraints = library.models["valve"].relationships["isenthalpic"].constraints
-    constraints["another_flow"] = constraints["eq_1"].model_copy()
+    constraints["another_flow"] = constraints["mass_balance"].model_copy()
     with pytest.raises(
-        ValueError, match="duplicate determination.*outlet.flow.*eq_1.*another_flow"
+        ValueError, match="duplicate determination.*outlet.flow.*mass_balance.*another_flow"
     ):
         build_model("valve", select(library, "valve"), library=library)
 
@@ -387,12 +387,12 @@ def test_connections_share_determination_namespace(kind):
 @pytest.mark.parametrize("target", ["inlet.flow", "missing.value", "outlet.pressure"])
 def test_constraint_target_must_be_valid_and_occur_in_equation(target):
     library = Library()
-    equation = library.models["valve"].relationships["isenthalpic"].constraints["eq_1"]
+    equation = library.models["valve"].relationships["isenthalpic"].constraints["mass_balance"]
     equation.determines = target
     if target == "outlet.pressure":
         # Swap targets to retain complete coverage without duplicate targets.
         library.models["valve"].relationships["isenthalpic"].constraints[
-            "eq_3"
+            "pressure_balance"
         ].determines = "outlet.flow"
     with pytest.raises(ValueError, match="invalid target|does not occur"):
         build_model("valve", select(library, "valve"), library=library)
@@ -648,7 +648,7 @@ def test_library_validates_document_shape_before_building(tmp_path, change):
     elif change == "value_type":
         document["structs"]["inlet"]["variables"]["flow"]["value_type"] = "integer"
     elif change == "determines":
-        del document["relationships"]["isenthalpic"]["constraints"]["eq_1"][
+        del document["relationships"]["isenthalpic"]["constraints"]["mass_balance"][
             "determines"
         ]
     elif change == "reference":
@@ -698,3 +698,38 @@ def test_heat_pump_evaporator_example_connects_steam_and_serial_effects():
         for field in ("flow", "pressure", "enthalpy"):
             assert id(getattr(source, field)) in variables
             assert id(getattr(destination, field)) in variables
+
+
+def test_steam_generating_heat_pump_aggregate_balances_and_interface():
+    from multifidelity.model_language import required_inputs
+
+    library = Library()
+    implementation = select(library, "steam_generating_heat_pump", "aggregate")
+    model = build_model("steam_generating_heat_pump", implementation, library=library)
+    assert_units_consistent(model)
+    root = model.fs.root
+    inlet = root.structs.makeup_inlet
+    outlet = root.structs.steam_outlet
+    inlet.flow.set_value(2)
+    inlet.pressure.set_value(200000)
+    inlet.enthalpy.set_value(100000)
+    outlet.flow.set_value(2)
+    outlet.pressure.set_value(200000)
+    outlet.enthalpy.set_value(250000)
+    children = root.relationship.models
+    children.cop_model.structs.parameters.cop.set_value(3)
+    children.cop_model.structs.performance.cop.set_value(3)
+    children.power_model.structs.parameters.electrical_power.set_value(100000)
+    children.power_model.structs.performance.electrical_power.set_value(100000)
+    for constraint in model.component_data_objects(PyomoConstraint):
+        assert value(constraint.body - constraint.lower) == pytest.approx(0)
+    assert required_inputs("steam_generating_heat_pump", implementation, library=library)
+
+
+def test_evaporator_flowsheet_accepts_aggregate_steam_heat_pump():
+    from pathlib import Path
+
+    implementation = json.loads(Path("examples/model_language/heat_pump_evaporator_flowsheet.json").read_text())
+    implementation["submodels"]["heat_pump"] = select(Library(), "steam_generating_heat_pump", "aggregate")
+    model = build_model("heat_pump_evaporator_flowsheet", implementation)
+    assert_units_consistent(model)

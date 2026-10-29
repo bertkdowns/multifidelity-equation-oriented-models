@@ -43,17 +43,17 @@
     "energy_balance": {
       "models": {},
       "constraints": {
-        "eq_1": {
+        "mass_balance": {
           "lhs": "outlet.flow",
           "rhs": "inlet.flow",
           "determines": "outlet.flow"
         },
-        "eq_2": {
+        "pressure_balance": {
           "lhs": "outlet.pressure",
           "rhs": "inlet.pressure",
           "determines": "outlet.pressure"
         },
-        "eq_3": {
+        "heat_balance": {
           "lhs": "outlet.flow * outlet.enthalpy",
           "rhs": "inlet.flow * inlet.enthalpy + parameters.heat_duty",
           "determines": "outlet.enthalpy"

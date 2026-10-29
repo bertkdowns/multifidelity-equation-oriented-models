@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ReactFlow, Handle, Position, Background, Controls, MiniMap, useUpdateNodeInternals } from '@xyflow/react';
+import { ReactFlow, Handle, Position, Background, Controls, MiniMap, SelectionMode, useUpdateNodeInternals } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './style.css';
 import { makeGraph } from './graph.js';
@@ -44,7 +44,7 @@ function Entity({ id, data, selected }) {
       <button className="nodrag nopan" aria-expanded={!structsCollapsed} onClick={event => { event.stopPropagation(); setStructsCollapsed(!structsCollapsed); }}>{structsCollapsed ? '▸' : '▾'} Structs <span>{data.rows.length}</span></button>
       {structsCollapsed && data.rows.map(row => <React.Fragment key={row.name}>{hiddenPorts(row)}</React.Fragment>)}
     </div>}
-    {data.equation ? <div className="equation">{!data.summary && <Port id="equation"/>}<code>{data.equation.lhs} = {data.equation.rhs}</code><small>Determines {data.equation.determines}</small></div> : !data.summary && !structsCollapsed && data.rows.map(row => <section key={row.name}>
+    {data.equation ? !data.summary && <div className="equation"><Port id="equation"/><code>{data.equation.lhs} = {data.equation.rhs}</code><small>Determines {data.equation.determines}</small></div> : !data.summary && !structsCollapsed && data.rows.map(row => <section key={row.name}>
       <div className="struct">
         {collapsedRows[row.name] ? hiddenPorts(row) : <Port id={row.name}/>}
         <button className="nodrag nopan" aria-expanded={!collapsedRows[row.name]} onClick={event => { event.stopPropagation(); setCollapsedRows(previous => ({ ...previous, [row.name]: !previous[row.name] })); }}>{collapsedRows[row.name] ? '▸' : '▾'} {row.name} <span>({Object.keys(row.variables).length})</span></button><small>{row.direction}</small>
@@ -72,6 +72,7 @@ function App() {
       <p className="description">{current.definition.description}</p>
       <div className="legend"><span>● Input struct</span><span>● Model</span><span>● Constraint</span><span>● Output struct</span></div>
       <p>Teal lines connect whole structs. Purple lines show equation references, pointing toward the variable declared by <code>determines</code>.</p>
+      <p>Drag on empty space to box-select nodes, then drag a selected node to move the group. Pan with the middle or right mouse button. Ctrl/Cmd-click adds to the selection.</p>
       {graph.warnings.length > 0 && <div className="warnings">{graph.warnings.map(message => <p key={message}>{message}</p>)}</div>}
       {selection && <div className="details"><h3>{selection.title}</h3>
         {selection.child && !selection.child.unresolved && <button className="explore-button" onClick={() => explore(selection)}>Explore model →</button>}
@@ -82,7 +83,8 @@ function App() {
     <div className="workspace"><nav aria-label="Model breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
       <div className="canvas-title"><div><small>RELATIONSHIP</small><h2>{relationship ?? 'No relationships'}</h2></div><div className="view-toggle" role="group" aria-label="Diagram view">{['summary', 'detailed'].map(mode => <button key={mode} aria-pressed={view === mode} onClick={() => setView(mode)}>{mode === 'summary' ? 'Summary' : 'Detailed'}</button>)}</div><span>{graph.nodes.length} nodes · {graph.edges.length} links</span></div>
       <div className="canvas"><ReactFlow key={`${path}:${relationship}:${view}`} defaultNodes={graph.nodes} defaultEdges={graph.edges} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
-        onNodeClick={(_, node) => { if (view === 'detailed' && node.data.child && !node.data.child.unresolved) explore(node.data); else setSelection(node.data); }}
+        selectionOnDrag selectionMode={SelectionMode.Partial} panOnDrag={[1, 2]} multiSelectionKeyCode={['Control', 'Meta']}
+        onNodeClick={(event, node) => { if (event.ctrlKey || event.metaKey || event.shiftKey) return; if (view === 'detailed' && node.data.child && !node.data.child.unresolved) explore(node.data); else setSelection(node.data); }}
         onEdgeClick={(_, edge) => setSelection({ title: edge.label, connection: { from: (edge.data.sourcePort ?? edge.sourceHandle)?.replace(/:out$/, ''), to: (edge.data.targetPort ?? edge.targetHandle)?.replace(/:in$/, ''), kind: edge.data.kind } })}>
         <Background color="#d8dee5" gap={22}/><Controls/><MiniMap pannable zoomable nodeColor={node => ({ model: '#608ce6', constraint: '#ac8fd2', input: '#53b5ac', output: '#e4ae62' })[node.data.kind]}/>
       </ReactFlow></div>

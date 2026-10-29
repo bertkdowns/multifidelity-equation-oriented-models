@@ -35,17 +35,17 @@
     "identity": {
       "models": {},
       "constraints": {
-        "eq_1": {
+        "mass_balance": {
           "lhs": "outlet.flow",
           "rhs": "inlet.flow",
           "determines": "outlet.flow"
         },
-        "eq_2": {
+        "pressure_balance": {
           "lhs": "outlet.pressure",
           "rhs": "inlet.pressure",
           "determines": "outlet.pressure"
         },
-        "eq_3": {
+        "enthalpy_balance": {
           "lhs": "outlet.enthalpy",
           "rhs": "inlet.enthalpy",
           "determines": "outlet.enthalpy"

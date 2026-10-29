@@ -44,7 +44,7 @@ export function makeGraph(context, relationshipName, library, view = 'detailed')
   function link(id, from, to, label, kind) {
     if (!from || !to) { warnings.push(`Cannot resolve ${label}`); return; }
     edges.push({ id, source: from.node, target: to.node, sourceHandle: `${from.handle}:out`, targetHandle: `${to.handle}:in`,
-      label, type: 'default', markerEnd: { type: 'arrowclosed', width: 24, height: 24, color: kind === 'connection' ? '#087f76' : '#8063ae' }, style: { stroke: kind === 'connection' ? '#0f9d92' : '#8b79bc', strokeWidth: 2.2 },
+      label, type: view === 'summary' ? 'smoothstep' : 'default', markerEnd: { type: 'arrowclosed', width: 24, height: 24, color: kind === 'connection' ? '#087f76' : '#8063ae' }, style: { stroke: kind === 'connection' ? '#0f9d92' : '#8b79bc', strokeWidth: 2.2 },
       data: { kind }, labelStyle: { fontSize: 10 }, labelBgStyle: { fill: '#fff' } });
   }
   for (const [name, equation] of Object.entries(relationship.constraints ?? {})) {
@@ -62,8 +62,17 @@ export function makeGraph(context, relationshipName, library, view = 'detailed')
   if (view === 'summary') {
     for (const node of nodes) {
       node.data.summaryPorts = [];
+      // Follow the declared interface, independently of surrounding edge order.
+      const portOrder = new Map();
+      for (const row of node.data.rows) {
+        portOrder.set(row.name, portOrder.size);
+        for (const variable of Object.keys(row.variables))
+          portOrder.set(`${row.name}.${variable}`, portOrder.size);
+      }
       for (const [type, endpoint, handle] of [['target', 'target', 'targetHandle'], ['source', 'source', 'sourceHandle']]) {
         const attached = edges.filter(edge => edge[endpoint] === node.id);
+        const order = edge => portOrder.get(edge[handle].replace(/:(in|out)$/, '')) ?? Number.MAX_SAFE_INTEGER;
+        attached.sort((a, b) => order(a) - order(b));
         attached.forEach((edge, index) => {
           const originalHandle = edge[handle];
           const portId = `summary:${type}:${index}`;
@@ -78,11 +87,24 @@ export function makeGraph(context, relationshipName, library, view = 'detailed')
   nodes.forEach(node => {
     const compact = node.data.summary && node.data.kind !== 'constraint';
     node.data.width = compact ? 180 : 300;
+    if (node.data.summary && node.data.kind === 'constraint') node.data.height = 85;
     if (compact) node.data.height = node.data.kind === 'model' ? 170 : 85;
     layout.setNode(node.id, { width: node.data.width, height: node.data.height });
   });
   edges.forEach(edge => layout.setEdge(edge.source, edge.target, {}, edge.id));
   dagre.layout(layout);
   nodes.forEach(node => { const pos = layout.node(node.id); node.position = { x: pos.x - node.data.width / 2, y: pos.y - node.data.height / 2 }; });
+  if (view === 'summary') {
+    const columns = new Map();
+    for (const node of nodes) {
+      const column = layout.node(node.id).x;
+      if (!columns.has(column)) columns.set(column, []);
+      columns.get(column).push(node);
+    }
+    for (const column of columns.values()) {
+      column.sort((a, b) => a.position.y - b.position.y);
+      column.forEach((node, index) => { node.position.x += index * 10; });
+    }
+  }
   return { nodes, edges, warnings: [...new Set(warnings)] };
 }

@@ -61,32 +61,32 @@
     "split": {
       "models": {},
       "constraints": {
-        "eq_1": {
+        "main_flow_split": {
           "lhs": "main.flow",
           "rhs": "inlet.flow * parameters.fraction",
           "determines": "main.flow"
         },
-        "eq_2": {
+        "branch_mass_balance": {
           "lhs": "branch.flow",
           "rhs": "inlet.flow - main.flow",
           "determines": "branch.flow"
         },
-        "eq_3": {
+        "main_pressure_balance": {
           "lhs": "main.pressure",
           "rhs": "inlet.pressure",
           "determines": "main.pressure"
         },
-        "eq_4": {
+        "main_enthalpy_balance": {
           "lhs": "main.enthalpy",
           "rhs": "inlet.enthalpy",
           "determines": "main.enthalpy"
         },
-        "eq_5": {
+        "branch_pressure_balance": {
           "lhs": "branch.pressure",
           "rhs": "inlet.pressure",
           "determines": "branch.pressure"
         },
-        "eq_6": {
+        "branch_enthalpy_balance": {
           "lhs": "branch.enthalpy",
           "rhs": "inlet.enthalpy",
           "determines": "branch.enthalpy"

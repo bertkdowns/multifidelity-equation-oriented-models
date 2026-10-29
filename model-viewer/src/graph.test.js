@@ -64,3 +64,25 @@ test('summary gives every edge a distinct, evenly spaced attachment on each side
     }
   }
 });
+
+test('summary heat exchanger ports follow struct order even when connections are reversed', () => {
+  const definition = {
+    id: 'port_order_fixture', structs: {}, relationships: {
+      flowsheet: { models: { exchanger: { model: 'heat_exchanger' }, other: { model: 'heat_exchanger' } }, constraints: {}, connections: {
+        cold_in: { from: 'other.cold_outlet', to: 'exchanger.cold_inlet' },
+        hot_in: { from: 'other.hot_outlet', to: 'exchanger.hot_inlet' },
+        cold_out: { from: 'exchanger.cold_outlet', to: 'other.cold_inlet' },
+        hot_out: { from: 'exchanger.hot_outlet', to: 'other.hot_inlet' },
+      } },
+    },
+  };
+  const graph = makeGraph({ definition, bindings: {} }, 'flowsheet', library, 'summary');
+  const node = graph.nodes.find(node => node.id === 'model:exchanger');
+  for (const [type, expected] of [['target', ['hot_inlet:in', 'cold_inlet:in']], ['source', ['hot_outlet:out', 'cold_outlet:out']]]) {
+    const ordered = node.data.summaryPorts.filter(port => port.type === type).map(port => {
+      const edge = graph.edges.find(edge => edge[type] === node.id && edge[`${type}Handle`] === port.id);
+      return edge.data[`${type}Port`];
+    });
+    assert.deepEqual(ordered, expected);
+  }
+});

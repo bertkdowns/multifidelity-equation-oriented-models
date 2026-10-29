@@ -60,12 +60,12 @@
     "aggregate": {
       "models": {},
       "constraints": {
-        "eq_1": {
+        "mass_balance": {
           "lhs": "milk_inlet.flow",
           "rhs": "milk_outlet.flow + water_outlet.flow",
           "determines": "water_outlet.flow"
         },
-        "eq_2": {
+        "energy_balance": {
           "lhs": "milk_inlet.flow * milk_inlet.enthalpy + parameters.mvr_power",
           "rhs": "milk_outlet.flow * milk_outlet.enthalpy + water_outlet.flow * water_outlet.enthalpy",
           "determines": "water_outlet.enthalpy"
@@ -100,7 +100,7 @@
         }
       },
       "constraints": {
-        "eq_1": {
+        "mvr_power_balance": {
           "lhs": "parameters.mvr_power",
           "rhs": "mvr.performance.work",
           "determines": "mvr.parameters.pressure_rise"

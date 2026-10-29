@@ -61,32 +61,32 @@
     "split": {
       "models": {},
       "constraints": {
-        "eq_1": {
+        "liquid_flow_split": {
           "lhs": "liquid.flow",
           "rhs": "inlet.flow * parameters.fraction",
           "determines": "liquid.flow"
         },
-        "eq_2": {
+        "vapor_mass_balance": {
           "lhs": "vapor.flow",
           "rhs": "inlet.flow - liquid.flow",
           "determines": "vapor.flow"
         },
-        "eq_3": {
+        "liquid_pressure_balance": {
           "lhs": "liquid.pressure",
           "rhs": "inlet.pressure",
           "determines": "liquid.pressure"
         },
-        "eq_4": {
+        "liquid_enthalpy_balance": {
           "lhs": "liquid.enthalpy",
           "rhs": "inlet.enthalpy",
           "determines": "liquid.enthalpy"
         },
-        "eq_5": {
+        "vapor_pressure_balance": {
           "lhs": "vapor.pressure",
           "rhs": "inlet.pressure",
           "determines": "vapor.pressure"
         },
-        "eq_6": {
+        "vapor_enthalpy_balance": {
           "lhs": "vapor.enthalpy",
           "rhs": "inlet.enthalpy",
           "determines": "vapor.enthalpy"
