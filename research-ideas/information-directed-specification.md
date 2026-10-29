@@ -4,7 +4,7 @@ These are proposed algorithms and experiment outlines, not implemented behavior
 or established performance claims. They develop the measurement-based model
 specification and information-gated refinement directions in
 [the research questions](algorithms-and-hierarchies.md). The data conventions are
-recorded in the [model-language README](../src/multifidelity/model_language/README.md#proposed-information-model).
+recorded in the [model-language README](../src/multifidelity/model_language/README.md#information-model).
 
 ## Two independently testable research problems
 

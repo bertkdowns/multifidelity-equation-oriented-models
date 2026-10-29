@@ -2,6 +2,7 @@
 
 from .resolution import Library, ResolvedModel, ResolvedRelationship
 from .requirements import required_inputs, print_required_inputs
+from .information import InformationRecord, InformationTable, InformationType
 
 
 def build_model(model_id, implementation, *, library=None):
@@ -13,6 +14,9 @@ def build_model(model_id, implementation, *, library=None):
 
 __all__ = [
     "Library",
+    "InformationRecord",
+    "InformationTable",
+    "InformationType",
     "ResolvedModel",
     "ResolvedRelationship",
     "build_model",

@@ -751,11 +751,12 @@ power equation determining the MVR compressor's pressure-rise input through the
 child work calculation. This uses the descendant-dependency validation described
 above. It does not establish numerical solvability of the full milk scaffold.
 
-## Proposed information model
+## Information model
 
 Record available evidence separately from the model definitions and from decisions
-about how to specify or estimate a particular instance. This is an agreed data
-shape, not an implemented information-processing or prioritization layer.
+about how to specify or estimate a particular instance. `information.py` implements
+record validation, loading, insertion and trust-ordered candidate lookup. Applying
+records to model instances and the specification-selection algorithm remain proposed.
 
 Information is a **list of records**, not a dictionary keyed by variable path.
 Multiple records may target the same variable: for example, a sensor reading,
@@ -831,6 +832,46 @@ for structural candidate selection, auditable specification plans, and future
 noise/conditioning studies. This algorithm is proposed, not yet implemented.
 Whether tag definitions and timestamped values should be separated is also open;
 no time-series schema or instance-application behavior is specified here.
+
+### Information-table interface
+
+```python
+from multifidelity.model_language import InformationRecord, InformationTable
+
+# JSON files contain an array of records, as above.
+table = InformationTable.load_json("information.json")
+# Or parse JSON text directly: InformationTable.from_json(json_text).
+
+table.add(InformationRecord(
+    id="sink_temperature_assumption",
+    tag="sink_temperature_fallback",
+    information_type="assumption",
+    variable_path="sink_inlet.temperature",
+    value=323.15,
+    unit="K",
+    trust_rank=1,
+))
+
+record = table.get("sink_temperature_assumption")
+alternatives = table.candidates("sink_inlet.temperature")
+```
+
+`add` accepts either an `InformationRecord` or a dictionary and returns the
+validated record. The table can also be constructed from an iterable of records
+or dictionaries. Invalid records and duplicate IDs are rejected without replacing
+an existing record. Repeated tags and variable paths are allowed.
+
+`records` returns the records in insertion order. `candidates` returns all records
+for an exact variable path, sorted by descending trust rank and then record ID;
+no match returns an empty list. `get` raises `KeyError` for an unknown record ID.
+The returned lists do not expose the table's mutable storage, and records are
+immutable so their IDs and validated fields cannot change after insertion.
+
+Values and standard deviations must be finite, standard deviations nonnegative,
+and trust ranks integers from 1 through 10. Missing standard deviation remains
+`None`. Loading checks record shape, not existence of variable paths in a selected
+model, physical applicability or unit compatibility. The table describes one
+operating case and neither selects a winning record nor fixes any model variables.
 
 ## Proposed quantity-of-interest specification
 
