@@ -6,6 +6,12 @@ inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constrai
 It does not solve, set initial guesses, fix inputs, or construct instance documents.
 Here "build" means creating Python modelling objects, not numerical initialization.
 
+Relationships can also use registered Python providers to construct symbolic
+Pyomo/IDAES models behind the same public structs. See the
+[custom-model how-to guide](custom-models.md) for registration, variable mappings,
+dependency declarations, and composition with replaceable property models. A
+runnable example is in [`examples/custom_models`](../../../examples/custom_models).
+
 ## Property-package configuration decision
 
 The earlier shared-binding blocker is resolved for the current use case through
@@ -879,9 +885,9 @@ or prerequisites for the initial bounded experiments.
   derivatives, holdup and initial conditions? How should a model move between
   steady-state and dynamic representations, including transferring state and
   preserving the meaning of its public variables?
-- **External Pyomo and machine-learning models:** How can externally implemented
-  models participate alongside JSON-defined relationships, with compatible
-  variable interfaces and explicit inputs and outputs?
+- **External Pyomo and machine-learning models:** Scalar symbolic providers are
+  supported through external relationships; see the [how-to guide](custom-models.md).
+  Broader indexed interfaces and model-specific initialization remain future work.
 - **Parameter estimation:** How does estimation interact with our implementation
   selection and instance-specification methods, including information records,
   uncertainty and quantities of interest? What should be fixed, estimated or

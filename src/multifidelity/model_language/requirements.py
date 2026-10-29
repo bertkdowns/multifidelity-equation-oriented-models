@@ -51,6 +51,26 @@ def determination_sources(model: ResolvedModel, relationship_id: str) -> dict[st
         if struct.direction == "output"
         for v in struct.variables
     }
+    external = relationship.definition.external
+    if external is not None:
+        # Authored dependencies stand in for JSON equation determinations. They
+        # are never checked against the provider's internal equations.
+        inputs = {
+            f"{s}.{v}"
+            for s, struct in model.structs.items()
+            if struct.direction == "input"
+            for v in struct.variables
+        }
+        if set(external.dependencies) != outputs:
+            raise ValueError(
+                f"{path}: external dependencies must declare exactly the public outputs"
+            )
+        for output, dependencies in external.dependencies.items():
+            if set(dependencies) - inputs:
+                raise ValueError(
+                    f"{path}: dependencies for {output!r} must name public inputs"
+                )
+        return {output: f"provider {external.provider}" for output in outputs}
     allowed = outputs | {
         f"{alias}.{s}.{v}"
         for alias, child in relationship.models.items()

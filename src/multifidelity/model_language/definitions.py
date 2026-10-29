@@ -7,7 +7,14 @@ builder still owns scope, interface, determination and equation validation.
 
 from typing import Annotated, Literal
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    Field,
+    JsonValue,
+    model_validator,
+)
 
 
 def _identifier(value: str) -> str:
@@ -78,10 +85,29 @@ class ParameterModelReference(Definition):
 type ModelReference = ConcreteModelReference | ParameterModelReference
 
 
+class ExternalRelationship(Definition):
+    """A registered symbolic provider and its authored public dependencies."""
+
+    provider: str = Field(min_length=1)
+    config: dict[str, JsonValue] = Field(default_factory=dict)
+    dependencies: dict[str, list[str]]
+
+
 class Relationship(Definition):
     models: dict[Name, ModelReference] = Field(default_factory=dict)
     constraints: dict[Name, Constraint] = Field(default_factory=dict)
     connections: dict[Name, Connection] = Field(default_factory=dict)
+    external: ExternalRelationship | None = None
+
+    @model_validator(mode="after")
+    def separate_external_implementation(self):
+        if self.external is not None and (
+            self.models or self.constraints or self.connections
+        ):
+            raise ValueError(
+                "An external relationship cannot also define models, constraints, or connections; use a JSON wrapper"
+            )
+        return self
 
 
 class Model(Definition):

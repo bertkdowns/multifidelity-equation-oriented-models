@@ -1,0 +1,16 @@
+{
+  "id": "pump_flowsheet",
+  "structs": {},
+  "relationships": {
+    "flowsheet": {
+      "models": {
+        "pump": {
+          "model": "pump",
+          "model_arguments": {
+            "FluidProperties": {"model": "liquid_density"}
+          }
+        }
+      }
+    }
+  }
+}

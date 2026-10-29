@@ -13,6 +13,7 @@ from .definitions import (
     ParameterModelReference,
     Relationship,
 )
+from .providers import Provider
 
 
 # Unit compatibility is a property of definitions, not of the Pyomo backend.
@@ -53,11 +54,25 @@ class Library:
     def __init__(self, directory=None):
         directory = Path(directory) if directory else Path(__file__).parent / "models"
         self.models: dict[str, Model] = {}
+        self._providers: dict[str, Provider] = {}
         for path in sorted(directory.glob("*.json")):
             document = Model.model_validate_json(path.read_text())
             if document.id in self.models:
                 raise ValueError(f"Duplicate model ID: {document.id}")
             self.models[document.id] = document
+
+    def register_provider(self, name: str, provider: Provider) -> None:
+        """Register trusted Python code; definitions only store its stable name."""
+        if name in self._providers:
+            raise ValueError(f"Duplicate provider: {name}")
+        self._providers[name] = provider
+
+    def get_provider(self, name: str) -> Provider:
+        """Resolve a provider only when its external relationship is built."""
+        try:
+            return self._providers[name]
+        except KeyError:
+            raise ValueError(f"Unknown provider: {name}") from None
 
     def get(self, name: str) -> Model:
         try:

@@ -1,14 +1,17 @@
-"""Scalar equation compiler; no execution of Python supplied by model documents."""
+"""Compile JSON equations or call explicitly registered symbolic providers."""
 
 import ast
 import json
 import operator
+from collections.abc import Mapping
+from copy import deepcopy
 from pathlib import Path
 
 from idaes.core import FlowsheetBlock
 from pyomo.core.expr.visitor import identify_variables
 from pyomo.core.expr.numvalue import NumericValue
-from pyomo.environ import Block, ConcreteModel, Constraint, Var, units
+from pyomo.core.base.var import VarData
+from pyomo.environ import Block, ConcreteModel, Constraint, ConstraintList, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
 from .resolution import Library, ResolvedModel
@@ -22,6 +25,30 @@ _BINARY = {
     ast.Div: operator.truediv,
     ast.Pow: operator.pow,
 }
+
+
+def _build_external(active, external, variables, library, path):
+    """Keep provider construction and interface binding out of JSON compilation."""
+    active.provider = Block()
+    try:
+        provider = library.get_provider(external.provider)
+        mapping = provider(active.provider, deepcopy(external.config))
+        if not isinstance(mapping, Mapping) or set(mapping) != set(variables):
+            raise ValueError(
+                "Provider mapping must contain exactly the public variable paths"
+            )
+        active.bindings = ConstraintList()
+        for name, public in variables.items():
+            internal = mapping[name]
+            if not isinstance(internal, VarData):
+                raise ValueError(
+                    f"Mapping for {name!r} must be a scalar Pyomo variable"
+                )
+            active.bindings.add(
+                public == units.convert(internal, to_units=units.get_units(public))
+            )
+    except Exception as error:
+        raise ValueError(f"{path}: provider {external.provider!r}: {error}") from error
 
 
 def _expression(text, resolve):
@@ -127,6 +154,17 @@ def build_model(model_id, implementation, *, library=None):
                 variables[f"{struct_id}.{variable_id}"] = var
         block.relationship = Block()
         active = block.relationship
+        external = relationship.definition.external
+        if external is not None:
+            determination_sources(resolved, relationship_id)
+            _build_external(
+                active, external, variables, library, f"{path}.{relationship_id}"
+            )
+            for output, inputs in external.dependencies.items():
+                dependencies[id(variables[output])] = {
+                    id(variables[name]) for name in inputs
+                }
+            return variables
         active.models = Block()
         children = {}
         # Build children before equations so all referenced variables exist.
@@ -153,7 +191,7 @@ def build_model(model_id, implementation, *, library=None):
             if alias == "units" and rest.isidentifier() and not rest.startswith("_"):
                 try:
                     unit = getattr(units, rest)
-                except (AttributeError, ValueError):
+                except AttributeError, ValueError:
                     unit = None
                 if isinstance(unit, NumericValue):
                     return unit

@@ -1,0 +1,28 @@
+{
+  "id": "liquid_density",
+  "description": "Illustrative constant density with interchangeable JSON and Python relationships.",
+  "structs": {
+    "properties": {
+      "direction": "output",
+      "variables": {"density": {"unit": "kg/m**3"}}
+    }
+  },
+  "relationships": {
+    "constant_json": {
+      "constraints": {
+        "density": {
+          "lhs": "properties.density",
+          "rhs": "997 * units.kg / units.m**3",
+          "determines": "properties.density"
+        }
+      }
+    },
+    "constant_python": {
+      "external": {
+        "provider": "example.liquid_density",
+        "config": {"density_kg_m3": 997},
+        "dependencies": {"properties.density": []}
+      }
+    }
+  }
+}

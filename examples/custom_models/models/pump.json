@@ -1,0 +1,52 @@
+{
+  "id": "pump",
+  "model_parameters": {
+    "FluidProperties": {
+      "requires": {
+        "properties": {
+          "direction": "output",
+          "variables": {"density": {"unit": "kg/m**3"}}
+        }
+      }
+    }
+  },
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {"flow": {"unit": "kg/s"}}
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "pressure_rise": {"unit": "Pa"},
+        "efficiency": {"bounds": {"min": 0.01, "max": 1}}
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {"work": {"unit": "W"}}
+    }
+  },
+  "relationships": {
+    "composed": {
+      "models": {
+        "properties": {"model_parameter": "FluidProperties"},
+        "core": {"model": "pump_core"}
+      },
+      "constraints": {
+        "flow": {
+          "lhs": "core.inlet.flow", "rhs": "inlet.flow",
+          "determines": "core.inlet.flow"
+        },
+        "density": {
+          "lhs": "core.inlet.density", "rhs": "properties.properties.density",
+          "determines": "core.inlet.density"
+        }
+      },
+      "connections": {
+        "parameters": {"from": "parameters", "to": "core.parameters"},
+        "performance": {"from": "core.performance", "to": "performance"}
+      }
+    }
+  }
+}
