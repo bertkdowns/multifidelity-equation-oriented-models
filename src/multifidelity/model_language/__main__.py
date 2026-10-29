@@ -2,7 +2,7 @@
 
 import argparse
 
-from . import Library, build_model, print_required_inputs
+from . import Library, build_model, print_required_inputs, register_standard_providers
 
 
 def main():
@@ -11,17 +11,23 @@ def main():
     parser.add_argument("implementation", help="Explicit recursive implementation JSON")
     parser.add_argument("--library", help="Directory containing model JSON files")
     parser.add_argument(
+        "--standard-providers",
+        action="store_true",
+        help="Register bundled Helmholtz, humid-air, and compressor-map providers",
+    )
+    parser.add_argument(
         "--required-inputs",
         action="store_true",
         help="List required variable paths and units instead of building Pyomo",
     )
     args = parser.parse_args()
+    library = Library(args.library)
     if args.required_inputs:
-        print_required_inputs(
-            args.model, args.implementation, library=Library(args.library)
-        )
+        print_required_inputs(args.model, args.implementation, library=library)
         return
-    model = build_model(args.model, args.implementation, library=Library(args.library))
+    if args.standard_providers:
+        register_standard_providers(library)
+    model = build_model(args.model, args.implementation, library=library)
     model.pprint()
 
 

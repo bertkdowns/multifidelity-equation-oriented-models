@@ -1,0 +1,17 @@
+{
+  "model": "helmholtz_water_property_pair",
+  "relationship": "evaluate",
+  "submodels": {
+    "states": {
+      "relationship": "evaluate",
+      "submodels": {
+        "inlet": {
+          "relationship": "helmholtz"
+        },
+        "outlet": {
+          "relationship": "helmholtz"
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,8 @@
 # How to connect a custom Pyomo or IDAES model
 
+For ready-made providers and their model definitions, see the
+[standard symbolic model library](standard-models.md).
+
 A custom model uses the same public structs and implementation selections as a
 JSON model. Its selected relationship names a Python provider. The provider builds
 symbolic objects and returns a mapping; the framework connects those objects to

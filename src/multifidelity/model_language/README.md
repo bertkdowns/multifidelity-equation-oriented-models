@@ -12,6 +12,11 @@ Pyomo/IDAES models behind the same public structs. See the
 dependency declarations, and composition with replaceable property models. A
 runnable example is in [`examples/custom_models`](../../../examples/custom_models).
 
+The [standard symbolic model library](standard-models.md) supplies Helmholtz and
+humid-air property wrappers, an extracted EN 12900 compressor map, and a JSON
+compressor composition. Call `register_standard_providers(library)` before building
+their external relationships, or use the CLI's `--standard-providers` option.
+
 ## Property-package configuration decision
 
 The earlier shared-binding blocker is resolved for the current use case through

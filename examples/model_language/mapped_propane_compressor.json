@@ -1,0 +1,20 @@
+{
+  "model": "mapped_propane_compressor",
+  "relationship": "evaluate",
+  "submodels": {
+    "compressor": {
+      "relationship": "mapped",
+      "submodels": {
+        "inlet_state": {
+          "relationship": "helmholtz"
+        },
+        "outlet_state": {
+          "relationship": "helmholtz"
+        },
+        "map": {
+          "relationship": "cooling_60rps"
+        }
+      }
+    }
+  }
+}

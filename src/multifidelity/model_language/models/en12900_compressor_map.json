@@ -1,0 +1,83 @@
+{
+  "id": "en12900_compressor_map",
+  "description": "Extracted Ahuora EN 12900 catalogue polynomials for propane; dew temperatures in K. Cooling/heating capacity and COP are rated map metrics, not actual compressor duty. Speed is discrete and no application envelope is supplied.",
+  "structs": {
+    "temperatures": {
+      "direction": "input",
+      "variables": {
+        "evaporating": {
+          "unit": "K"
+        },
+        "condensing": {
+          "unit": "K"
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "mass_flow": {
+          "unit": "kg/s"
+        },
+        "electrical_power": {
+          "unit": "W"
+        },
+        "capacity": {
+          "unit": "W"
+        },
+        "current": {
+          "unit": "A"
+        },
+        "rated_cop": {
+          "unit": "dimensionless"
+        }
+      }
+    },
+    "rating": {
+      "direction": "output",
+      "variables": {
+        "superheat": {
+          "unit": "K"
+        },
+        "subcooling": {
+          "unit": "K"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "cooling_60rps": {
+      "external": {
+        "provider": "standard.en12900_map",
+        "config": {
+          "performance_map": "spb172fnkmt_cooling_pcs661ab",
+          "speed_rps": 60
+        },
+        "dependencies": {
+          "performance.mass_flow": [
+            "temperatures.evaporating",
+            "temperatures.condensing"
+          ],
+          "performance.electrical_power": [
+            "temperatures.evaporating",
+            "temperatures.condensing"
+          ],
+          "performance.capacity": [
+            "temperatures.evaporating",
+            "temperatures.condensing"
+          ],
+          "performance.current": [
+            "temperatures.evaporating",
+            "temperatures.condensing"
+          ],
+          "performance.rated_cop": [
+            "temperatures.evaporating",
+            "temperatures.condensing"
+          ],
+          "rating.superheat": [],
+          "rating.subcooling": []
+        }
+      }
+    }
+  }
+}

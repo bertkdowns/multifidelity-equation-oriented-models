@@ -1,0 +1,89 @@
+{
+  "id": "helmholtz_propane_ph",
+  "description": "Ahuora pure-fluid mass-basis PH wrapper for propane; phase viscosity Vap; pure-fluid bubble/dew temperatures coincide. Saturation intended below critical pressure.",
+  "structs": {
+    "state": {
+      "direction": "input",
+      "variables": {
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "properties": {
+      "direction": "output",
+      "variables": {
+        "density": {
+          "unit": "kg/m**3"
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K"
+        },
+        "viscosity": {
+          "unit": "Pa*s"
+        },
+        "temperature": {
+          "unit": "K"
+        },
+        "entropy": {
+          "unit": "J/kg/K"
+        },
+        "vapor_fraction": {
+          "unit": "dimensionless"
+        },
+        "temperature_bubble": {
+          "unit": "K"
+        },
+        "temperature_dew": {
+          "unit": "K"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "helmholtz": {
+      "external": {
+        "provider": "standard.helmholtz_ph",
+        "config": {
+          "fluid": "propane",
+          "viscosity_phase": "Vap"
+        },
+        "dependencies": {
+          "properties.density": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.heat_capacity": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.viscosity": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.temperature": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.entropy": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.vapor_fraction": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.temperature_bubble": [
+            "state.pressure"
+          ],
+          "properties.temperature_dew": [
+            "state.pressure"
+          ]
+        }
+      }
+    }
+  }
+}

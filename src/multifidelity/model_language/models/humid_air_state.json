@@ -1,0 +1,78 @@
+{
+  "id": "humid_air_state",
+  "description": "Existing Ahuora PySMO humid-air artifact wrapped on numerical SI coordinates. Composition input is water mole fraction; air is its complement. No flow specification required. Enthalpy and entropy are molar quantities.",
+  "structs": {
+    "state": {
+      "direction": "input",
+      "variables": {
+        "temperature": {
+          "unit": "K"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "water_mole_fraction": {
+          "unit": "dimensionless",
+          "bounds": {
+            "min": 0,
+            "max": 1
+          }
+        }
+      }
+    },
+    "properties": {
+      "direction": "output",
+      "variables": {
+        "relative_humidity": {
+          "unit": "dimensionless"
+        },
+        "temperature_wet_bulb": {
+          "unit": "K"
+        },
+        "enthalpy": {
+          "unit": "J/mol"
+        },
+        "entropy": {
+          "unit": "J/mol/K"
+        },
+        "molar_volume": {
+          "unit": "m**3/mol"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "pysmo": {
+      "external": {
+        "provider": "standard.humid_air",
+        "dependencies": {
+          "properties.relative_humidity": [
+            "state.temperature",
+            "state.pressure",
+            "state.water_mole_fraction"
+          ],
+          "properties.temperature_wet_bulb": [
+            "state.temperature",
+            "state.pressure",
+            "state.water_mole_fraction"
+          ],
+          "properties.enthalpy": [
+            "state.temperature",
+            "state.pressure",
+            "state.water_mole_fraction"
+          ],
+          "properties.entropy": [
+            "state.temperature",
+            "state.pressure",
+            "state.water_mole_fraction"
+          ],
+          "properties.molar_volume": [
+            "state.temperature",
+            "state.pressure",
+            "state.water_mole_fraction"
+          ]
+        }
+      }
+    }
+  }
+}

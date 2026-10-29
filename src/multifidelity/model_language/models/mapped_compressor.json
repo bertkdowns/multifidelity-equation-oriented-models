@@ -1,0 +1,281 @@
+{
+  "id": "mapped_compressor",
+  "description": "JSON compressor composition with replaceable PH thermodynamics and performance map. Predicts flow from dew temperatures, preserves Ahuora motor/adiabatic balance and superheat metrics. Map must match fluid; rated capacity is diagnostic, not imposed as duty.",
+  "model_parameters": {
+    "FluidProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa"
+            },
+            "enthalpy": {
+              "unit": "J/kg"
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "temperature": {
+              "unit": "K"
+            },
+            "temperature_bubble": {
+              "unit": "K"
+            },
+            "temperature_dew": {
+              "unit": "K"
+            }
+          }
+        }
+      }
+    },
+    "PerformanceMap": {
+      "requires": {
+        "temperatures": {
+          "direction": "input",
+          "variables": {
+            "evaporating": {
+              "unit": "K"
+            },
+            "condensing": {
+              "unit": "K"
+            }
+          }
+        },
+        "performance": {
+          "direction": "output",
+          "variables": {
+            "mass_flow": {
+              "unit": "kg/s"
+            },
+            "electrical_power": {
+              "unit": "W"
+            },
+            "capacity": {
+              "unit": "W"
+            },
+            "current": {
+              "unit": "A"
+            },
+            "rated_cop": {
+              "unit": "dimensionless"
+            }
+          }
+        },
+        "rating": {
+          "direction": "output",
+          "variables": {
+            "superheat": {
+              "unit": "K"
+            },
+            "subcooling": {
+              "unit": "K"
+            }
+          }
+        }
+      }
+    }
+  },
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "pressure_rise": {
+          "unit": "Pa",
+          "bounds": {
+            "min": 0
+          }
+        },
+        "motor_efficiency": {
+          "unit": "dimensionless",
+          "bounds": {
+            "min": 1e-06,
+            "max": 1
+          }
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s"
+        },
+        "pressure": {
+          "unit": "Pa"
+        },
+        "enthalpy": {
+          "unit": "J/kg"
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "mass_flow": {
+          "unit": "kg/s"
+        },
+        "electrical_power": {
+          "unit": "W"
+        },
+        "shaft_power": {
+          "unit": "W"
+        },
+        "rated_capacity": {
+          "unit": "W"
+        },
+        "current": {
+          "unit": "A"
+        },
+        "rated_cop": {
+          "unit": "dimensionless"
+        },
+        "pressure_ratio": {
+          "unit": "dimensionless"
+        },
+        "actual_superheat": {
+          "unit": "K"
+        },
+        "superheat_deviation": {
+          "unit": "K"
+        },
+        "rated_superheat": {
+          "unit": "K"
+        },
+        "rated_subcooling": {
+          "unit": "K"
+        }
+      }
+    }
+  },
+  "relationships": {
+    "mapped": {
+      "models": {
+        "inlet_state": {
+          "model_parameter": "FluidProperties"
+        },
+        "outlet_state": {
+          "model_parameter": "FluidProperties"
+        },
+        "map": {
+          "model_parameter": "PerformanceMap"
+        }
+      },
+      "constraints": {
+        "pressure": {
+          "lhs": "outlet.pressure",
+          "rhs": "inlet.pressure + parameters.pressure_rise",
+          "determines": "outlet.pressure"
+        },
+        "inlet_state_pressure": {
+          "lhs": "inlet_state.state.pressure",
+          "rhs": "inlet.pressure",
+          "determines": "inlet_state.state.pressure"
+        },
+        "inlet_state_enthalpy": {
+          "lhs": "inlet_state.state.enthalpy",
+          "rhs": "inlet.enthalpy",
+          "determines": "inlet_state.state.enthalpy"
+        },
+        "outlet_state_pressure": {
+          "lhs": "outlet_state.state.pressure",
+          "rhs": "outlet.pressure",
+          "determines": "outlet_state.state.pressure"
+        },
+        "outlet_state_enthalpy": {
+          "lhs": "outlet_state.state.enthalpy",
+          "rhs": "outlet.enthalpy",
+          "determines": "outlet_state.state.enthalpy"
+        },
+        "evaporating_temperature": {
+          "lhs": "map.temperatures.evaporating",
+          "rhs": "inlet_state.properties.temperature_dew",
+          "determines": "map.temperatures.evaporating"
+        },
+        "condensing_temperature": {
+          "lhs": "map.temperatures.condensing",
+          "rhs": "outlet_state.properties.temperature_dew",
+          "determines": "map.temperatures.condensing"
+        },
+        "mass_flow": {
+          "lhs": "performance.mass_flow",
+          "rhs": "map.performance.mass_flow",
+          "determines": "performance.mass_flow"
+        },
+        "electrical_power": {
+          "lhs": "performance.electrical_power",
+          "rhs": "map.performance.electrical_power",
+          "determines": "performance.electrical_power"
+        },
+        "rated_capacity": {
+          "lhs": "performance.rated_capacity",
+          "rhs": "map.performance.capacity",
+          "determines": "performance.rated_capacity"
+        },
+        "current": {
+          "lhs": "performance.current",
+          "rhs": "map.performance.current",
+          "determines": "performance.current"
+        },
+        "rated_cop": {
+          "lhs": "performance.rated_cop",
+          "rhs": "map.performance.rated_cop",
+          "determines": "performance.rated_cop"
+        },
+        "flow": {
+          "lhs": "outlet.flow",
+          "rhs": "performance.mass_flow",
+          "determines": "outlet.flow"
+        },
+        "shaft_power": {
+          "lhs": "performance.shaft_power",
+          "rhs": "parameters.motor_efficiency * performance.electrical_power",
+          "determines": "performance.shaft_power"
+        },
+        "energy": {
+          "lhs": "outlet.flow * outlet.enthalpy",
+          "rhs": "performance.mass_flow * inlet.enthalpy + performance.shaft_power",
+          "determines": "outlet.enthalpy"
+        },
+        "pressure_ratio": {
+          "lhs": "performance.pressure_ratio * inlet.pressure",
+          "rhs": "outlet.pressure",
+          "determines": "performance.pressure_ratio"
+        },
+        "rated_superheat": {
+          "lhs": "performance.rated_superheat",
+          "rhs": "map.rating.superheat",
+          "determines": "performance.rated_superheat"
+        },
+        "rated_subcooling": {
+          "lhs": "performance.rated_subcooling",
+          "rhs": "map.rating.subcooling",
+          "determines": "performance.rated_subcooling"
+        },
+        "actual_superheat": {
+          "lhs": "performance.actual_superheat",
+          "rhs": "inlet_state.properties.temperature - inlet_state.properties.temperature_dew",
+          "determines": "performance.actual_superheat"
+        },
+        "superheat_deviation": {
+          "lhs": "performance.superheat_deviation",
+          "rhs": "performance.actual_superheat - performance.rated_superheat",
+          "determines": "performance.superheat_deviation"
+        }
+      }
+    }
+  }
+}

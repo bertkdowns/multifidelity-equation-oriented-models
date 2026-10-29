@@ -3,6 +3,7 @@
 from .resolution import Library, ResolvedModel, ResolvedRelationship
 from .requirements import required_inputs, print_required_inputs
 from .information import InformationRecord, InformationTable, InformationType
+from .standard import register_standard_providers
 
 
 def build_model(model_id, implementation, *, library=None):
@@ -22,4 +23,5 @@ __all__ = [
     "build_model",
     "required_inputs",
     "print_required_inputs",
+    "register_standard_providers",
 ]

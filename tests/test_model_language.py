@@ -60,11 +60,23 @@ def build_heat_pump(selection, *, library=None):
 
 
 def test_every_bundled_relationship_builds_without_solver():
+    def uses_provider(resolved, selection):
+        relationship = resolved.relationships[selection["relationship"]]
+        return relationship.definition.external is not None or any(
+            uses_provider(child, selection["submodels"][alias])
+            for alias, child in relationship.models.items()
+        )
+
     library = Library()
     for name, definition in library.models.items():
         if definition.model_parameters:
             continue
         for relationship in definition.relationships:
+            selection = select(library, name, relationship)
+            # Native providers have optional dependencies and their own tests;
+            # the construction-only JSON contract below excludes their internals.
+            if uses_provider(library.resolve(name), selection):
+                continue
             if name == "milk_evaporator" and relationship == "aggregate":
                 with pytest.raises(ValueError, match="missing output determinations"):
                     build_model(
@@ -472,7 +484,7 @@ def test_generic_property_arguments_create_distinct_state_occurrences():
     assert value(pair.relationship.connections.inlet_state.enthalpy.body) == 0
     pair.structs.inlet_properties.temperature.set_value(310)
     inlet.properties.temperature.set_value(310)
-    assert value(pair.relationship.connections.inlet_properties.temperature.body) == 0
+    assert value(pair.relationship.constraints.inlet_temperature.body) == 0
     a = pair.relationship.models.inlet.relationship.models.water.structs.parameters.density
     b = pair.relationship.models.outlet.relationship.models.water.structs.parameters.density
     assert a is not b

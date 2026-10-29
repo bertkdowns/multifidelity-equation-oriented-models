@@ -17,6 +17,10 @@ The package also provides [selectable liquid-water properties](docs/water.md):
 a constant-cp linear approximation and liquid IAPWS-95 Helmholtz equations,
 using the same fidelity interface and shared state variables.
 
+The JSON model language also includes a [standard symbolic model library](src/multifidelity/model_language/standard-models.md):
+Helmholtz and humid-air property wrappers, an extracted compressor performance
+map, and a JSON composition with replaceable thermodynamics.
+
 The [complete SGHP case study](case_studies/sghp/FULL_STUDY.md) reconstructs the
 coupled refrigerant, IHX, flash-steam, warm-water, and source circuits. All five
 exchangers and four valves have low/high formulations. It compares nine baseline

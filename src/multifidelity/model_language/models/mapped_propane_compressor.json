@@ -1,0 +1,22 @@
+{
+  "id": "mapped_propane_compressor",
+  "description": "Concrete composition selecting propane Helmholtz properties and the propane EN12900 map. No property package is passed into the map provider.",
+  "structs": {},
+  "relationships": {
+    "evaluate": {
+      "models": {
+        "compressor": {
+          "model": "mapped_compressor",
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_propane_ph"
+            },
+            "PerformanceMap": {
+              "model": "en12900_compressor_map"
+            }
+          }
+        }
+      }
+    }
+  }
+}

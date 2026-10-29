@@ -112,23 +112,66 @@
           "model_parameter": "FluidProperties"
         }
       },
-      "constraints": {},
+      "constraints": {
+        "inlet_density": {
+          "lhs": "inlet_properties.density",
+          "rhs": "inlet.properties.density",
+          "determines": "inlet_properties.density"
+        },
+        "inlet_heat_capacity": {
+          "lhs": "inlet_properties.heat_capacity",
+          "rhs": "inlet.properties.heat_capacity",
+          "determines": "inlet_properties.heat_capacity"
+        },
+        "inlet_viscosity": {
+          "lhs": "inlet_properties.viscosity",
+          "rhs": "inlet.properties.viscosity",
+          "determines": "inlet_properties.viscosity"
+        },
+        "inlet_temperature": {
+          "lhs": "inlet_properties.temperature",
+          "rhs": "inlet.properties.temperature",
+          "determines": "inlet_properties.temperature"
+        },
+        "inlet_entropy": {
+          "lhs": "inlet_properties.entropy",
+          "rhs": "inlet.properties.entropy",
+          "determines": "inlet_properties.entropy"
+        },
+        "outlet_density": {
+          "lhs": "outlet_properties.density",
+          "rhs": "outlet.properties.density",
+          "determines": "outlet_properties.density"
+        },
+        "outlet_heat_capacity": {
+          "lhs": "outlet_properties.heat_capacity",
+          "rhs": "outlet.properties.heat_capacity",
+          "determines": "outlet_properties.heat_capacity"
+        },
+        "outlet_viscosity": {
+          "lhs": "outlet_properties.viscosity",
+          "rhs": "outlet.properties.viscosity",
+          "determines": "outlet_properties.viscosity"
+        },
+        "outlet_temperature": {
+          "lhs": "outlet_properties.temperature",
+          "rhs": "outlet.properties.temperature",
+          "determines": "outlet_properties.temperature"
+        },
+        "outlet_entropy": {
+          "lhs": "outlet_properties.entropy",
+          "rhs": "outlet.properties.entropy",
+          "determines": "outlet_properties.entropy"
+        }
+      },
       "connections": {
         "inlet_state": {
           "from": "inlet_state",
           "to": "inlet.state"
         },
-        "inlet_properties": {
-          "from": "inlet.properties",
-          "to": "inlet_properties"
-        },
         "outlet_state": {
           "from": "outlet_state",
           "to": "outlet.state"
-        },
-        "outlet_properties": {
-          "from": "outlet.properties",
-          "to": "outlet_properties"
         }
       }
     }
