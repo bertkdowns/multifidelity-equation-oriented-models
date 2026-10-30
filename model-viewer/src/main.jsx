@@ -38,7 +38,11 @@ function Entity({ id, data, selected }) {
       const base = (port.type === 'source') !== (data.kind === 'model' && flipped) ? 0 : 2;
       const side = sides[(base + (data.kind === 'model' ? rotation : 0)) % 4];
       const horizontal = side === Position.Top || side === Position.Bottom;
-      return <Handle key={port.id} id={port.id} type={port.type} position={side} style={horizontal ? { left: port.top } : { top: port.top }} isConnectable={false}/>;
+      // Rotate the attachment coordinate as well as its side. Clockwise rotation
+      // maps (x, y) to (1 - y, x), so quarter/half turns reverse this coordinate.
+      const reverse = data.kind === 'model' && (rotation === 1 || rotation === 2);
+      const offset = reverse ? `${100 - parseFloat(port.top)}%` : port.top;
+      return <Handle key={port.id} id={port.id} type={port.type} position={side} style={horizontal ? { left: offset } : { top: offset }} isConnectable={false}/>;
     })}
     {!data.summary && data.kind === 'model' && data.rows.length > 0 && <div className="struct-list-toggle">
       <button className="nodrag nopan" aria-expanded={!structsCollapsed} onClick={event => { event.stopPropagation(); setStructsCollapsed(!structsCollapsed); }}>{structsCollapsed ? '▸' : '▾'} Structs <span>{data.rows.length}</span></button>
