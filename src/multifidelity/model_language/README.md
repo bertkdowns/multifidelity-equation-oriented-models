@@ -183,7 +183,7 @@ A model contains `id`, optional `description`, `structs`, and `relationships`:
 Variable declarations support `unit` (default `dimensionless`), `value_type`
 (currently only `real`) and `bounds: {"min": ..., "max": ...}`. Bounds are numerical
 values in the declared unit. All variables start free and without values.
-Dimensions are reserved for future work; nonempty `dimensions` are rejected.
+Variables may declare ordered named `dimensions`; see indexed models below.
 Input/output describes struct direction, not fixed/free solver status. No default
 values, automatic input fixation, or permanent input/output role on variables is
 introduced.
@@ -208,7 +208,8 @@ sensitivity or mathematical determinacy. It may appear on either side or inside 
 For example, a balance `outlet.flow * outlet.enthalpy = ...` can determine
 `outlet.enthalpy`. Parent inputs and child outputs cannot be targets here.
 
-Each selected relationship must determine every parent output exactly once.
+**Each output is determined exactly once.** Each selected relationship must
+determine every parent output exactly once.
 Connections implicitly determine every variable in their destination struct and
 share the same determination registry as explicit constraints. Two constraints,
 two connections, or a constraint and a connection targeting the same variable
@@ -222,8 +223,100 @@ for a future instance to supply. This check neither fixes them nor proves that
 outputs can be calculated: cycles, dependent equations, singularities and multiple
 solutions require further analysis. Required inputs can be listed using the methods described below.
 
-Python calls, subscripts, imports and arbitrary code are not supported; expression
+Python calls, imports and arbitrary code are not supported; expression
 strings are parsed using a restricted AST interpreter, never `eval`.
+
+### Named domains and indexed algebraic equations
+
+Models declare index domains, while numerical members belong to build
+configuration. No variables are fixed or initialized by this configuration:
+
+```json
+"domains": {
+  "time": {"kind": "time"},
+  "components": {"kind": "discrete"}
+}
+```
+
+Declare a variable with `"dimensions": ["time", "components"]`; an omitted or
+empty list still means scalar. Dimensions must be distinct declared domain names.
+Domain members are one-dimensional, nonempty ordered sets of finite numbers or
+strings. Time points must be numbers in strictly increasing order. A root time
+domain defaults to `[0.0]` and uses the flowsheet's actual `time` set. At most one
+time domain is allowed at the root. These are currently **algebraic time slices**,
+not dynamic integration: the flowsheet remains steady and no derivatives are
+introduced.
+
+Use explicit loop bindings and subscripts in equations:
+
+```json
+"flow": {
+  "for_each": {"t": "time", "j": "components"},
+  "lhs": "outlet.flow[t, j]",
+  "rhs": "settings.factor * inlet.flow[t, j]",
+  "determines": "outlet.flow[t, j]"
+}
+```
+
+Scalar references remain unindexed. Indexed references must explicitly supply
+the correct number and order of loop indices from matching domains. Index names
+are scoped to the equation and only allowed inside subscripts. Calls, slices,
+literal indices, index arithmetic, reductions, and attributes after subscripts
+are not supported in this first implementation.
+
+Each `determines` declaration must cover the target's whole indexed family,
+with exactly one loop index per dimension and no extra loops. Partial targets
+and repeated scalar determinations are rejected. Different loop names cannot
+hide duplicate determinations of the same family. Dependency validation is
+performed for each constructed variable entry, not only at family level.
+
+Child occurrences explicitly bind their domains to the containing model:
+
+```json
+"models": {
+  "pipe": {
+    "model": "pipe",
+    "domain_bindings": {"time": "time"}
+  }
+}
+```
+
+Binding keys are child domain names and values are parent domain names. Names
+may differ, but kinds must match. Every child time domain requires a binding;
+bound domains reuse the very same Pyomo set. Discrete domains may instead be
+local to an occurrence. Two local sets with identical members do not imply a
+shared domain. Bindings are also supported on `model_parameter` references.
+
+Connections expand field by field and index by index, retaining unit conversion.
+They require matching ordered domain signatures after binding; there is no
+implicit scalar broadcasting or grid interpolation. A scalar can still be used
+explicitly in an indexed equation, as `settings.factor` is above.
+
+```python
+model = build_model(
+    "network", implementation, library=library,
+    domain_values={
+        "time": [0, 10, 30],
+        "components": ["water", "salt"],
+        "network.pipe.cells": [0, 1, 2],
+    },
+)
+```
+
+Root-domain configuration keys are their local names. Unbound child discrete
+domains use occurrence-qualified keys (`root_model.child_alias.domain`). Supply
+values only for declared, unbound domains in the selected hierarchy; unknown or
+unused keys are errors. Bound domains need no separate values.
+
+`required_inputs()` returns one entry per required variable family, retaining
+its `dimensions`, without needing numerical domain values. Generic interfaces
+continue to compare ordered dimension declarations. External symbolic providers
+currently retain their scalar-only interface contract.
+
+Run the complete pass-through pipe example with
+`.venv/bin/python examples/indexed_models/build.py` from the repository root.
+Derivatives, initial conditions, continuous-domain discretization, and indexed
+collections of child occurrences remain future work.
 
 A relationship's `models` maps local aliases to definitions:
 
@@ -941,7 +1034,8 @@ or prerequisites for the initial bounded experiments.
 
 ## Deferred decisions
 
-- Time/space dimensions, discretization and derivatives.
+- Continuous time/space domains, discretization and derivatives (ordered
+  discrete indexing and algebraic time slices are supported).
 - Default values, instance documents, fixed/free specifications and initial guesses.
 - Replacing input specifications with selected output specifications.
 - Detailed thermodynamics, component mixtures, shared material data, configurable

@@ -6,11 +6,11 @@ from .information import InformationRecord, InformationTable, InformationType
 from .standard import register_standard_providers
 
 
-def build_model(model_id, implementation, *, library=None):
+def build_model(model_id, implementation, *, library=None, domain_values=None):
     """Convert a selected implementation using the Pyomo backend on demand."""
     from .builder import build_model as build
 
-    return build(model_id, implementation, library=library)
+    return build(model_id, implementation, library=library, domain_values=domain_values)
 
 
 __all__ = [

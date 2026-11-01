@@ -1,6 +1,6 @@
 """Load and navigate definition references without constructing solver objects."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 
@@ -102,7 +102,8 @@ class Library:
                 raise ValueError(f"{path}: unknown model parameter {name!r}")
             argument = parameters[name]
             return ResolvedModel(
-                argument.definition, argument.model_arguments, self, path
+                argument.definition, argument.model_arguments, self, path,
+                dict(reference.domain_bindings),
             )
         definition = self.get(reference.model)
         declarations = definition.model_parameters
@@ -117,7 +118,7 @@ class Library:
             )
             _check_interface(argument.definition, requirement, f"{path}<{name}>")
             arguments[name] = argument
-        return ResolvedModel(definition, arguments, self, path)
+        return ResolvedModel(definition, arguments, self, path, dict(reference.domain_bindings))
 
 
 @dataclass(eq=False)
@@ -128,6 +129,7 @@ class ResolvedModel:
     model_arguments: dict[str, "ResolvedModel"]
     _library: Library
     path: str
+    domain_bindings: dict[str, str] = field(default_factory=dict)
 
     @property
     def id(self):
@@ -163,9 +165,22 @@ class ResolvedRelationship:
     @cached_property
     def models(self) -> dict[str, ResolvedModel]:
         parent = self._parent
-        return {
+        children = {
             alias: parent._library._reference(
                 reference, parent.model_arguments, f"{parent.path}.{alias}"
             )
             for alias, reference in self.definition.models.items()
         }
+        for child in children.values():
+            for local, source in child.domain_bindings.items():
+                if (
+                    local not in child.definition.domains
+                    or source not in parent.definition.domains
+                    or child.definition.domains[local].kind
+                    != parent.definition.domains[source].kind
+                ):
+                    raise ValueError(f"{child.path}: invalid domain binding {local!r}: {source!r}")
+            for name, domain in child.definition.domains.items():
+                if domain.kind == "time" and name not in child.domain_bindings:
+                    raise ValueError(f"{child.path}: time domain {name!r} requires an explicit binding")
+        return children

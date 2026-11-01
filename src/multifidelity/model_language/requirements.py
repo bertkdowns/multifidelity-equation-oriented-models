@@ -6,6 +6,7 @@ import sys
 
 from .definitions import Connection, Struct, Variable
 from .implementation import Implementation, ImplementationSelection
+from .indexing import equation_target, target_reference, validate_domains, variable_dimensions
 from .resolution import Library, ResolvedModel, ResolvedRelationship
 
 
@@ -35,6 +36,11 @@ def connection_endpoints(
         raise ValueError(f"{path}: invalid connection direction")
     if set(source[0].variables) != set(target[0].variables):
         raise ValueError(f"{path}: connection fields differ")
+    for field in source[0].variables:
+        a = variable_dimensions(model, relationship, source[1] + "." + field)
+        b = variable_dimensions(model, relationship, target[1] + "." + field)
+        if a != b:
+            raise ValueError(f"{path}: connection dimensions differ for {field!r}")
     return source, target
 
 
@@ -44,6 +50,7 @@ def determination_sources(model: ResolvedModel, relationship_id: str) -> dict[st
     This checks declarations, not mathematical determinacy or equation syntax.
     """
     relationship = model.relationships[relationship_id]
+    validate_domains(model)
     path = f"{model.path}.{relationship_id}"
     outputs = {
         f"{s}.{v}"
@@ -53,6 +60,8 @@ def determination_sources(model: ResolvedModel, relationship_id: str) -> dict[st
     }
     external = relationship.definition.external
     if external is not None:
+        if any(v.dimensions for s in model.structs.values() for v in s.variables.values()):
+            raise ValueError(f"{path}: external providers currently require scalar interfaces")
         # Authored dependencies stand in for JSON equation determinations. They
         # are never checked against the provider's internal equations.
         inputs = {
@@ -92,7 +101,10 @@ def determination_sources(model: ResolvedModel, relationship_id: str) -> dict[st
         sources[target] = source
 
     for name, equation in relationship.constraints.items():
-        register(equation.determines, f"constraint {name}")
+        # Check allowed targets first to preserve scope/direction diagnostics.
+        target, _ = target_reference(equation.determines)
+        register(target, f"constraint {name}")
+        equation_target(model, relationship, equation)
     for name, connection in relationship.connections.items():
         _, target = connection_endpoints(
             model, relationship, connection, f"{path}.{name}"
@@ -113,7 +125,7 @@ def required_inputs(
     *,
     library: Library | None = None,
 ) -> dict[str, Variable]:
-    """Return all externally required scalar inputs by root-relative variable path.
+    """Return required input families, retaining their dimensions, by variable path.
 
     Accept a typed implementation, dictionary, or JSON file path. Inputs supplied
     by the containing relationship are excluded; descendants are visited only
@@ -156,10 +168,6 @@ def required_inputs(
                 for name, variable in struct.variables.items():
                     local = f"{struct_id}.{name}"
                     if local not in supplied:
-                        if variable.dimensions:
-                            raise ValueError(
-                                f"{model.path}: indexed variables are not supported yet"
-                            )
                         required[prefix + local] = variable
         for alias, child in relationship.models.items():
             child_prefix = alias + "."

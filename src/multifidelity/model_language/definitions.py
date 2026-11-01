@@ -38,14 +38,25 @@ class Bounds(Definition):
     max: float | None = None
 
 
+class Domain(Definition):
+    """An index-domain declaration; numerical members belong to the build."""
+
+    kind: Literal["time", "discrete"] = "discrete"
+
+
 class Variable(Definition):
     """Quantity metadata; values and fixation belong to future instance types."""
 
     unit: str = "dimensionless"
     value_type: Literal["real"] = "real"
     bounds: Bounds = Field(default_factory=Bounds)
-    # Reserved for domain design; the scalar builder rejects nonempty dimensions.
-    dimensions: list[str] = Field(default_factory=list)
+    dimensions: list[Name] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def distinct_dimensions(self):
+        if len(set(self.dimensions)) != len(self.dimensions):
+            raise ValueError("Variable dimensions must be distinct")
+        return self
 
 
 class Struct(Definition):
@@ -54,6 +65,7 @@ class Struct(Definition):
 
 
 class Constraint(Definition):
+    for_each: dict[Name, Name] = Field(default_factory=dict)
     lhs: str
     rhs: str
     determines: str
@@ -74,10 +86,12 @@ class ModelParameter(Definition):
 class ConcreteModelReference(Definition):
     model: str
     model_arguments: dict[Name, "ModelReference"] = Field(default_factory=dict)
+    domain_bindings: dict[Name, Name] = Field(default_factory=dict)
 
 
 class ParameterModelReference(Definition):
     model_parameter: str
+    domain_bindings: dict[Name, Name] = Field(default_factory=dict)
 
 
 # Separate variants enforce exactly one reference kind. Parameter references
@@ -113,6 +127,7 @@ class Relationship(Definition):
 class Model(Definition):
     id: str
     description: str | None = None
+    domains: dict[Name, Domain] = Field(default_factory=dict)
     model_parameters: dict[Name, ModelParameter] = Field(default_factory=dict)
     structs: dict[Name, Struct]
     relationships: dict[Name, Relationship]

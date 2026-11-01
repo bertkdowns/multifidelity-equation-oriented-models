@@ -1,0 +1,47 @@
+{
+  "id": "pipe",
+  "description": "An ideal pass-through pipe evaluated independently at each time point.",
+  "domains": {"time": {"kind": "time"}},
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {"unit": "kg/s", "dimensions": ["time"]},
+        "pressure": {"unit": "Pa", "dimensions": ["time"]},
+        "enthalpy": {"unit": "J/kg", "dimensions": ["time"]}
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {"unit": "kg/s", "dimensions": ["time"]},
+        "pressure": {"unit": "Pa", "dimensions": ["time"]},
+        "enthalpy": {"unit": "J/kg", "dimensions": ["time"]}
+      }
+    }
+  },
+  "relationships": {
+    "pass_through": {
+      "constraints": {
+        "flow": {
+          "for_each": {"t": "time"},
+          "lhs": "outlet.flow[t]",
+          "rhs": "inlet.flow[t]",
+          "determines": "outlet.flow[t]"
+        },
+        "pressure": {
+          "for_each": {"t": "time"},
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "outlet.pressure[t]"
+        },
+        "enthalpy": {
+          "for_each": {"t": "time"},
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]"
+        }
+      }
+    }
+  }
+}
