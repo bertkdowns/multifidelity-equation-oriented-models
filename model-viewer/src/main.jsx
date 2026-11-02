@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { ReactFlow, Handle, Position, Background, Controls, MiniMap, SelectionMode, useUpdateNodeInternals } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './style.css';
-import { makeGraph } from './graph.js';
+import { makeGraph, variableLabel } from './graph.js';
 
 const documents = import.meta.glob('../../src/multifidelity/model_language/models/*.json', { eager: true, import: 'default' });
 const library = Object.fromEntries(Object.values(documents).map(model => [model.id, model]));
@@ -27,7 +27,7 @@ function Entity({ id, data, selected }) {
     {data.summary && data.kind === 'model' && selected && <button className="flip-model nodrag nopan" title="Flip connection sides" aria-label="Flip connection sides" aria-pressed={flipped} onClick={event => { event.stopPropagation(); setFlipped(value => !value); }}>⇄</button>}
     {data.summary && data.kind === 'model' && selected && <button className="flip-model rotate-model nodrag nopan" title="Rotate 90° clockwise" aria-label="Rotate 90 degrees clockwise" onClick={event => { event.stopPropagation(); setRotation(value => (value + 1) % 4); }}>↻</button>}
     <header>
-      {data.kind !== 'model' && <small>{data.kind === 'constraint' ? 'CONSTRAINT' : `${data.kind.toUpperCase()} STRUCT`}</small>}
+      {data.kind !== 'model' && <small>{data.kind === 'constraint' ? (data.equation?.derivative ? 'DERIVATIVE' : 'CONSTRAINT') : `${data.kind.toUpperCase()} STRUCT`}</small>}
       <div className="entity-heading">
         {data.kind === 'model' && modelIcons.has(data.child?.definition.id) && <img className="model-icon" style={data.summary ? { transform: `rotate(${rotation * 90}deg)` } : undefined} src={`${import.meta.env.BASE_URL}model-icons/${data.child.definition.id}.svg`} alt="" draggable={false}/>}
         <div><strong>{data.title}</strong>{data.subtitle && <span>{data.subtitle}</span>}</div>
@@ -48,12 +48,12 @@ function Entity({ id, data, selected }) {
       <button className="nodrag nopan" aria-expanded={!structsCollapsed} onClick={event => { event.stopPropagation(); setStructsCollapsed(!structsCollapsed); }}>{structsCollapsed ? '▸' : '▾'} Structs <span>{data.rows.length}</span></button>
       {structsCollapsed && data.rows.map(row => <React.Fragment key={row.name}>{hiddenPorts(row)}</React.Fragment>)}
     </div>}
-    {data.equation ? !data.summary && <div className="equation"><Port id="equation"/><code>{data.equation.lhs} = {data.equation.rhs}</code><small>Determines {data.equation.determines}</small></div> : !data.summary && !structsCollapsed && data.rows.map(row => <section key={row.name}>
+    {data.equation ? !data.summary && <div className="equation"><Port id="equation"/><code>{data.equation.lhs} = {data.equation.rhs}</code><small>Determines {data.equation.determines}</small>{Object.keys(data.equation.for_each ?? {}).length > 0 && <small>For each {Object.entries(data.equation.for_each).map(([index, domain]) => `${index} ∈ ${domain}`).join(', ')}</small>}</div> : !data.summary && !structsCollapsed && data.rows.map(row => <section key={row.name}>
       <div className="struct">
         {collapsedRows[row.name] ? hiddenPorts(row) : <Port id={row.name}/>}
         <button className="nodrag nopan" aria-expanded={!collapsedRows[row.name]} onClick={event => { event.stopPropagation(); setCollapsedRows(previous => ({ ...previous, [row.name]: !previous[row.name] })); }}>{collapsedRows[row.name] ? '▸' : '▾'} {row.name} <span>({Object.keys(row.variables).length})</span></button><small>{row.direction}</small>
       </div>
-      {!collapsedRows[row.name] && Object.entries(row.variables).map(([name, variable]) => <div className="variable" key={name} title={JSON.stringify(variable)}><Port id={`${row.name}.${name}`}/><span>{name}</span><code>{variable.unit ?? 'dimensionless'}</code></div>)}
+      {!collapsedRows[row.name] && Object.entries(row.variables).map(([name, variable]) => <div className="variable" key={name} title={JSON.stringify(variable)}><Port id={`${row.name}.${name}`}/><span>{variableLabel(name, variable)}</span><code>{variable.unit ?? 'dimensionless'}</code></div>)}
     </section>)}
   </article>;
 }
@@ -74,13 +74,15 @@ function App() {
       <label>Model library<select value={trail[0].definition.id} onChange={event => openRoot(event.target.value)}>{Object.keys(library).sort().map(id => <option key={id}>{id}</option>)}</select></label>
       <label>Relationship<select value={relationship ?? ''} onChange={event => { setChoices({ ...choices, [path]: event.target.value }); setSelection(null); }}>{Object.keys(current.definition.relationships).map(name => <option key={name}>{name}</option>)}</select></label>
       <p className="description">{current.definition.description}</p>
+      {Object.keys(current.definition.domains ?? {}).length > 0 && <div className="domain-info"><b>Index domains</b>{Object.entries(current.definition.domains).map(([name, domain]) => <div key={name}>{name} · {domain.kind}{current.domainBindings?.[name] && ` → parent.${current.domainBindings[name]}`}</div>)}<p>Indexed variables and equations are shown as families, without expanding time points or domain members.</p></div>}
       <div className="legend"><span>● Input struct</span><span>● Model</span><span>● Constraint</span><span>● Output struct</span></div>
       <p>Teal lines connect whole structs. Purple lines show equation references, pointing toward the variable declared by <code>determines</code>.</p>
       <p>Drag on empty space to box-select nodes, then drag a selected node to move the group. Pan with the middle or right mouse button. Ctrl/Cmd-click adds to the selection.</p>
       {graph.warnings.length > 0 && <div className="warnings">{graph.warnings.map(message => <p key={message}>{message}</p>)}</div>}
       {selection && <div className="details"><h3>{selection.title}</h3>
         {selection.child && !selection.child.unresolved && <button className="explore-button" onClick={() => explore(selection)}>Explore model →</button>}
-        {selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div key={name} title={JSON.stringify(variable)}><span>{name}</span><code>{variable.unit ?? 'dimensionless'}</code></div>)}</section>)}
+        {Object.keys(selection.domainBindings ?? {}).length > 0 && <pre>Domain bindings: {JSON.stringify(selection.domainBindings, null, 2)}</pre>}
+        {selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div key={name} title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><code>{variable.unit ?? 'dimensionless'}</code></div>)}</section>)}
       </div>}
       <footer>Read-only · JSON definitions<br/>{Object.keys(library).length} models in library</footer>
     </aside>

@@ -1,15 +1,19 @@
 import dagre from '@dagrejs/dagre';
 
+export const variableLabel = (name, variable) => variable.dimensions?.length ? `${name}[${variable.dimensions.join(', ')}]` : name;
+const family = reference => reference.replace(/\[[^\]]*\]/g, '').trim();
+
 export function resolveReference(reference, bindings, library) {
   if (reference.model_parameter) {
-    return bindings[reference.model_parameter] ?? {
+    const argument = bindings[reference.model_parameter];
+    return argument ? { ...argument, domainBindings: reference.domain_bindings ?? {} } : {
       definition: { id: `<${reference.model_parameter}>`, structs: {}, relationships: {} },
       bindings: {}, unresolved: true,
     };
   }
   const definition = library[reference.model];
   if (!definition) throw new Error(`Missing model definition: ${reference.model}`);
-  return { definition, bindings: Object.fromEntries(Object.entries(reference.model_arguments ?? {})
+  return { definition, domainBindings: reference.domain_bindings ?? {}, bindings: Object.fromEntries(Object.entries(reference.model_arguments ?? {})
     .map(([name, argument]) => [name, resolveReference(argument, bindings, library)])) };
 }
 
@@ -37,7 +41,7 @@ export function makeGraph(context, relationshipName, library, view = 'detailed')
     try {
       const child = resolveReference(ref, bindings, library);
       const structs = child.unresolved ? definition.model_parameters?.[ref.model_parameter]?.requires ?? {} : child.definition.structs;
-      addNode(`model:${alias}`, 'model', alias, structs, { child, subtitle: child.definition.id });
+      addNode(`model:${alias}`, 'model', alias, structs, { child, subtitle: child.definition.id, domains: child.definition.domains ?? {}, domainBindings: ref.domain_bindings ?? {} });
       if (child.unresolved) warnings.push(`${alias}: generic ${ref.model_parameter} is unbound. Open a concrete wrapper to resolve it.`);
     } catch (error) { warnings.push(error.message); addNode(`model:${alias}`, 'model', alias, {}, { subtitle: error.message }); }
   }
@@ -47,15 +51,22 @@ export function makeGraph(context, relationshipName, library, view = 'detailed')
       label, type: view === 'summary' ? 'smoothstep' : 'default', markerEnd: { type: 'arrowclosed', width: 24, height: 24, color: kind === 'connection' ? '#087f76' : '#8063ae' }, style: { stroke: kind === 'connection' ? '#0f9d92' : '#8b79bc', strokeWidth: 2.2 },
       data: { kind }, labelStyle: { fontSize: 10 }, labelBgStyle: { fill: '#fff' } });
   }
-  for (const [name, equation] of Object.entries(relationship.constraints ?? {})) {
+  const equations = { ...relationship.constraints };
+  for (const [name, derivative] of Object.entries(relationship.derivatives ?? {})) {
+    equations[`derivative:${name}`] = {
+      lhs: `d(${derivative.state})/d(${derivative.with_respect_to})`, rhs: derivative.rate,
+      determines: derivative.determines, derivative,
+    };
+  }
+  for (const [name, equation] of Object.entries(equations)) {
     const id = `constraint:${name}`;
-    addNode(id, 'constraint', name, {}, { equation, height: 132 });
-    const refs = new Set(`${equation.lhs} ${equation.rhs}`.match(/[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+/g) ?? []);
+    addNode(id, 'constraint', equation.derivative ? name.slice('derivative:'.length) : name, {}, { equation, height: 132 });
+    const refs = new Set(`${equation.lhs} ${equation.rhs}`.match(/[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+(?:\[[^\]]+\])?/g) ?? []);
     for (const ref of refs) {
       if (ref.startsWith('units.') && !ports.has(ref)) continue;
-      if (ref !== equation.determines) link(`${id}:${ref}`, ports.get(ref), { node: id, handle: 'equation' }, ref, 'dependency');
+      if (family(ref) !== family(equation.determines)) link(`${id}:${ref}`, ports.get(family(ref)), { node: id, handle: 'equation' }, ref, 'dependency');
     }
-    link(`${id}:determines`, { node: id, handle: 'equation' }, ports.get(equation.determines), equation.determines, 'determines');
+    link(`${id}:determines`, { node: id, handle: 'equation' }, ports.get(family(equation.determines)), equation.determines, 'determines');
   }
   for (const [name, connection] of Object.entries(relationship.connections ?? {}))
     link(`connection:${name}`, ports.get(connection.from), ports.get(connection.to), name, 'connection');

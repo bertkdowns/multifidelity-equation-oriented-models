@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { makeGraph, resolveReference } from './graph.js';
+import { makeGraph, resolveReference, variableLabel } from './graph.js';
 
 const directory = new URL('../../src/multifidelity/model_language/models/', import.meta.url);
 const library = Object.fromEntries(readdirSync(directory).filter(name => name.endsWith('.json')).map(name => {
@@ -13,7 +13,7 @@ test('every relationship renders all declarations and valid edge endpoints', () 
   for (const definition of Object.values(library)) {
     for (const [name, relationship] of Object.entries(definition.relationships)) {
       const graph = makeGraph({ definition, bindings: {} }, name, library);
-      assert.equal(graph.nodes.length, Object.keys(definition.structs).length + Object.keys(relationship.models ?? {}).length + Object.keys(relationship.constraints ?? {}).length);
+      assert.equal(graph.nodes.length, Object.keys(definition.structs).length + Object.keys(relationship.models ?? {}).length + Object.keys(relationship.constraints ?? {}).length + Object.keys(relationship.derivatives ?? {}).length);
       const ids = new Set(graph.nodes.map(node => node.id));
       for (const edge of graph.edges) {
         assert.ok(ids.has(edge.source)); assert.ok(ids.has(edge.target));
@@ -85,4 +85,31 @@ test('summary heat exchanger ports follow struct order even when connections are
     });
     assert.deepEqual(ordered, expected);
   }
+});
+
+test('dynamic tank connects indexed equations and both derivative relations without unresolved ports', () => {
+  for (const view of ['summary', 'detailed']) {
+    const graph = makeGraph({ definition: library.tank, bindings: {} }, 'mixed', library, view);
+    assert.deepEqual(graph.warnings, []);
+    const derivative = graph.nodes.find(node => node.id === 'constraint:derivative:level');
+    assert.equal(derivative.data.equation.derivative.with_respect_to, 'time');
+    const output = graph.edges.find(edge => edge.id === 'constraint:derivative:level:determines');
+    assert.equal(output.target, 'struct:inventory');
+    const balanceOutput = graph.edges.find(edge => edge.id === 'constraint:mass_balance:determines');
+    assert.equal(balanceOutput.target, 'struct:rates');
+    assert.equal(balanceOutput.label, 'rates.level[t]');
+    assert.ok(!graph.edges.some(edge => edge.source === 'struct:rates' && edge.target === 'constraint:mass_balance'));
+  }
+  assert.equal(variableLabel('flow', { dimensions: ['time', 'components'] }), 'flow[time, components]');
+  assert.equal(variableLabel('area', {}), 'area');
+});
+
+test('multi-index child references connect to families and preserve domain bindings on drill down', () => {
+  const variable = { dimensions: ['time', 'components'], unit: 'kg/s' };
+  const child = { id: 'indexed_child', domains: { time: { kind: 'time' }, components: { kind: 'discrete' } }, structs: { inlet: { direction: 'input', variables: { flow: variable } } }, relationships: {} };
+  const definition = { id: 'indexed_parent', structs: { feed: { direction: 'input', variables: { flow: variable } } }, relationships: { evaluate: { models: { pipe: { model: child.id, domain_bindings: { time: 'clock', components: 'species' } } }, constraints: { feed: { for_each: { t: 'clock', j: 'species' }, lhs: 'pipe.inlet.flow[t, j]', rhs: 'feed.flow[t, j]', determines: 'pipe.inlet.flow[t, j]' } } } } };
+  const graph = makeGraph({ definition, bindings: {} }, 'evaluate', { indexed_child: child });
+  assert.deepEqual(graph.warnings, []);
+  assert.equal(graph.edges.find(edge => edge.id === 'constraint:feed:determines').targetHandle, 'inlet.flow:in');
+  assert.deepEqual(graph.nodes.find(node => node.id === 'model:pipe').data.child.domainBindings, { time: 'clock', components: 'species' });
 });

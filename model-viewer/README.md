@@ -31,3 +31,13 @@ expanding restores their individual variable endpoints. These toggles do not ope
 the child model; click its model header to drill down.
 
 React Flow handles follow the [official handle API](https://reactflow.dev/learn/customization/handles).
+
+Indexed/dynamic definitions are displayed at variable-family level: `flow[time]`
+(or ordered multiple dimensions) appears on variable rows and in the sidebar.
+Equation links retain authored subscripts such as `[t, j]` but connect to the
+corresponding family port. Detailed equations display `for_each` loop bindings.
+Derivative declarations appear as constraint nodes labelled DERIVATIVE, connecting
+state/rate families according to their `determines` declaration. Their full
+metadata is available on click. The sidebar lists index domains and child-to-parent
+domain bindings when drilling down. The viewer does not expand numerical domain
+members, simulate trajectories, or choose steady/dynamic solver modes.
