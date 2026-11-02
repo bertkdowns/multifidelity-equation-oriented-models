@@ -7,7 +7,7 @@ from pathlib import Path
 import pint
 
 from .definitions import (
-    Model,
+    ModelDocument,
     ModelParameter,
     ModelReference,
     ParameterModelReference,
@@ -20,7 +20,7 @@ from .providers import Provider
 _UNITS = pint.UnitRegistry()
 
 
-def _check_interface(definition: Model, requirement: ModelParameter, path: str):
+def _check_interface(definition: ModelDocument, requirement: ModelParameter, path: str):
     for struct_id, expected in requirement.requires.items():
         actual = definition.structs.get(struct_id)
         if actual is None or actual.direction != expected.direction:
@@ -53,10 +53,10 @@ class Library:
 
     def __init__(self, directory=None):
         directory = Path(directory) if directory else Path(__file__).parent / "models"
-        self.models: dict[str, Model] = {}
+        self.models: dict[str, ModelDocument] = {}
         self._providers: dict[str, Provider] = {}
         for path in sorted(directory.glob("*.json")):
-            document = Model.model_validate_json(path.read_text())
+            document = ModelDocument.model_validate_json(path.read_text())
             if document.id in self.models:
                 raise ValueError(f"Duplicate model ID: {document.id}")
             self.models[document.id] = document
@@ -74,13 +74,13 @@ class Library:
         except KeyError:
             raise ValueError(f"Unknown provider: {name}") from None
 
-    def get(self, name: str) -> Model:
+    def get(self, name: str) -> ModelDocument:
         try:
             return self.models[name]
         except KeyError:
             raise ValueError(f"Unknown model: {name}") from None
 
-    def resolve(self, name: str) -> "ResolvedModel":
+    def resolve(self, name: str) -> "ModelView":
         """Open a concrete root; resolve descendants automatically as accessed.
 
         Each call creates a fresh navigation view. Treat definitions as unchanged
@@ -91,17 +91,17 @@ class Library:
             raise ValueError(
                 "Root generic models are not supported; use a concrete wrapper"
             )
-        return ResolvedModel(definition, {}, self, name)
+        return ModelView(definition, {}, self, name)
 
     def _reference(
         self, reference: ModelReference, parameters, path: str
-    ) -> "ResolvedModel":
+    ) -> "ModelView":
         if isinstance(reference, ParameterModelReference):
             name = reference.model_parameter
             if name not in parameters:
                 raise ValueError(f"{path}: unknown model parameter {name!r}")
             argument = parameters[name]
-            return ResolvedModel(
+            return ModelView(
                 argument.definition, argument.model_arguments, self, path,
                 dict(reference.domain_bindings),
             )
@@ -118,15 +118,15 @@ class Library:
             )
             _check_interface(argument.definition, requirement, f"{path}<{name}>")
             arguments[name] = argument
-        return ResolvedModel(definition, arguments, self, path, dict(reference.domain_bindings))
+        return ModelView(definition, arguments, self, path, dict(reference.domain_bindings))
 
 
 @dataclass(eq=False)
-class ResolvedModel:
+class ModelView:
     """A shared definition viewed in one generic-argument and reference context."""
 
-    definition: Model
-    model_arguments: dict[str, "ResolvedModel"]
+    definition: ModelDocument
+    model_arguments: dict[str, "ModelView"]
     _library: Library
     path: str
     domain_bindings: dict[str, str] = field(default_factory=dict)
@@ -140,19 +140,19 @@ class ResolvedModel:
         return self.definition.structs
 
     @cached_property
-    def relationships(self) -> dict[str, "ResolvedRelationship"]:
+    def relationships(self) -> dict[str, "RelationshipView"]:
         # Do not traverse descendants eagerly: alternatives can contain cycles
         # or references that are irrelevant to the selected implementation.
         return {
-            name: ResolvedRelationship(relationship, self)
+            name: RelationshipView(relationship, self)
             for name, relationship in self.definition.relationships.items()
         }
 
 
 @dataclass(eq=False)
-class ResolvedRelationship:
+class RelationshipView:
     definition: Relationship
-    _parent: ResolvedModel
+    _parent: ModelView
 
     @property
     def constraints(self):
@@ -167,7 +167,7 @@ class ResolvedRelationship:
         return self.definition.derivatives
 
     @cached_property
-    def models(self) -> dict[str, ResolvedModel]:
+    def models(self) -> dict[str, ModelView]:
         parent = self._parent
         children = {
             alias: parent._library._reference(

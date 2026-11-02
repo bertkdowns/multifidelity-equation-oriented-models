@@ -2,15 +2,15 @@
 
 import pytest
 
-from multifidelity.model_language.resolution import Library, ResolvedModel
-from multifidelity.model_language.definitions import ConcreteModelReference, Model
+from multifidelity.model_language.resolution import Library, ModelView
+from multifidelity.model_language.definitions import ConcreteModelReference, ModelDocument
 
 
 def test_generic_references_are_resolved_during_navigation():
     library = Library()
     root = library.resolve("water_property_pair")
     pair = root.relationships["evaluate"].models["states"]
-    assert isinstance(pair, ResolvedModel)
+    assert isinstance(pair, ModelView)
     assert pair.id == "property_pair"
     assert pair.model_arguments["FluidProperties"].id == "water_property_package"
     states = pair.relationships["evaluate"].models
@@ -29,7 +29,7 @@ def test_generic_references_are_resolved_during_navigation():
 
 def test_recursive_definitions_are_not_eagerly_unrolled():
     library = Library()
-    library.models["recursive"] = Model.model_validate(
+    library.models["recursive"] = ModelDocument.model_validate(
         {
             "id": "recursive",
             "structs": {},

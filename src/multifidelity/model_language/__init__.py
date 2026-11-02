@@ -1,8 +1,10 @@
 """Load declarative model definitions and build explicitly selected IDAES structures."""
 
-from .resolution import Library, ResolvedModel, ResolvedRelationship
+from .definitions import ModelDocument
+from .implementation import ImplementationDocument, ImplementationSelection
+from .resolution import Library, ModelView, RelationshipView
 from .requirements import required_inputs, print_required_inputs, required_initial_values
-from .information import InformationRecord, InformationTable, InformationType
+from .information import InformationRecord, InformationDocument, InformationType
 from .standard import register_standard_providers
 
 
@@ -17,11 +19,14 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
 
 __all__ = [
     "Library",
+    "ModelDocument",
+    "ImplementationDocument",
+    "ImplementationSelection",
     "InformationRecord",
-    "InformationTable",
+    "InformationDocument",
     "InformationType",
-    "ResolvedModel",
-    "ResolvedRelationship",
+    "ModelView",
+    "RelationshipView",
     "build_model",
     "required_inputs",
     "required_initial_values",

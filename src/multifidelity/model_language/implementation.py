@@ -18,7 +18,7 @@ class ImplementationSelection(Definition):
     submodels: dict[Name, "ImplementationSelection"] = Field(default_factory=dict)
 
 
-class Implementation(ImplementationSelection):
+class ImplementationDocument(ImplementationSelection):
     """Root of a selection tree; the root model must be identified explicitly.
 
     Parsing checks shape, not agreement with a model library. Existence of the

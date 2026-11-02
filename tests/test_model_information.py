@@ -5,7 +5,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from multifidelity.model_language.information import InformationRecord, InformationTable
+from multifidelity.model_language.information import InformationRecord, InformationDocument
 
 
 def record(record_id="measurement", **changes):
@@ -24,7 +24,7 @@ def record(record_id="measurement", **changes):
 def test_load_json_add_and_lookup(tmp_path):
     path = tmp_path / "information.json"
     path.write_text(json.dumps([record()]))
-    table = InformationTable.load_json(path)
+    table = InformationDocument.load_json(path)
     assert table.get("measurement").value == 323.15
     added = table.add(record("estimate", information_type="assumption", trust_rank=1))
     assert isinstance(added, InformationRecord)
@@ -33,7 +33,7 @@ def test_load_json_add_and_lookup(tmp_path):
 
 
 def test_candidates_keep_all_alternatives_and_order_by_trust_then_id():
-    table = InformationTable.from_json(
+    table = InformationDocument.from_json(
         json.dumps(
             [
                 record("z", trust_rank=9),
@@ -53,16 +53,16 @@ def test_candidates_keep_all_alternatives_and_order_by_trust_then_id():
 
 
 def test_duplicate_ids_rejected_without_overwriting():
-    table = InformationTable([record()])
+    table = InformationDocument([record()])
     with pytest.raises(ValueError, match="Duplicate"):
         table.add(record(value=999))
     assert table.get("measurement").value == 323.15
     with pytest.raises(ValueError, match="Duplicate"):
-        InformationTable.from_json(json.dumps([record(), record()]))
+        InformationDocument.from_json(json.dumps([record(), record()]))
 
 
 def test_unknown_record_and_storage_isolation():
-    table = InformationTable([record()])
+    table = InformationDocument([record()])
     table.records.clear()
     assert table.get("measurement").id == "measurement"
     with pytest.raises(ValidationError):
@@ -121,7 +121,7 @@ def test_missing_and_zero_uncertainty_are_distinct():
     ],
 )
 def test_invalid_records_are_rejected(changes):
-    table = InformationTable()
+    table = InformationDocument()
     with pytest.raises(ValidationError):
         table.add(record(**changes))
     assert table.records == []
@@ -130,7 +130,7 @@ def test_invalid_records_are_rejected(changes):
 @pytest.mark.parametrize("text", ["{}", '[{"id": "incomplete"}]', "not json"])
 def test_invalid_json_batches_fail(text):
     with pytest.raises(ValidationError):
-        InformationTable.from_json(text)
+        InformationDocument.from_json(text)
 
 
 def test_constant_is_default_and_round_trips():
@@ -170,7 +170,7 @@ def test_ndarray_and_nested_arrays_are_copied_and_immutable():
 
 def test_input_lists_do_not_expose_mutable_record_storage():
     source = [[1, 2], [3, 4]]
-    table = InformationTable([record(type='series', value=source)])
+    table = InformationDocument([record(type='series', value=source)])
     source[0][0] = 99
     assert table.get('measurement').value[0][0] == 1
 
@@ -193,14 +193,14 @@ def test_input_lists_do_not_expose_mutable_record_storage():
     {'type': 'series', 'value': [1, 2], 'standard_deviation': [0.1, 0.2]},
 ])
 def test_invalid_constant_and_series_records(changes):
-    table = InformationTable()
+    table = InformationDocument()
     with pytest.raises(ValidationError):
         table.add(record(**changes))
     assert table.records == []
 
 
 def test_constant_and_series_are_alternatives_for_the_same_family():
-    table = InformationTable.from_json(json.dumps([
+    table = InformationDocument.from_json(json.dumps([
         record('fallback', type='constant', trust_rank=1),
         record('trajectory', type='series', value=[303, 305, 310], trust_rank=9),
     ]))

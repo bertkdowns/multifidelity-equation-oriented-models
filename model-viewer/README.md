@@ -41,3 +41,5 @@ state/rate families according to their `determines` declaration. Their full
 metadata is available on click. The sidebar lists index domains and child-to-parent
 domain bindings when drilling down. The viewer does not expand numerical domain
 members, simulate trajectories, or choose steady/dynamic solver modes.
+
+See the [model-language glossary](../src/multifidelity/model_language/terminology.md) for the shared terminology.

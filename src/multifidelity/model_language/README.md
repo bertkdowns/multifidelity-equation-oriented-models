@@ -3,7 +3,7 @@
 This is a first construction-only implementation of the model language discussed
 for recursive multifidelity modelling. It builds a selected equation hierarchy
 inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constraints.
-It does not solve, set initial guesses, or construct full instance documents.
+It does not solve, set initial guesses, or apply specification documents.
 An optional `initial_values` argument fixes explicitly supplied initial entries;
 ordinary operating inputs remain free until specified by the caller.
 Here "build" means creating Python modelling objects, not numerical initialization.
@@ -54,16 +54,8 @@ below, including separate boundary variables joined by equations in composites.
 
 ## Vocabulary and ownership
 
-| Concept | Meaning and owner |
-| --- | --- |
-| Variable | Scalar mathematical quantity owned by exactly one struct |
-| Struct | Named collection of variables, owned by a model; entirely input or output |
-| Constraint | Equation, owned by a relationship; references existing variables |
-| Model | Reusable definition owning structs and alternative relationships |
-| Model reference | Named use of a reusable definition, owned by a relationship |
-| Relationship | Alternative formulation owning model references and constraints |
-| Implementation | One relationship selection per model occurrence, recursively |
-| Instance | An implementation plus variable specifications; deferred |
+The authoritative [model-language glossary](terminology.md) defines all document,
+implementation, information, specification and numerical-instance terms.
 
 Models are reusable types. Two references to `heat_exchanger` do not copy its JSON
 definition, but construction creates distinct variables for each occurrence.
@@ -88,17 +80,17 @@ be parsed and navigated without constructing solver objects:
 
 ```python
 from pathlib import Path
-from multifidelity.model_language.definitions import Model
+from multifidelity.model_language.definitions import ModelDocument
 
-model = Model.model_validate_json(Path("my_model.json").read_text())
+model = ModelDocument.model_validate_json(Path("my_model.json").read_text())
 model.structs["inlet"].variables["pressure"].unit
 model.relationships["basic"].models
 ```
 
 `Library` loads every JSON document into these types. Both `library.models["valve"]`
-and `library.get("valve")` return a `Model`, and the builder consumes its typed
+and `library.get("valve")` return a `ModelDocument`, and the builder consumes its typed
 structs, relationships and reference variants directly. Definition documents retain model IDs and generic references for serialization.
-Resolved navigation is supplied separately by `resolution.py`; it does not unroll
+Model-view navigation is supplied separately by `resolution.py`; it does not unroll
 a tree or select implementations.
 
 Document-shape validation rejects unknown fields, invalid component names,
@@ -106,15 +98,15 @@ missing required fields, unsupported variable types, invalid directions and
 ambiguous reference kinds at load time, including in unselected alternatives.
 Scope, generic interface compatibility, dimensions supported by the backend,
 equation units and determination checks remain in the builder and apply to the
-selected implementation. Implementation selections remain dictionaries for now.
+selected implementation. Implementation documents have typed selection classes, described below.
 Serialize definitions with `model_dump(by_alias=True)` or
 `model_dump_json(by_alias=True)` to preserve JSON names (`Connection.from_` in
 Python is `from` in JSON). Instance types remain deferred; implementation types are described below.
 
-## Resolved definition navigation
+## Model-view navigation
 
 `resolution.py` owns library loading, model-reference resolution and generic
-interface checks. `builder.py` consumes these same resolved views when constructing
+interface checks. `builder.py` consumes these same model views when constructing
 Pyomo objects; it no longer contains its own generic resolver.
 
 ```python
@@ -128,9 +120,9 @@ inlet.id  # "water_property_package"
 inlet.structs["state"].variables["pressure"].unit  # "Pa"
 ```
 
-`ResolvedModel.definition` is the shared typed JSON definition. Its `structs` and
+`ModelView.definition` is the shared typed JSON definition. Its `structs` and
 its relationships' `constraints`/`connections` expose those same definition objects.
-The resolved `models` collection maps local aliases directly to resolved model
+The `models` collection maps local aliases directly to model
 views; each carries the generic arguments and path for its own reference context.
 There is no per-reference `resolve()` call and no solver construction involved.
 
@@ -140,8 +132,8 @@ alternatives from forcing unrelated references to resolve. Errors in references
 or generic interfaces surface when the corresponding children are accessed.
 The builder accesses only its selected relationship at each level.
 
-Treat definitions as unchanged while using a resolved view. After editing the
-library, call `library.resolve(...)` again to obtain a fresh view. Resolved views
+Treat definitions as unchanged while using a model view. After editing the
+library, call `library.resolve(...)` again to obtain a fresh view. Model views
 are navigation objects, not simulation instances: repeated references share their
 definition, while the backend still creates distinct solver variables per occurrence.
 
@@ -417,7 +409,7 @@ relation determines. Families with other dimensions need a starting profile.
 It describes specification requirements, not DAE index or numerical solvability.
 
 Initial values belong to instance data, not model definitions or implementation
-selections. Full instance documents remain deferred; pass their initial-value
+selections. Specification documents remain deferred; pass the initial-value
 list to the builder explicitly:
 
 ```python
@@ -615,28 +607,26 @@ is no coefficient struct or coefficient plumbing on the pair.
 
 ## Implementations and construction
 
-`implementation.py` defines the Pydantic `Implementation` root and recursive
+`implementation.py` defines the Pydantic `ImplementationDocument` root and recursive
 `ImplementationSelection` type. Every node requires an explicit `relationship`;
 `submodels` maps local child reference names to further selections. The root
 requires `model`, while nested model IDs may be omitted because references already
 determine them. Leaves have an empty `submodels` map by default.
 
 ```python
-from multifidelity.model_language.implementation import Implementation
+from multifidelity.model_language.implementation import ImplementationDocument
 
-implementation = Implementation.model_validate_json(implementation_json)
+implementation = ImplementationDocument.model_validate_json(implementation_json)
 implementation.submodels["states"].submodels["inlet"].relationship
 ```
 
 These types check document shape only. They do not resolve references, check that
 all children of a selected relationship are present, choose relationships
 implicitly, or specify numerical values. Instance types remain deferred. The
-builder still accepts the existing dictionary/JSON format; use
-`implementation.model_dump(exclude_none=True)` to pass a typed selection to it
-until direct integration is added.
+builder accepts an `ImplementationDocument`, a dictionary, or a JSON file path.
 
 
-An implementation identifies the root model and chooses its relationship:
+An implementation document identifies the root model and chooses its relationship:
 
 ```json
 {
@@ -811,7 +801,7 @@ The same listing is available from the command line:
 ```
 
 It prints entries such as `states.inlet_state.pressure [Pa]`, one variable per
-line. Both methods accept a typed `Implementation`, a dictionary, or a JSON file
+line. Both methods accept a typed `ImplementationDocument`, a dictionary, or a JSON file
 path, and an optional `library`. `print_required_inputs` accepts `file` for writing
 to a stream. Paths use local model-reference aliases and omit the root model ID.
 
@@ -1110,7 +1100,7 @@ uncertainty retained in the audit trail. Fallback estimates used to close the
 model are fixed assumptions, distinct from solver initial guesses.
 
 See the [trust-ranked DM specification algorithm and separate experiment outlines](../../../research-ideas/information-directed-specification.md)
-for structural candidate selection, auditable specification plans, and future
+for structural candidate selection, auditable specification documents, and future
 noise/conditioning studies. This algorithm is proposed, not yet implemented.
 Series use the numerical grid's index order. They do not carry separate timestamps,
 per-point selectors, or interpolation rules. Instance application remains separate.
@@ -1169,11 +1159,11 @@ discretized tank inlet without changing any model values.
 ### Information-table interface
 
 ```python
-from multifidelity.model_language import InformationRecord, InformationTable
+from multifidelity.model_language import InformationRecord, InformationDocument
 
 # JSON files contain an array of records, as above.
-table = InformationTable.load_json("information.json")
-# Or parse JSON text directly: InformationTable.from_json(json_text).
+table = InformationDocument.load_json("information.json")
+# Or parse JSON text directly: InformationDocument.from_json(json_text).
 
 table.add(InformationRecord(
     id="sink_temperature_assumption",
@@ -1271,7 +1261,7 @@ or prerequisites for the initial bounded experiments.
 
 - Continuous spatial domains and derivatives; automatic backend discretization
   configuration (time dynamics can use Pyomo's existing transformations).
-- Default values, instance documents, fixed/free specifications and initial guesses.
+- Default values, specification documents, fixed/free specifications and initial guesses.
 - Replacing input specifications with selected output specifications.
 - Detailed thermodynamics, component mixtures, shared material data, configurable
   equipment property dependencies, validated detailed equations and calibration.

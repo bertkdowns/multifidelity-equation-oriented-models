@@ -14,7 +14,8 @@ from pyomo.core.base.var import VarData
 from pyomo.environ import Block, ConcreteModel, Constraint, ConstraintList, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
-from .resolution import Library, ResolvedModel
+from .implementation import ImplementationDocument
+from .resolution import Library, ModelView
 from .requirements import connection_endpoints, determination_sources
 from .domains import BuildDomains
 from .dynamics import apply_initial_values, build_derivatives
@@ -120,7 +121,7 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                 mode="steady", time_unit="s", initial_values=None):
     """Construct a steady or dynamic tree without solving or fixing operating inputs.
 
-    implementation is a dict or JSON file path. Every selected relationship must
+    implementation is an ImplementationDocument, dict or JSON file path. Every selected relationship must
     specify exactly its declared submodels, recursively. Recursive definitions
     are permitted only when the supplied selection terminates. Optional initial
     specifications fix only entries at the first time point in dynamic mode.
@@ -128,6 +129,8 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     library = library or Library()
     if isinstance(implementation, (str, Path)):
         implementation = json.loads(Path(implementation).read_text())
+    if isinstance(implementation, ImplementationDocument):
+        implementation = implementation.model_dump(exclude_none=True)
     if implementation.get("model") != model_id:
         raise ValueError("Root implementation must identify the requested model")
     root = library.resolve(model_id)
@@ -160,7 +163,7 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                 pending.extend(graph.get(current, ()))
         return False
 
-    def populate(block, resolved: ResolvedModel, selection, parent_domains=None):
+    def populate(block, resolved: ModelView, selection, parent_domains=None):
         """Build one occurrence and return only its public variable references.
 
         Each call creates fresh components, even when several occurrences share

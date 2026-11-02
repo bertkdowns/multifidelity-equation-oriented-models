@@ -177,7 +177,7 @@ inputs = required_inputs("liquid_density", selection, library=library)
 ```
 
 `Library()` without a directory loads the bundled JSON library. The existing
-`library.models` dictionary can also hold additional typed `Model` definitions.
+`library.models` dictionary can also hold additional typed `ModelDocument` definitions.
 
 Registration belongs to that library instance. Duplicate provider names are
 rejected. Only providers selected for construction need to be registered: loading

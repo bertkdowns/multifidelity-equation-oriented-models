@@ -15,7 +15,7 @@ from examples.dynamic_tank.run import fix_inputs, make_tank, simulate
 from multifidelity.model_language import (
     Library, build_model, required_initial_values, required_inputs,
 )
-from multifidelity.model_language.definitions import Model
+from multifidelity.model_language.definitions import ModelDocument
 
 TANK_SELECTION = {"model": "tank", "relationship": "mixed"}
 
@@ -289,7 +289,7 @@ def test_initial_values_are_optional_during_construction_and_overlap_is_rejected
 
 def test_bundled_tank_round_trips():
     tank = Library().get('tank')
-    assert Model.model_validate_json(tank.model_dump_json(by_alias=True)) == tank
+    assert ModelDocument.model_validate_json(tank.model_dump_json(by_alias=True)) == tank
 
 
 def test_initial_profiles_with_time_as_second_axis(tmp_path, solver):

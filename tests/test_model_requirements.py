@@ -6,14 +6,14 @@ import pytest
 
 from multifidelity.model_language import Library, required_inputs, print_required_inputs
 from multifidelity.model_language.definitions import Constraint, Connection
-from multifidelity.model_language.implementation import Implementation
+from multifidelity.model_language.implementation import ImplementationDocument
 
 
 EXAMPLES = Path(__file__).parents[1] / "examples/model_language"
 
 
 def test_leaf_requires_all_inputs_and_no_outputs(capsys):
-    selection = Implementation(model="valve", relationship="isenthalpic")
+    selection = ImplementationDocument(model="valve", relationship="isenthalpic")
     required = required_inputs("valve", selection)
     assert set(required) == {
         "inlet.flow",
@@ -119,7 +119,7 @@ def test_only_selected_relationships_are_traversed():
     ],
 )
 def test_invalid_implementations_do_not_produce_incomplete_lists(change):
-    selection = Implementation.model_validate_json(
+    selection = ImplementationDocument.model_validate_json(
         (EXAMPLES / "water_property_pair_evaluate.json").read_text()
     )
     if change == "missing_child":

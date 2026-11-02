@@ -149,3 +149,5 @@ construction of an IDAES/Pyomo equation hierarchy without solving. Bundled
 examples cover the heat pump, SGHP source loop, full SGHP topology, and milk
 evaporator. Their simplified equations are construction examples, not numerical
 replacements for the existing case studies.
+
+The JSON model-language vocabulary is defined in the [model-language glossary](src/multifidelity/model_language/terminology.md).

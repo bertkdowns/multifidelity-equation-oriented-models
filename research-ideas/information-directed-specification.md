@@ -6,6 +6,9 @@ specification and information-gated refinement directions in
 [the research questions](algorithms-and-hierarchies.md). The data conventions are
 recorded in the [model-language README](../src/multifidelity/model_language/README.md#information-model).
 
+Terminology follows the [model-language glossary](../src/multifidelity/model_language/terminology.md).
+A specification plan is the content of a specification document, not another type.
+
 ## Two independently testable research problems
 
 1. **Specification at a fixed implementation:** Given selected relationships,
@@ -18,7 +21,7 @@ recorded in the [model-language README](../src/multifidelity/model_language/READ
    specification policy to assess candidate implementations so that changes in
    selection behavior are not confounded with changes in instance construction.
 
-A selected implementation determines which equations exist. A specification plan
+A selected implementation determines which equations exist. A specification document
 chooses how to use information to specify those equations. The two decisions
 interact, but neither algorithm's effectiveness should be inferred from the
 other's results. Initialization algorithms remain a separate, deferred study.
@@ -77,7 +80,7 @@ quantity-of-interest specification. No fidelity changes occur within this algori
    specifications make them determined. Do not fix every variable from the initial
    underconstrained set.
 6. Stop when no structural deficiency remains, or no applicable candidate can
-   reduce it. Return a complete or incomplete specification plan. In the latter
+   reduce it. Return a complete or incomplete specification document. In the latter
    case, list unresolved regions and missing eligible information, rather than
    inventing values or fixing the prediction target.
 7. For structurally complete plans, attempt a numerical solve using a common,
@@ -105,7 +108,7 @@ feasibility, uniqueness or physical adequacy.
 DM references: [Pyomo decomposition documentation](https://pyomo.readthedocs.io/en/6.9.3/api/pyomo.contrib.incidence_analysis.dulmage_mendelsohn.dulmage_mendelsohn.html)
 and [IDAES structural-singularity example](https://idaes-examples.readthedocs.io/en/2.6.0/docs/diagnostics/structural_singularity_doc.html).
 
-## Auditable specification plan
+## Auditable specification document
 
 The result should record:
 

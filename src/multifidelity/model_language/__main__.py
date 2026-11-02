@@ -8,8 +8,8 @@ from . import Library, build_model, print_required_inputs, register_standard_pro
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("model", help="Root model ID")
-    parser.add_argument("implementation", help="Explicit recursive implementation JSON")
-    parser.add_argument("--library", help="Directory containing model JSON files")
+    parser.add_argument("implementation", help="Implementation document with explicit recursive relationship choices")
+    parser.add_argument("--library", help="Directory containing model documents")
     parser.add_argument(
         "--standard-providers",
         action="store_true",

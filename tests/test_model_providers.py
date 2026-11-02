@@ -10,7 +10,7 @@ from pyomo.util.check_units import assert_units_consistent
 
 from examples.custom_models.build import HERE, build_pump, make_library
 from multifidelity.model_language import Library, build_model, required_inputs
-from multifidelity.model_language.definitions import Model, Relationship
+from multifidelity.model_language.definitions import ModelDocument, Relationship
 
 
 def selection():
@@ -59,7 +59,7 @@ def test_inspection_requires_no_registered_provider_and_json_alternative_still_b
 
 def test_repeated_occurrences_get_fresh_blocks_and_config():
     library = Library(HERE / "models")
-    library.models["pair"] = Model.model_validate(
+    library.models["pair"] = ModelDocument.model_validate(
         {
             "id": "pair",
             "domains": {"time": {"kind": "time"}},
@@ -109,7 +109,7 @@ def test_repeated_occurrences_get_fresh_blocks_and_config():
 
 def test_declared_dependencies_support_parent_inverse_determination():
     library = make_library()
-    library.models["inverse"] = Model.model_validate(
+    library.models["inverse"] = ModelDocument.model_validate(
         {
             "id": "inverse",
             "domains": {"time": {"kind": "time"}},
@@ -200,9 +200,9 @@ def test_external_and_json_composition_are_exclusive(field, contents):
 
 
 def test_external_definitions_round_trip_and_default_config():
-    model = Model.model_validate_json((HERE / "models/pump_core.json").read_text())
+    model = ModelDocument.model_validate_json((HERE / "models/pump_core.json").read_text())
     assert model.relationships["python"].external.config == {}
-    assert Model.model_validate(model.model_dump(by_alias=True)) == model
+    assert ModelDocument.model_validate(model.model_dump(by_alias=True)) == model
 
 
 @pytest.mark.parametrize(

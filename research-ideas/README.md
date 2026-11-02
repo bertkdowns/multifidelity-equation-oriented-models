@@ -33,7 +33,7 @@ The [information-directed specification and selection plan](information-directed
 separates two testable problems: choosing specifications for an already selected
 implementation using trust-ranked information and DM structure, and choosing
 fidelity using a fixed specification policy. It records independent experiment
-outlines, auditable specification plans, and future noisy-data and Jacobian-based
+outlines, auditable specification documents, and future noisy-data and Jacobian-based
 specification-replacement studies.
 
 This is an academic research project investigating multi-fidelity process

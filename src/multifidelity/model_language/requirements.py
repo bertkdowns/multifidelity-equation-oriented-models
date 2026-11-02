@@ -5,17 +5,17 @@ from typing import TextIO
 import sys
 
 from .definitions import Connection, Struct, Variable
-from .implementation import Implementation
+from .implementation import ImplementationDocument
 from .indexing import (
     derivative_variables, equation_target, target_reference, validate_domains,
     variable_dimensions,
 )
-from .resolution import Library, ResolvedModel, ResolvedRelationship
+from .resolution import Library, ModelView, RelationshipView
 
 
 def connection_endpoints(
-    model: ResolvedModel,
-    relationship: ResolvedRelationship,
+    model: ModelView,
+    relationship: RelationshipView,
     connection: Connection,
     path: str,
 ) -> tuple[tuple[Struct, str, bool], tuple[Struct, str, bool]]:
@@ -47,7 +47,7 @@ def connection_endpoints(
     return source, target
 
 
-def determination_sources(model: ResolvedModel, relationship_id: str) -> dict[str, str]:
+def determination_sources(model: ModelView, relationship_id: str) -> dict[str, str]:
     """Share coverage/duplicate checks between input discovery and the backend.
 
     This checks declarations, not mathematical determinacy or equation syntax.
@@ -141,11 +141,11 @@ def determination_sources(model: ResolvedModel, relationship_id: str) -> dict[st
 def _selected_occurrences(model_id, implementation, library):
     """Validate selections once for both kinds of specification discovery."""
     if isinstance(implementation, (str, Path)):
-        implementation = Implementation.model_validate_json(
+        implementation = ImplementationDocument.model_validate_json(
             Path(implementation).read_text()
         )
-    elif not isinstance(implementation, Implementation):
-        implementation = Implementation.model_validate(implementation)
+    elif not isinstance(implementation, ImplementationDocument):
+        implementation = ImplementationDocument.model_validate(implementation)
     if implementation.model != model_id:
         raise ValueError("Root implementation must identify the requested model")
     library = library or Library()
@@ -175,7 +175,7 @@ def _selected_occurrences(model_id, implementation, library):
 
 def required_inputs(
     model_id: str,
-    implementation: Implementation | dict | str | Path,
+    implementation: ImplementationDocument | dict | str | Path,
     *,
     library: Library | None = None,
 ) -> dict[str, Variable]:
@@ -197,7 +197,7 @@ def required_inputs(
 
 def required_initial_values(
     model_id: str,
-    implementation: Implementation | dict | str | Path,
+    implementation: ImplementationDocument | dict | str | Path,
     *,
     library: Library | None = None,
 ) -> dict[str, Variable]:

@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from multifidelity.model_language.definitions import Connection, Model, Relationship
+from multifidelity.model_language.definitions import Connection, ModelDocument, Relationship
 
 
 MODELS = Path(__file__).parents[1] / "src/multifidelity/model_language/models"
@@ -13,13 +13,13 @@ MODELS = Path(__file__).parents[1] / "src/multifidelity/model_language/models"
 
 @pytest.mark.parametrize("path", sorted(MODELS.glob("*.json")), ids=lambda p: p.stem)
 def test_bundled_definitions_parse_and_round_trip(path):
-    model = Model.model_validate_json(path.read_text())
-    assert Model.model_validate(model.model_dump(by_alias=True)) == model
+    model = ModelDocument.model_validate_json(path.read_text())
+    assert ModelDocument.model_validate(model.model_dump(by_alias=True)) == model
     assert model.id == path.stem
 
 
 def test_definition_navigation_preserves_generic_references():
-    model = Model.model_validate_json((MODELS / "property_pair.json").read_text())
+    model = ModelDocument.model_validate_json((MODELS / "property_pair.json").read_text())
     assert model.structs["inlet_state"].variables["pressure"].unit == "Pa"
     assert (
         model.relationships["evaluate"].models["inlet"].model_parameter

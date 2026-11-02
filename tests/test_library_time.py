@@ -114,8 +114,8 @@ def test_dynamic_map_drives_energy_accumulator(tmp_path, solver):
         }},
     }
     library = Library()
-    from multifidelity.model_language.definitions import Model
-    library.models['meter'] = Model.model_validate(definition)
+    from multifidelity.model_language.definitions import ModelDocument
+    library.models['meter'] = ModelDocument.model_validate(definition)
     register_standard_providers(library)
     m = build_model('meter', {'model': 'meter', 'relationship': 'metered',
                               'submodels': {'map': {'relationship': 'cooling_60rps'}}},

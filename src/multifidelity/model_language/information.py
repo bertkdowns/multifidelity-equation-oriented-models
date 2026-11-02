@@ -129,8 +129,8 @@ class InformationRecord(BaseModel):
 _RECORDS = TypeAdapter(list[InformationRecord])
 
 
-class InformationTable:
-    """Records for one operating case, preserving alternatives for each variable.
+class InformationDocument:
+    """An information document containing the information table for one operating case.
 
     Paths and units remain declarations here. The specification algorithm checks
     applicability to a selected model; this table never fixes or combines values.
@@ -142,12 +142,12 @@ class InformationTable:
             self.add(record)
 
     @classmethod
-    def from_json(cls, text: str | bytes) -> "InformationTable":
+    def from_json(cls, text: str | bytes) -> "InformationDocument":
         """Create a table from a JSON array, rejecting invalid or duplicate records."""
         return cls(_RECORDS.validate_json(text))
 
     @classmethod
-    def load_json(cls, path: str | Path) -> "InformationTable":
+    def load_json(cls, path: str | Path) -> "InformationDocument":
         """Load a JSON array of records from a UTF-8 file."""
         return cls.from_json(Path(path).read_text(encoding="utf-8"))
 

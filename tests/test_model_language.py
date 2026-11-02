@@ -7,7 +7,7 @@ from pyomo.core.base.units_container import UnitsError
 from pyomo.util.check_units import assert_units_consistent
 from multifidelity.model_language import Library, build_model
 from multifidelity.model_language.definitions import (
-    Model,
+    ModelDocument,
     Constraint,
     ConcreteModelReference,
     ParameterModelReference,
@@ -499,7 +499,7 @@ def test_generic_property_arguments_create_distinct_state_occurrences():
 
 def test_model_parameter_forwarding():
     library = Library()
-    library.models["forwarder"] = Model.model_validate(
+    library.models["forwarder"] = ModelDocument.model_validate(
         {
             "id": "forwarder",
             "domains": {"time": {"kind": "time"}},
@@ -667,7 +667,7 @@ def test_library_validates_document_shape_before_building(tmp_path, change):
 
 def test_library_exposes_typed_definitions():
     library = Library()
-    assert isinstance(library.get("water_state"), Model)
+    assert isinstance(library.get("water_state"), ModelDocument)
     assert (
         library.models["water_state"].structs["state"].variables["pressure"].unit
         == "Pa"

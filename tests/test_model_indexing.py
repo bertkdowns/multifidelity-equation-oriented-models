@@ -9,7 +9,7 @@ from pyomo.environ import value
 from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import Library, build_model, required_inputs
-from multifidelity.model_language.definitions import Model
+from multifidelity.model_language.definitions import ModelDocument
 
 
 def pipe_definition():
@@ -68,8 +68,8 @@ def test_time_indexed_pipe_and_required_input_family(tmp_path):
         "inlet.flow"
     ].dimensions == ["time"]
     assert list(build_pipe(tmp_path).fs.time) == [0]
-    parsed = Model.model_validate(definition)
-    assert Model.model_validate_json(parsed.model_dump_json(by_alias=True)) == parsed
+    parsed = ModelDocument.model_validate(definition)
+    assert ModelDocument.model_validate_json(parsed.model_dump_json(by_alias=True)) == parsed
 
 
 def test_two_dimensions_with_scalar_parameter_and_named_members(tmp_path):
@@ -223,7 +223,7 @@ def test_duplicate_dimensions_rejected():
     definition = pipe_definition()
     definition["structs"]["inlet"]["variables"]["flow"]["dimensions"] = ["time", "time"]
     with pytest.raises(ValidationError, match="distinct"):
-        Model.model_validate(definition)
+        ModelDocument.model_validate(definition)
 
 
 def test_local_discrete_domains_are_owned_by_each_occurrence(tmp_path):

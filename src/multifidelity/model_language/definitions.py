@@ -1,6 +1,6 @@
 """Typed definition documents, independent of reference resolution and Pyomo.
 
-These types mirror the JSON vocabulary. Model references retain IDs rather than
+These types mirror the JSON vocabulary. ModelDocument references retain IDs rather than
 expanding reusable definitions into a tree. Parsing checks document shape; the
 builder still owns scope, interface, determination and equation validation.
 """
@@ -135,7 +135,7 @@ class Relationship(Definition):
         return self
 
 
-class Model(Definition):
+class ModelDocument(Definition):
     id: str
     description: str | None = None
     domains: dict[Name, Domain] = Field(default_factory=dict)
@@ -146,4 +146,4 @@ class Model(Definition):
 
 ConcreteModelReference.model_rebuild()
 Relationship.model_rebuild()
-Model.model_rebuild()
+ModelDocument.model_rebuild()
