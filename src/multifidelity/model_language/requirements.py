@@ -5,8 +5,11 @@ from typing import TextIO
 import sys
 
 from .definitions import Connection, Struct, Variable
-from .implementation import Implementation, ImplementationSelection
-from .indexing import equation_target, target_reference, validate_domains, variable_dimensions
+from .implementation import Implementation
+from .indexing import (
+    derivative_variables, equation_target, target_reference, validate_domains,
+    variable_dimensions,
+)
 from .resolution import Library, ResolvedModel, ResolvedRelationship
 
 
@@ -105,6 +108,14 @@ def determination_sources(model: ResolvedModel, relationship_id: str) -> dict[st
         target, _ = target_reference(equation.determines)
         register(target, f"constraint {name}")
         equation_target(model, relationship, equation)
+    derivative_states = set()
+    for name, derivative in relationship.derivatives.items():
+        derivative_variables(model, derivative)
+        key = (derivative.state, derivative.with_respect_to)
+        if key in derivative_states:
+            raise ValueError(f"{path}: duplicate derivative of {derivative.state!r}")
+        derivative_states.add(key)
+        register(derivative.determines, f"derivative {name}")
     for name, connection in relationship.connections.items():
         _, target = connection_endpoints(
             model, relationship, connection, f"{path}.{name}"
@@ -119,19 +130,8 @@ def determination_sources(model: ResolvedModel, relationship_id: str) -> dict[st
     return sources
 
 
-def required_inputs(
-    model_id: str,
-    implementation: Implementation | dict | str | Path,
-    *,
-    library: Library | None = None,
-) -> dict[str, Variable]:
-    """Return required input families, retaining their dimensions, by variable path.
-
-    Accept a typed implementation, dictionary, or JSON file path. Inputs supplied
-    by the containing relationship are excluded; descendants are visited only
-    through explicit selections. No values, solver variables or equations are
-    created. Results describe declaration coverage, not solvability.
-    """
+def _selected_occurrences(model_id, implementation, library):
+    """Validate selections once for both kinds of specification discovery."""
     if isinstance(implementation, (str, Path)):
         implementation = Implementation.model_validate_json(
             Path(implementation).read_text()
@@ -141,46 +141,70 @@ def required_inputs(
     if implementation.model != model_id:
         raise ValueError("Root implementation must identify the requested model")
     library = library or Library()
-    required: dict[str, Variable] = {}
 
-    def visit(
-        model: ResolvedModel,
-        selection: ImplementationSelection,
-        prefix: str,
-        supplied: set[str],
-    ):
+    def visit(model, selection, prefix, supplied):
         if selection.model is not None and selection.model != model.id:
-            raise ValueError(
-                f"{model.path}: implementation model does not match reference"
-            )
+            raise ValueError(f"{model.path}: implementation model does not match reference")
         if selection.relationship not in model.relationships:
-            raise ValueError(
-                f"{model.path}: unknown relationship {selection.relationship!r}"
-            )
+            raise ValueError(f"{model.path}: unknown relationship {selection.relationship!r}")
         relationship = model.relationships[selection.relationship]
         if set(selection.submodels) != set(relationship.models):
-            raise ValueError(
-                f"{model.path}: submodels must be exactly {sorted(relationship.models)}"
-            )
+            raise ValueError(f"{model.path}: submodels must be exactly {sorted(relationship.models)}")
         sources = determination_sources(model, selection.relationship)
+        yield model, relationship, prefix, supplied
+        for alias, child in relationship.models.items():
+            child_prefix = alias + "."
+            child_supplied = {
+                target[len(child_prefix):] for target in sources
+                if target.startswith(child_prefix)
+            }
+            yield from visit(
+                child, selection.submodels[alias], prefix + child_prefix, child_supplied
+            )
+
+    yield from visit(library.resolve(model_id), implementation, "", set())
+
+
+def required_inputs(
+    model_id: str,
+    implementation: Implementation | dict | str | Path,
+    *,
+    library: Library | None = None,
+) -> dict[str, Variable]:
+    """Return required input families, retaining dimensions, by root-relative path.
+
+    No values, solver variables or equations are created. Results describe
+    declaration coverage, not solvability or initial-state requirements.
+    """
+    required = {}
+    for model, _, prefix, supplied in _selected_occurrences(model_id, implementation, library):
         for struct_id, struct in model.structs.items():
             if struct.direction == "input":
                 for name, variable in struct.variables.items():
                     local = f"{struct_id}.{name}"
                     if local not in supplied:
                         required[prefix + local] = variable
-        for alias, child in relationship.models.items():
-            child_prefix = alias + "."
-            child_supplied = {
-                target[len(child_prefix) :]
-                for target in sources
-                if target.startswith(child_prefix)
-            }
-            visit(
-                child, selection.submodels[alias], prefix + child_prefix, child_supplied
-            )
+    return dict(sorted(required.items()))
 
-    visit(library.resolve(model_id), implementation, "", set())
+
+def required_initial_values(
+    model_id: str,
+    implementation: Implementation | dict | str | Path,
+    *,
+    library: Library | None = None,
+) -> dict[str, Variable]:
+    """Default dynamic initial specifications: the output of each derivative.
+
+    A family with other indices needs a starting profile. This is the authoring
+    convention, not proof that all specifications are independent in a DAE.
+    """
+    required = {}
+    for model, relationship, prefix, _ in _selected_occurrences(model_id, implementation, library):
+        for derivative in relationship.derivatives.values():
+            state, rate = derivative_variables(model, derivative)
+            required[prefix + derivative.determines] = (
+                state if derivative.determines == derivative.state else rate
+            )
     return dict(sorted(required.items()))
 
 

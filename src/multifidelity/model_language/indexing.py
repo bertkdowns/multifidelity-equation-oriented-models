@@ -71,3 +71,30 @@ def equation_target(model, relationship, equation):
             f"{model.path}: determines {equation.determines!r} must cover exactly its dimensions"
         )
     return target
+
+
+def derivative_variables(model, derivative):
+    """Validate local endpoints without constructing any solver objects."""
+    endpoints = []
+    for reference in (derivative.state, derivative.rate):
+        parts = reference.split(".")
+        if len(parts) != 2:
+            raise ValueError(f"{model.path}: derivative endpoints must be local variable paths")
+        try:
+            endpoints.append(model.structs[parts[0]].variables[parts[1]])
+        except KeyError:
+            raise ValueError(f"{model.path}: unknown derivative variable {reference!r}") from None
+    state, rate = endpoints
+    domain = model.definition.domains.get(derivative.with_respect_to)
+    if (
+        domain is None or domain.kind != "time"
+        or derivative.with_respect_to not in state.dimensions
+    ):
+        raise ValueError(f"{model.path}: derivatives require an indexed time domain")
+    if state.dimensions != rate.dimensions:
+        raise ValueError(f"{model.path}: derivative state and rate dimensions must match")
+    if derivative.state == derivative.rate:
+        raise ValueError(f"{model.path}: derivative state and rate must be different variables")
+    if derivative.determines not in (derivative.state, derivative.rate):
+        raise ValueError(f"{model.path}: a derivative must determine its state or rate")
+    return state, rate

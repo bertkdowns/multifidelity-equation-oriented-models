@@ -162,6 +162,10 @@ class ResolvedRelationship:
     def connections(self):
         return self.definition.connections
 
+    @property
+    def derivatives(self):
+        return self.definition.derivatives
+
     @cached_property
     def models(self) -> dict[str, ResolvedModel]:
         parent = self._parent

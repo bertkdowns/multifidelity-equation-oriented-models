@@ -25,7 +25,9 @@ def domain_members(values, *, time=False):
 class BuildDomains:
     """Bind children to existing sets; never infer sharing from equal members."""
 
-    def __init__(self, root, values):
+    def __init__(self, root, values, mode="steady"):
+        if mode not in ("steady", "dynamic"):
+            raise ValueError("mode must be 'steady' or 'dynamic'")
         self.values = dict(values or {})
         self.used = set()
         time_names = [n for n, d in root.definition.domains.items() if d.kind == "time"]
@@ -35,6 +37,8 @@ class BuildDomains:
         self.time_points = [0.0]
         if self.time_name is not None and self.time_name in self.values:
             self.time_points = self.members(self.time_name, time=True)
+        if mode == "dynamic" and (self.time_name is None or len(self.time_points) < 2):
+            raise ValueError("Dynamic mode requires a root time domain with at least two time points")
 
     def members(self, key, *, time=False):
         if key not in self.values:

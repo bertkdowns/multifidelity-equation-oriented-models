@@ -1,0 +1,217 @@
+{
+  "id": "tank",
+  "description": "Perfectly mixed constant-density liquid tank. Prescribed inlet and outlet mass flows; constant heat capacity; no phase change, pressure dynamics, or kinetic/potential energy. Energy and stream enthalpy use the same reference temperature.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "temperature": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        }
+      }
+    },
+    "withdrawal": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "area": {
+          "unit": "m**2",
+          "bounds": {
+            "min": 1e-08
+          }
+        },
+        "density": {
+          "unit": "kg/m**3",
+          "bounds": {
+            "min": 1e-08
+          }
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K",
+          "bounds": {
+            "min": 1e-08
+          }
+        },
+        "reference_temperature": {
+          "unit": "K",
+          "bounds": {
+            "min": 0
+          }
+        }
+      }
+    },
+    "loss": {
+      "direction": "input",
+      "variables": {
+        "heat": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "inventory": {
+      "direction": "output",
+      "variables": {
+        "level": {
+          "unit": "m",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 1e-08
+          }
+        },
+        "energy": {
+          "unit": "J",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "temperature": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        }
+      }
+    },
+    "rates": {
+      "direction": "output",
+      "variables": {
+        "level": {
+          "unit": "m/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "energy": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "temperature": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        }
+      }
+    }
+  },
+  "relationships": {
+    "mixed": {
+      "constraints": {
+        "outlet_flow": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.flow[t]",
+          "rhs": "withdrawal.flow[t]",
+          "determines": "outlet.flow[t]"
+        },
+        "outlet_temperature": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.temperature[t]",
+          "rhs": "inventory.temperature[t]",
+          "determines": "outlet.temperature[t]"
+        },
+        "thermal_state": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "inventory.energy[t]",
+          "rhs": "parameters.density * parameters.area * inventory.level[t] * parameters.heat_capacity * (inventory.temperature[t] - parameters.reference_temperature)",
+          "determines": "inventory.temperature[t]"
+        },
+        "mass_balance": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "parameters.density * parameters.area * rates.level[t]",
+          "rhs": "inlet.flow[t] - outlet.flow[t]",
+          "determines": "rates.level[t]"
+        },
+        "energy_balance": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "rates.energy[t]",
+          "rhs": "inlet.flow[t] * parameters.heat_capacity * (inlet.temperature[t] - parameters.reference_temperature) - outlet.flow[t] * parameters.heat_capacity * (outlet.temperature[t] - parameters.reference_temperature) - loss.heat[t]",
+          "determines": "rates.energy[t]"
+        }
+      },
+      "derivatives": {
+        "level": {
+          "state": "inventory.level",
+          "rate": "rates.level",
+          "with_respect_to": "time",
+          "determines": "inventory.level"
+        },
+        "energy": {
+          "state": "inventory.energy",
+          "rate": "rates.energy",
+          "with_respect_to": "time",
+          "determines": "inventory.energy"
+        }
+      }
+    }
+  }
+}

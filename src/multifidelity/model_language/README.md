@@ -3,7 +3,9 @@
 This is a first construction-only implementation of the model language discussed
 for recursive multifidelity modelling. It builds a selected equation hierarchy
 inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constraints.
-It does not solve, set initial guesses, fix inputs, or construct instance documents.
+It does not solve, set initial guesses, or construct full instance documents.
+An optional `initial_values` argument fixes explicitly supplied initial entries;
+ordinary operating inputs remain free until specified by the caller.
 Here "build" means creating Python modelling objects, not numerical initialization.
 
 Relationships can also use registered Python providers to construct symbolic
@@ -182,7 +184,8 @@ A model contains `id`, optional `description`, `structs`, and `relationships`:
 
 Variable declarations support `unit` (default `dimensionless`), `value_type`
 (currently only `real`) and `bounds: {"min": ..., "max": ...}`. Bounds are numerical
-values in the declared unit. All variables start free and without values.
+values in the declared unit. Without optional initial specifications, all
+variables start free and without values.
 Variables may declare ordered named `dimensions`; see indexed models below.
 Input/output describes struct direction, not fixed/free solver status. No default
 values, automatic input fixation, or permanent input/output role on variables is
@@ -243,9 +246,9 @@ empty list still means scalar. Dimensions must be distinct declared domain names
 Domain members are one-dimensional, nonempty ordered sets of finite numbers or
 strings. Time points must be numbers in strictly increasing order. A root time
 domain defaults to `[0.0]` and uses the flowsheet's actual `time` set. At most one
-time domain is allowed at the root. These are currently **algebraic time slices**,
-not dynamic integration: the flowsheet remains steady and no derivatives are
-introduced.
+time domain is allowed at the root. The default `mode="steady"` builds independent
+algebraic time slices. `mode="dynamic"` uses a shared continuous time domain and
+requires at least two explicitly supplied time points; see derivatives below.
 
 Use explicit loop bindings and subscripts in equations:
 
@@ -315,8 +318,146 @@ currently retain their scalar-only interface contract.
 
 Run the complete pass-through pipe example with
 `.venv/bin/python examples/indexed_models/build.py` from the repository root.
-Derivatives, initial conditions, continuous-domain discretization, and indexed
-collections of child occurrences remain future work.
+Spatial derivatives and indexed collections of child occurrences remain future
+work.
+
+### Derivative relations and steady/dynamic construction
+
+Relationships can declare first-order derivative relations alongside their
+ordinary constraints and connections:
+
+```json
+"derivatives": {
+  "level": {
+    "kind": "derivative",
+    "state": "inventory.level",
+    "rate": "rates.level",
+    "with_respect_to": "time",
+    "determines": "inventory.level"
+  }
+}
+```
+
+`kind` defaults to `derivative`. State and rate are whole local variable paths,
+without subscripts. Both must have the same ordered dimensions, including the
+declared time domain. The relation covers the whole family. Put a derivative in
+a reusable child model and connect its input/output structs to compose it with
+other models; reaching into child variables from a derivative declaration is not
+supported. Only one derivative of a given state with respect to time is allowed
+per selected relationship.
+
+**Each output is determined exactly once.** A derivative relation participates in
+the same registry as equations and connections. It may determine its state
+(integration) or its rate (differentiation). A balance equation can separately
+determine the rate when the derivative relation determines the state. Duplicate,
+missing, input-directed, or unrelated derivative targets are rejected.
+
+The same definition and implementation can be rebuilt in two modes:
+
+| Mode | Time set | Derivative relation |
+| --- | --- | --- |
+| `steady` (default) | Ordered set; defaults to `[0.0]` | Rate equals zero at every operating point |
+| `dynamic` | IDAES shared `ContinuousSet` | Pyomo `DerivativeVar` linked to the declared rate |
+
+Time coordinates use `time_unit="s"` by default. Both state/rate units and the
+time unit are validated; conversions such as minutes to seconds or J/s to kW
+are supported. The backend introduces a private derivative with respect to the
+numerical time coordinate and includes the physical time unit in its public-rate
+binding. This also keeps Pyomo-generated discretization equations unit-consistent.
+Public variables are still owned by their declared structs.
+
+Steady construction does not choose inventory levels or other unconstrained
+operating specifications. It also does not silently discard conservation
+equations. For a steady tank, specify the level and allow a flow to be calculated
+from mass conservation rather than fixing both flows independently. Rebuilding
+does not transfer values between models automatically.
+
+### Initial specifications
+
+`required_initial_values(model_id, implementation, library=...)` returns the
+root-relative output family of each selected derivative relation. This is the
+default authoring convention: supply an initial value for what the derivative
+relation determines. Families with other dimensions need a starting profile.
+It describes specification requirements, not DAE index or numerical solvability.
+
+Initial values belong to instance data, not model definitions or implementation
+selections. Full instance documents remain deferred; pass their initial-value
+list to the builder explicitly:
+
+```python
+from multifidelity.model_language import build_model, required_initial_values
+
+selection = {"model": "tank", "relationship": "mixed"}
+print(required_initial_values("tank", selection).keys())
+# inventory.energy, inventory.level
+
+model = build_model(
+    "tank", selection,
+    mode="dynamic",
+    domain_values={"time": [0, 1000]},
+    initial_values=[
+        {"variable_path": "inventory.level", "value": 1, "unit": "m"},
+        {"variable_path": "inventory.energy", "value": 125400000, "unit": "J"},
+    ],
+)
+```
+
+Each entry fixes only the first time point. An omitted `unit` uses the variable's
+declared unit. Optional `at` selectors address non-time dimensions; for example,
+`"at": {"cells": 2}` selects one cell. Without selectors the value is uniform
+over all other axes. Overlaps, invalid selectors, nonfinite values, incompatible
+units, and bound violations are rejected before any initial entries are fixed.
+Paths use child aliases but omit the root model ID, like `required_inputs()`.
+
+Initial values are optional during construction: a caller can apply them later
+through Pyomo. The builder does not solve initialization or require that every
+default initial output be fixed. An alternative set, such as initial level and
+temperature instead of level and energy, can determine the starting state through
+the physical equations. Checking independence and solving for consistent values
+remain the caller's responsibility. Initial values passed in steady mode are an
+error; steady operating specifications are applied separately.
+
+For differentiation, backward differences leave the first rate outside the
+discretization equations. Its supplied initial value closes that endpoint; other
+equations at the initial time can still restrict it. Different discretization
+schemes have different endpoint coverage. This first example uses backward
+differences and does not promise arbitrary differentiation models are suitable
+for PETSc forward integration.
+
+### Mixed liquid tank example
+
+The bundled `tank` model selects `mixed` in both modes. It has prescribed inlet
+flow/temperature, a withdrawal-flow input, a heat-loss input, and scalar area,
+density, heat capacity, and reference-temperature inputs. Outputs include level,
+stored energy, temperature, rates, and the mixed outlet conditions:
+
+```
+rho * area * level_rate = inlet_flow - outlet_flow
+energy_rate = inlet_flow * cp * (inlet_temperature - reference_temperature)
+            - outlet_flow * cp * (temperature - reference_temperature) - heat_loss
+energy = rho * area * level * cp * (temperature - reference_temperature)
+```
+
+This is a constant-density, constant-heat-capacity approximation with no phase
+change, pressure dynamics, or kinetic/potential energy. Inlet flow and withdrawal
+are nonnegative; flow reversal and empty-tank events are not modelled.
+
+Run from the repository root:
+
+```bash
+.venv/bin/python examples/dynamic_tank/run.py
+.venv/bin/python examples/dynamic_tank/run.py --backend petsc
+```
+
+The example builds the same JSON in steady and dynamic modes. It applies Pyomo
+backward-difference discretization, specifies inputs at all resulting points,
+then solves with IPOPT or the IDAES PETSc wrapper. PETSc uses two endpoint
+snapshots and adaptive integration internally; IPOPT uses 100 backward-difference
+elements. Both require IPOPT for this example; the second also requires the
+IDAES PETSc executable. The physical equations and initial-state calculations
+remain in the JSON model. Python supplies numerical settings and specifications.
+The initial-value list is saved separately in
+`examples/dynamic_tank/initial_values.json`.
 
 A relationship's `models` maps local aliases to definitions:
 
@@ -1020,10 +1161,9 @@ or prerequisites for the initial bounded experiments.
 
 - **1D unit operations:** How should JSON represent spatial domains, indexed
   variables, distributed equations, boundary conditions and discretization?
-- **Dynamic models and steady/dynamic switching:** How should we represent time,
-  derivatives, holdup and initial conditions? How should a model move between
-  steady-state and dynamic representations, including transferring state and
-  preserving the meaning of its public variables?
+- **Dynamic state transfer:** Steady/dynamic rebuilding and initial specifications
+  are supported. Automatic transfer between representations and fidelity-dependent
+  initial profiles remain open.
 - **External Pyomo and machine-learning models:** Scalar symbolic providers are
   supported through external relationships; see the [how-to guide](custom-models.md).
   Broader indexed interfaces and model-specific initialization remain future work.
@@ -1034,8 +1174,8 @@ or prerequisites for the initial bounded experiments.
 
 ## Deferred decisions
 
-- Continuous time/space domains, discretization and derivatives (ordered
-  discrete indexing and algebraic time slices are supported).
+- Continuous spatial domains and derivatives; automatic backend discretization
+  configuration (time dynamics can use Pyomo's existing transformations).
 - Default values, instance documents, fixed/free specifications and initial guesses.
 - Replacing input specifications with selected output specifications.
 - Detailed thermodynamics, component mixtures, shared material data, configurable

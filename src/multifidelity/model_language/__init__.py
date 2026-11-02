@@ -1,16 +1,18 @@
 """Load declarative model definitions and build explicitly selected IDAES structures."""
 
 from .resolution import Library, ResolvedModel, ResolvedRelationship
-from .requirements import required_inputs, print_required_inputs
+from .requirements import required_inputs, print_required_inputs, required_initial_values
 from .information import InformationRecord, InformationTable, InformationType
 from .standard import register_standard_providers
 
 
-def build_model(model_id, implementation, *, library=None, domain_values=None):
+def build_model(model_id, implementation, *, library=None, domain_values=None,
+                mode="steady", time_unit="s", initial_values=None):
     """Convert a selected implementation using the Pyomo backend on demand."""
     from .builder import build_model as build
 
-    return build(model_id, implementation, library=library, domain_values=domain_values)
+    return build(model_id, implementation, library=library, domain_values=domain_values,
+                 mode=mode, time_unit=time_unit, initial_values=initial_values)
 
 
 __all__ = [
@@ -22,6 +24,7 @@ __all__ = [
     "ResolvedRelationship",
     "build_model",
     "required_inputs",
+    "required_initial_values",
     "print_required_inputs",
     "register_standard_providers",
 ]

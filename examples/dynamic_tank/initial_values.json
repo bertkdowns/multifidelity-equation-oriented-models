@@ -1,0 +1,4 @@
+[
+  {"variable_path": "inventory.level", "value": 1, "unit": "m"},
+  {"variable_path": "inventory.energy", "value": 125400000, "unit": "J"}
+]

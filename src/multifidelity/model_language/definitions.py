@@ -71,6 +71,16 @@ class Constraint(Definition):
     determines: str
 
 
+class Derivative(Definition):
+    """First-order relation between two local variable families."""
+
+    kind: Literal["derivative"] = "derivative"
+    state: str
+    rate: str
+    with_respect_to: Name
+    determines: str
+
+
 class Connection(Definition):
     # Python reserves `from`; serialization preserves the original JSON spelling.
     from_: str = Field(alias="from")
@@ -111,15 +121,16 @@ class Relationship(Definition):
     models: dict[Name, ModelReference] = Field(default_factory=dict)
     constraints: dict[Name, Constraint] = Field(default_factory=dict)
     connections: dict[Name, Connection] = Field(default_factory=dict)
+    derivatives: dict[Name, Derivative] = Field(default_factory=dict)
     external: ExternalRelationship | None = None
 
     @model_validator(mode="after")
     def separate_external_implementation(self):
         if self.external is not None and (
-            self.models or self.constraints or self.connections
+            self.models or self.constraints or self.connections or self.derivatives
         ):
             raise ValueError(
-                "An external relationship cannot also define models, constraints, or connections; use a JSON wrapper"
+                "An external relationship cannot also define models, constraints, connections, or derivatives; use a JSON wrapper"
             )
         return self
 

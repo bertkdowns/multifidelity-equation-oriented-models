@@ -17,6 +17,7 @@ from pyomo.util.check_units import assert_units_consistent
 from .resolution import Library, ResolvedModel
 from .requirements import connection_endpoints, determination_sources
 from .domains import BuildDomains
+from .dynamics import apply_initial_values, build_derivatives
 from .indexing import dotted_name, variable_dimensions
 
 
@@ -94,12 +95,14 @@ def _expression(text, resolve, indices=None, index_domains=None):
     return visit(ast.parse(text, mode="eval").body)
 
 
-def build_model(model_id, implementation, *, library=None, domain_values=None):
-    """Construct, without fixing inputs or solving, a selected model tree.
+def build_model(model_id, implementation, *, library=None, domain_values=None,
+                mode="steady", time_unit="s", initial_values=None):
+    """Construct a steady or dynamic tree without solving or fixing operating inputs.
 
     implementation is a dict or JSON file path. Every selected relationship must
     specify exactly its declared submodels, recursively. Recursive definitions
-    are permitted only when the supplied selection terminates.
+    are permitted only when the supplied selection terminates. Optional initial
+    specifications fix only entries at the first time point in dynamic mode.
     """
     library = library or Library()
     if isinstance(implementation, (str, Path)):
@@ -107,12 +110,22 @@ def build_model(model_id, implementation, *, library=None, domain_values=None):
     if implementation.get("model") != model_id:
         raise ValueError("Root implementation must identify the requested model")
     root = library.resolve(model_id)
-    build_domains = BuildDomains(root, domain_values)
+    build_domains = BuildDomains(root, domain_values, mode)
+
+    def parse_unit(text):
+        return _expression(text, lambda name: getattr(units, name))
+
+    time_units = parse_unit(time_unit)
+    units.convert(1 * time_units, to_units=units.s)
+    if mode == "steady" and initial_values:
+        raise ValueError("Initial values apply only in dynamic mode; specify steady variables separately")
 
     model = ConcreteModel()
-    model.fs = FlowsheetBlock(dynamic=False, time_set=build_domains.time_points)
+    model.fs = FlowsheetBlock(dynamic=mode == "dynamic", time_set=build_domains.time_points,
+                              time_units=time_units)
     model.fs.root = Block()
     dependencies: dict[int, set[int]] = {}
+    registry = {}
 
     def depends_on(expression_variables, target, graph):
         pending = list(expression_variables)
@@ -159,21 +172,19 @@ def build_model(model_id, implementation, *, library=None, domain_values=None):
             struct_block = Block()
             block.structs.add_component(struct_id, struct_block)
             for variable_id, variable in struct.variables.items():
-                unit = _expression(
-                    variable.unit,
-                    lambda name: getattr(units, name),
-                )
+                unit = parse_unit(variable.unit)
                 sets = [domains[name] for name in variable.dimensions]
                 if len({id(s) for s in sets}) != len(sets):
                     raise ValueError(f"{path}: variable dimensions must bind to distinct domains")
                 var = Var(*sets, bounds=(variable.bounds.min, variable.bounds.max), units=unit)
                 struct_block.add_component(variable_id, var)
                 variables[f"{struct_id}.{variable_id}"] = var
+                prefix = "" if path == model_id else path[len(model_id) + 1:] + "."
+                registry[prefix + f"{struct_id}.{variable_id}"] = (var, variable, domains)
         block.relationship = Block()
         active = block.relationship
         external = relationship.definition.external
         if external is not None:
-            determination_sources(resolved, relationship_id)
             _build_external(
                 active, external, variables, library, f"{path}.{relationship_id}"
             )
@@ -228,6 +239,8 @@ def build_model(model_id, implementation, *, library=None, domain_values=None):
 
         # Pure definition checks are shared with required-input discovery.
         descendant_dependencies = dict(dependencies)
+        build_derivatives(active, resolved, relationship, variables, domains,
+                          mode, time_units, dependencies)
 
         active.constraints = Block()
         checks = []
@@ -293,4 +306,6 @@ def build_model(model_id, implementation, *, library=None, domain_values=None):
     build_domains.check_unused()
     # Check the complete equation tree without fixing values or calling a solver.
     assert_units_consistent(model)
+    if initial_values:
+        apply_initial_values(registry, model.fs.time, initial_values, parse_unit)
     return model
