@@ -80,8 +80,8 @@ quantity-of-interest specification. No fidelity changes occur within this algori
    specifications make them determined. Do not fix every variable from the initial
    underconstrained set.
 6. Stop when no structural deficiency remains, or no applicable candidate can
-   reduce it. Return a complete or incomplete specification document. In the latter
-   case, list unresolved regions and missing eligible information, rather than
+   reduce it. Return a specification document and separate complete/incomplete diagnostics.
+   In the latter case, list unresolved regions and missing eligible information, rather than
    inventing values or fixing the prediction target.
 7. For structurally complete plans, attempt a numerical solve using a common,
    established initialization procedure. Record convergence, feasibility and
@@ -108,9 +108,16 @@ feasibility, uniqueness or physical adequacy.
 DM references: [Pyomo decomposition documentation](https://pyomo.readthedocs.io/en/6.9.3/api/pyomo.contrib.incidence_analysis.dulmage_mendelsohn.dulmage_mendelsohn.html)
 and [IDAES structural-singularity example](https://idaes-examples.readthedocs.io/en/2.6.0/docs/diagnostics/structural_singularity_doc.html).
 
-## Auditable specification document
+## Specification document and separate algorithm diagnostics
 
-The result should record:
+The implemented [specification document](../src/multifidelity/model_language/README.md#specification-documents)
+contains only variable paths and selected information-record IDs. It has no
+implementation references, values, actions, structural status or unused-information
+fields. Application receives the numerical model and information table separately.
+The trust-ranked selection algorithm remains proposed.
+
+The algorithm should return the specification document alongside separate diagnostics
+that record:
 
 - Model/implementation identity, quantities of interest, information records used,
   trust policy and deterministic tie-break.

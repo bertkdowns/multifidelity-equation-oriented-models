@@ -328,4 +328,7 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     assert_units_consistent(model)
     if initial_values:
         apply_initial_values(registry, model.fs.time, initial_values, parse_unit)
+    # Retain the same occurrence-path lookup for later specification application.
+    # Components stay live as discretization adds entries to indexed variables.
+    model._model_language_variables = {path: item[0] for path, item in registry.items()}
     return model

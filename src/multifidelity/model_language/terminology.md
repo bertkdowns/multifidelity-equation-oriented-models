@@ -31,7 +31,7 @@ model identities: references use the `id` declared inside a model document.
 | Information document | Portable representation of an information table; the JSON format is an array of records. | `InformationDocument` |
 | Quantity of interest / prediction target | Variable whose value an analysis aims to predict. | Variable path |
 | Quantity-of-interest document | Prediction target paths, without target values or accuracy thresholds. | Proposed JSON shape: `{"quantities": [{"variable_path": "..."}]}`; no typed class yet |
-| Specification document | Reviewable instructions choosing which information records to apply to which implementation variables, with applied values/units, provenance, rejected choices and structural completeness. | Proposed; no typed class or application API yet |
+| Specification document | List of variable paths and chosen information-record IDs. Each entry fixes a variable family to the referenced central values; context and diagnostics are separate. | `SpecificationDocument`, containing `SpecificationEntry` entries; `apply_specification()` |
 | Specification plan | The decisions contained in a specification document; not a separate document type. | Same conceptual artifact as the specification document |
 | Numerical instance | Live numerical equation system for an implementation with its specifications applied. Construction alone may leave it unspecified. | Pyomo `ConcreteModel` with IDAES `FlowsheetBlock`; no instance-document class |
 | Solve result | Outputs, solver status and provenance from one solve attempt, distinct from structural specification status. | No model-language result type yet |
@@ -45,7 +45,7 @@ Model documents + Implementation document
 Implementation + Information document + Quantity-of-interest document
     → Specification document
 
-Implementation + Specification document
+Implementation + Specification document + Information document
     → Numerical instance
 
 Numerical instance + numerical solve
@@ -53,15 +53,16 @@ Numerical instance + numerical solve
 ```
 
 The first layer is implemented through library navigation, selected traversal and
-construction. Specification generation/application and typed target/result
-artifacts remain proposed. Structural algorithms may construct the numerical
+construction. Specification application is implemented; automatic specification generation
+and typed target/result artifacts remain proposed. Structural algorithms may construct the numerical
 equations before generating a specification document; the diagram expresses data
 dependencies, not a mandatory construction order.
 
-A specification document should identify the implementation and model-definition
-versions it was checked against. Version pinning is a design requirement for
-reproducibility, not an implemented feature. Structural completeness and numerical
-convergence are separate checks.
+Specification documents contain only specification choices. The caller supplies
+the implementation/model instance and information document separately; source
+identities, version fingerprints, structural status and unused-information audit
+records are not fields of a specification document. Structural completeness and
+numerical convergence are separate checks.
 
 Use “document” for portable data, “implementation” for the selected hierarchy, and
 “numerical instance” for live numerical objects. Reference resolution is an

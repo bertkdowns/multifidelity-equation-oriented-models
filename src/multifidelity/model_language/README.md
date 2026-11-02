@@ -3,7 +3,8 @@
 This is a first construction-only implementation of the model language discussed
 for recursive multifidelity modelling. It builds a selected equation hierarchy
 inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constraints.
-It does not solve, set initial guesses, or apply specification documents.
+The builder does not solve or set initial guesses. Specification documents can
+be applied separately to fix values from an information document.
 An optional `initial_values` argument fixes explicitly supplied initial entries;
 ordinary operating inputs remain free until specified by the caller.
 Here "build" means creating Python modelling objects, not numerical initialization.
@@ -409,8 +410,8 @@ relation determines. Families with other dimensions need a starting profile.
 It describes specification requirements, not DAE index or numerical solvability.
 
 Initial values belong to instance data, not model definitions or implementation
-selections. Specification documents remain deferred; pass the initial-value
-list to the builder explicitly:
+selections. Initial-only selectors are separate from the whole-family
+specification document; pass the initial-value list to the builder explicitly:
 
 ```python
 from multifidelity.model_language import build_model, required_initial_values
@@ -825,7 +826,7 @@ create solver objects, fix variables, or fill any values. It relies on declared
 `determines` targets; the Pyomo builder additionally verifies direct occurrence
 or a dependency path through validated descendants. An incomplete definition such as the aggregate milk scaffold raises
 its missing-output error instead of returning a misleading requirements list.
-Instance data and applying specifications are deliberately left for the next step.
+Apply operating values separately using the [specification API](#specification-documents).
 
 ## Bundled models and provenance
 
@@ -1022,7 +1023,8 @@ above. It does not establish numerical solvability of the full milk scaffold.
 Record available evidence separately from the model definitions and from decisions
 about how to specify or estimate a particular instance. `information.py` implements
 record validation, loading, insertion and trust-ordered candidate lookup. Applying
-records to model instances and the specification-selection algorithm remain proposed.
+records to model instances is supported by specification documents; the
+specification-selection algorithm remains proposed.
 
 Information is a **list of records**, not a dictionary keyed by variable path.
 Multiple records may target the same variable: for example, a sensor reading,
@@ -1103,7 +1105,8 @@ See the [trust-ranked DM specification algorithm and separate experiment outline
 for structural candidate selection, auditable specification documents, and future
 noise/conditioning studies. This algorithm is proposed, not yet implemented.
 Series use the numerical grid's index order. They do not carry separate timestamps,
-per-point selectors, or interpolation rules. Instance application remains separate.
+per-point selectors, or interpolation rules. Apply them after finalizing the grid
+through the separate specification API.
 
 ### Constant and series values
 
@@ -1196,6 +1199,67 @@ and trust ranks integers from 1 through 10. Missing standard deviation remains
 model, physical applicability or unit compatibility. The table describes one
 operating case and neither selects a winning record nor fixes any model variables.
 
+## Specification documents
+
+A `SpecificationDocument` contains only a `specifications` array. Each entry
+means “fix this variable family using this information record”:
+
+```json
+{
+  "specifications": [
+    {
+      "variable_path": "inlet.pressure",
+      "information_record_id": "pressure_measurement"
+    }
+  ]
+}
+```
+
+It contains no action, values, source-document references, structural status or
+unused-information records. The model instance and information table are passed
+separately. Variable paths are root-relative, such as `inlet.pressure` or
+`heat_pump.compressor.inlet.pressure`; they name whole variable families, without
+index selectors. Each path may occur only once, and the selected information
+record must declare that same path. Declared outputs can also be specified.
+
+```python
+from multifidelity.model_language import (
+    InformationDocument, SpecificationDocument,
+    apply_specification,
+)
+
+information = InformationDocument.load_json("information.json")
+specification = SpecificationDocument.load_json("specification.json")
+# model is the object returned by build_model(...).
+apply_specification(model, specification, information)
+```
+
+The method also accepts a specification dictionary or JSON file path.
+`SpecificationDocument.from_json(text)` parses JSON text, and
+`model_dump_json()` serializes the document. The information argument must be an
+`InformationDocument`. Numerical models must come from `build_model()`.
+
+Application validates all paths, record references, path agreement, array shapes,
+unit conversions, finite converted values, variable bounds and existing fixations
+before fixing any variable. It updates the model in place and returns `None`. A validation error leaves all values and fixation statuses
+unchanged. Existing fixations are rejected, even if equal; applying a new document
+does not silently replace an earlier specification or an initial condition.
+
+Constants broadcast over a variable's current grid; series must match its ordered
+index-domain product exactly. Scalar variables are supported. Finalize dynamic
+and spatial grids before applying a document. There is no automatic interpolation,
+per-point selection or reapplication after discretization.
+
+Selected central values are fixed even for uncertain records. The source records,
+including uncertainty and trust rank, remain unchanged. The API does not rank
+information, determine whether a control setpoint is achieved, protect prediction
+targets, assess structural completeness or solve the model. Partial documents
+are allowed; those decisions belong to the caller or a future selection algorithm.
+Structural diagnostics and solver results remain separate from the document.
+
+The [complete valve example](../../../examples/specification/README.md) loads all
+three documents, fully specifies the model and solves it with IPOPT.
+
 ## Proposed quantity-of-interest specification
 
 Identify what we want to predict with a list of target variable paths:
@@ -1261,8 +1325,8 @@ or prerequisites for the initial bounded experiments.
 
 - Continuous spatial domains and derivatives; automatic backend discretization
   configuration (time dynamics can use Pyomo's existing transformations).
-- Default values, specification documents, fixed/free specifications and initial guesses.
-- Replacing input specifications with selected output specifications.
+- Default values, general fixed/free instance documents and initial guesses.
+- Automatic structural selection of input or output specifications.
 - Detailed thermodynamics, component mixtures, shared material data, configurable
   equipment property dependencies, validated detailed equations and calibration.
 - JSON Schema authoring support, definition version pinning and broader diagnostics.
