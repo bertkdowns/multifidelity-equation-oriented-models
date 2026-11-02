@@ -6,10 +6,16 @@
       "direction": "input",
       "variables": {
         "evaporating": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "condensing": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -17,19 +23,34 @@
       "direction": "output",
       "variables": {
         "mass_flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "electrical_power": {
-          "unit": "W"
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
         },
         "capacity": {
-          "unit": "W"
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
         },
         "current": {
-          "unit": "A"
+          "unit": "A",
+          "dimensions": [
+            "time"
+          ]
         },
         "rated_cop": {
-          "unit": "dimensionless"
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -37,10 +58,16 @@
       "direction": "output",
       "variables": {
         "superheat": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "subcooling": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -78,6 +105,11 @@
           "rating.subcooling": []
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

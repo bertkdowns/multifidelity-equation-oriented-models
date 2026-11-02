@@ -4,20 +4,50 @@
     "inlet": {
       "direction": "input",
       "variables": {
-        "flow": {"unit": "kg/s"},
-        "density": {"unit": "kg/m**3"}
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "density": {
+          "unit": "kg/m**3",
+          "dimensions": [
+            "time"
+          ]
+        }
       }
     },
     "parameters": {
       "direction": "input",
       "variables": {
-        "pressure_rise": {"unit": "Pa"},
-        "efficiency": {"bounds": {"min": 0.01, "max": 1}}
+        "pressure_rise": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "efficiency": {
+          "bounds": {
+            "min": 0.01,
+            "max": 1
+          },
+          "dimensions": [
+            "time"
+          ]
+        }
       }
     },
     "performance": {
       "direction": "output",
-      "variables": {"work": {"unit": "W"}}
+      "variables": {
+        "work": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
     }
   },
   "relationships": {
@@ -26,11 +56,18 @@
         "provider": "example.pump",
         "dependencies": {
           "performance.work": [
-            "inlet.flow", "inlet.density",
-            "parameters.pressure_rise", "parameters.efficiency"
+            "inlet.flow",
+            "inlet.density",
+            "parameters.pressure_rise",
+            "parameters.efficiency"
           ]
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

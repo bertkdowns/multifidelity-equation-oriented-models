@@ -8,10 +8,16 @@
           "direction": "input",
           "variables": {
             "pressure": {
-              "unit": "Pa"
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
             },
             "enthalpy": {
-              "unit": "J/kg"
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
             }
           }
         },
@@ -19,19 +25,34 @@
           "direction": "output",
           "variables": {
             "density": {
-              "unit": "kg/m**3"
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
             },
             "heat_capacity": {
-              "unit": "J/kg/K"
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
             },
             "viscosity": {
-              "unit": "Pa*s"
+              "unit": "Pa*s",
+              "dimensions": [
+                "time"
+              ]
             },
             "temperature": {
-              "unit": "K"
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
             },
             "entropy": {
-              "unit": "J/kg/K"
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
             }
           }
         }
@@ -43,10 +64,16 @@
       "direction": "input",
       "variables": {
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -54,10 +81,16 @@
       "direction": "input",
       "variables": {
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -65,19 +98,34 @@
       "direction": "output",
       "variables": {
         "density": {
-          "unit": "kg/m**3"
+          "unit": "kg/m**3",
+          "dimensions": [
+            "time"
+          ]
         },
         "heat_capacity": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         },
         "viscosity": {
-          "unit": "Pa*s"
+          "unit": "Pa*s",
+          "dimensions": [
+            "time"
+          ]
         },
         "temperature": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "entropy": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -85,19 +133,34 @@
       "direction": "output",
       "variables": {
         "density": {
-          "unit": "kg/m**3"
+          "unit": "kg/m**3",
+          "dimensions": [
+            "time"
+          ]
         },
         "heat_capacity": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         },
         "viscosity": {
-          "unit": "Pa*s"
+          "unit": "Pa*s",
+          "dimensions": [
+            "time"
+          ]
         },
         "temperature": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "entropy": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -106,62 +169,98 @@
     "evaluate": {
       "models": {
         "inlet": {
-          "model_parameter": "FluidProperties"
+          "model_parameter": "FluidProperties",
+          "domain_bindings": {
+            "time": "time"
+          }
         },
         "outlet": {
-          "model_parameter": "FluidProperties"
+          "model_parameter": "FluidProperties",
+          "domain_bindings": {
+            "time": "time"
+          }
         }
       },
       "constraints": {
         "inlet_density": {
-          "lhs": "inlet_properties.density",
-          "rhs": "inlet.properties.density",
-          "determines": "inlet_properties.density"
+          "lhs": "inlet_properties.density[t]",
+          "rhs": "inlet.properties.density[t]",
+          "determines": "inlet_properties.density[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "inlet_heat_capacity": {
-          "lhs": "inlet_properties.heat_capacity",
-          "rhs": "inlet.properties.heat_capacity",
-          "determines": "inlet_properties.heat_capacity"
+          "lhs": "inlet_properties.heat_capacity[t]",
+          "rhs": "inlet.properties.heat_capacity[t]",
+          "determines": "inlet_properties.heat_capacity[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "inlet_viscosity": {
-          "lhs": "inlet_properties.viscosity",
-          "rhs": "inlet.properties.viscosity",
-          "determines": "inlet_properties.viscosity"
+          "lhs": "inlet_properties.viscosity[t]",
+          "rhs": "inlet.properties.viscosity[t]",
+          "determines": "inlet_properties.viscosity[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "inlet_temperature": {
-          "lhs": "inlet_properties.temperature",
-          "rhs": "inlet.properties.temperature",
-          "determines": "inlet_properties.temperature"
+          "lhs": "inlet_properties.temperature[t]",
+          "rhs": "inlet.properties.temperature[t]",
+          "determines": "inlet_properties.temperature[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "inlet_entropy": {
-          "lhs": "inlet_properties.entropy",
-          "rhs": "inlet.properties.entropy",
-          "determines": "inlet_properties.entropy"
+          "lhs": "inlet_properties.entropy[t]",
+          "rhs": "inlet.properties.entropy[t]",
+          "determines": "inlet_properties.entropy[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "outlet_density": {
-          "lhs": "outlet_properties.density",
-          "rhs": "outlet.properties.density",
-          "determines": "outlet_properties.density"
+          "lhs": "outlet_properties.density[t]",
+          "rhs": "outlet.properties.density[t]",
+          "determines": "outlet_properties.density[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "outlet_heat_capacity": {
-          "lhs": "outlet_properties.heat_capacity",
-          "rhs": "outlet.properties.heat_capacity",
-          "determines": "outlet_properties.heat_capacity"
+          "lhs": "outlet_properties.heat_capacity[t]",
+          "rhs": "outlet.properties.heat_capacity[t]",
+          "determines": "outlet_properties.heat_capacity[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "outlet_viscosity": {
-          "lhs": "outlet_properties.viscosity",
-          "rhs": "outlet.properties.viscosity",
-          "determines": "outlet_properties.viscosity"
+          "lhs": "outlet_properties.viscosity[t]",
+          "rhs": "outlet.properties.viscosity[t]",
+          "determines": "outlet_properties.viscosity[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "outlet_temperature": {
-          "lhs": "outlet_properties.temperature",
-          "rhs": "outlet.properties.temperature",
-          "determines": "outlet_properties.temperature"
+          "lhs": "outlet_properties.temperature[t]",
+          "rhs": "outlet.properties.temperature[t]",
+          "determines": "outlet_properties.temperature[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "outlet_entropy": {
-          "lhs": "outlet_properties.entropy",
-          "rhs": "outlet.properties.entropy",
-          "determines": "outlet_properties.entropy"
+          "lhs": "outlet_properties.entropy[t]",
+          "rhs": "outlet.properties.entropy[t]",
+          "determines": "outlet_properties.entropy[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "connections": {
@@ -174,6 +273,11 @@
           "to": "outlet.state"
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

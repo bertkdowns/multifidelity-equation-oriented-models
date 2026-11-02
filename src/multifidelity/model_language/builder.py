@@ -30,7 +30,7 @@ _BINARY = {
 }
 
 
-def _build_external(active, external, variables, library, path):
+def _build_external_slice(active, external, variables, library, path, dependencies):
     """Keep provider construction and interface binding out of JSON compilation."""
     active.provider = Block()
     try:
@@ -50,8 +50,29 @@ def _build_external(active, external, variables, library, path):
             active.bindings.add(
                 public == units.convert(internal, to_units=units.get_units(public))
             )
+        for output, inputs in external.dependencies.items():
+            dependencies[id(variables[output])] = {id(variables[name]) for name in inputs}
     except Exception as error:
         raise ValueError(f"{path}: provider {external.provider!r}: {error}") from error
+
+
+def _build_external(active, external, variables, library, path, dependencies):
+    """Lift the scalar provider protocol over a shared time domain.
+
+    A Block rule constructs new slices when DAE discretization inserts points.
+    Scalar inputs are shared, while each time point has independent native state.
+    """
+    indexed = [v for v in variables.values() if v.is_indexed()]
+    if not indexed:
+        _build_external_slice(active, external, variables, library, path, dependencies)
+        return
+    time = indexed[0].index_set()
+
+    def rule(block, t):
+        public = {name: v[t] if v.is_indexed() else v for name, v in variables.items()}
+        _build_external_slice(block, external, public, library, f"{path}[{t}]", dependencies)
+
+    active.slices = Block(time, rule=rule)
 
 
 def _expression(text, resolve, indices=None, index_domains=None):
@@ -186,12 +207,8 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
         external = relationship.definition.external
         if external is not None:
             _build_external(
-                active, external, variables, library, f"{path}.{relationship_id}"
+                active, external, variables, library, f"{path}.{relationship_id}", dependencies
             )
-            for output, inputs in external.dependencies.items():
-                dependencies[id(variables[output])] = {
-                    id(variables[name]) for name in inputs
-                }
             return variables
         active.models = Block()
         children = {}

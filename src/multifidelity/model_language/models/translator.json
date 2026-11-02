@@ -6,13 +6,22 @@
       "direction": "input",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -20,13 +29,22 @@
       "direction": "output",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -36,22 +54,36 @@
       "models": {},
       "constraints": {
         "mass_balance": {
-          "lhs": "outlet.flow",
-          "rhs": "inlet.flow",
-          "determines": "outlet.flow"
+          "lhs": "outlet.flow[t]",
+          "rhs": "inlet.flow[t]",
+          "determines": "outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "pressure_balance": {
-          "lhs": "outlet.pressure",
-          "rhs": "inlet.pressure",
-          "determines": "outlet.pressure"
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "enthalpy_balance": {
-          "lhs": "outlet.enthalpy",
-          "rhs": "inlet.enthalpy",
-          "determines": "outlet.enthalpy"
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

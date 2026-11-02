@@ -4,25 +4,44 @@
   "structs": {
     "properties": {
       "direction": "output",
-      "variables": {"density": {"unit": "kg/m**3"}}
+      "variables": {
+        "density": {
+          "unit": "kg/m**3",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
     }
   },
   "relationships": {
     "constant_json": {
       "constraints": {
         "density": {
-          "lhs": "properties.density",
+          "lhs": "properties.density[t]",
           "rhs": "997 * units.kg / units.m**3",
-          "determines": "properties.density"
+          "determines": "properties.density[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       }
     },
     "constant_python": {
       "external": {
         "provider": "example.liquid_density",
-        "config": {"density_kg_m3": 997},
-        "dependencies": {"properties.density": []}
+        "config": {
+          "density_kg_m3": 997
+        },
+        "dependencies": {
+          "properties.density": []
+        }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

@@ -8,10 +8,16 @@
           "direction": "input",
           "variables": {
             "pressure": {
-              "unit": "Pa"
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
             },
             "enthalpy": {
-              "unit": "J/kg"
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
             }
           }
         },
@@ -19,13 +25,22 @@
           "direction": "output",
           "variables": {
             "temperature": {
-              "unit": "K"
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
             },
             "temperature_bubble": {
-              "unit": "K"
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
             },
             "temperature_dew": {
-              "unit": "K"
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
             }
           }
         }
@@ -37,10 +52,16 @@
           "direction": "input",
           "variables": {
             "evaporating": {
-              "unit": "K"
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
             },
             "condensing": {
-              "unit": "K"
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
             }
           }
         },
@@ -48,19 +69,34 @@
           "direction": "output",
           "variables": {
             "mass_flow": {
-              "unit": "kg/s"
+              "unit": "kg/s",
+              "dimensions": [
+                "time"
+              ]
             },
             "electrical_power": {
-              "unit": "W"
+              "unit": "W",
+              "dimensions": [
+                "time"
+              ]
             },
             "capacity": {
-              "unit": "W"
+              "unit": "W",
+              "dimensions": [
+                "time"
+              ]
             },
             "current": {
-              "unit": "A"
+              "unit": "A",
+              "dimensions": [
+                "time"
+              ]
             },
             "rated_cop": {
-              "unit": "dimensionless"
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
             }
           }
         },
@@ -68,10 +104,16 @@
           "direction": "output",
           "variables": {
             "superheat": {
-              "unit": "K"
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
             },
             "subcooling": {
-              "unit": "K"
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
             }
           }
         }
@@ -83,10 +125,16 @@
       "direction": "input",
       "variables": {
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -97,14 +145,20 @@
           "unit": "Pa",
           "bounds": {
             "min": 0
-          }
+          },
+          "dimensions": [
+            "time"
+          ]
         },
         "motor_efficiency": {
           "unit": "dimensionless",
           "bounds": {
             "min": 1e-06,
             "max": 1
-          }
+          },
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -112,13 +166,22 @@
       "direction": "output",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -126,37 +189,70 @@
       "direction": "output",
       "variables": {
         "mass_flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "electrical_power": {
-          "unit": "W"
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
         },
         "shaft_power": {
-          "unit": "W"
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
         },
         "rated_capacity": {
-          "unit": "W"
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
         },
         "current": {
-          "unit": "A"
+          "unit": "A",
+          "dimensions": [
+            "time"
+          ]
         },
         "rated_cop": {
-          "unit": "dimensionless"
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure_ratio": {
-          "unit": "dimensionless"
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
         },
         "actual_superheat": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "superheat_deviation": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "rated_superheat": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "rated_subcooling": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -165,117 +261,191 @@
     "mapped": {
       "models": {
         "inlet_state": {
-          "model_parameter": "FluidProperties"
+          "model_parameter": "FluidProperties",
+          "domain_bindings": {
+            "time": "time"
+          }
         },
         "outlet_state": {
-          "model_parameter": "FluidProperties"
+          "model_parameter": "FluidProperties",
+          "domain_bindings": {
+            "time": "time"
+          }
         },
         "map": {
-          "model_parameter": "PerformanceMap"
+          "model_parameter": "PerformanceMap",
+          "domain_bindings": {
+            "time": "time"
+          }
         }
       },
       "constraints": {
         "pressure": {
-          "lhs": "outlet.pressure",
-          "rhs": "inlet.pressure + parameters.pressure_rise",
-          "determines": "outlet.pressure"
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t] + parameters.pressure_rise[t]",
+          "determines": "outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "inlet_state_pressure": {
-          "lhs": "inlet_state.state.pressure",
-          "rhs": "inlet.pressure",
-          "determines": "inlet_state.state.pressure"
+          "lhs": "inlet_state.state.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "inlet_state.state.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "inlet_state_enthalpy": {
-          "lhs": "inlet_state.state.enthalpy",
-          "rhs": "inlet.enthalpy",
-          "determines": "inlet_state.state.enthalpy"
+          "lhs": "inlet_state.state.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "inlet_state.state.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "outlet_state_pressure": {
-          "lhs": "outlet_state.state.pressure",
-          "rhs": "outlet.pressure",
-          "determines": "outlet_state.state.pressure"
+          "lhs": "outlet_state.state.pressure[t]",
+          "rhs": "outlet.pressure[t]",
+          "determines": "outlet_state.state.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "outlet_state_enthalpy": {
-          "lhs": "outlet_state.state.enthalpy",
-          "rhs": "outlet.enthalpy",
-          "determines": "outlet_state.state.enthalpy"
+          "lhs": "outlet_state.state.enthalpy[t]",
+          "rhs": "outlet.enthalpy[t]",
+          "determines": "outlet_state.state.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "evaporating_temperature": {
-          "lhs": "map.temperatures.evaporating",
-          "rhs": "inlet_state.properties.temperature_dew",
-          "determines": "map.temperatures.evaporating"
+          "lhs": "map.temperatures.evaporating[t]",
+          "rhs": "inlet_state.properties.temperature_dew[t]",
+          "determines": "map.temperatures.evaporating[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "condensing_temperature": {
-          "lhs": "map.temperatures.condensing",
-          "rhs": "outlet_state.properties.temperature_dew",
-          "determines": "map.temperatures.condensing"
+          "lhs": "map.temperatures.condensing[t]",
+          "rhs": "outlet_state.properties.temperature_dew[t]",
+          "determines": "map.temperatures.condensing[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "mass_flow": {
-          "lhs": "performance.mass_flow",
-          "rhs": "map.performance.mass_flow",
-          "determines": "performance.mass_flow"
+          "lhs": "performance.mass_flow[t]",
+          "rhs": "map.performance.mass_flow[t]",
+          "determines": "performance.mass_flow[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "electrical_power": {
-          "lhs": "performance.electrical_power",
-          "rhs": "map.performance.electrical_power",
-          "determines": "performance.electrical_power"
+          "lhs": "performance.electrical_power[t]",
+          "rhs": "map.performance.electrical_power[t]",
+          "determines": "performance.electrical_power[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "rated_capacity": {
-          "lhs": "performance.rated_capacity",
-          "rhs": "map.performance.capacity",
-          "determines": "performance.rated_capacity"
+          "lhs": "performance.rated_capacity[t]",
+          "rhs": "map.performance.capacity[t]",
+          "determines": "performance.rated_capacity[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "current": {
-          "lhs": "performance.current",
-          "rhs": "map.performance.current",
-          "determines": "performance.current"
+          "lhs": "performance.current[t]",
+          "rhs": "map.performance.current[t]",
+          "determines": "performance.current[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "rated_cop": {
-          "lhs": "performance.rated_cop",
-          "rhs": "map.performance.rated_cop",
-          "determines": "performance.rated_cop"
+          "lhs": "performance.rated_cop[t]",
+          "rhs": "map.performance.rated_cop[t]",
+          "determines": "performance.rated_cop[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "flow": {
-          "lhs": "outlet.flow",
-          "rhs": "performance.mass_flow",
-          "determines": "outlet.flow"
+          "lhs": "outlet.flow[t]",
+          "rhs": "performance.mass_flow[t]",
+          "determines": "outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "shaft_power": {
-          "lhs": "performance.shaft_power",
-          "rhs": "parameters.motor_efficiency * performance.electrical_power",
-          "determines": "performance.shaft_power"
+          "lhs": "performance.shaft_power[t]",
+          "rhs": "parameters.motor_efficiency[t] * performance.electrical_power[t]",
+          "determines": "performance.shaft_power[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "energy": {
-          "lhs": "outlet.flow * outlet.enthalpy",
-          "rhs": "performance.mass_flow * inlet.enthalpy + performance.shaft_power",
-          "determines": "outlet.enthalpy"
+          "lhs": "outlet.flow[t] * outlet.enthalpy[t]",
+          "rhs": "performance.mass_flow[t] * inlet.enthalpy[t] + performance.shaft_power[t]",
+          "determines": "outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "pressure_ratio": {
-          "lhs": "performance.pressure_ratio * inlet.pressure",
-          "rhs": "outlet.pressure",
-          "determines": "performance.pressure_ratio"
+          "lhs": "performance.pressure_ratio[t] * inlet.pressure[t]",
+          "rhs": "outlet.pressure[t]",
+          "determines": "performance.pressure_ratio[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "rated_superheat": {
-          "lhs": "performance.rated_superheat",
-          "rhs": "map.rating.superheat",
-          "determines": "performance.rated_superheat"
+          "lhs": "performance.rated_superheat[t]",
+          "rhs": "map.rating.superheat[t]",
+          "determines": "performance.rated_superheat[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "rated_subcooling": {
-          "lhs": "performance.rated_subcooling",
-          "rhs": "map.rating.subcooling",
-          "determines": "performance.rated_subcooling"
+          "lhs": "performance.rated_subcooling[t]",
+          "rhs": "map.rating.subcooling[t]",
+          "determines": "performance.rated_subcooling[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "actual_superheat": {
-          "lhs": "performance.actual_superheat",
-          "rhs": "inlet_state.properties.temperature - inlet_state.properties.temperature_dew",
-          "determines": "performance.actual_superheat"
+          "lhs": "performance.actual_superheat[t]",
+          "rhs": "inlet_state.properties.temperature[t] - inlet_state.properties.temperature_dew[t]",
+          "determines": "performance.actual_superheat[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "superheat_deviation": {
-          "lhs": "performance.superheat_deviation",
-          "rhs": "performance.actual_superheat - performance.rated_superheat",
-          "determines": "performance.superheat_deviation"
+          "lhs": "performance.superheat_deviation[t]",
+          "rhs": "performance.actual_superheat[t] - performance.rated_superheat[t]",
+          "determines": "performance.superheat_deviation[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

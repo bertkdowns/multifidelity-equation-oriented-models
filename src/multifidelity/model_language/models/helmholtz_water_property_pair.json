@@ -11,9 +11,17 @@
             "FluidProperties": {
               "model": "helmholtz_water_ph"
             }
+          },
+          "domain_bindings": {
+            "time": "time"
           }
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

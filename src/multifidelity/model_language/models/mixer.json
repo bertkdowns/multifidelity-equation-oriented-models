@@ -1,18 +1,27 @@
 {
   "id": "mixer",
-  "description": "Scalar illustrative equations, not a numerical reproduction of the existing property-package models.",
+  "description": "Time-indexed illustrative equations, not a numerical reproduction of the existing property-package models.",
   "structs": {
     "main": {
       "direction": "input",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -20,13 +29,22 @@
       "direction": "input",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -34,13 +52,22 @@
       "direction": "output",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -50,22 +77,36 @@
       "models": {},
       "constraints": {
         "mass_balance": {
-          "lhs": "outlet.flow",
-          "rhs": "main.flow + makeup.flow",
-          "determines": "outlet.flow"
+          "lhs": "outlet.flow[t]",
+          "rhs": "main.flow[t] + makeup.flow[t]",
+          "determines": "outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "energy_balance": {
-          "lhs": "outlet.flow * outlet.enthalpy",
-          "rhs": "main.flow * main.enthalpy + makeup.flow * makeup.enthalpy",
-          "determines": "outlet.enthalpy"
+          "lhs": "outlet.flow[t] * outlet.enthalpy[t]",
+          "rhs": "main.flow[t] * main.enthalpy[t] + makeup.flow[t] * makeup.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "pressure_balance": {
-          "lhs": "outlet.pressure",
-          "rhs": "main.pressure",
-          "determines": "outlet.pressure"
+          "lhs": "outlet.pressure[t]",
+          "rhs": "main.pressure[t]",
+          "determines": "outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

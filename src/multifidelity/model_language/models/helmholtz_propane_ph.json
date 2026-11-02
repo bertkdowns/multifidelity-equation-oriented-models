@@ -6,10 +6,16 @@
       "direction": "input",
       "variables": {
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -17,28 +23,52 @@
       "direction": "output",
       "variables": {
         "density": {
-          "unit": "kg/m**3"
+          "unit": "kg/m**3",
+          "dimensions": [
+            "time"
+          ]
         },
         "heat_capacity": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         },
         "viscosity": {
-          "unit": "Pa*s"
+          "unit": "Pa*s",
+          "dimensions": [
+            "time"
+          ]
         },
         "temperature": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "entropy": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         },
         "vapor_fraction": {
-          "unit": "dimensionless"
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
         },
         "temperature_bubble": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "temperature_dew": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -84,6 +114,11 @@
           ]
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

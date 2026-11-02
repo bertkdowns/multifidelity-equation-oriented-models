@@ -6,13 +6,22 @@
       "direction": "input",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -20,13 +29,22 @@
       "direction": "output",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -34,13 +52,22 @@
       "direction": "output",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -52,7 +79,10 @@
           "bounds": {
             "min": 0,
             "max": 1
-          }
+          },
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -62,37 +92,60 @@
       "models": {},
       "constraints": {
         "main_flow_split": {
-          "lhs": "main.flow",
-          "rhs": "inlet.flow * parameters.fraction",
-          "determines": "main.flow"
+          "lhs": "main.flow[t]",
+          "rhs": "inlet.flow[t] * parameters.fraction[t]",
+          "determines": "main.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "branch_mass_balance": {
-          "lhs": "branch.flow",
-          "rhs": "inlet.flow - main.flow",
-          "determines": "branch.flow"
+          "lhs": "branch.flow[t]",
+          "rhs": "inlet.flow[t] - main.flow[t]",
+          "determines": "branch.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "main_pressure_balance": {
-          "lhs": "main.pressure",
-          "rhs": "inlet.pressure",
-          "determines": "main.pressure"
+          "lhs": "main.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "main.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "main_enthalpy_balance": {
-          "lhs": "main.enthalpy",
-          "rhs": "inlet.enthalpy",
-          "determines": "main.enthalpy"
+          "lhs": "main.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "main.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "branch_pressure_balance": {
-          "lhs": "branch.pressure",
-          "rhs": "inlet.pressure",
-          "determines": "branch.pressure"
+          "lhs": "branch.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "branch.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "branch_enthalpy_balance": {
-          "lhs": "branch.enthalpy",
-          "rhs": "inlet.enthalpy",
-          "determines": "branch.enthalpy"
+          "lhs": "branch.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "branch.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

@@ -14,11 +14,19 @@
             "IsentropicProperties": {
               "model": "water_isentropic_package"
             }
+          },
+          "domain_bindings": {
+            "time": "time"
           }
         }
       },
       "constraints": {},
       "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

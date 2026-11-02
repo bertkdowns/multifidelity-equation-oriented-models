@@ -63,8 +63,16 @@ def determination_sources(model: ResolvedModel, relationship_id: str) -> dict[st
     }
     external = relationship.definition.external
     if external is not None:
-        if any(v.dimensions for s in model.structs.values() for v in s.variables.values()):
-            raise ValueError(f"{path}: external providers currently require scalar interfaces")
+        timed = any(v.dimensions for s in model.structs.values() for v in s.variables.values())
+        for struct in model.structs.values():
+            for variable in struct.variables.values():
+                if variable.dimensions and (
+                    len(variable.dimensions) != 1
+                    or model.definition.domains[variable.dimensions[0]].kind != "time"
+                ):
+                    raise ValueError(f"{path}: external providers support only scalar or time-indexed fields")
+                if timed and struct.direction == "output" and not variable.dimensions:
+                    raise ValueError(f"{path}: time-sliced providers require time-indexed outputs")
         # Authored dependencies stand in for JSON equation determinations. They
         # are never checked against the provider's internal equations.
         inputs = {

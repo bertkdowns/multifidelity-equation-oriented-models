@@ -5,7 +5,14 @@
       "requires": {
         "properties": {
           "direction": "output",
-          "variables": {"density": {"unit": "kg/m**3"}}
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
         }
       }
     }
@@ -13,40 +20,96 @@
   "structs": {
     "inlet": {
       "direction": "input",
-      "variables": {"flow": {"unit": "kg/s"}}
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
     },
     "parameters": {
       "direction": "input",
       "variables": {
-        "pressure_rise": {"unit": "Pa"},
-        "efficiency": {"bounds": {"min": 0.01, "max": 1}}
+        "pressure_rise": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "efficiency": {
+          "bounds": {
+            "min": 0.01,
+            "max": 1
+          },
+          "dimensions": [
+            "time"
+          ]
+        }
       }
     },
     "performance": {
       "direction": "output",
-      "variables": {"work": {"unit": "W"}}
+      "variables": {
+        "work": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
     }
   },
   "relationships": {
     "composed": {
       "models": {
-        "properties": {"model_parameter": "FluidProperties"},
-        "core": {"model": "pump_core"}
+        "properties": {
+          "model_parameter": "FluidProperties",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "core": {
+          "model": "pump_core",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
       },
       "constraints": {
         "flow": {
-          "lhs": "core.inlet.flow", "rhs": "inlet.flow",
-          "determines": "core.inlet.flow"
+          "lhs": "core.inlet.flow[t]",
+          "rhs": "inlet.flow[t]",
+          "determines": "core.inlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "density": {
-          "lhs": "core.inlet.density", "rhs": "properties.properties.density",
-          "determines": "core.inlet.density"
+          "lhs": "core.inlet.density[t]",
+          "rhs": "properties.properties.density[t]",
+          "determines": "core.inlet.density[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "connections": {
-        "parameters": {"from": "parameters", "to": "core.parameters"},
-        "performance": {"from": "core.performance", "to": "performance"}
+        "parameters": {
+          "from": "parameters",
+          "to": "core.parameters"
+        },
+        "performance": {
+          "from": "core.performance",
+          "to": "performance"
+        }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

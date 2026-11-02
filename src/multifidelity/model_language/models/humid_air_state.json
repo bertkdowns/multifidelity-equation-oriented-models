@@ -6,17 +6,26 @@
       "direction": "input",
       "variables": {
         "temperature": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "water_mole_fraction": {
           "unit": "dimensionless",
           "bounds": {
             "min": 0,
             "max": 1
-          }
+          },
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -24,19 +33,34 @@
       "direction": "output",
       "variables": {
         "relative_humidity": {
-          "unit": "dimensionless"
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
         },
         "temperature_wet_bulb": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/mol"
+          "unit": "J/mol",
+          "dimensions": [
+            "time"
+          ]
         },
         "entropy": {
-          "unit": "J/mol/K"
+          "unit": "J/mol/K",
+          "dimensions": [
+            "time"
+          ]
         },
         "molar_volume": {
-          "unit": "m**3/mol"
+          "unit": "m**3/mol",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -73,6 +97,11 @@
           ]
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

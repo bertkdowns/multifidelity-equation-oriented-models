@@ -22,6 +22,26 @@ discovery work without registration or compiled thermodynamic functions.
 No provider initializes or solves the model. Public variables start free and
 without values; wrapped packages may supply their own internal initial guesses.
 
+All bundled public operating fields are time-indexed, including property and
+map outputs. The default steady build has one point, so access values with
+`variable[0]`. The same selections also build in dynamic context:
+
+```python
+model = build_model(
+    "mapped_propane_compressor", selection, library=library,
+    mode="dynamic", domain_values={"time": [0, 60]},
+)
+compressor = model.fs.root.relationship.models.compressor
+compressor.structs.inlet.pressure[0].set_value(300000)
+```
+
+These models remain instantaneous algebraic components. The backend creates
+fresh scalar provider state at each time point, and creates new slices when DAE
+discretization inserts points. For an external relationship, the native block is
+`occurrence.relationship.slices[t].provider`, with public bindings at
+`occurrence.relationship.slices[t].bindings`. Direct calls to the Python provider
+functions still return scalar mappings as before.
+
 The command-line interface supports the same providers:
 
 ```bash

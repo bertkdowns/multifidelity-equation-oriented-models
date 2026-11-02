@@ -6,13 +6,22 @@
       "direction": "input",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -20,13 +29,22 @@
       "direction": "output",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -34,13 +52,22 @@
       "direction": "output",
       "variables": {
         "flow": {
-          "unit": "kg/s"
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
         },
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -48,10 +75,16 @@
       "direction": "input",
       "variables": {
         "mvr_power": {
-          "unit": "W"
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
         },
         "effectiveness": {
-          "unit": "dimensionless"
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -61,14 +94,20 @@
       "models": {},
       "constraints": {
         "mass_balance": {
-          "lhs": "milk_inlet.flow",
-          "rhs": "milk_outlet.flow + water_outlet.flow",
-          "determines": "water_outlet.flow"
+          "lhs": "milk_inlet.flow[t]",
+          "rhs": "milk_outlet.flow[t] + water_outlet.flow[t]",
+          "determines": "water_outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "energy_balance": {
-          "lhs": "milk_inlet.flow * milk_inlet.enthalpy + parameters.mvr_power",
-          "rhs": "milk_outlet.flow * milk_outlet.enthalpy + water_outlet.flow * water_outlet.enthalpy",
-          "determines": "water_outlet.enthalpy"
+          "lhs": "milk_inlet.flow[t] * milk_inlet.enthalpy[t] + parameters.mvr_power[t]",
+          "rhs": "milk_outlet.flow[t] * milk_outlet.enthalpy[t] + water_outlet.flow[t] * water_outlet.enthalpy[t]",
+          "determines": "water_outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "connections": {}
@@ -76,16 +115,28 @@
     "detailed": {
       "models": {
         "valve": {
-          "model": "valve"
+          "model": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
         },
         "heat_exchanger": {
-          "model": "heat_exchanger"
+          "model": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          }
         },
         "separator": {
-          "model": "flash_separator"
+          "model": "flash_separator",
+          "domain_bindings": {
+            "time": "time"
+          }
         },
         "translator": {
-          "model": "translator"
+          "model": "translator",
+          "domain_bindings": {
+            "time": "time"
+          }
         },
         "mvr": {
           "model": "compressor",
@@ -96,14 +147,20 @@
             "IsentropicProperties": {
               "model": "water_isentropic_package"
             }
+          },
+          "domain_bindings": {
+            "time": "time"
           }
         }
       },
       "constraints": {
         "mvr_power_balance": {
-          "lhs": "parameters.mvr_power",
-          "rhs": "mvr.performance.work",
-          "determines": "mvr.parameters.pressure_rise"
+          "lhs": "parameters.mvr_power[t]",
+          "rhs": "mvr.performance.work[t]",
+          "determines": "mvr.parameters.pressure_rise[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "connections": {
@@ -140,6 +197,11 @@
           "to": "water_outlet"
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

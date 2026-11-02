@@ -14,9 +14,17 @@
             "PerformanceMap": {
               "model": "en12900_compressor_map"
             }
+          },
+          "domain_bindings": {
+            "time": "time"
           }
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

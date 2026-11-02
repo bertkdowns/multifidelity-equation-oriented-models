@@ -29,10 +29,11 @@ For example, a density model can expose one output:
 ```json
 {
   "id": "liquid_density",
+  "domains": {"time": {"kind": "time"}},
   "structs": {
     "properties": {
       "direction": "output",
-      "variables": {"density": {"unit": "kg/m**3"}}
+      "variables": {"density": {"unit": "kg/m**3", "dimensions": ["time"]}}
     }
   },
   "relationships": {
@@ -124,6 +125,19 @@ declared public variable, including inputs. Values must be scalar Pyomo variable
 an element such as `state[0].temperature` is acceptable, while an entire indexed
 variable, an expression, or a number is not.
 
+For time-indexed interfaces, that scalar provider is called separately at each
+time point. Each call receives a fresh block and a deep copy of configuration.
+Pyomo DAE discretization also constructs slices for newly inserted points. Public
+fields may be scalar inputs or indexed by the shared time domain; all outputs of
+a time-sliced provider must be time-indexed. Scalar inputs are shared across
+slices. Spatial or other multidimensional provider interfaces are not supported.
+The backend checks this shape during input discovery as well as construction.
+
+Native blocks and binding lists live at `relationship.slices[t].provider` and
+`relationship.slices[t].bindings`. An entirely scalar custom interface still
+uses `relationship.provider` and `relationship.bindings`, preserving the original
+provider API. Native provider functions themselves always return scalar variables.
+
 The framework creates separate public variables from the manifest and adds
 unit-converting equalities to the mapped variables. For example, a public pressure
 in Pa can map to a provider variable declared in kPa. The returned dictionary
@@ -189,12 +203,20 @@ JSON pump wrapper
 ```
 
 The wrapper declares `FluidProperties` using the existing `model_parameters`
-interface. A containing model supplies a concrete definition:
+interface.
+
+The wrapper and its containing model both declare the `time` domain, and the
+generic required variables include `"dimensions": ["time"]`, matching the
+supplied density model. Bind domains on child occurrences, not on the generic
+definition arguments themselves.
+
+A containing model supplies a concrete definition:
 
 ```json
 "models": {
   "pump": {
     "model": "pump",
+    "domain_bindings": {"time": "time"},
     "model_arguments": {
       "FluidProperties": {"model": "liquid_density"}
     }
@@ -206,8 +228,8 @@ The wrapper's relationship declares its children normally:
 
 ```json
 "models": {
-  "properties": {"model_parameter": "FluidProperties"},
-  "core": {"model": "pump_core"}
+  "properties": {"model_parameter": "FluidProperties", "domain_bindings": {"time": "time"}},
+  "core": {"model": "pump_core", "domain_bindings": {"time": "time"}}
 }
 ```
 
@@ -217,9 +239,10 @@ entire source and destination structs have matching fields:
 ```json
 "constraints": {
   "density": {
-    "lhs": "core.inlet.density",
-    "rhs": "properties.properties.density",
-    "determines": "core.inlet.density"
+    "for_each": {"t": "time"},
+    "lhs": "core.inlet.density[t]",
+    "rhs": "properties.properties.density[t]",
+    "determines": "core.inlet.density[t]"
   }
 }
 ```
@@ -275,6 +298,7 @@ scaling, and input-bound construction. OMLT is optional and is not installed by
 this feature; applications register their own providers and install the packages
 those providers use.
 
-This support constructs scalar symbolic models. Numerical Python function
-evaluation, initialization, automatic solving, and new time/space-indexed public
+This support constructs scalar symbolic models and repeats them over time when
+requested by the public interface. Numerical Python function evaluation,
+initialization, automatic solving, and native spatially indexed provider
 interfaces are outside its scope.

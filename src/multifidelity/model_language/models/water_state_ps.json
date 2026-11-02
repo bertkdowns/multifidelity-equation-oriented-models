@@ -6,10 +6,16 @@
       "direction": "input",
       "variables": {
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "entropy": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -46,22 +52,40 @@
       "direction": "output",
       "variables": {
         "density": {
-          "unit": "kg/m**3"
+          "unit": "kg/m**3",
+          "dimensions": [
+            "time"
+          ]
         },
         "heat_capacity": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         },
         "viscosity": {
-          "unit": "Pa*s"
+          "unit": "Pa*s",
+          "dimensions": [
+            "time"
+          ]
         },
         "temperature": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "entropy": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -71,37 +95,60 @@
       "models": {},
       "constraints": {
         "density": {
-          "lhs": "properties.density",
+          "lhs": "properties.density[t]",
           "rhs": "parameters.density",
-          "determines": "properties.density"
+          "determines": "properties.density[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "heat_capacity": {
-          "lhs": "properties.heat_capacity",
+          "lhs": "properties.heat_capacity[t]",
           "rhs": "parameters.heat_capacity",
-          "determines": "properties.heat_capacity"
+          "determines": "properties.heat_capacity[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "viscosity": {
-          "lhs": "properties.viscosity",
+          "lhs": "properties.viscosity[t]",
           "rhs": "parameters.viscosity",
-          "determines": "properties.viscosity"
+          "determines": "properties.viscosity[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "temperature": {
-          "lhs": "properties.temperature",
-          "rhs": "parameters.reference_temperature + parameters.reference_temperature / parameters.heat_capacity * (state.entropy - parameters.reference_entropy + parameters.thermal_expansion / parameters.density * (state.pressure - parameters.reference_pressure))",
-          "determines": "properties.temperature"
+          "lhs": "properties.temperature[t]",
+          "rhs": "parameters.reference_temperature + parameters.reference_temperature / parameters.heat_capacity * (state.entropy[t] - parameters.reference_entropy + parameters.thermal_expansion / parameters.density * (state.pressure[t] - parameters.reference_pressure))",
+          "determines": "properties.temperature[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "entropy": {
-          "lhs": "properties.entropy",
-          "rhs": "state.entropy",
-          "determines": "properties.entropy"
+          "lhs": "properties.entropy[t]",
+          "rhs": "state.entropy[t]",
+          "determines": "properties.entropy[t]",
+          "for_each": {
+            "t": "time"
+          }
         },
         "enthalpy": {
-          "lhs": "properties.enthalpy",
-          "rhs": "parameters.reference_enthalpy + parameters.heat_capacity * (properties.temperature - parameters.reference_temperature) + (state.pressure - parameters.reference_pressure) / parameters.density",
-          "determines": "properties.enthalpy"
+          "lhs": "properties.enthalpy[t]",
+          "rhs": "parameters.reference_enthalpy + parameters.heat_capacity * (properties.temperature[t] - parameters.reference_temperature) + (state.pressure[t] - parameters.reference_pressure) / parameters.density",
+          "determines": "properties.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

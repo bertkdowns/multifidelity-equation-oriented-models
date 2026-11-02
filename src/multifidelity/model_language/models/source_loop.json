@@ -6,7 +6,10 @@
     "loop": {
       "models": {
         "valve": {
-          "model": "valve"
+          "model": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
         },
         "pump": {
           "model": "pump",
@@ -14,16 +17,28 @@
             "FluidProperties": {
               "model": "water_property_package"
             }
+          },
+          "domain_bindings": {
+            "time": "time"
           }
         },
         "evaporator": {
-          "model": "thermal_conditioner"
+          "model": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
         },
         "heater": {
-          "model": "thermal_conditioner"
+          "model": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
         },
         "tank": {
-          "model": "thermal_conditioner"
+          "model": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
         }
       },
       "constraints": {},
@@ -49,6 +64,11 @@
           "to": "valve.inlet"
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

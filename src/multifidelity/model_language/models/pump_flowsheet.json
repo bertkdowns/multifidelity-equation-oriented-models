@@ -11,11 +11,19 @@
             "FluidProperties": {
               "model": "water_property_package"
             }
+          },
+          "domain_bindings": {
+            "time": "time"
           }
         }
       },
       "constraints": {},
       "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

@@ -221,7 +221,7 @@ def test_composed_compressor_matches_source_rating_and_energy_balance():
         library=library,
     )
     compressor = model.fs.root.relationship.models.compressor
-    inlet_provider = compressor.relationship.models.inlet_state.relationship.provider
+    inlet_provider = compressor.relationship.models.inlet_state.relationship.slices[0].provider
     thermo = HelmholtzThermoExpressions(
         inlet_provider, inlet_provider.parameters, amount_basis=AmountBasis.MASS
     )
@@ -232,20 +232,20 @@ def test_composed_compressor_matches_source_rating_and_energy_balance():
     # Remove native initial guesses so each equality can fill one unknown.
     for variable in model.component_data_objects(Var):
         variable.set_value(None)
-    compressor.structs.inlet.pressure.set_value(pin)
-    compressor.structs.inlet.enthalpy.set_value(hin)
-    compressor.structs.parameters.pressure_rise.set_value(pout - pin)
-    compressor.structs.parameters.motor_efficiency.set_value(0.9)
+    compressor.structs.inlet.pressure[0].set_value(pin)
+    compressor.structs.inlet.enthalpy[0].set_value(hin)
+    compressor.structs.parameters.pressure_rise[0].set_value(pout - pin)
+    compressor.structs.parameters.motor_efficiency[0].set_value(0.9)
     _evaluate_explicit_equations(model)
     performance = compressor.structs.performance
-    assert value(performance.mass_flow) == pytest.approx(40.28950867832506 / 3600)
-    assert value(performance.electrical_power) == pytest.approx(883.8508203054206)
-    assert value(performance.rated_capacity) == pytest.approx(3110.311326881739)
-    assert value(performance.shaft_power) == pytest.approx(
-        0.9 * value(performance.electrical_power)
+    assert value(performance.mass_flow[0]) == pytest.approx(40.28950867832506 / 3600)
+    assert value(performance.electrical_power[0]) == pytest.approx(883.8508203054206)
+    assert value(performance.rated_capacity[0]) == pytest.approx(3110.311326881739)
+    assert value(performance.shaft_power[0]) == pytest.approx(
+        0.9 * value(performance.electrical_power[0])
     )
-    assert value(compressor.structs.outlet.enthalpy) == pytest.approx(
-        hin + value(performance.shaft_power) / value(performance.mass_flow)
+    assert value(compressor.structs.outlet.enthalpy[0]) == pytest.approx(
+        hin + value(performance.shaft_power[0]) / value(performance.mass_flow[0])
     )
     for equation in model.component_data_objects(Constraint, active=True):
         assert value(equation.body - equation.lower) == pytest.approx(0, abs=1e-6), (

@@ -15,6 +15,8 @@ class Provider(Protocol):
 
     Configuration contains JSON construction options, not operating inputs or
     model parameters. The provider must not solve or fix operating inputs.
+    The backend repeats this scalar callable per time point for time-indexed
+    public interfaces, including points inserted by DAE discretization.
     """
 
     def __call__(

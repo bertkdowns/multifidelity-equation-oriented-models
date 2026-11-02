@@ -6,7 +6,10 @@
       "direction": "input",
       "variables": {
         "electrical_power": {
-          "unit": "W"
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -14,7 +17,10 @@
       "direction": "output",
       "variables": {
         "electrical_power": {
-          "unit": "W"
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -24,12 +30,20 @@
       "models": {},
       "constraints": {
         "power": {
-          "lhs": "performance.electrical_power",
-          "rhs": "parameters.electrical_power",
-          "determines": "performance.electrical_power"
+          "lhs": "performance.electrical_power[t]",
+          "rhs": "parameters.electrical_power[t]",
+          "determines": "performance.electrical_power[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

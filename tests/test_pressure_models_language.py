@@ -38,13 +38,13 @@ def set_package(package, pressure, *, enthalpy=None, entropy=None):
         state_values = dict(pressure=pressure, entropy=entropy)
     for state in (package.structs.state, water.structs.state):
         for name, number in state_values.items():
-            getattr(state, name).set_value(number)
+            getattr(state, name)[0].set_value(number)
     properties = dict(temperature=temperature, entropy=entropy, enthalpy=enthalpy,
                       density=c['density'], heat_capacity=c['heat_capacity'], viscosity=c['viscosity'])
     for block in (package.structs.properties, water.structs.properties):
         for name, number in properties.items():
             if hasattr(block, name):
-                getattr(block, name).set_value(number)
+                getattr(block, name)[0].set_value(number)
     return properties
 
 
@@ -59,18 +59,18 @@ def test_pump_matches_incompressible_efficiency_and_energy_balance(efficiency):
     pump = model.fs.root.relationship.models.pump
     flow, pressure, enthalpy, rise = 2, 300000, 140000, 200000
     work = flow * rise / 997 / efficiency
-    pump.structs.parameters.pressure_rise.set_value(rise)
-    pump.structs.parameters.efficiency.set_value(efficiency)
+    pump.structs.parameters.pressure_rise[0].set_value(rise)
+    pump.structs.parameters.efficiency[0].set_value(efficiency)
     for state, p, h in ((pump.structs.inlet, pressure, enthalpy),
                         (pump.structs.outlet, pressure + rise, enthalpy + work / flow)):
-        state.flow.set_value(flow)
-        state.pressure.set_value(p)
-        state.enthalpy.set_value(h)
+        state.flow[0].set_value(flow)
+        state.pressure[0].set_value(p)
+        state.enthalpy[0].set_value(h)
     set_package(pump.relationship.models.outlet_state, pressure + rise, enthalpy=enthalpy + work / flow)
-    pump.structs.performance.work.set_value(work)
-    pump.structs.performance.fluid_work.set_value(work * efficiency)
+    pump.structs.performance.work[0].set_value(work)
+    pump.structs.performance.fluid_work[0].set_value(work * efficiency)
     assert_balanced(pump)
-    pump.structs.performance.work.set_value(work * 1.1)
+    pump.structs.performance.work[0].set_value(work * 1.1)
     with pytest.raises(AssertionError):
         assert_balanced(pump)
     required = required_inputs('pump_flowsheet', EXAMPLES / 'pump_flowsheet.json')
@@ -95,15 +95,15 @@ def test_compressor_matches_isentropic_efficiency_and_energy_balance(efficiency)
     if efficiency < 1:
         assert actual['entropy'] > inlet['entropy']
         assert actual['temperature'] > reference['temperature']
-    compressor.structs.parameters.pressure_rise.set_value(rise)
-    compressor.structs.parameters.efficiency.set_value(efficiency)
+    compressor.structs.parameters.pressure_rise[0].set_value(rise)
+    compressor.structs.parameters.efficiency[0].set_value(efficiency)
     for state, p, h in ((compressor.structs.inlet, pressure, enthalpy),
                         (compressor.structs.outlet, pressure + rise, enthalpy + work / flow)):
-        state.flow.set_value(flow)
-        state.pressure.set_value(p)
-        state.enthalpy.set_value(h)
-    compressor.structs.performance.work.set_value(work)
-    compressor.structs.performance.isentropic_work.set_value(isentropic_work)
+        state.flow[0].set_value(flow)
+        state.pressure[0].set_value(p)
+        state.enthalpy[0].set_value(h)
+    compressor.structs.performance.work[0].set_value(work)
+    compressor.structs.performance.isentropic_work[0].set_value(isentropic_work)
     assert_balanced(compressor)
     required = required_inputs('compressor_flowsheet', EXAMPLES / 'compressor_flowsheet.json')
     assert len(required) == 5

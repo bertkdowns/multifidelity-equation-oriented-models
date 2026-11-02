@@ -7,10 +7,20 @@
         "pump": {
           "model": "pump",
           "model_arguments": {
-            "FluidProperties": {"model": "liquid_density"}
+            "FluidProperties": {
+              "model": "liquid_density"
+            }
+          },
+          "domain_bindings": {
+            "time": "time"
           }
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

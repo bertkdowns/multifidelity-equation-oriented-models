@@ -97,20 +97,20 @@ def test_heat_pump_cop_is_a_public_output(relationship):
     model = build_heat_pump(select(library, "heat_pump", relationship))
     root = model
     assert "parameters" not in library.get("heat_pump").structs
-    root.structs.performance.cop.set_value(4)
-    root.structs.performance.electrical_power.set_value(1000)
-    root.structs.performance.heating_duty.set_value(4000)
+    root.structs.performance.cop[0].set_value(4)
+    root.structs.performance.electrical_power[0].set_value(1000)
+    root.structs.performance.heating_duty[0].set_value(4000)
     if relationship == "aggregate":
         child = root.relationship.models.cop_model
-        child.structs.parameters.cop.set_value(4)
-        child.structs.performance.cop.set_value(4)
-        assert value(child.relationship.constraints.cop.body) == pytest.approx(0)
-        root.relationship.models.power_model.structs.performance.electrical_power.set_value(1000)
-        assert value(root.relationship.constraints.power.body) == pytest.approx(0)
-        assert value(root.relationship.constraints.heating_duty_from_cop.body) == pytest.approx(0)
-    equation = root.relationship.constraints.cop
+        child.structs.parameters.cop[0].set_value(4)
+        child.structs.performance.cop[0].set_value(4)
+        assert value(child.relationship.constraints.cop[0].body) == pytest.approx(0)
+        root.relationship.models.power_model.structs.performance.electrical_power[0].set_value(1000)
+        assert value(root.relationship.constraints.power[0].body) == pytest.approx(0)
+        assert value(root.relationship.constraints.heating_duty_from_cop[0].body) == pytest.approx(0)
+    equation = root.relationship.constraints.cop[0]
     assert value(equation.body) == pytest.approx(0)
-    root.structs.performance.cop.set_value(3)
+    root.structs.performance.cop[0].set_value(3)
     assert abs(value(equation.body)) > 0
 
 
@@ -151,11 +151,11 @@ def test_heat_pump_property_packages_are_independent_and_connected(relationship)
         package = getattr(root.relationship.models, stream + "_state")
         water = package.relationship.models.water
         boundary = getattr(root.structs, stream)
-        boundary.pressure.set_value(200000)
-        boundary.enthalpy.set_value(140000)
+        boundary.pressure[0].set_value(200000)
+        boundary.enthalpy[0].set_value(140000)
         for state in (package.structs.state, water.structs.state):
-            state.pressure.set_value(200000)
-            state.enthalpy.set_value(140000)
+            state.pressure[0].set_value(200000)
+            state.enthalpy[0].set_value(140000)
         values = dict(coefficients)
         if stream.startswith("sink"):
             values["reference_temperature"] = 310
@@ -168,17 +168,17 @@ def test_heat_pump_property_packages_are_independent_and_connected(relationship)
         ) / 4180
         entropy = values["reference_entropy"] + 4180 / values["reference_temperature"] * (temperature - values["reference_temperature"]) - values["thermal_expansion"] / 997 * (200000 - 101325)
         for properties in (package.structs.properties, water.structs.properties):
-            properties.temperature.set_value(temperature)
-            properties.entropy.set_value(entropy)
+            properties.temperature[0].set_value(temperature)
+            properties.entropy[0].set_value(entropy)
             for name in ("density", "heat_capacity", "viscosity"):
-                getattr(properties, name).set_value(values[name])
+                getattr(properties, name)[0].set_value(values[name])
         for equation in water.relationship.constraints.component_data_objects():
             assert value(equation.body) == pytest.approx(0)
         for field in ("pressure", "enthalpy"):
-            assert value(getattr(root.relationship.constraints, stream + "_state_" + field).body) == pytest.approx(0)
-            assert value(getattr(package.relationship.connections.state, field).body) == pytest.approx(0)
+            assert value(getattr(root.relationship.constraints, stream + "_state_" + field)[0].body) == pytest.approx(0)
+            assert value(getattr(package.relationship.connections.state, field)[0].body) == pytest.approx(0)
         for field in ("temperature", "density", "heat_capacity", "viscosity", "entropy"):
-            assert value(getattr(package.relationship.connections.properties, field).body) == pytest.approx(0)
+            assert value(getattr(package.relationship.connections.properties, field)[0].body) == pytest.approx(0)
     required = required_inputs("heat_pump_flowsheet", heat_pump_flowsheet_selection(selection), library=library)
     assert len(required) == (8 if relationship == "aggregate" else 17)
     assert not any("_state." in path for path in required)
@@ -247,14 +247,14 @@ def test_reused_definition_has_distinct_occurrences_and_connection_equations(tmp
     model = build_heat_pump(path, library=library)
     parts = model.relationship.models
     a, b = (
-        parts.condenser.structs.hot_inlet.flow,
-        parts.subcooler.structs.hot_inlet.flow,
+        parts.condenser.structs.hot_inlet.flow[0],
+        parts.subcooler.structs.hot_inlet.flow[0],
     )
     assert a is not b
     a.set_value(3)
     assert b.value is None
-    equation = model.relationship.connections.link_2.flow
-    parts.condenser.structs.hot_outlet.flow.set_value(3)
+    equation = model.relationship.connections.link_2.flow[0]
+    parts.condenser.structs.hot_outlet.flow[0].set_value(3)
     b.set_value(2)
     assert abs(value(equation.body)) == 1
 
@@ -281,7 +281,7 @@ def test_expression_language_rejects_execution_and_out_of_scope_references(expre
     library = Library()
     library.models["valve"].relationships["isenthalpic"].constraints["bad"] = (
         Constraint.model_validate(
-            {"lhs": "outlet.flow", "rhs": expression, "determines": "outlet.flow"}
+            {"for_each": {"t": "time"}, "lhs": 'outlet.flow[t]', "rhs": expression, "determines": 'outlet.flow[t]'}
         )
     )
     with pytest.raises(ValueError):
@@ -305,10 +305,10 @@ def test_only_selected_child_interface_is_accessible():
     library = Library()
     library.models["heat_pump"].relationships["cycle"].constraints["bad"] = (
         Constraint.model_validate(
-            {
-                "lhs": "performance.heating_duty",
-                "rhs": "compressor.hidden.inputs.work",
-                "determines": "performance.heating_duty",
+            {"for_each": {"t": "time"},
+                "lhs": 'performance.heating_duty[t]',
+                "rhs": 'compressor.hidden.inputs.work[t]',
+                "determines": 'performance.heating_duty[t]',
             }
         )
     )
@@ -372,10 +372,10 @@ def test_connections_share_determination_namespace(kind):
         ].model_copy()
     else:
         relationship.constraints["duplicate"] = Constraint.model_validate(
-            {
-                "lhs": "condenser.hot_inlet.flow",
-                "rhs": "compressor.outlet.flow",
-                "determines": "condenser.hot_inlet.flow",
+            {"for_each": {"t": "time"},
+                "lhs": 'condenser.hot_inlet.flow[t]',
+                "rhs": 'compressor.outlet.flow[t]',
+                "determines": 'condenser.hot_inlet.flow[t]',
             }
         )
     with pytest.raises(
@@ -388,12 +388,12 @@ def test_connections_share_determination_namespace(kind):
 def test_constraint_target_must_be_valid_and_occur_in_equation(target):
     library = Library()
     equation = library.models["valve"].relationships["isenthalpic"].constraints["mass_balance"]
-    equation.determines = target
+    equation.determines = target + "[t]"
     if target == "outlet.pressure":
         # Swap targets to retain complete coverage without duplicate targets.
         library.models["valve"].relationships["isenthalpic"].constraints[
             "pressure_balance"
-        ].determines = "outlet.flow"
+        ].determines = "outlet.flow[t]"
     with pytest.raises(ValueError, match="invalid target|does not occur"):
         build_model("valve", select(library, "valve"), library=library)
 
@@ -402,10 +402,10 @@ def test_child_output_cannot_be_determined_by_containing_relationship():
     library = Library()
     library.models["heat_pump"].relationships["cycle"].constraints["bad"] = (
         Constraint.model_validate(
-            {
-                "lhs": "compressor.outlet.flow",
-                "rhs": "compressor.inlet.flow",
-                "determines": "compressor.outlet.flow",
+            {"for_each": {"t": "time"},
+                "lhs": 'compressor.outlet.flow[t]',
+                "rhs": 'compressor.inlet.flow[t]',
+                "determines": 'compressor.outlet.flow[t]',
             }
         )
     )
@@ -431,8 +431,8 @@ def test_water_state_property_equations(temperature, pressure):
     library = Library()
     model = build_model("water_state", select(library, "water_state"), library=library)
     root = model.fs.root
-    root.structs.state.temperature.set_value(temperature)
-    root.structs.state.pressure.set_value(pressure)
+    root.structs.state.temperature[0].set_value(temperature)
+    root.structs.state.pressure[0].set_value(pressure)
     coefficients = {
         "reference_temperature": 298.15,
         "reference_pressure": 101325,
@@ -456,8 +456,8 @@ def test_water_state_property_equations(temperature, pressure):
         - 0.000257 / 997 * (pressure - 101325),
     }
     for name, number in expected.items():
-        variable = getattr(root.structs.properties, name)
-        equation = getattr(root.relationship.constraints, name)
+        variable = getattr(root.structs.properties, name)[0]
+        equation = getattr(root.relationship.constraints, name)[0]
         variable.set_value(number)
         assert value(equation.body) == pytest.approx(0, abs=1e-09)
         variable.set_value(number + 1)
@@ -479,12 +479,12 @@ def test_generic_property_arguments_create_distinct_state_occurrences():
     outlet = pair.relationship.models.outlet.structs
     assert inlet.state.pressure is not outlet.state.pressure
     assert not hasattr(pair.structs, "parameters")
-    pair.structs.inlet_state.enthalpy.set_value(140000)
-    inlet.state.enthalpy.set_value(140000)
-    assert value(pair.relationship.connections.inlet_state.enthalpy.body) == 0
-    pair.structs.inlet_properties.temperature.set_value(310)
-    inlet.properties.temperature.set_value(310)
-    assert value(pair.relationship.constraints.inlet_temperature.body) == 0
+    pair.structs.inlet_state.enthalpy[0].set_value(140000)
+    inlet.state.enthalpy[0].set_value(140000)
+    assert value(pair.relationship.connections.inlet_state.enthalpy[0].body) == 0
+    pair.structs.inlet_properties.temperature[0].set_value(310)
+    inlet.properties.temperature[0].set_value(310)
+    assert value(pair.relationship.constraints.inlet_temperature[0].body) == 0
     a = pair.relationship.models.inlet.relationship.models.water.structs.parameters.density
     b = pair.relationship.models.outlet.relationship.models.water.structs.parameters.density
     assert a is not b
@@ -502,6 +502,7 @@ def test_model_parameter_forwarding():
     library.models["forwarder"] = Model.model_validate(
         {
             "id": "forwarder",
+            "domains": {"time": {"kind": "time"}},
             "structs": {},
             "model_parameters": library.get("property_pair").model_parameters,
             "relationships": {
@@ -509,6 +510,7 @@ def test_model_parameter_forwarding():
                     "models": {
                         "pair": {
                             "model": "property_pair",
+                            "domain_bindings": {"time": "time"},
                             "model_arguments": {
                                 "FluidProperties": {
                                     "model_parameter": "FluidProperties"
@@ -529,7 +531,7 @@ def test_model_parameter_forwarding():
         "water_property_pair", select(library, "water_property_pair"), library=library
     )
     assert (
-        model.fs.root.relationship.models.states.relationship.models.pair.relationship.models.inlet.structs.properties.temperature
+        model.fs.root.relationship.models.states.relationship.models.pair.relationship.models.inlet.structs.properties.temperature[0]
         is not None
     )
 
@@ -577,7 +579,7 @@ def test_generic_argument_interface_is_checked(change):
         key, val = {
             "unit": ("unit", "Pa"),
             "type": ("value_type", "integer"),
-            "dimensions": ("dimensions", ["time"]),
+            "dimensions": ("dimensions", []),
         }[change]
         setattr(variable, key, val)
     with pytest.raises(ValueError, match="required|incompatible"):
@@ -696,8 +698,8 @@ def test_heat_pump_evaporator_example_connects_steam_and_serial_effects():
             PyomoConstraint
         ) for v in identify_variables(c.body)}
         for field in ("flow", "pressure", "enthalpy"):
-            assert id(getattr(source, field)) in variables
-            assert id(getattr(destination, field)) in variables
+            assert id(getattr(source, field)[0]) in variables
+            assert id(getattr(destination, field)[0]) in variables
 
 
 def test_steam_generating_heat_pump_aggregate_balances_and_interface():
@@ -710,17 +712,17 @@ def test_steam_generating_heat_pump_aggregate_balances_and_interface():
     root = model.fs.root
     inlet = root.structs.makeup_inlet
     outlet = root.structs.steam_outlet
-    inlet.flow.set_value(2)
-    inlet.pressure.set_value(200000)
-    inlet.enthalpy.set_value(100000)
-    outlet.flow.set_value(2)
-    outlet.pressure.set_value(200000)
-    outlet.enthalpy.set_value(250000)
+    inlet.flow[0].set_value(2)
+    inlet.pressure[0].set_value(200000)
+    inlet.enthalpy[0].set_value(100000)
+    outlet.flow[0].set_value(2)
+    outlet.pressure[0].set_value(200000)
+    outlet.enthalpy[0].set_value(250000)
     children = root.relationship.models
-    children.cop_model.structs.parameters.cop.set_value(3)
-    children.cop_model.structs.performance.cop.set_value(3)
-    children.power_model.structs.parameters.electrical_power.set_value(100000)
-    children.power_model.structs.performance.electrical_power.set_value(100000)
+    children.cop_model.structs.parameters.cop[0].set_value(3)
+    children.cop_model.structs.performance.cop[0].set_value(3)
+    children.power_model.structs.parameters.electrical_power[0].set_value(100000)
+    children.power_model.structs.performance.electrical_power[0].set_value(100000)
     for constraint in model.component_data_objects(PyomoConstraint):
         assert value(constraint.body - constraint.lower) == pytest.approx(0)
     assert required_inputs("steam_generating_heat_pump", implementation, library=library)

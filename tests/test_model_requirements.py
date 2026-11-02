@@ -80,10 +80,10 @@ def test_configured_water_package_only_requires_state():
 def test_partial_child_struct_still_lists_other_inputs():
     library = Library()
     rel = library.get("water_property_pair").relationships["evaluate"]
-    rel.constraints["pressure"] = Constraint(
-        lhs="states.inlet_state.pressure",
-        rhs="states.outlet_state.pressure",
-        determines="states.inlet_state.pressure",
+    rel.constraints["pressure"] = Constraint(for_each={"t": "time"},
+        lhs='states.inlet_state.pressure[t]',
+        rhs='states.outlet_state.pressure[t]',
+        determines='states.inlet_state.pressure[t]',
     )
     required = required_inputs(
         "water_property_pair",
@@ -143,10 +143,10 @@ def test_duplicate_determinations_are_rejected(kind):
     if kind == "connection":
         rel.connections["duplicate"] = Connection(from_="inlet_state", to="inlet.state")
     else:
-        rel.constraints["duplicate"] = Constraint(
-            lhs="inlet.state.pressure",
-            rhs="inlet_state.pressure",
-            determines="inlet.state.pressure",
+        rel.constraints["duplicate"] = Constraint(for_each={"t": "time"},
+            lhs='inlet.state.pressure[t]',
+            rhs='inlet_state.pressure[t]',
+            determines='inlet.state.pressure[t]',
         )
     with pytest.raises(ValueError, match="duplicate determination"):
         required_inputs(

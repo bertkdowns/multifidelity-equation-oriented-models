@@ -156,14 +156,15 @@ A model contains `id`, optional `description`, `structs`, and `relationships`:
 ```json
 {
   "id": "valve",
+  "domains": {"time": {"kind": "time"}},
   "structs": {
     "inlet": {
       "direction": "input",
-      "variables": {"pressure": {"unit": "Pa"}}
+      "variables": {"pressure": {"unit": "Pa", "dimensions": ["time"]}}
     },
     "outlet": {
       "direction": "output",
-      "variables": {"pressure": {"unit": "Pa"}}
+      "variables": {"pressure": {"unit": "Pa", "dimensions": ["time"]}}
     }
   },
   "relationships": {
@@ -171,9 +172,10 @@ A model contains `id`, optional `description`, `structs`, and `relationships`:
       "models": {},
       "constraints": {
         "pressure": {
-          "lhs": "outlet.pressure",
-          "rhs": "inlet.pressure",
-          "determines": "outlet.pressure"
+          "for_each": {"t": "time"},
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "outlet.pressure[t]"
         }
       },
       "connections": {}
@@ -314,7 +316,41 @@ unused keys are errors. Bound domains need no separate values.
 `required_inputs()` returns one entry per required variable family, retaining
 its `dimensions`, without needing numerical domain values. Generic interfaces
 continue to compare ordered dimension declarations. External symbolic providers
-currently retain their scalar-only interface contract.
+use one scalar provider instance per time point; see the
+[custom-model guide](custom-models.md).
+
+### Library-wide time convention
+
+Every bundled model declares a time domain, including wrappers with no public
+structs. Streams, property states and reported properties, performance quantities,
+operating efficiencies, pressure changes, split fractions, duties, and setpoints
+are indexed by time. Child occurrences explicitly bind to the parent's shared
+time domain, and generic requirements use the same ordered dimensions.
+
+Fixed affine-water coefficients (`water_state`, `water_state_ph`, and
+`water_state_ps` parameters), tank geometry/physical parameters, and exchanger
+conductance remain scalar. The configured water wrappers determine their
+coefficients once, while evaluating their state/property equations at every time.
+Map coefficient arrays and rating configuration remain in provider configuration;
+reported rating outputs are time-indexed like the rest of the map interface.
+
+Existing implementation selections and required-input family paths are unchanged.
+Python access to operating values now needs an index even in steady mode:
+
+```python
+steady = build_model("valve", {"model": "valve", "relationship": "isenthalpic"})
+steady.fs.root.structs.inlet.pressure[0].fix(200000)
+
+transient = build_model(
+    "valve", {"model": "valve", "relationship": "isenthalpic"},
+    mode="dynamic", domain_values={"time": [0, 60]},
+)
+```
+
+A valve, pump, or property model with no accumulation still contributes
+instantaneous algebraic equations inside a dynamic flowsheet. It does not gain
+holdup, delay, or a derivative merely by sharing continuous time. Multiple points
+in steady mode remain independent operating points.
 
 Run the complete pass-through pipe example with
 `.venv/bin/python examples/indexed_models/build.py` from the repository root.
@@ -463,8 +499,8 @@ A relationship's `models` maps local aliases to definitions:
 
 ```json
 "models": {
-  "evaporator": {"model": "heat_exchanger"},
-  "condenser": {"model": "heat_exchanger"}
+  "evaporator": {"model": "heat_exchanger", "domain_bindings": {"time": "time"}},
+  "condenser": {"model": "heat_exchanger", "domain_bindings": {"time": "time"}}
 }
 ```
 
@@ -497,13 +533,13 @@ For example, a generic property-state pair declares:
       "state": {
         "direction": "input",
         "variables": {
-          "pressure": {"unit": "Pa"},
-          "enthalpy": {"unit": "J/kg"}
+          "pressure": {"unit": "Pa", "dimensions": ["time"]},
+          "enthalpy": {"unit": "J/kg", "dimensions": ["time"]}
         }
       },
       "properties": {
         "direction": "output",
-        "variables": {"temperature": {"unit": "K"}}
+        "variables": {"temperature": {"unit": "K", "dimensions": ["time"]}}
       }
     }
   }
@@ -514,8 +550,8 @@ Relationships use that dependency through named model references:
 
 ```json
 "models": {
-  "inlet": {"model_parameter": "FluidProperties"},
-  "outlet": {"model_parameter": "FluidProperties"}
+  "inlet": {"model_parameter": "FluidProperties", "domain_bindings": {"time": "time"}},
+  "outlet": {"model_parameter": "FluidProperties", "domain_bindings": {"time": "time"}}
 }
 ```
 
@@ -525,6 +561,7 @@ A containing relationship supplies all arguments at its concrete reference:
 "models": {
   "states": {
     "model": "property_pair",
+    "domain_bindings": {"time": "time"},
     "model_arguments": {
       "FluidProperties": {"model": "water_property_package"}
     }
@@ -734,8 +771,8 @@ Its root definition is materialized at `model.fs.root`:
 
 ```python
 root = model.fs.root.relationship.models.heat_pump
-root.structs.source_inlet.flow
-root.relationship.models.compressor.structs.performance.work
+root.structs.source_inlet.flow[0]
+root.relationship.models.compressor.structs.performance.work[0]
 root.relationship.constraints
 root.relationship.connections
 ```
@@ -807,16 +844,16 @@ live in `examples/model_language/`; these are examples, not an instance framewor
 
 | Model | Existing source and scope |
 | --- | --- |
-| `heat_exchanger` | Scalar lumped balance/conductance example inspired by `unit_models/heat_exchanger`; no segmented/distributed physics |
+| `heat_exchanger` | Time-indexed lumped balance/conductance example inspired by `unit_models/heat_exchanger`; no segmented/distributed physics |
 | `valve` | Isenthalpic pressure-drop equations |
 | `pump`, `compressor` | Incompressible pump efficiency and isentropic compressor efficiency with generic property arguments |
 | `pump_flowsheet`, `compressor_flowsheet` | Concrete water-package examples for the pressure changers |
-| `thermal_conditioner` | Scalar stream heating balance |
+| `thermal_conditioner` | Time-indexed stream heating balance |
 | `water_state` | Pressure/temperature liquid state with affine enthalpy and constant density, heat capacity and viscosity |
 | `water_state_ph`, `water_state_ps` | Pressure/enthalpy and pressure/entropy forms of the affine liquid-water model |
 | `water_property_package`, `water_isentropic_package` | Configured PH and PS water-state wrappers supplying their own illustrative coefficients |
 | `property_pair`, `water_property_pair` | Generic two-state property calculation and a concrete water specialization |
-| `mixer`, `splitter` | Scalar mixing and prescribed split |
+| `mixer`, `splitter` | Time-indexed mixing and prescribed split |
 | `flash_separator`, `translator` | Topology scaffolds; no equilibrium, composition or basis conversion |
 | `heat_pump_flowsheet` | Concrete wrapper supplying independent property-model arguments to `heat_pump` |
 | `heat_pump` | Aggregate COP equations and the cycle topology from `unit_models/heat_pump/cycle.py`, including subcooler and IHX |
@@ -852,7 +889,7 @@ COP is undefined at zero electrical power; this construction-only language does
 not enforce a nonzero operating specification.
 
 With the configured water property arguments, the aggregate example requires 8
-scalar inputs, including the nested COP input; the cycle example requires 17,
+input families, including the nested COP input; the cycle example requires 17,
 with no specified COP. Neither requires external coefficient specifications. Parent relationships see
 the same public interface regardless of the selected heat-pump relationship.
 
@@ -948,7 +985,7 @@ temperature differences to exchanger duties or introduce a Carnot relationship.
 Both `pump` and `compressor` expose inlet/outlet mass flow, pressure and specific
 enthalpy. They take `parameters.pressure_rise` and `parameters.efficiency`, and
 calculate `performance.work` (positive work into the fluid). With the inlet
-state specified, each concrete example needs five scalar specifications. No
+state specified, each concrete example needs five specifications per time point. No
 power specification is required for these pressure-driven examples.
 
 The pump's `incompressible` relationship follows IDAES's incompressible pump
@@ -1164,9 +1201,10 @@ or prerequisites for the initial bounded experiments.
 - **Dynamic state transfer:** Steady/dynamic rebuilding and initial specifications
   are supported. Automatic transfer between representations and fidelity-dependent
   initial profiles remain open.
-- **External Pyomo and machine-learning models:** Scalar symbolic providers are
-  supported through external relationships; see the [how-to guide](custom-models.md).
-  Broader indexed interfaces and model-specific initialization remain future work.
+- **External Pyomo and machine-learning models:** Scalar symbolic providers can
+  be repeated over time through external relationships; see the
+  [how-to guide](custom-models.md). Native spatially indexed provider interfaces
+  and model-specific initialization remain future work.
 - **Parameter estimation:** How does estimation interact with our implementation
   selection and instance-specification methods, including information records,
   uncertainty and quantities of interest? What should be fixed, estimated or

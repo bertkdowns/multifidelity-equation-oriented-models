@@ -6,7 +6,10 @@
       "direction": "input",
       "variables": {
         "cop": {
-          "unit": "dimensionless"
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -14,7 +17,10 @@
       "direction": "output",
       "variables": {
         "cop": {
-          "unit": "dimensionless"
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -24,12 +30,20 @@
       "models": {},
       "constraints": {
         "cop": {
-          "lhs": "performance.cop",
-          "rhs": "parameters.cop",
-          "determines": "performance.cop"
+          "lhs": "performance.cop[t]",
+          "rhs": "parameters.cop[t]",
+          "determines": "performance.cop[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }

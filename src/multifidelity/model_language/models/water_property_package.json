@@ -6,10 +6,16 @@
       "direction": "input",
       "variables": {
         "pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         },
         "enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -17,19 +23,34 @@
       "direction": "output",
       "variables": {
         "density": {
-          "unit": "kg/m**3"
+          "unit": "kg/m**3",
+          "dimensions": [
+            "time"
+          ]
         },
         "heat_capacity": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         },
         "viscosity": {
-          "unit": "Pa*s"
+          "unit": "Pa*s",
+          "dimensions": [
+            "time"
+          ]
         },
         "temperature": {
-          "unit": "K"
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         },
         "entropy": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -38,7 +59,10 @@
     "constant_properties": {
       "models": {
         "water": {
-          "model": "water_state_ph"
+          "model": "water_state_ph",
+          "domain_bindings": {
+            "time": "time"
+          }
         }
       },
       "constraints": {
@@ -93,6 +117,11 @@
           "to": "properties"
         }
       }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
     }
   }
 }
