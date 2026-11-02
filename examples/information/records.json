@@ -1,0 +1,23 @@
+[
+  {
+    "id": "inlet_temperature_series",
+    "tag": "TT101",
+    "information_type": "sensor_reading",
+    "variable_path": "inlet.temperature",
+    "type": "series",
+    "value": [303.15, 305.15, 310.15],
+    "unit": "K",
+    "standard_deviation": 0.2,
+    "trust_rank": 10
+  },
+  {
+    "id": "inlet_temperature_fallback",
+    "tag": "inlet_temperature_assumption",
+    "information_type": "assumption",
+    "variable_path": "inlet.temperature",
+    "type": "constant",
+    "value": 303.15,
+    "unit": "K",
+    "trust_rank": 1
+  }
+]

@@ -1046,8 +1046,9 @@ Each record has:
 | `id` | Unique identity of the information record |
 | `tag` | Tag name for linking to external systems; distinct from the record identity |
 | `information_type` | One of `sensor_reading`, `control_setpoint`, `equipment_specification`, `parameter`, or `assumption` |
-| `variable_path` | Path to the variable in the model, using the existing model-variable path convention |
-| `value` | Numerical observation, specification, estimate or assumed value |
+| `variable_path` | Path to the variable family, without individual index subscripts |
+| `type` | `constant` (default) or `series` |
+| `value` | One number for a constant, or a rectangular numeric array for a series |
 | `unit` | Unit in which the value and its standard deviation are expressed |
 | `standard_deviation` | Optional nonnegative uncertainty in the same unit as `value` |
 | `trust_rank` | Integer from 1 to 10; higher ranks are prioritized when selecting specifications |
@@ -1060,6 +1061,8 @@ specific internal variables still need to exist in the selected implementation.
 Standard deviation is the only uncertainty representation for now. Omitted means
 unknown uncertainty; zero explicitly means the value is treated as exact. Do not
 interpret omitted uncertainty as zero or introduce percentage/bound variants.
+One standard deviation applies to every entry of a series; per-entry uncertainty
+and correlation models are not introduced.
 
 ```json
 [
@@ -1068,7 +1071,8 @@ interpret omitted uncertainty as zero or introduce percentage/bound variants.
     "tag": "TT101",
     "information_type": "sensor_reading",
     "variable_path": "sink_inlet.temperature",
-    "value": 323.15,
+    "type": "series",
+    "value": [323.15, 324.15, 325.15],
     "unit": "K",
     "standard_deviation": 0.2,
     "trust_rank": 10
@@ -1078,6 +1082,7 @@ interpret omitted uncertainty as zero or introduce percentage/bound variants.
     "tag": "TSP101",
     "information_type": "control_setpoint",
     "variable_path": "sink_inlet.temperature",
+    "type": "constant",
     "value": 324.15,
     "unit": "K",
     "trust_rank": 5
@@ -1095,7 +1100,8 @@ it is not a probability or inverse variance. Do not compare raw standard deviati
 across different quantities to establish trust. Equal ranks initially use record
 ID as a deterministic tie-break.
 
-Records for one variable are alternatives. Normally use the highest-ranked
+Records for one variable family are alternatives, each describing a complete
+constant or series. Normally use the highest-ranked
 applicable record; retain lower-ranked records as fallbacks when the preferred
 record cannot be used. They do not supply additional independent specifications
 and are not averaged or fixed simultaneously. For the initial algorithm, selected
@@ -1106,8 +1112,59 @@ model are fixed assumptions, distinct from solver initial guesses.
 See the [trust-ranked DM specification algorithm and separate experiment outlines](../../../research-ideas/information-directed-specification.md)
 for structural candidate selection, auditable specification plans, and future
 noise/conditioning studies. This algorithm is proposed, not yet implemented.
-Whether tag definitions and timestamped values should be separated is also open;
-no time-series schema or instance-application behavior is specified here.
+Series use the numerical grid's index order. They do not carry separate timestamps,
+per-point selectors, or interpolation rules. Instance application remains separate.
+
+### Constant and series values
+
+A `constant` has one numeric value, which can be broadcast over all indices or
+used for a scalar parameter. Omitting `type` preserves existing scalar records as
+constants. A `series` contains a value for every index, as a JSON list or nested
+list. Python callers may also pass tuples or NumPy arrays. All entries must be
+finite real numbers; empty, ragged, boolean, and nonnumeric arrays are rejected.
+Explicit `type="series"` is required for arrays.
+
+Array axes follow the variable's declared dimensions. For a time-only variable,
+`value` is a one-dimensional list with one entry per time. For dimensions
+`["time", "cells"]`, it has shape `(number_of_times, number_of_cells)`.
+Series length and shape must match the **final grid after discretization**.
+There is no automatic resampling, interpolation, or snapping to grid points.
+
+Record values are stored as immutable nested tuples so changing a supplied list
+or ndarray cannot change table contents. `model_dump_json()` and
+`model_dump(mode="json")` serialize them as ordinary JSON arrays.
+
+```python
+series = InformationRecord(
+    id="inlet_temperature_series", tag="TT101",
+    information_type="sensor_reading", variable_path="inlet.temperature",
+    type="series", value=[303.15, 305.15, 310.15],
+    unit="K", standard_deviation=0.2, trust_rank=10,
+)
+series.shape  # (3,)
+series.validate_shape((3,))
+# series.validate_shape((2,)) raises ValueError
+
+# After constructing/discretizing a model with time points [0, 30, 60]:
+values = series.values_for(model.fs.root.structs.inlet.temperature)
+# {0: 303.15, 30: 305.15, 60: 310.15}
+```
+
+`validate_shape(shape)` checks series shape; constants can broadcast to any valid
+shape. `values_for(variable)` performs that check against the variable's current
+grid and returns an index-to-value dictionary. A scalar target uses key `None`.
+Series mapping requires ordered, one-dimensional index domains, as used by this
+model language, and follows their iteration order. Constants do not require an
+ordering and broadcast across every index.
+
+These helpers do not resolve `variable_path`, convert units, select a record, set
+values, or fix variables. The returned numbers remain in the record's declared
+unit. They expose the mapping for a later specification/observation step while
+keeping information separate from decisions about its use.
+
+Run `.venv/bin/python examples/information/show_records.py` to load constant and series
+alternatives from `examples/information/records.json` and map them onto a
+discretized tank inlet without changing any model values.
 
 ### Information-table interface
 
