@@ -1,15 +1,53 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ReactFlow, Handle, Position, Background, Controls, MiniMap, SelectionMode, useUpdateNodeInternals, applyNodeChanges } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './style.css';
 import { makeGraph, variableLabel } from './graph.js';
 import { layoutKey, restorePositions, savePositions } from './layout-storage.js';
+import { parseInformation, indexInformation, informationPreview, findVariable } from './information.js';
 
 const documents = import.meta.glob('../../src/multifidelity/model_language/models/*.json', { eager: true, import: 'default' });
 const library = Object.fromEntries(Object.values(documents).map(model => [model.id, model]));
 const modelIcons = new Set(Object.keys(import.meta.glob('../public/model-icons/*.svg')).map(path => path.split('/').at(-1).replace(/\.svg$/, '')));
 
+const InformationContext = createContext({ index: new Map(), prefix: '', inspect: () => {} });
+function InformationValue({ name, variable, localPath }) {
+  const { index, prefix, inspect } = useContext(InformationContext);
+  const path = [prefix, localPath].filter(Boolean).join('.');
+  const records = index.get(path) ?? [];
+  const record = records[0];
+  return record ? <button className="information-value nodrag nopan" title="Information preview — click for sources and alternatives" onClick={event => { event.stopPropagation(); inspect({ title: name, variable: { path, metadata: variable, records } }); }}>
+    {informationPreview(record)} <code>{record.unit}</code>{records.length > 1 && <small> +{records.length - 1}</small>}
+  </button> : <code>{variable.unit ?? 'dimensionless'}</code>;
+}
+function InformationUpload({ file, root, onLoad, onClear }) {
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  async function load(upload) {
+    if (!upload) return;
+    setError(''); setLoading(true);
+    try {
+      if (upload.size > 10 * 1024 * 1024) throw Error('Please use a file smaller than 10 MB.');
+      onLoad({ name: upload.name, records: parseInformation(await upload.text()) });
+    } catch (error) { setError(error.message); }
+    finally { setLoading(false); }
+  }
+  return <section className="information-upload" onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); if (!loading) load(event.dataTransfer.files[0]); }}>
+    <b>Information</b><p>Drop information.json here, or choose a file. Paths are relative to <strong>{root}</strong>.</p>
+    <label className="file-picker">{loading ? 'Loading…' : file ? 'Replace file' : 'Choose file'}<input type="file" accept=".json,application/json" disabled={loading} onChange={event => { load(event.target.files[0]); event.target.value = ''; }}/></label>
+    {file && <><p>{file.name} · {file.records.length} records</p><button onClick={() => { onClear(); setError(''); }}>Clear</button></>}
+    {error && <p role="alert" className="upload-error">{error}</p>}
+    <p>Information previews only; no calculations or specifications are applied.</p>
+  </section>;
+}
+function VariableInformation({ variable }) {
+  return <div className="variable-information"><code>{variable.path}</code><p>Model unit: {variable.metadata.unit ?? 'dimensionless'}</p>
+    {variable.metadata.dimensions?.length > 0 && <p>Dimensions: {variable.metadata.dimensions.join(', ')}</p>}
+    <p>Records ordered by trust rank then ID. The first record is the display preview.</p>
+    {variable.records.map((record, index) => <details key={record.id} open={index === 0}><summary>{informationPreview(record)} {record.unit} · trust {record.trust_rank}</summary><p>{record.information_type} · {record.tag}</p><p>Standard deviation: {record.standard_deviation == null ? 'unknown' : `${record.standard_deviation} ${record.unit}`}</p><pre>{JSON.stringify(record, null, 2)}</pre></details>)}
+  </div>;
+}
 function Port({ id }) {
   return <><Handle type="target" position={Position.Left} id={`${id}:in`} isConnectable={false}/><Handle type="source" position={Position.Right} id={`${id}:out`} isConnectable={false}/></>;
 }
@@ -56,7 +94,7 @@ function Entity({ id, data, selected }) {
         {collapsedRows[row.name] ? hiddenPorts(row) : <Port id={row.name}/>}
         <button className="nodrag nopan" aria-expanded={!collapsedRows[row.name]} onClick={event => { event.stopPropagation(); setCollapsedRows(previous => ({ ...previous, [row.name]: !previous[row.name] })); }}>{collapsedRows[row.name] ? '▸' : '▾'} {row.name} <span>({Object.keys(row.variables).length})</span></button><small>{row.direction}</small>
       </div>
-      {!collapsedRows[row.name] && Object.entries(row.variables).map(([name, variable]) => <div className="variable" key={name} title={JSON.stringify(variable)}><Port id={`${row.name}.${name}`}/><span>{variableLabel(name, variable)}</span><code>{variable.unit ?? 'dimensionless'}</code></div>)}
+      {!collapsedRows[row.name] && Object.entries(row.variables).map(([name, variable]) => <div className="variable" key={name} title={JSON.stringify(variable)}><Port id={`${row.name}.${name}`}/><span>{variableLabel(name, variable)}</span><InformationValue name={name} variable={variable} localPath={`${data.kind === 'model' ? `${data.title}.` : ''}${row.name}.${name}`}/></div>)}
     </section>)}
   </article>;
 }
@@ -88,11 +126,21 @@ function App() {
   const relationship = choices[path] ?? Object.keys(current.definition.relationships)[0];
   const graph = useMemo(() => makeGraph(current, relationship, library, view), [current, relationship, view]);
   const [selection, setSelection] = useState(null);
+  const [informationFiles, setInformationFiles] = useState({});
+  const rootId = trail[0].definition.id;
+  const informationFile = informationFiles[rootId];
+  const informationIndex = useMemo(() => indexInformation(informationFile?.records ?? []), [informationFile]);
+  const unmatched = useMemo(() => [...informationIndex.keys()].filter(path => !findVariable(trail[0], path, library)), [informationIndex, trail[0]]);
+  const informationContext = { index: informationIndex, prefix: trail.slice(1).map(item => item.alias).join('.'), inspect: setSelection };
+  function setInformation(file) { setInformationFiles(previous => ({ ...previous, [rootId]: file })); setSelection(null); }
   function explore(data) { setTrail([...trail, { ...data.child, alias: data.title }]); setSelection(null); }
   function openRoot(id) { setTrail([{ definition: library[id], bindings: {}, alias: id }]); setSelection(null); }
-  return <main>
+  return <InformationContext.Provider value={informationContext}><main>
     <aside><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Model explorer</h1><p>Follow the equations.<br/>Explore every level.</p>
       <label>Model library<select value={trail[0].definition.id} onChange={event => openRoot(event.target.value)}>{Object.keys(library).sort().map(id => <option key={id}>{id}</option>)}</select></label>
+      <InformationUpload key={rootId} file={informationFile} root={rootId} onLoad={setInformation} onClear={() => setInformation(null)}/>
+      {unmatched.length > 0 && <details className="unmatched"><summary>{unmatched.length} unmatched variable paths</summary><p>These paths were not found in the available model definitions.</p>{unmatched.map(path => <div key={path}>{path}</div>)}</details>}
+      {informationFile && <p>Records in other relationships appear when you explore those models. No values are propagated along connections.</p>}
       <label>Relationship<select value={relationship ?? ''} onChange={event => { setChoices({ ...choices, [path]: event.target.value }); setSelection(null); }}>{Object.keys(current.definition.relationships).map(name => <option key={name}>{name}</option>)}</select></label>
       <p className="description">{current.definition.description}</p>
       {Object.keys(current.definition.domains ?? {}).length > 0 && <div className="domain-info"><b>Index domains</b>{Object.entries(current.definition.domains).map(([name, domain]) => <div key={name}>{name} · {domain.kind}{current.domainBindings?.[name] && ` → parent.${current.domainBindings[name]}`}</div>)}<p>Indexed variables and equations are shown as families, without expanding time points or domain members.</p></div>}
@@ -103,7 +151,7 @@ function App() {
       {selection && <div className="details"><h3>{selection.title}</h3>
         {selection.child && !selection.child.unresolved && <button className="explore-button" onClick={() => explore(selection)}>Explore model →</button>}
         {Object.keys(selection.domainBindings ?? {}).length > 0 && <pre>Domain bindings: {JSON.stringify(selection.domainBindings, null, 2)}</pre>}
-        {selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div key={name} title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><code>{variable.unit ?? 'dimensionless'}</code></div>)}</section>)}
+        {selection.variable ? <VariableInformation variable={selection.variable}/> : selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div key={name} title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><InformationValue name={name} variable={variable} localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div>)}</section>)}
       </div>}
       <footer>Read-only · JSON definitions<br/>{Object.keys(library).length} models in library</footer>
     </aside>
@@ -116,6 +164,6 @@ function App() {
         <Background color="#d8dee5" gap={22}/><Controls/><MiniMap pannable zoomable nodeColor={node => ({ model: '#608ce6', constraint: '#ac8fd2', input: '#53b5ac', output: '#e4ae62' })[node.data.kind]}/>
       </SavedLayoutFlow></div>
     </div>
-  </main>;
+  </main></InformationContext.Provider>;
 }
 createRoot(document.getElementById('root')).render(<App/>);

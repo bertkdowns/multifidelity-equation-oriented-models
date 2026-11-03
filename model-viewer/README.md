@@ -49,3 +49,24 @@ per model definition ID, relationship, and Summary/Detailed view. Opening the sa
 model through another parent or alias reuses its layout. Positions survive page
 reloads; newly added nodes retain their automatic positions. Storage is local to
 this browser and site origin. Summary rotations and flips are saved alongside positions. Previously saved position-only layouts remain compatible.
+
+### Information overlays
+
+Drop an information-record JSON array onto the sidebar or choose a `.json` file.
+The file attaches to the selected root definition for this session, with paths
+relative to that root. Switching roots keeps each root's file separate; reloading
+clears uploaded information. Replace/Clear controls manage the active overlay.
+
+Detailed variable rows show the highest-trust record's preview in its original
+unit, with a count of alternatives. Clicking opens all candidate records, their
+source/tag, trust, uncertainty, full values and the model's declared unit. Ties
+use record ID order. Summary model sidebar rows show the same previews. These
+are information records, not computed values or selected specifications, and
+values do not propagate along connections. Series show sample counts or array
+shape; no time coordinates are inferred. Paths preserve occurrence aliases when
+exploring children, independently of shared layout storage. Unmatched paths are
+listed; paths found in another alternative remain available when browsing it.
+
+Loading validates record structure, unique IDs, finite scalar/rectangular numeric
+values and metadata. It does not validate physical applicability, convert units,
+check series against a solver grid, or apply `specification.json` selections.
