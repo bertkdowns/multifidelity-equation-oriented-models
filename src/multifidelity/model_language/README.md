@@ -39,19 +39,13 @@ The Carnot-efficiency relationship remains future work.
 
 ## Why a separate specification language?
 
-The existing Python models combine physical equations, IDAES property packages,
-formulation builders and case-specific setup. This folder explores expressing the
-reusable mathematical definitions as data, so a model's public interface can stay
-stable while alternative internal formulations are selected recursively.
+This language expresses reusable mathematical definitions as data, so a model's public interface can stay stable while alternative internal formulations are selected recursively.
 
 JSON is the source of truth: one file per reusable model, readable and reviewable
 in Git. Model IDs are independent of filenames. No database is required. A future
 editor or SQLite index can operate on the same conceptual definitions.
 
-This is separate from the working Python models; it does not replace them. Their
-current ownership conventions and fidelity activation behaviour remain as
-specified in `docs/design.md`. The new language uses the vocabulary and ownership
-below, including separate boundary variables joined by equations in composites.
+This language is the repository's primary modeling approach. Custom Python providers may supply symbolic implementations behind the same JSON interfaces. The language uses the vocabulary and ownership below, including separate boundary variables joined by equations in composites.
 
 ## Vocabulary and ownership
 
@@ -862,9 +856,9 @@ live in `examples/model_language/`; these are examples, not an instance framewor
 | `flash_separator`, `translator` | Topology scaffolds; no equilibrium, composition or basis conversion |
 | `heat_pump_flowsheet` | Concrete wrapper supplying independent property-model arguments to `heat_pump` |
 | `heat_pump` | Aggregate COP equations and the cycle topology from `unit_models/heat_pump/cycle.py`, including subcooler and IHX |
-| `source_loop` | Valve/pump/evaporator/heater/tank recycle from `case_studies/sghp/source_loop.py` |
+| `source_loop` | Valve/pump/evaporator/heater/tank recycle from an earlier SGHP source-loop reconstruction |
 | `milk_evaporator` | Aggregate mass/energy balances and MVR topology from `unit_models/milk_evaporator/detailed.py` |
-| `steam_generating_heat_pump` | All 19 equipment references and their stream connections from `case_studies/sghp/data/full_flowsheet_snapshot.json` |
+| `steam_generating_heat_pump` | All 19 equipment references and their stream connections from an earlier SGHP flowsheet reconstruction |
 
 These definitions demonstrate construction, ownership, scope and topology. They
 are **not numerical reproductions** of the existing cases. In particular, the milk
@@ -1038,7 +1032,8 @@ Record available evidence separately from the model definitions and from decisio
 about how to specify or estimate a particular instance. `information.py` implements
 record validation, loading, insertion and trust-ordered candidate lookup. Applying
 records to model instances is supported by specification documents; the
-specification-selection algorithm remains proposed.
+initial trust-ranked DM specification selector is implemented; further selection
+research remains proposed.
 
 Information is a **list of records**, not a dictionary keyed by variable path.
 Multiple records may target the same variable: for example, a sensor reading,
@@ -1117,7 +1112,8 @@ model are fixed assumptions, distinct from solver initial guesses.
 
 See the [trust-ranked DM specification algorithm and separate experiment outlines](../../../research-ideas/information-directed-specification.md)
 for structural candidate selection, auditable specification documents, and future
-noise/conditioning studies. This algorithm is proposed, not yet implemented.
+noise/conditioning studies. The initial structural loop is implemented by `select_specification()`; see
+the automatic structural specification selection section below.
 Series use the numerical grid's index order. They do not carry separate timestamps,
 per-point selectors, or interpolation rules. Apply them after finalizing the grid
 through the separate specification API.
@@ -1364,7 +1360,7 @@ or prerequisites for the initial bounded experiments.
 - Continuous spatial domains and derivatives; automatic backend discretization
   configuration (time dynamics can use Pyomo's existing transformations).
 - Default values, general fixed/free instance documents and initial guesses.
-- Automatic structural selection of input or output specifications.
+- Numerical recovery and extensions beyond the initial DM specification selector.
 - Detailed thermodynamics, component mixtures, shared material data, configurable
   equipment property dependencies, validated detailed equations and calibration.
 - JSON Schema authoring support, definition version pinning and broader diagnostics.
@@ -1392,7 +1388,7 @@ its main milk inlet, as in the existing mixer definition; steam pressure
 matching, condensation and milk composition are not modelled.
 
 The topology follows the direct steam injection described in the older
-[Python milk-effect case](../../../case_studies/milk_evaporator/README.md),
+earlier milk-effect case study,
 which starts after injection and builds only one effect. Three effects are an
 explicit illustrative choice, not a recovered full-case configuration. They
 are serial MVR effects, each with its own compressor, rather than a vapor-fed
@@ -1427,3 +1423,39 @@ heat extraction. The full flowsheet remains the default first relationship.
 aggregate and both children's `specified` relationships. It can also replace the
 heat-pump child selection in the heat-pump evaporator flowsheet without changing
 its steam connection. In the viewer, explore that child and select `aggregate`.
+
+## Automatic structural specification selection
+
+`select_specification(model, information, prediction_targets=(),
+excluded_record_ids=(), achieved_setpoint_ids=())` implements the initial
+trust-ranked DM loop for a fixed implementation and finalized numerical grid.
+It works on a clone and leaves the supplied model unchanged.
+
+```python
+from multifidelity.model_language import select_specification, apply_specification
+
+selection = select_specification(model, information,
+                                 prediction_targets=["outlet.pressure"])
+if selection.complete:
+    apply_specification(model, selection.specification, information)
+```
+
+The selector considers active equality constraints and every free variable,
+including isolated variables. Records are tried in descending trust rank, with
+record ID breaking ties. It recomputes DM after each trial and accepts a
+whole-family fixation only if it reduces unmatched unknowns without creating
+an overconstrained region. Existing fixations are mandatory context. Invalid
+records are skipped with reasons, allowing lower-ranked alternatives to be tried.
+Control setpoints require explicit inclusion in `achieved_setpoint_ids`; callers
+must filter other operating-context applicability using `excluded_record_ids`
+or a filtered information document. Prediction target paths are reserved.
+
+The result contains the specification document, `complete`, initial and remaining
+deficiency, unresolved variable names, overconstrained constraint names, and
+per-record decisions including values, units, uncertainty and deficiency changes.
+An initially overconstrained model returns incomplete diagnostics without adding
+fixations. A partial document is returned when evidence is insufficient.
+
+This is structural selection, not a numerical solvability or uniqueness check.
+It does not solve, reconcile noisy data, inspect inequalities, select dynamic
+initial conditions, or change fidelity. See the valve specification example.

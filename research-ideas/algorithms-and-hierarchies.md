@@ -2,8 +2,7 @@
 
 These are exploratory research directions, not established novelty claims or
 implementation commitments. See [research purpose](README.md) for the current
-aims. Equipment contracts remain in [the design documentation](../docs/design.md);
-case-specific experiments and results remain with their case studies.
+aims. The model-language definitions and glossary provide the current shared contracts.
 
 ## Working research direction
 

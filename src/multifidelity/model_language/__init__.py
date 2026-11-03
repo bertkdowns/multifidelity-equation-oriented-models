@@ -9,6 +9,7 @@ from .specification import (
     SpecificationDocument,
     apply_specification,
 )
+from .selection import SpecificationSelection, select_specification
 from .variables import get_variable
 from .standard import register_standard_providers
 
@@ -32,6 +33,8 @@ __all__ = [
     "InformationType",
     "SpecificationDocument",
     "apply_specification",
+    "SpecificationSelection",
+    "select_specification",
     "ModelView",
     "RelationshipView",
     "build_model",

@@ -1,23 +1,75 @@
 [
   {
-    "id": "inlet_flow", "tag": "FT101", "information_type": "sensor_reading",
-    "variable_path": "inlet.flow", "value": 2, "unit": "kg/s", "trust_rank": 10
+    "id": "inlet_flow",
+    "tag": "FT101",
+    "information_type": "sensor_reading",
+    "variable_path": "inlet.flow",
+    "value": 2,
+    "unit": "kg/s",
+    "trust_rank": 10
   },
   {
-    "id": "pressure_measurement", "tag": "PT101", "information_type": "sensor_reading",
-    "variable_path": "inlet.pressure", "value": 200, "unit": "kPa",
-    "standard_deviation": 0.5, "trust_rank": 10
+    "id": "pressure_measurement",
+    "tag": "PT101",
+    "information_type": "sensor_reading",
+    "variable_path": "inlet.pressure",
+    "value": 200,
+    "unit": "kPa",
+    "standard_deviation": 0.5,
+    "trust_rank": 10
   },
   {
-    "id": "pressure_estimate", "tag": "pressure_fallback", "information_type": "assumption",
-    "variable_path": "inlet.pressure", "value": 190, "unit": "kPa", "trust_rank": 1
+    "id": "pressure_estimate",
+    "tag": "pressure_fallback",
+    "information_type": "assumption",
+    "variable_path": "inlet.pressure",
+    "value": 190,
+    "unit": "kPa",
+    "trust_rank": 1
   },
   {
-    "id": "inlet_enthalpy", "tag": "feed_enthalpy", "information_type": "parameter",
-    "variable_path": "inlet.enthalpy", "value": 100, "unit": "kJ/kg", "trust_rank": 8
+    "id": "inlet_enthalpy",
+    "tag": "feed_enthalpy",
+    "information_type": "parameter",
+    "variable_path": "inlet.enthalpy",
+    "value": 100,
+    "unit": "kJ/kg",
+    "trust_rank": 8
   },
   {
-    "id": "valve_pressure_drop", "tag": "valve_dp", "information_type": "equipment_specification",
-    "variable_path": "parameters.pressure_drop", "value": 25, "unit": "kPa", "trust_rank": 8
+    "id": "valve_pressure_drop",
+    "tag": "valve_dp",
+    "information_type": "equipment_specification",
+    "variable_path": "parameters.pressure_drop",
+    "value": 25,
+    "unit": "kPa",
+    "trust_rank": 8
+  },
+  {
+    "id": "outlet_flow_check",
+    "tag": "outlet_flow_check",
+    "information_type": "sensor_reading",
+    "variable_path": "outlet.flow",
+    "value": 2.1,
+    "unit": "kg/s",
+    "trust_rank": 6
+  },
+  {
+    "id": "outlet_enthalpy_check",
+    "tag": "outlet_enthalpy_check",
+    "information_type": "sensor_reading",
+    "variable_path": "outlet.enthalpy",
+    "value": 101,
+    "unit": "kJ/kg",
+    "trust_rank": 6
+  },
+  {
+    "id": "outlet_pressure_check",
+    "tag": "outlet_pressure_check",
+    "information_type": "sensor_reading",
+    "variable_path": "outlet.pressure",
+    "value": 174,
+    "unit": "kPa",
+    "trust_rank": 6
   }
 ]

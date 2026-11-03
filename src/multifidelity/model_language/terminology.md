@@ -54,8 +54,8 @@ Numerical instance + numerical solve
 ```
 
 The first layer is implemented through library navigation, selected traversal and
-construction. Specification application is implemented; automatic specification generation
-and typed target/result artifacts remain proposed. Structural algorithms may construct the numerical
+construction. Specification application and initial trust-ranked DM specification
+generation are implemented; typed target/result artifacts remain proposed. Structural algorithms may construct the numerical
 equations before generating a specification document; the diagram expresses data
 dependencies, not a mandatory construction order.
 

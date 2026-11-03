@@ -1,7 +1,8 @@
 # Information-directed specification and fidelity selection
 
-These are proposed algorithms and experiment outlines, not implemented behavior
-or established performance claims. They develop the measurement-based model
+The initial trust-ranked DM specification loop is implemented by
+`select_specification()`; fidelity selection, extensions and experiment outlines
+remain proposals, not established performance claims. They develop the measurement-based model
 specification and information-gated refinement directions in
 [the research questions](algorithms-and-hierarchies.md). The data conventions are
 recorded in the [model-language README](../src/multifidelity/model_language/README.md#information-model).
@@ -114,7 +115,8 @@ The implemented [specification document](../src/multifidelity/model_language/REA
 contains only selected information-record IDs; each record supplies its variable path. It has no
 implementation references, values, actions, structural status or unused-information
 fields. Application receives the numerical model and information table separately.
-The trust-ranked selection algorithm remains proposed.
+The initial trust-ranked selection loop is implemented in
+`model_language/selection.py`; it returns the document and separate diagnostics.
 
 The algorithm should return the specification document alongside separate diagnostics
 that record:
@@ -196,6 +198,13 @@ evidence/specification, numerical difficulty and an unsuitable representation.
 
 ## Future studies beyond the initial fixed-value approximation
 
+- **Dynamic initial values:** defer initial-condition selection while developing
+  the operating-specification algorithm. Revisit how initial conditions are
+  selected from information records, how they interact with dynamic structural
+  completeness and discretization, and how to distinguish fixed initial
+  conditions from solver initial guesses. The existing `initial_values` API is
+  a foundation, not an automatic selection policy; initial-condition selection
+  is outside the first bounded specification experiment.
 - **Noisy information:** conduct a literature review of robustness to noisy or
   biased measurements, Monte Carlo uncertainty propagation, weighted data
   reconciliation and related estimation methods. Discuss how uncertainty,

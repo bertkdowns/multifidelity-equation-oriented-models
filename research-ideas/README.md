@@ -5,17 +5,6 @@ This directory collects research aims and exploratory directions. See
 for adaptive initialization, selective refinement, and measurement-aware
 hierarchical heat-pump models.
 
-All fidelities of a unit must use the same default specified and unspecified
-public variables, as defined in the [design principles](../docs/design.md).
-Matching specifications does not require identical feasible regions or guarantee
-that every fidelity can solve a given operating point.
-
-The [coupled SGHP selection study](sghp-selection.md) is now implemented as a
-complementary feasibility experiment: reconstruct the complete circuits, give
-every valve and exchanger fidelity choices, and compare single-unit and coupled
-group switching. Its direct simultaneous solves are separate from a future
-benchmark of established flowsheet initialization routines.
-
 The emerging unifying question is: **given an engineering question, available
 measurements, and a hierarchy of representations, what is the simplest model
 that supports a sufficiently reliable answer?** Initialization work should
@@ -52,11 +41,6 @@ with clear, understandable implementations.
    elsewhere. This includes using an explicitly chosen low-fidelity fallback
    to continue analysis when a detailed component model is not important to the
    current operating mode or question.
-
-Equipment and property fidelity are independent choices. Experiments should
-distinguish their effects and identify when additional detail changes the result.
-Higher fidelity is not automatically more accurate; comparisons need a stated
-reference and an engineering quantity of interest.
 
 ## Purpose-specific fallback
 

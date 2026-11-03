@@ -8,7 +8,7 @@ from idaes.core.util.model_statistics import degrees_of_freedom
 from pyomo.environ import assert_optimal_termination, value
 
 from multifidelity.model_language import (
-    ImplementationDocument, InformationDocument, SpecificationDocument,
+    ImplementationDocument, InformationDocument, select_specification,
     apply_specification, build_model, get_variable,
 )
 
@@ -18,9 +18,11 @@ HERE = Path(__file__).parent
 def run(solver=None):
     implementation = ImplementationDocument.load_json(HERE / "implementation.json")
     information = InformationDocument.load_json(HERE / "information.json")
-    specification = SpecificationDocument.load_json(HERE / "specification.json")
     model = build_model("valve", implementation)
-    apply_specification(model, specification, information)
+    selection = select_specification(model, information)
+    if not selection.complete:
+        raise RuntimeError(f"Incomplete specification: {selection}")
+    apply_specification(model, selection.specification, information)
     dof = degrees_of_freedom(model)
     if dof != 0:
         raise RuntimeError(f"Expected a fully specified valve, got {dof} degrees of freedom")
@@ -36,6 +38,9 @@ def run(solver=None):
         "enthalpy_J_per_kg": value(get_variable(model, "outlet.enthalpy")[t]),
     }
     print(json.dumps({
+        "selected_records": list(selection.specification.specifications),
+        "skipped_records": {d["record_id"]: d["reason"]
+                            for d in selection.decisions if not d["selected"]},
         "degrees_of_freedom": dof,
         "termination_condition": str(result.solver.termination_condition),
         "outlet": outputs,

@@ -9,20 +9,29 @@ Run from the repository root with the project environment and IPOPT available:
 The example keeps three documents separate:
 
 - `implementation.json` selects the valve's isenthalpic relationship.
-- `information.json` holds available values, including an unused pressure fallback.
-- `specification.json` chooses four information records to fix four variable families.
+- `information.json` holds eight records, including a pressure fallback and redundant outlet measurements.
+- `specification.json` shows the expected four-record selection for comparison.
+  `run.py` now generates this selection with `select_specification()`.
 
 `run.py` builds the numerical model, applies the
 specifications, checks zero degrees of freedom, and solves with IPOPT. No input
 values are fixed elsewhere in the script. The measured pressure is used despite
 its nonzero uncertainty: fixing the central value is the initial approximation.
-The fallback remains unused because it is not selected by the document; this
-example does not run a trust-ranking algorithm.
+The fallback and three outlet checks remain unused: the selector accepts four
+independent records in trust order, reducing structural deficiency from four to
+zero. It reports a reason for each skipped record.
 
 Expected result:
 
 ```json
 {
+  "selected_records": ["inlet_flow", "pressure_measurement", "inlet_enthalpy", "valve_pressure_drop"],
+  "skipped_records": {
+    "outlet_enthalpy_check": "already structurally determined",
+    "outlet_flow_check": "already structurally determined",
+    "outlet_pressure_check": "already structurally determined",
+    "pressure_estimate": "lower-ranked alternative"
+  },
   "degrees_of_freedom": 0,
   "termination_condition": "optimal",
   "outlet": {

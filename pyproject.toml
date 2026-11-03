@@ -1,7 +1,7 @@
 [project]
 name = "multifidelity"
 version = "0.1.0"
-description = "Equipment and liquid-water properties with shared variables and selectable formulations"
+description = "JSON model language for multifidelity process models"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
@@ -22,7 +22,7 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.setuptools.package-data]
-multifidelity = ["property_models/data/*.json", "property_models/data/*.nl", "model_language/models/*.json", "model_language/*.md", "model_language/standard/data/*.json"]
+multifidelity = ["model_language/models/*.json", "model_language/*.md", "model_language/standard/data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
