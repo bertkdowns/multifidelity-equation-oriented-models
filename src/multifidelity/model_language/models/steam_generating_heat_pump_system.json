@@ -1,0 +1,455 @@
+{
+  "id": "steam_generating_heat_pump_system",
+  "description": "SGHP demonstration plant main process paths from SGHP P&ID V22 (27 July 2026). Independently selectable SGHP and PHNIX source heat pumps; source, warm-water and hot-water recirculation, cooling-water boundary, makeup and steam export. Valves lump line losses; bypasses, relief devices, controls, refrigerant charge and tank dynamics are omitted. Configuration values live in separate information documents.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "makeup_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "steam_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "phnix_source_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "phnix_source_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "cooling_water_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "cooling_water_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "sghp_power": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "phnix_power": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pump_power": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "electrical_power": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "flowsheet": {
+      "models": {
+        "sghp": {
+          "model": "steam_generating_heat_pump_unit",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "phnix": {
+          "model": "heat_pump",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "HotSideProperties": {
+              "model": "water_property_package"
+            },
+            "ColdSideProperties": {
+              "model": "water_property_package"
+            },
+            "RefrigerantProperties": {
+              "model": "water_property_package"
+            },
+            "IsentropicProperties": {
+              "model": "water_isentropic_package"
+            }
+          }
+        },
+        "source_heater": {
+          "model": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "source_tank": {
+          "model": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "source_valve": {
+          "model": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "warm_water_mixer": {
+          "model": "mixer",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "warm_water_splitter": {
+          "model": "splitter",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "cooling_exchanger": {
+          "model": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "hot_water_mixer": {
+          "model": "mixer",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "flash_valve": {
+          "model": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "flash_tank": {
+          "model": "water_flash",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "steam_valve": {
+          "model": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "source_pump": {
+          "model": "pump",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            }
+          }
+        },
+        "warm_water_pump": {
+          "model": "pump",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            }
+          }
+        },
+        "hot_water_pump": {
+          "model": "pump",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            }
+          }
+        },
+        "warm_water_valve": {
+          "model": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "warm_makeup_valve": {
+          "model": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {
+        "sghp_power": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.sghp_power[t]",
+          "rhs": "sghp.performance.electrical_power[t]",
+          "determines": "performance.sghp_power[t]"
+        },
+        "phnix_power": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.phnix_power[t]",
+          "rhs": "phnix.performance.electrical_power[t]",
+          "determines": "performance.phnix_power[t]"
+        },
+        "pump_power": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.pump_power[t]",
+          "rhs": "source_pump.performance.work[t] + warm_water_pump.performance.work[t] + hot_water_pump.performance.work[t]",
+          "determines": "performance.pump_power[t]"
+        },
+        "total_power": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.electrical_power[t]",
+          "rhs": "performance.sghp_power[t] + performance.phnix_power[t] + performance.pump_power[t] + source_heater.parameters.heat_duty[t]",
+          "determines": "performance.electrical_power[t]"
+        }
+      },
+      "connections": {
+        "makeup_feed": {
+          "from": "makeup_inlet",
+          "to": "warm_water_mixer.makeup"
+        },
+        "warm_return": {
+          "from": "cooling_exchanger.hot_outlet",
+          "to": "warm_water_mixer.main"
+        },
+        "warm_pump_feed": {
+          "from": "warm_water_valve.outlet",
+          "to": "warm_water_pump.inlet"
+        },
+        "warm_heating_feed": {
+          "from": "warm_water_pump.outlet",
+          "to": "sghp.warm_inlet"
+        },
+        "warm_split_feed": {
+          "from": "sghp.warm_outlet",
+          "to": "warm_water_splitter.inlet"
+        },
+        "warm_cooling_feed": {
+          "from": "warm_water_splitter.main",
+          "to": "cooling_exchanger.hot_inlet"
+        },
+        "hot_makeup": {
+          "from": "warm_water_splitter.branch",
+          "to": "warm_makeup_valve.inlet"
+        },
+        "hot_return": {
+          "from": "flash_tank.liquid",
+          "to": "hot_water_pump.inlet"
+        },
+        "hot_pump_feed": {
+          "from": "hot_water_pump.outlet",
+          "to": "hot_water_mixer.main"
+        },
+        "hot_heating_feed": {
+          "from": "hot_water_mixer.outlet",
+          "to": "sghp.hot_inlet"
+        },
+        "flash_valve_feed": {
+          "from": "sghp.hot_outlet",
+          "to": "flash_valve.inlet"
+        },
+        "flash_feed": {
+          "from": "flash_valve.outlet",
+          "to": "flash_tank.inlet"
+        },
+        "steam_valve_feed": {
+          "from": "flash_tank.vapor",
+          "to": "steam_valve.inlet"
+        },
+        "steam_export": {
+          "from": "steam_valve.outlet",
+          "to": "steam_outlet"
+        },
+        "source_heater_feed": {
+          "from": "phnix.sink_outlet",
+          "to": "source_heater.inlet"
+        },
+        "source_pump_feed": {
+          "from": "source_valve.outlet",
+          "to": "source_pump.inlet"
+        },
+        "source_tank_feed": {
+          "from": "source_pump.outlet",
+          "to": "source_tank.inlet"
+        },
+        "phnix_sink_feed": {
+          "from": "source_tank.outlet",
+          "to": "phnix.sink_inlet"
+        },
+        "source_valve_feed": {
+          "from": "sghp.source_outlet",
+          "to": "source_valve.inlet"
+        },
+        "source_evaporator_feed": {
+          "from": "source_heater.outlet",
+          "to": "sghp.source_inlet"
+        },
+        "phnix_source_feed": {
+          "from": "phnix_source_inlet",
+          "to": "phnix.source_inlet"
+        },
+        "phnix_source_export": {
+          "from": "phnix.source_outlet",
+          "to": "phnix_source_outlet"
+        },
+        "cooling_water_feed": {
+          "from": "cooling_water_inlet",
+          "to": "cooling_exchanger.cold_inlet"
+        },
+        "cooling_water_export": {
+          "from": "cooling_exchanger.cold_outlet",
+          "to": "cooling_water_outlet"
+        },
+        "warm_pressure_loss": {
+          "from": "warm_water_mixer.outlet",
+          "to": "warm_water_valve.inlet"
+        },
+        "hot_makeup_pressure_loss": {
+          "from": "warm_makeup_valve.outlet",
+          "to": "hot_water_mixer.makeup"
+        }
+      }
+    }
+  }
+}

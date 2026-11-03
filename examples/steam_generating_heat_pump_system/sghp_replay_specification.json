@@ -1,0 +1,16 @@
+{
+  "specifications": [
+    "replay_reference_sghp_source_inlet_flow",
+    "replay_reference_sghp_source_inlet_pressure",
+    "replay_reference_sghp_source_inlet_enthalpy",
+    "replay_reference_sghp_hot_inlet_flow",
+    "replay_reference_sghp_hot_inlet_pressure",
+    "replay_reference_sghp_hot_inlet_enthalpy",
+    "replay_reference_sghp_warm_inlet_flow",
+    "replay_reference_sghp_warm_inlet_pressure",
+    "replay_reference_sghp_warm_inlet_enthalpy",
+    "replay_reference_sghp_performance_electrical_power",
+    "replay_reference_sghp_performance_warm_water_duty",
+    "replay_calibrated_cop"
+  ]
+}

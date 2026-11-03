@@ -1,0 +1,474 @@
+{
+  "id": "steam_generating_heat_pump_unit",
+  "description": "Three-water-circuit SGHP unit boundary from SGHP P&ID V22: source evaporator, hot-water condenser, warm-water subcooler. Aggregate COP includes both useful heating duties. Cycle reuses the existing captured equipment definitions; water surrogate refrigerant properties and lumped exchangers are illustrative, not calibrated butane physics.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "source_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "source_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "hot_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "hot_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "warm_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "warm_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "heating_duty": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "hot_water_duty": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "warm_water_duty": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "cooling_duty": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "electrical_power": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "cop": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "aggregate": {
+      "models": {
+        "cop_model": {
+          "model": "prescribed_cop",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "power_model": {
+          "model": "prescribed_power",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "warm_water_heater": {
+          "model": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {
+        "source_flow": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "source_outlet.flow[t]",
+          "rhs": "source_inlet.flow[t]",
+          "determines": "source_outlet.flow[t]"
+        },
+        "source_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "source_outlet.pressure[t]",
+          "rhs": "source_inlet.pressure[t]",
+          "determines": "source_outlet.pressure[t]"
+        },
+        "hot_flow": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "hot_outlet.flow[t]",
+          "rhs": "hot_inlet.flow[t]",
+          "determines": "hot_outlet.flow[t]"
+        },
+        "hot_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "hot_outlet.pressure[t]",
+          "rhs": "hot_inlet.pressure[t]",
+          "determines": "hot_outlet.pressure[t]"
+        },
+        "power": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.electrical_power[t]",
+          "rhs": "power_model.performance.electrical_power[t]",
+          "determines": "performance.electrical_power[t]"
+        },
+        "cop": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.cop[t]",
+          "rhs": "cop_model.performance.cop[t]",
+          "determines": "performance.cop[t]"
+        },
+        "heating": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.heating_duty[t]",
+          "rhs": "performance.cop[t] * performance.electrical_power[t]",
+          "determines": "performance.heating_duty[t]"
+        },
+        "warm_duty": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.warm_water_duty[t]",
+          "rhs": "warm_water_heater.parameters.heat_duty[t]",
+          "determines": "performance.warm_water_duty[t]"
+        },
+        "hot_duty": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.hot_water_duty[t]",
+          "rhs": "performance.heating_duty[t] - performance.warm_water_duty[t]",
+          "determines": "performance.hot_water_duty[t]"
+        },
+        "cooling": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.cooling_duty[t]",
+          "rhs": "performance.heating_duty[t] - performance.electrical_power[t]",
+          "determines": "performance.cooling_duty[t]"
+        },
+        "source_energy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "source_outlet.flow[t] * source_outlet.enthalpy[t]",
+          "rhs": "source_inlet.flow[t] * source_inlet.enthalpy[t] - performance.cooling_duty[t]",
+          "determines": "source_outlet.enthalpy[t]"
+        },
+        "hot_energy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "hot_outlet.flow[t] * hot_outlet.enthalpy[t]",
+          "rhs": "hot_inlet.flow[t] * hot_inlet.enthalpy[t] + performance.hot_water_duty[t]",
+          "determines": "hot_outlet.enthalpy[t]"
+        }
+      },
+      "connections": {
+        "warm_in": {
+          "from": "warm_inlet",
+          "to": "warm_water_heater.inlet"
+        },
+        "warm_out": {
+          "from": "warm_water_heater.outlet",
+          "to": "warm_outlet"
+        }
+      }
+    },
+    "cycle": {
+      "models": {
+        "compressor": {
+          "model": "compressor",
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            },
+            "IsentropicProperties": {
+              "model": "water_isentropic_package"
+            }
+          },
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "condenser": {
+          "model": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "subcooler": {
+          "model": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "ihx": {
+          "model": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "expansion_valve": {
+          "model": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "evaporator": {
+          "model": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {
+        "power": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.electrical_power[t]",
+          "rhs": "compressor.performance.work[t]",
+          "determines": "performance.electrical_power[t]"
+        },
+        "hot_water_duty": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.hot_water_duty[t]",
+          "rhs": "hot_outlet.flow[t] * hot_outlet.enthalpy[t] - hot_inlet.flow[t] * hot_inlet.enthalpy[t]",
+          "determines": "performance.hot_water_duty[t]"
+        },
+        "warm_water_duty": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.warm_water_duty[t]",
+          "rhs": "warm_outlet.flow[t] * warm_outlet.enthalpy[t] - warm_inlet.flow[t] * warm_inlet.enthalpy[t]",
+          "determines": "performance.warm_water_duty[t]"
+        },
+        "cooling_duty": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.cooling_duty[t]",
+          "rhs": "source_inlet.flow[t] * source_inlet.enthalpy[t] - source_outlet.flow[t] * source_outlet.enthalpy[t]",
+          "determines": "performance.cooling_duty[t]"
+        },
+        "heating": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.heating_duty[t]",
+          "rhs": "performance.hot_water_duty[t] + performance.warm_water_duty[t]",
+          "determines": "performance.heating_duty[t]"
+        },
+        "cop": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "performance.cop[t] * performance.electrical_power[t]",
+          "rhs": "performance.heating_duty[t]",
+          "determines": "performance.cop[t]"
+        }
+      },
+      "connections": {
+        "link_1": {
+          "from": "compressor.outlet",
+          "to": "condenser.hot_inlet"
+        },
+        "link_3": {
+          "from": "condenser.hot_outlet",
+          "to": "subcooler.hot_inlet"
+        },
+        "link_5": {
+          "from": "subcooler.hot_outlet",
+          "to": "ihx.hot_inlet"
+        },
+        "link_6": {
+          "from": "evaporator.cold_outlet",
+          "to": "ihx.cold_inlet"
+        },
+        "link_8": {
+          "from": "expansion_valve.outlet",
+          "to": "evaporator.cold_inlet"
+        },
+        "link_22": {
+          "from": "ihx.cold_outlet",
+          "to": "compressor.inlet"
+        },
+        "link_23": {
+          "from": "ihx.hot_outlet",
+          "to": "expansion_valve.inlet"
+        },
+        "source_in": {
+          "from": "source_inlet",
+          "to": "evaporator.hot_inlet"
+        },
+        "source_out": {
+          "from": "evaporator.hot_outlet",
+          "to": "source_outlet"
+        },
+        "hot_in": {
+          "from": "hot_inlet",
+          "to": "condenser.cold_inlet"
+        },
+        "hot_out": {
+          "from": "condenser.cold_outlet",
+          "to": "hot_outlet"
+        },
+        "warm_in": {
+          "from": "warm_inlet",
+          "to": "subcooler.cold_inlet"
+        },
+        "warm_out": {
+          "from": "subcooler.cold_outlet",
+          "to": "warm_outlet"
+        }
+      }
+    }
+  }
+}

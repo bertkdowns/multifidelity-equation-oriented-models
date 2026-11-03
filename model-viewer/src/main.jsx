@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ReactFlow, Handle, Position, Background, Controls, MiniMap, SelectionMode, useUpdateNodeInternals } from '@xyflow/react';
+import { ReactFlow, Handle, Position, Background, Controls, MiniMap, SelectionMode, useUpdateNodeInternals, applyNodeChanges } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './style.css';
 import { makeGraph, variableLabel } from './graph.js';
+import { layoutKey, restorePositions, savePositions } from './layout-storage.js';
 
 const documents = import.meta.glob('../../src/multifidelity/model_language/models/*.json', { eager: true, import: 'default' });
 const library = Object.fromEntries(Object.values(documents).map(model => [model.id, model]));
@@ -15,8 +16,10 @@ function Port({ id }) {
 function Entity({ id, data, selected }) {
   const [structsCollapsed, setStructsCollapsed] = useState(false);
   const [collapsedRows, setCollapsedRows] = useState({});
-  const [flipped, setFlipped] = useState(false);
-  const [rotation, setRotation] = useState(0);
+  const flipped = data.flipped ?? false;
+  const rotation = data.rotation ?? 0;
+  const setFlipped = update => data.setOrientation(id, { flipped: update(flipped), rotation });
+  const setRotation = update => data.setOrientation(id, { flipped, rotation: update(rotation) });
   const updateNodeInternals = useUpdateNodeInternals();
   useEffect(() => {
     const frame = requestAnimationFrame(() => updateNodeInternals(id));
@@ -58,6 +61,24 @@ function Entity({ id, data, selected }) {
   </article>;
 }
 const nodeTypes = { entity: Entity };
+function SavedLayoutFlow({ graph, storageKey, children, ...props }) {
+  const [nodes, setNodes] = useState(() => restorePositions(graph.nodes, storageKey));
+  function setOrientation(id, orientation) {
+    setNodes(previous => {
+      const next = previous.map(node => node.id === id ? { ...node, data: { ...node.data, ...orientation } } : node);
+      savePositions(next, storageKey);
+      return next;
+    });
+  }
+  function onNodesChange(changes) {
+    setNodes(previous => {
+      const next = applyNodeChanges(changes, previous);
+      if (changes.some(change => change.type === 'position')) savePositions(next, storageKey);
+      return next;
+    });
+  }
+  return <ReactFlow {...props} nodes={nodes.map(node => ({ ...node, data: { ...node.data, setOrientation } }))} onNodesChange={onNodesChange} defaultEdges={graph.edges}>{children}</ReactFlow>;
+}
 function App() {
   const [trail, setTrail] = useState([{ definition: library.steam_generating_heat_pump, bindings: {}, alias: 'steam_generating_heat_pump' }]);
   const current = trail.at(-1);
@@ -88,12 +109,12 @@ function App() {
     </aside>
     <div className="workspace"><nav aria-label="Model breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
       <div className="canvas-title"><div><small>RELATIONSHIP</small><h2>{relationship ?? 'No relationships'}</h2></div><div className="view-toggle" role="group" aria-label="Diagram view">{['summary', 'detailed'].map(mode => <button key={mode} aria-pressed={view === mode} onClick={() => setView(mode)}>{mode === 'summary' ? 'Summary' : 'Detailed'}</button>)}</div><span>{graph.nodes.length} nodes · {graph.edges.length} links</span></div>
-      <div className="canvas"><ReactFlow key={`${path}:${relationship}:${view}`} defaultNodes={graph.nodes} defaultEdges={graph.edges} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
+      <div className="canvas"><SavedLayoutFlow key={`${path}:${relationship}:${view}`} graph={graph} storageKey={layoutKey(current.definition.id, relationship, view)} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
         selectionOnDrag selectionMode={SelectionMode.Partial} panOnDrag={[1, 2]} multiSelectionKeyCode={['Control', 'Meta']}
         onNodeClick={(event, node) => { if (event.ctrlKey || event.metaKey || event.shiftKey) return; if (view === 'detailed' && node.data.child && !node.data.child.unresolved) explore(node.data); else setSelection(node.data); }}
         onEdgeClick={(_, edge) => setSelection({ title: edge.label, connection: { from: (edge.data.sourcePort ?? edge.sourceHandle)?.replace(/:out$/, ''), to: (edge.data.targetPort ?? edge.targetHandle)?.replace(/:in$/, ''), kind: edge.data.kind } })}>
         <Background color="#d8dee5" gap={22}/><Controls/><MiniMap pannable zoomable nodeColor={node => ({ model: '#608ce6', constraint: '#ac8fd2', input: '#53b5ac', output: '#e4ae62' })[node.data.kind]}/>
-      </ReactFlow></div>
+      </SavedLayoutFlow></div>
     </div>
   </main>;
 }

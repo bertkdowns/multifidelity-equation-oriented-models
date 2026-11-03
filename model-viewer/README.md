@@ -43,3 +43,9 @@ domain bindings when drilling down. The viewer does not expand numerical domain
 members, simulate trajectories, or choose steady/dynamic solver modes.
 
 See the [model-language glossary](../src/multifidelity/model_language/terminology.md) for the shared terminology.
+
+Dragged node positions (including group moves) are saved in browser local storage
+per model definition ID, relationship, and Summary/Detailed view. Opening the same
+model through another parent or alias reuses its layout. Positions survive page
+reloads; newly added nodes retain their automatic positions. Storage is local to
+this browser and site origin. Summary rotations and flips are saved alongside positions. Previously saved position-only layouts remain compatible.

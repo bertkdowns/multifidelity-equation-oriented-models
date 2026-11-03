@@ -1,0 +1,51 @@
+{
+  "source": {
+    "id": 2384,
+    "name": "SGHP-DT",
+    "project_id": 1380,
+    "content_revision": 2,
+    "current_state_id": 1506,
+    "root_grouping_id": 3436,
+    "captured_at": "2026-11-03T20:10:43.396944Z",
+    "url": "https://ahuoratech.app/project/2384/flowsheet",
+    "kind": "current_configuration_snapshot",
+    "note": "Stored current values, not immutable SolveRun results or live plant measurements. Enabled flags alone do not identify fixed specifications: control replacements and formulas also matter. value and displayValue are retained separately; displayValue may be stale."
+  },
+  "status": "current stored values only; these differences are not attributed to a SolveRun or treated as proof of a model failure",
+  "manual_return_cuts": [
+    {
+      "cut": "hot-water manual return",
+      "upstream_stream": "ManualRecycle",
+      "upstream_stream_id": 1670796,
+      "downstream_stream": "M",
+      "downstream_stream_id": 1671235,
+      "upstream_mass_flow_kg_s": 1.6027031085671508,
+      "downstream_mass_flow_kg_s": 1.5349008336,
+      "mass_flow_difference_kg_s": 0.06780227496715074,
+      "upstream_enthalpy_J_kg": 347700.8184943974,
+      "downstream_enthalpy_J_kg": 335249.5008653479,
+      "energy_flow_difference_W": 42686.44431010698
+    },
+    {
+      "cut": "source-water manual return",
+      "upstream_stream": "S17",
+      "upstream_stream_id": 1671257,
+      "downstream_stream": "S19",
+      "downstream_stream_id": 1671261,
+      "upstream_mass_flow_kg_s": 1.8015268000000004,
+      "downstream_mass_flow_kg_s": 1.8015268,
+      "mass_flow_difference_kg_s": 4.440892098500626e-16,
+      "upstream_enthalpy_J_kg": 340354.4817592326,
+      "downstream_enthalpy_J_kg": 335028.8788676576,
+      "energy_flow_difference_W": 9594.216335329926
+    }
+  ],
+  "source_loop_net_heat_input_W": 9594.216335321107,
+  "warm_split_snapshot": {
+    "inlet_mass_flow_kg_s": 0.3063824917025307,
+    "configured_return_fraction": 0.778700556319703,
+    "expected_return_mass_flow_kg_s": 0.23858021673537744,
+    "captured_return_mass_flow_kg_s": 0.1500085028603578
+  },
+  "steam_mass_flow_kg_s": 0.0
+}

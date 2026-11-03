@@ -1459,3 +1459,24 @@ fixations. A partial document is returned when evidence is insufficient.
 This is structural selection, not a numerical solvability or uniqueness check.
 It does not solve, reconcile noisy data, inspect inequalities, select dynamic
 initial conditions, or change fidelity. See the valve specification example.
+
+
+## Steam-generating heat-pump demonstration system
+
+`steam_generating_heat_pump_system` describes the main process paths of the
+Waikato SGHP plant: source-water, warm-water, and hot-water loops, a PHNIX source
+heat pump, cooling exchanger, flash tank, makeup, and steam export. Its `sghp`
+and `phnix` children independently select aggregate COP or component-cycle
+relationships without changing the plant connections.
+
+The new `steam_generating_heat_pump_unit` exposes source, hot, and warm water
+circuits. The original `steam_generating_heat_pump` retains its makeup/steam
+interface and captured whole-plant scaffold. `water_flash` adds a mass/energy
+flash balance with separately supplied liquid and vapor enthalpies.
+
+See [the demonstration guide](../../../examples/steam_generating_heat_pump_system/README.md)
+for four implementation documents, construction commands, P&ID provenance,
+information paths, copied Ahuora configuration with provenance, and limitations.
+All four plant representations construct; the aggregate SGHP unit also has an
+IPOPT replay calibrated at the captured point. The full closed plant still needs
+a consistent operating specification and numerical validation.

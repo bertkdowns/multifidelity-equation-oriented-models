@@ -1,0 +1,1808 @@
+{
+  "source": {
+    "id": 2384,
+    "name": "SGHP-DT",
+    "project_id": 1380,
+    "content_revision": 2,
+    "current_state_id": 1506,
+    "root_grouping_id": 3436,
+    "captured_at": "2026-11-03T20:10:43.396944Z",
+    "url": "https://ahuoratech.app/project/2384/flowsheet",
+    "kind": "current_configuration_snapshot",
+    "note": "Stored current values, not immutable SolveRun results or live plant measurements. Enabled flags alone do not identify fixed specifications: control replacements and formulas also matter. value and displayValue are retained separately; displayValue may be stale."
+  },
+  "trust_policy": "Ranks 8 (configuration) and 2 (captured output assumptions) are local bookkeeping judgments, not probabilities or sensor quality assessments. Missing uncertainty remains unknown.",
+  "records": {
+    "config_sghp_condenser_parameters_conductance": {
+      "source_object_id": 1670810,
+      "source_object": "Condenser",
+      "source_property": "overall_heat_transfer_coefficient",
+      "source_property_value_id": 617509,
+      "original_value": 100,
+      "original_unit": "W/(m^2.K)",
+      "source_tag": null,
+      "basis": "Configured U times configured area. This transfers UA only; the local temperature-difference equation is not the platform exchanger formulation.",
+      "source_property_value_ids": [
+        617509,
+        617510
+      ]
+    },
+    "config_sghp_evaporator_parameters_conductance": {
+      "source_object_id": 1670812,
+      "source_object": "Evaporator",
+      "source_property": "overall_heat_transfer_coefficient",
+      "source_property_value_id": 617721,
+      "original_value": 1000,
+      "original_unit": "W/(m^2.K)",
+      "source_tag": null,
+      "basis": "Configured U times configured area. This transfers UA only; the local temperature-difference equation is not the platform exchanger formulation.",
+      "source_property_value_ids": [
+        617721,
+        617722
+      ]
+    },
+    "config_sghp_subcooler_parameters_conductance": {
+      "source_object_id": 1670814,
+      "source_object": "Subcooler",
+      "source_property": "overall_heat_transfer_coefficient",
+      "source_property_value_id": 617460,
+      "original_value": 1000,
+      "original_unit": "W/(m^2.K)",
+      "source_tag": null,
+      "basis": "Configured U times configured area. This transfers UA only; the local temperature-difference equation is not the platform exchanger formulation.",
+      "source_property_value_ids": [
+        617460,
+        617461
+      ]
+    },
+    "config_sghp_ihx_parameters_conductance": {
+      "source_object_id": 1670816,
+      "source_object": "IHX",
+      "source_property": "overall_heat_transfer_coefficient",
+      "source_property_value_id": 617579,
+      "original_value": 100,
+      "original_unit": "W/(m^2.K)",
+      "source_tag": null,
+      "basis": "Configured U times configured area. This transfers UA only; the local temperature-difference equation is not the platform exchanger formulation.",
+      "source_property_value_ids": [
+        617579,
+        617580
+      ]
+    },
+    "config_cooling_exchanger_parameters_conductance": {
+      "source_object_id": 1670815,
+      "source_object": "Cooling Tower",
+      "source_property": "overall_heat_transfer_coefficient",
+      "source_property_value_id": 617319,
+      "original_value": 1000,
+      "original_unit": "W/(m^2.K)",
+      "source_tag": null,
+      "basis": "Configured U times configured area. This transfers UA only; the local temperature-difference equation is not the platform exchanger formulation.",
+      "source_property_value_ids": [
+        617319,
+        617320
+      ]
+    },
+    "config_hot_water_pump_parameters_efficiency": {
+      "source_object_id": 1670791,
+      "source_object": "Pump1",
+      "source_property": "efficiency_pump",
+      "source_property_value_id": 617911,
+      "original_value": 1,
+      "original_unit": "dimensionless",
+      "source_tag": null,
+      "basis": "Configured pump efficiency; the platform and local pump formulations differ.",
+      "source_property_value_ids": [
+        617911
+      ]
+    },
+    "config_warm_water_pump_parameters_efficiency": {
+      "source_object_id": 1671237,
+      "source_object": "Pump1",
+      "source_property": "efficiency_pump",
+      "source_property_value_id": 622809,
+      "original_value": 0.9,
+      "original_unit": "dimensionless",
+      "source_tag": null,
+      "basis": "Configured pump efficiency; the platform and local pump formulations differ.",
+      "source_property_value_ids": [
+        622809
+      ]
+    },
+    "config_source_pump_parameters_efficiency": {
+      "source_object_id": 1671255,
+      "source_object": "Pump2",
+      "source_property": "efficiency_pump",
+      "source_property_value_id": 623095,
+      "original_value": 0.9,
+      "original_unit": "dimensionless",
+      "source_tag": null,
+      "basis": "Configured pump efficiency; the platform and local pump formulations differ.",
+      "source_property_value_ids": [
+        623095
+      ]
+    },
+    "config_sghp_compressor_parameters_efficiency": {
+      "source_object_id": 1670817,
+      "source_object": "HP Compressor",
+      "source_property": "efficiency_isentropic",
+      "source_property_value_id": 617782,
+      "original_value": 0.75,
+      "original_unit": "dimensionless",
+      "source_tag": null,
+      "basis": "Configured compressor isentropic efficiency; local refrigerant properties remain a surrogate.",
+      "source_property_value_ids": [
+        617782
+      ]
+    },
+    "config_warm_water_splitter_parameters_fraction": {
+      "source_object_id": 1670806,
+      "source_object": "Splitter1",
+      "source_property": "split_fraction",
+      "source_property_value_id": 617401,
+      "original_value": 0.778700556319703,
+      "original_unit": "dimensionless",
+      "source_tag": null,
+      "basis": "Configured fraction for outlet_1, the cooling-exchanger return branch.",
+      "source_property_value_ids": [
+        617401
+      ]
+    },
+    "config_phnix_power_model_parameters_electrical_power": {
+      "source_object_id": 1671247,
+      "source_object": "PHNIX HP",
+      "source_property": "work_mechanical",
+      "source_property_value_id": 622923,
+      "original_value": 25,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Configured PHNIX power, not a plant electrical measurement. Mechanical work is treated as aggregate electrical input without an additional motor-loss model.",
+      "source_property_value_ids": [
+        622923
+      ]
+    },
+    "config_phnix_cop_model_parameters_cop": {
+      "source_object_id": 1671247,
+      "source_object": "PHNIX HP",
+      "source_property": "coefficient_of_performance",
+      "source_property_value_id": 622926,
+      "original_value": 2,
+      "original_unit": "dimensionless",
+      "source_tag": null,
+      "basis": "COP is the platform structural replacement setpoint; Carnot efficiency is manipulated. This is a modelling specification, not a measured COP.",
+      "source_property_value_ids": [
+        622926
+      ]
+    },
+    "config_source_heater_parameters_heat_duty": {
+      "source_object_id": 1671839,
+      "source_object": "SOEH31",
+      "source_property": "heat_duty",
+      "source_property_value_id": 630940,
+      "original_value": 200,
+      "original_unit": "W",
+      "source_tag": "SOEH31",
+      "basis": "Configured electric-heater heat duty, with real platform tag. Electrical efficiency is assumed unity by the system power report.",
+      "source_property_value_ids": [
+        630940
+      ]
+    },
+    "config_source_pump_parameters_pressure_rise": {
+      "source_object_id": 1671255,
+      "source_object": "Pump2",
+      "source_property": "deltaP",
+      "source_property_value_id": 623096,
+      "original_value": 7,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Pressure rise is the platform replacement setpoint; mechanical work is manipulated.",
+      "source_property_value_ids": [
+        623096
+      ]
+    },
+    "config_warm_water_pump_performance_work": {
+      "source_object_id": 1671237,
+      "source_object": "Pump1",
+      "source_property": "work_mechanical",
+      "source_property_value_id": 622812,
+      "original_value": 6,
+      "original_unit": "W",
+      "source_tag": null,
+      "basis": "Platform formula evaluates WWVSD / 10 * W to 6 W. Imported as a snapshot of the formula result; no live VSD binding is implemented.",
+      "source_property_value_ids": [
+        622812
+      ]
+    },
+    "config_makeup_inlet_pressure": {
+      "source_object_id": 1670762,
+      "source_object": "Fresh Makeup",
+      "source_property": "pressure",
+      "source_property_value_id": 617371,
+      "original_value": 400,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Configured makeup pressure; temperature is retained in the reference because this stream interface uses enthalpy.",
+      "source_property_value_ids": [
+        617371
+      ]
+    },
+    "config_phnix_source_inlet_pressure": {
+      "source_object_id": 1671248,
+      "source_object": "Air Source",
+      "source_property": "pressure",
+      "source_property_value_id": 623024,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Configured source pressure. The platform Air Source stream actually uses water properties.",
+      "source_property_value_ids": [
+        623024
+      ]
+    },
+    "config_cooling_water_inlet_pressure": {
+      "source_object_id": 1671925,
+      "source_object": "S31",
+      "source_property": "pressure",
+      "source_property_value_id": 632096,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Configured cooling-water pressure; zero-duty Pipe CW In is lumped into the boundary.",
+      "source_property_value_ids": [
+        632096
+      ]
+    },
+    "config_phnix_sink_inlet_pressure": {
+      "source_object_id": 1671261,
+      "source_object": "S19",
+      "source_property": "pressure",
+      "source_property_value_id": 623144,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Configured pressure at the platform manual return cut. In the local model the loop is closed.",
+      "source_property_value_ids": [
+        623144
+      ]
+    },
+    "config_sghp_hot_inlet_flow": {
+      "source_object_id": 1671235,
+      "source_object": "M",
+      "source_property": "flow_mass",
+      "source_property_value_id": 622781,
+      "original_value": 5525.64300096,
+      "original_unit": "kg/h",
+      "source_tag": null,
+      "basis": "Mass equivalent of the configured hot-water inlet flow formula (40 * 2.13 mol/s); stored kg/h value. Local closed-loop flow is an alternative specification choice.",
+      "source_property_value_ids": [
+        622781
+      ]
+    },
+    "config_phnix_sink_inlet_flow": {
+      "source_object_id": 1671261,
+      "source_object": "S19",
+      "source_property": "flow_mass",
+      "source_property_value_id": 623141,
+      "original_value": 1.8015268,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Mass equivalent of configured 100 mol/s water at the manual source-return cut.",
+      "source_property_value_ids": [
+        623141
+      ]
+    },
+    "config_phnix_source_inlet_flow": {
+      "source_object_id": 1671248,
+      "source_object": "Air Source",
+      "source_property": "flow_mass",
+      "source_property_value_id": 623021,
+      "original_value": 9.007634000000001,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Mass equivalent of configured 500 mol/s water; platform source name is Air Source but fluid is water.",
+      "source_property_value_ids": [
+        623021
+      ]
+    },
+    "config_cooling_water_inlet_flow": {
+      "source_object_id": 1671925,
+      "source_object": "S31",
+      "source_property": "flow_mass",
+      "source_property_value_id": 632093,
+      "original_value": 0.288244288,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Mass equivalent of configured 16 mol/s water.",
+      "source_property_value_ids": [
+        632093
+      ]
+    },
+    "config_flash_tank_inlet_pressure": {
+      "source_object_id": 1670778,
+      "source_object": "Mixed flow",
+      "source_property": "pressure",
+      "source_property_value_id": 617851,
+      "original_value": 200,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Platform pressure replacement setpoint. The saved state is subcooled and has zero steam flow; this is not a steam-producing validation point.",
+      "source_property_value_ids": [
+        617851
+      ]
+    },
+    "config_hot_water_pump_outlet_pressure": {
+      "source_object_id": 1670793,
+      "source_object": "S40",
+      "source_property": "pressure",
+      "source_property_value_id": 617929,
+      "original_value": 400,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Platform hot-water pressure replacement setpoint; pump mechanical work is manipulated.",
+      "source_property_value_ids": [
+        617929
+      ]
+    },
+    "reference_makeup_inlet_flow": {
+      "source_object_id": 1670762,
+      "source_object": "Fresh Makeup",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617368,
+      "original_value": 0.5629463598318226,
+      "original_unit": "t/h",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617368
+      ]
+    },
+    "reference_makeup_inlet_pressure": {
+      "source_object_id": 1670762,
+      "source_object": "Fresh Makeup",
+      "source_property": "pressure",
+      "source_property_value_id": 617371,
+      "original_value": 400,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617371
+      ]
+    },
+    "reference_makeup_inlet_enthalpy": {
+      "source_object_id": 1670762,
+      "source_object": "Fresh Makeup",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617374,
+      "original_value": 105.18874430649564,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617374
+      ]
+    },
+    "reference_cooling_exchanger_hot_outlet_flow": {
+      "source_object_id": 1670761,
+      "source_object": "HS4",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617357,
+      "original_value": 0.1500085028603578,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617357
+      ]
+    },
+    "reference_cooling_exchanger_hot_outlet_pressure": {
+      "source_object_id": 1670761,
+      "source_object": "HS4",
+      "source_property": "pressure",
+      "source_property_value_id": 617360,
+      "original_value": 399.9947768526026,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617360
+      ]
+    },
+    "reference_cooling_exchanger_hot_outlet_enthalpy": {
+      "source_object_id": 1670761,
+      "source_object": "HS4",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617363,
+      "original_value": 158.8192857817041,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617363
+      ]
+    },
+    "reference_warm_water_mixer_outlet_flow": {
+      "source_object_id": 1670764,
+      "source_object": "S7",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617390,
+      "original_value": 0.30638249170253073,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617390
+      ]
+    },
+    "reference_warm_water_mixer_outlet_pressure": {
+      "source_object_id": 1670764,
+      "source_object": "S7",
+      "source_property": "pressure",
+      "source_property_value_id": 617393,
+      "original_value": 399.9947768525639,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617393
+      ]
+    },
+    "reference_warm_water_mixer_outlet_enthalpy": {
+      "source_object_id": 1670764,
+      "source_object": "S7",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617396,
+      "original_value": 131.44689368566122,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617396
+      ]
+    },
+    "reference_cooling_exchanger_hot_inlet_flow": {
+      "source_object_id": 1670766,
+      "source_object": "CTin",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617414,
+      "original_value": 0.1500085028603578,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617414
+      ]
+    },
+    "reference_cooling_exchanger_hot_inlet_pressure": {
+      "source_object_id": 1670766,
+      "source_object": "CTin",
+      "source_property": "pressure",
+      "source_property_value_id": 617417,
+      "original_value": 399.99477685259706,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617417
+      ]
+    },
+    "reference_cooling_exchanger_hot_inlet_enthalpy": {
+      "source_object_id": 1670766,
+      "source_object": "CTin",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617420,
+      "original_value": 171.45331848382074,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617420
+      ]
+    },
+    "reference_warm_water_splitter_branch_flow": {
+      "source_object_id": 1670767,
+      "source_object": "Warm Makeup",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617425,
+      "original_value": 0.06780227496715077,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617425
+      ]
+    },
+    "reference_warm_water_splitter_branch_pressure": {
+      "source_object_id": 1670767,
+      "source_object": "Warm Makeup",
+      "source_property": "pressure",
+      "source_property_value_id": 617428,
+      "original_value": 399.99477685259154,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617428
+      ]
+    },
+    "reference_warm_water_splitter_branch_enthalpy": {
+      "source_object_id": 1670767,
+      "source_object": "Warm Makeup",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617431,
+      "original_value": 171.45331848381988,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617431
+      ]
+    },
+    "reference_sghp_hot_outlet_flow": {
+      "source_object_id": 1670771,
+      "source_object": "HW Sink Outlet",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617536,
+      "original_value": 5525.64300096,
+      "original_unit": "kg/h",
+      "source_tag": "HWVF51",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617536
+      ]
+    },
+    "reference_sghp_hot_outlet_pressure": {
+      "source_object_id": 1670771,
+      "source_object": "HW Sink Outlet",
+      "source_property": "pressure",
+      "source_property_value_id": 617539,
+      "original_value": 377.19289470582476,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617539
+      ]
+    },
+    "reference_sghp_hot_outlet_enthalpy": {
+      "source_object_id": 1670771,
+      "source_object": "HW Sink Outlet",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617542,
+      "original_value": 355.2798995235012,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617542
+      ]
+    },
+    "reference_sghp_warm_outlet_flow": {
+      "source_object_id": 1670775,
+      "source_object": "warm water out",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617487,
+      "original_value": 1102.9769701291104,
+      "original_unit": "kg/h",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617487
+      ]
+    },
+    "reference_sghp_warm_outlet_pressure": {
+      "source_object_id": 1670775,
+      "source_object": "warm water out",
+      "source_property": "pressure",
+      "source_property_value_id": 617490,
+      "original_value": 399.99477685258876,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617490
+      ]
+    },
+    "reference_sghp_warm_outlet_enthalpy": {
+      "source_object_id": 1670775,
+      "source_object": "warm water out",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617493,
+      "original_value": 171.45331848381406,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617493
+      ]
+    },
+    "reference_sghp_source_outlet_flow": {
+      "source_object_id": 1670782,
+      "source_object": "HS30",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617759,
+      "original_value": 108.09160800000002,
+      "original_unit": "kg/min",
+      "source_tag": "SOVF31",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617759
+      ]
+    },
+    "reference_sghp_source_outlet_pressure": {
+      "source_object_id": 1670782,
+      "source_object": "HS30",
+      "source_property": "pressure",
+      "source_property_value_id": 617762,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": "SOPT31",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617762
+      ]
+    },
+    "reference_sghp_source_outlet_enthalpy": {
+      "source_object_id": 1670782,
+      "source_object": "HS30",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617765,
+      "original_value": 340.3464716788019,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617765
+      ]
+    },
+    "reference_flash_tank_inlet_flow": {
+      "source_object_id": 1670778,
+      "source_object": "Mixed flow",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617848,
+      "original_value": 1.5349008335999998,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617848
+      ]
+    },
+    "reference_flash_tank_inlet_pressure": {
+      "source_object_id": 1670778,
+      "source_object": "Mixed flow",
+      "source_property": "pressure",
+      "source_property_value_id": 617851,
+      "original_value": 200,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617851
+      ]
+    },
+    "reference_flash_tank_inlet_enthalpy": {
+      "source_object_id": 1670778,
+      "source_object": "Mixed flow",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617854,
+      "original_value": 355.27989952350543,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617854
+      ]
+    },
+    "reference_hot_water_pump_outlet_flow": {
+      "source_object_id": 1670793,
+      "source_object": "S40",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617926,
+      "original_value": 1.5349008335999998,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617926
+      ]
+    },
+    "reference_hot_water_pump_outlet_pressure": {
+      "source_object_id": 1670793,
+      "source_object": "S40",
+      "source_property": "pressure",
+      "source_property_value_id": 617929,
+      "original_value": 400,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617929
+      ]
+    },
+    "reference_hot_water_pump_outlet_enthalpy": {
+      "source_object_id": 1670793,
+      "source_object": "S40",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617932,
+      "original_value": 355.4863256727024,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617932
+      ]
+    },
+    "reference_hot_water_mixer_outlet_flow": {
+      "source_object_id": 1670796,
+      "source_object": "ManualRecycle",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617965,
+      "original_value": 1.6027031085671508,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617965
+      ]
+    },
+    "reference_hot_water_mixer_outlet_pressure": {
+      "source_object_id": 1670796,
+      "source_object": "ManualRecycle",
+      "source_property": "pressure",
+      "source_property_value_id": 617968,
+      "original_value": 342.9827201611059,
+      "original_unit": "kPa",
+      "source_tag": "HWPT51",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617968
+      ]
+    },
+    "reference_hot_water_mixer_outlet_enthalpy": {
+      "source_object_id": 1670796,
+      "source_object": "ManualRecycle",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617971,
+      "original_value": 347.70081849439737,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617971
+      ]
+    },
+    "reference_flash_tank_vapor_flow": {
+      "source_object_id": 1670808,
+      "source_object": "Steam",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617880,
+      "original_value": 0,
+      "original_unit": "kg/h",
+      "source_tag": "STVF61",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617880
+      ]
+    },
+    "reference_flash_tank_vapor_pressure": {
+      "source_object_id": 1670808,
+      "source_object": "Steam",
+      "source_property": "pressure",
+      "source_property_value_id": 617883,
+      "original_value": 200,
+      "original_unit": "kPa",
+      "source_tag": "STPT61",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617883
+      ]
+    },
+    "reference_flash_tank_vapor_enthalpy": {
+      "source_object_id": 1670808,
+      "source_object": "Steam",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617886,
+      "original_value": 2282.233938360952,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617886
+      ]
+    },
+    "reference_steam_outlet_flow": {
+      "source_object_id": 1670808,
+      "source_object": "Steam",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617880,
+      "original_value": 0,
+      "original_unit": "kg/h",
+      "source_tag": "STVF61",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617880
+      ]
+    },
+    "reference_steam_outlet_pressure": {
+      "source_object_id": 1670808,
+      "source_object": "Steam",
+      "source_property": "pressure",
+      "source_property_value_id": 617883,
+      "original_value": 200,
+      "original_unit": "kPa",
+      "source_tag": "STPT61",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617883
+      ]
+    },
+    "reference_steam_outlet_enthalpy": {
+      "source_object_id": 1670808,
+      "source_object": "Steam",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617886,
+      "original_value": 2282.233938360952,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617886
+      ]
+    },
+    "reference_flash_tank_liquid_flow": {
+      "source_object_id": 1670809,
+      "source_object": "Condensate",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617891,
+      "original_value": 1.5349008335999998,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617891
+      ]
+    },
+    "reference_flash_tank_liquid_pressure": {
+      "source_object_id": 1670809,
+      "source_object": "Condensate",
+      "source_property": "pressure",
+      "source_property_value_id": 617894,
+      "original_value": 200,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617894
+      ]
+    },
+    "reference_flash_tank_liquid_enthalpy": {
+      "source_object_id": 1670809,
+      "source_object": "Condensate",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617897,
+      "original_value": 355.27989952351345,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617897
+      ]
+    },
+    "reference_sghp_hot_inlet_flow": {
+      "source_object_id": 1671235,
+      "source_object": "M",
+      "source_property": "flow_mass",
+      "source_property_value_id": 622781,
+      "original_value": 5525.64300096,
+      "original_unit": "kg/h",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622781
+      ]
+    },
+    "reference_sghp_hot_inlet_pressure": {
+      "source_object_id": 1671235,
+      "source_object": "M",
+      "source_property": "pressure",
+      "source_property_value_id": 622784,
+      "original_value": 377.19289470582476,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622784
+      ]
+    },
+    "reference_sghp_hot_inlet_enthalpy": {
+      "source_object_id": 1671235,
+      "source_object": "M",
+      "source_property": "enth_mass",
+      "source_property_value_id": 622787,
+      "original_value": 335.2495008653479,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622787
+      ]
+    },
+    "reference_sghp_warm_inlet_flow": {
+      "source_object_id": 1671239,
+      "source_object": "S4",
+      "source_property": "flow_mass",
+      "source_property_value_id": 622824,
+      "original_value": 1102.9769701291107,
+      "original_unit": "kg/h",
+      "source_tag": "WWVF41",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622824
+      ]
+    },
+    "reference_sghp_warm_inlet_pressure": {
+      "source_object_id": 1671239,
+      "source_object": "S4",
+      "source_property": "pressure",
+      "source_property_value_id": 622827,
+      "original_value": 399.9947768525805,
+      "original_unit": "kPa",
+      "source_tag": "WWPT41",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622827
+      ]
+    },
+    "reference_sghp_warm_inlet_enthalpy": {
+      "source_object_id": 1671239,
+      "source_object": "S4",
+      "source_property": "enth_mass",
+      "source_property_value_id": 622830,
+      "original_value": 131.4664770501257,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622830
+      ]
+    },
+    "reference_warm_water_pump_inlet_flow": {
+      "source_object_id": 1671242,
+      "source_object": "S6",
+      "source_property": "flow_mass",
+      "source_property_value_id": 622852,
+      "original_value": 0.30638249170253073,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622852
+      ]
+    },
+    "reference_warm_water_pump_inlet_pressure": {
+      "source_object_id": 1671242,
+      "source_object": "S6",
+      "source_property": "pressure",
+      "source_property_value_id": 622855,
+      "original_value": 382.4510568089407,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622855
+      ]
+    },
+    "reference_warm_water_pump_inlet_enthalpy": {
+      "source_object_id": 1671242,
+      "source_object": "S6",
+      "source_property": "enth_mass",
+      "source_property_value_id": 622858,
+      "original_value": 131.4468936856588,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622858
+      ]
+    },
+    "reference_hot_water_mixer_makeup_flow": {
+      "source_object_id": 1671246,
+      "source_object": "S9",
+      "source_property": "flow_mass",
+      "source_property_value_id": 622906,
+      "original_value": 0.06780227496715077,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622906
+      ]
+    },
+    "reference_hot_water_mixer_makeup_pressure": {
+      "source_object_id": 1671246,
+      "source_object": "S9",
+      "source_property": "pressure",
+      "source_property_value_id": 622909,
+      "original_value": 342.9827201611058,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622909
+      ]
+    },
+    "reference_hot_water_mixer_makeup_enthalpy": {
+      "source_object_id": 1671246,
+      "source_object": "S9",
+      "source_property": "enth_mass",
+      "source_property_value_id": 622912,
+      "original_value": 171.4533184838088,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622912
+      ]
+    },
+    "reference_phnix_source_inlet_flow": {
+      "source_object_id": 1671248,
+      "source_object": "Air Source",
+      "source_property": "flow_mass",
+      "source_property_value_id": 623021,
+      "original_value": 9.007634000000001,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623021
+      ]
+    },
+    "reference_phnix_source_inlet_pressure": {
+      "source_object_id": 1671248,
+      "source_object": "Air Source",
+      "source_property": "pressure",
+      "source_property_value_id": 623024,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623024
+      ]
+    },
+    "reference_phnix_source_inlet_enthalpy": {
+      "source_object_id": 1671248,
+      "source_object": "Air Source",
+      "source_property": "enth_mass",
+      "source_property_value_id": 623027,
+      "original_value": 83.99972230464546,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623027
+      ]
+    },
+    "reference_phnix_source_outlet_flow": {
+      "source_object_id": 1671250,
+      "source_object": "Air Out",
+      "source_property": "flow_mass",
+      "source_property_value_id": 623032,
+      "original_value": 9.007634000000001,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623032
+      ]
+    },
+    "reference_phnix_source_outlet_pressure": {
+      "source_object_id": 1671250,
+      "source_object": "Air Out",
+      "source_property": "pressure",
+      "source_property_value_id": 623035,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623035
+      ]
+    },
+    "reference_phnix_source_outlet_enthalpy": {
+      "source_object_id": 1671250,
+      "source_object": "Air Out",
+      "source_property": "enth_mass",
+      "source_property_value_id": 623038,
+      "original_value": 81.22429870281695,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623038
+      ]
+    },
+    "reference_phnix_sink_outlet_flow": {
+      "source_object_id": 1671251,
+      "source_object": "SNK_R13",
+      "source_property": "flow_mass",
+      "source_property_value_id": 622962,
+      "original_value": 1.8015268,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622962
+      ]
+    },
+    "reference_phnix_sink_outlet_pressure": {
+      "source_object_id": 1671251,
+      "source_object": "SNK_R13",
+      "source_property": "pressure",
+      "source_property_value_id": 622965,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622965
+      ]
+    },
+    "reference_phnix_sink_outlet_enthalpy": {
+      "source_object_id": 1671251,
+      "source_object": "SNK_R13",
+      "source_property": "enth_mass",
+      "source_property_value_id": 622968,
+      "original_value": 362.78311488568255,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622968
+      ]
+    },
+    "reference_source_pump_inlet_flow": {
+      "source_object_id": 1671254,
+      "source_object": "S15",
+      "source_property": "flow_mass",
+      "source_property_value_id": 623078,
+      "original_value": 1.8015268000000004,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623078
+      ]
+    },
+    "reference_source_pump_inlet_pressure": {
+      "source_object_id": 1671254,
+      "source_object": "S15",
+      "source_property": "pressure",
+      "source_property_value_id": 623081,
+      "original_value": 93,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623081
+      ]
+    },
+    "reference_source_pump_inlet_enthalpy": {
+      "source_object_id": 1671254,
+      "source_object": "S15",
+      "source_property": "enth_mass",
+      "source_property_value_id": 623084,
+      "original_value": 340.3464716788038,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623084
+      ]
+    },
+    "reference_source_pump_outlet_flow": {
+      "source_object_id": 1671257,
+      "source_object": "S17",
+      "source_property": "flow_mass",
+      "source_property_value_id": 623110,
+      "original_value": 1.8015268000000004,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623110
+      ]
+    },
+    "reference_source_pump_outlet_pressure": {
+      "source_object_id": 1671257,
+      "source_object": "S17",
+      "source_property": "pressure",
+      "source_property_value_id": 623113,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623113
+      ]
+    },
+    "reference_source_pump_outlet_enthalpy": {
+      "source_object_id": 1671257,
+      "source_object": "S17",
+      "source_property": "enth_mass",
+      "source_property_value_id": 623116,
+      "original_value": 340.3544817592326,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623116
+      ]
+    },
+    "reference_phnix_sink_inlet_flow": {
+      "source_object_id": 1671261,
+      "source_object": "S19",
+      "source_property": "flow_mass",
+      "source_property_value_id": 623141,
+      "original_value": 1.8015268,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623141
+      ]
+    },
+    "reference_phnix_sink_inlet_pressure": {
+      "source_object_id": 1671261,
+      "source_object": "S19",
+      "source_property": "pressure",
+      "source_property_value_id": 623144,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623144
+      ]
+    },
+    "reference_phnix_sink_inlet_enthalpy": {
+      "source_object_id": 1671261,
+      "source_object": "S19",
+      "source_property": "enth_mass",
+      "source_property_value_id": 623147,
+      "original_value": 335.0288788676576,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        623147
+      ]
+    },
+    "reference_sghp_source_inlet_flow": {
+      "source_object_id": 1671841,
+      "source_object": "S22",
+      "source_property": "flow_mass",
+      "source_property_value_id": 630965,
+      "original_value": 1.8015268,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        630965
+      ]
+    },
+    "reference_sghp_source_inlet_pressure": {
+      "source_object_id": 1671841,
+      "source_object": "S22",
+      "source_property": "pressure",
+      "source_property_value_id": 630968,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        630968
+      ]
+    },
+    "reference_sghp_source_inlet_enthalpy": {
+      "source_object_id": 1671841,
+      "source_object": "S22",
+      "source_property": "enth_mass",
+      "source_property_value_id": 630971,
+      "original_value": 362.8941318297629,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        630971
+      ]
+    },
+    "reference_cooling_water_inlet_flow": {
+      "source_object_id": 1671925,
+      "source_object": "S31",
+      "source_property": "flow_mass",
+      "source_property_value_id": 632093,
+      "original_value": 0.288244288,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        632093
+      ]
+    },
+    "reference_cooling_water_inlet_pressure": {
+      "source_object_id": 1671925,
+      "source_object": "S31",
+      "source_property": "pressure",
+      "source_property_value_id": 632096,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        632096
+      ]
+    },
+    "reference_cooling_water_inlet_enthalpy": {
+      "source_object_id": 1671925,
+      "source_object": "S31",
+      "source_property": "enth_mass",
+      "source_property_value_id": 632099,
+      "original_value": 146.70763119826032,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        632099
+      ]
+    },
+    "reference_cooling_water_outlet_flow": {
+      "source_object_id": 1670760,
+      "source_object": "CW Out",
+      "source_property": "flow_mass",
+      "source_property_value_id": 617346,
+      "original_value": 0.288244288,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617346
+      ]
+    },
+    "reference_cooling_water_outlet_pressure": {
+      "source_object_id": 1670760,
+      "source_object": "CW Out",
+      "source_property": "pressure",
+      "source_property_value_id": 617349,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617349
+      ]
+    },
+    "reference_cooling_water_outlet_enthalpy": {
+      "source_object_id": 1670760,
+      "source_object": "CW Out",
+      "source_property": "enth_mass",
+      "source_property_value_id": 617352,
+      "original_value": 153.2826524896843,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        617352
+      ]
+    },
+    "reference_sghp_performance_electrical_power": {
+      "source_object_id": 1670817,
+      "source_object": "HP Compressor",
+      "source_property": "work_mechanical",
+      "source_property_value_id": 617785,
+      "original_value": 2.375729672279988,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        617785
+      ]
+    },
+    "reference_sghp_performance_hot_water_duty": {
+      "source_object_id": 1670810,
+      "source_object": "Condenser",
+      "source_property": "heat_duty",
+      "source_property_value_id": 617511,
+      "original_value": 30.74467559775288,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        617511
+      ]
+    },
+    "reference_sghp_performance_warm_water_duty": {
+      "source_object_id": 1670814,
+      "source_object": "Subcooler",
+      "source_property": "heat_duty",
+      "source_property_value_id": 617462,
+      "original_value": 12.251268113763134,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        617462
+      ]
+    },
+    "reference_sghp_performance_cooling_duty": {
+      "source_object_id": 1670812,
+      "source_object": "Evaporator",
+      "source_property": "heat_duty",
+      "source_property_value_id": 617723,
+      "original_value": 40.62021403923478,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        617723
+      ]
+    },
+    "reference_phnix_performance_cop": {
+      "source_object_id": 1671247,
+      "source_object": "PHNIX HP",
+      "source_property": "coefficient_of_performance",
+      "source_property_value_id": 622926,
+      "original_value": 2,
+      "original_unit": "dimensionless",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        622926
+      ]
+    },
+    "reference_phnix_performance_electrical_power": {
+      "source_object_id": 1671247,
+      "source_object": "PHNIX HP",
+      "source_property": "work_mechanical",
+      "source_property_value_id": 622923,
+      "original_value": 25,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        622923
+      ]
+    },
+    "reference_hot_water_pump_parameters_pressure_rise": {
+      "source_object_id": 1670791,
+      "source_object": "Pump1",
+      "source_property": "deltaP",
+      "source_property_value_id": 617912,
+      "original_value": 200,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        617912
+      ]
+    },
+    "reference_warm_water_pump_parameters_pressure_rise": {
+      "source_object_id": 1671237,
+      "source_object": "Pump1",
+      "source_property": "deltaP",
+      "source_property_value_id": 622810,
+      "original_value": 17.543720043634288,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        622810
+      ]
+    },
+    "reference_source_valve_parameters_pressure_drop": {
+      "source_object_id": 1671252,
+      "source_object": "Valve3",
+      "source_property": "deltaP_inverted",
+      "source_property_value_id": 623061,
+      "original_value": 7,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        623061
+      ]
+    },
+    "reference_warm_water_valve_parameters_pressure_drop": {
+      "source_object_id": 1671240,
+      "source_object": "Pipe Pressure Loss",
+      "source_property": "deltaP_inverted",
+      "source_property_value_id": 622835,
+      "original_value": 17.54372004363152,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        622835
+      ]
+    },
+    "reference_flash_valve_parameters_pressure_drop": {
+      "source_object_id": 1670818,
+      "source_object": "Flash Valve",
+      "source_property": "deltaP_inverted",
+      "source_property_value_id": 617831,
+      "original_value": 177.19289470582473,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        617831
+      ]
+    },
+    "reference_warm_makeup_valve_parameters_pressure_drop": {
+      "source_object_id": 1671244,
+      "source_object": "Valve2",
+      "source_property": "deltaP_inverted",
+      "source_property_value_id": 622889,
+      "original_value": 57.01205669148573,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        622889
+      ]
+    },
+    "reference_sghp_compressor_parameters_pressure_rise": {
+      "source_object_id": 1670817,
+      "source_object": "HP Compressor",
+      "source_property": "deltaP",
+      "source_property_value_id": 617783,
+      "original_value": 999.9999999996236,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        617783
+      ]
+    },
+    "reference_sghp_expansion_valve_parameters_pressure_drop": {
+      "source_object_id": 1670811,
+      "source_object": "Valve1",
+      "source_property": "deltaP_inverted",
+      "source_property_value_id": 617634,
+      "original_value": 999.9999999996237,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        617634
+      ]
+    },
+    "reference_sghp_condenser_parameters_temperature_difference": {
+      "source_object_id": 1670810,
+      "source_object": "Condenser",
+      "source_property": "heat_duty",
+      "source_property_value_id": 617511,
+      "original_value": 30.74467559775288,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Effective delta-T = captured duty / configured UA. Replay approximation for local Q=UA*dT, not an independently measured temperature difference or the platform minimum approach.",
+      "source_property_value_ids": [
+        617511,
+        617509,
+        617510
+      ]
+    },
+    "reference_sghp_evaporator_parameters_temperature_difference": {
+      "source_object_id": 1670812,
+      "source_object": "Evaporator",
+      "source_property": "heat_duty",
+      "source_property_value_id": 617723,
+      "original_value": 40.62021403923478,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Effective delta-T = captured duty / configured UA. Replay approximation for local Q=UA*dT, not an independently measured temperature difference or the platform minimum approach.",
+      "source_property_value_ids": [
+        617723,
+        617721,
+        617722
+      ]
+    },
+    "reference_sghp_subcooler_parameters_temperature_difference": {
+      "source_object_id": 1670814,
+      "source_object": "Subcooler",
+      "source_property": "heat_duty",
+      "source_property_value_id": 617462,
+      "original_value": 12.251268113763134,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Effective delta-T = captured duty / configured UA. Replay approximation for local Q=UA*dT, not an independently measured temperature difference or the platform minimum approach.",
+      "source_property_value_ids": [
+        617462,
+        617460,
+        617461
+      ]
+    },
+    "reference_sghp_ihx_parameters_temperature_difference": {
+      "source_object_id": 1670816,
+      "source_object": "IHX",
+      "source_property": "heat_duty",
+      "source_property_value_id": 617581,
+      "original_value": 0.14583233648532015,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Effective delta-T = captured duty / configured UA. Replay approximation for local Q=UA*dT, not an independently measured temperature difference or the platform minimum approach.",
+      "source_property_value_ids": [
+        617581,
+        617579,
+        617580
+      ]
+    },
+    "reference_cooling_exchanger_parameters_temperature_difference": {
+      "source_object_id": 1670815,
+      "source_object": "Cooling Tower",
+      "source_property": "heat_duty",
+      "source_property_value_id": 617321,
+      "original_value": 1.895212330732106,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Effective delta-T = captured duty / configured UA. Replay approximation for local Q=UA*dT, not an independently measured temperature difference or the platform minimum approach.",
+      "source_property_value_ids": [
+        617321,
+        617319,
+        617320
+      ]
+    },
+    "replay_reference_sghp_source_inlet_flow": {
+      "source_object_id": 1671841,
+      "source_object": "S22",
+      "source_property": "flow_mass",
+      "source_property_value_id": 630965,
+      "original_value": 1.8015268,
+      "original_unit": "kg/s",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        630965
+      ]
+    },
+    "replay_reference_sghp_source_inlet_pressure": {
+      "source_object_id": 1671841,
+      "source_object": "S22",
+      "source_property": "pressure",
+      "source_property_value_id": 630968,
+      "original_value": 100,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        630968
+      ]
+    },
+    "replay_reference_sghp_source_inlet_enthalpy": {
+      "source_object_id": 1671841,
+      "source_object": "S22",
+      "source_property": "enth_mass",
+      "source_property_value_id": 630971,
+      "original_value": 362.8941318297629,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        630971
+      ]
+    },
+    "replay_reference_sghp_hot_inlet_flow": {
+      "source_object_id": 1671235,
+      "source_object": "M",
+      "source_property": "flow_mass",
+      "source_property_value_id": 622781,
+      "original_value": 5525.64300096,
+      "original_unit": "kg/h",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622781
+      ]
+    },
+    "replay_reference_sghp_hot_inlet_pressure": {
+      "source_object_id": 1671235,
+      "source_object": "M",
+      "source_property": "pressure",
+      "source_property_value_id": 622784,
+      "original_value": 377.19289470582476,
+      "original_unit": "kPa",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622784
+      ]
+    },
+    "replay_reference_sghp_hot_inlet_enthalpy": {
+      "source_object_id": 1671235,
+      "source_object": "M",
+      "source_property": "enth_mass",
+      "source_property_value_id": 622787,
+      "original_value": 335.2495008653479,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622787
+      ]
+    },
+    "replay_reference_sghp_warm_inlet_flow": {
+      "source_object_id": 1671239,
+      "source_object": "S4",
+      "source_property": "flow_mass",
+      "source_property_value_id": 622824,
+      "original_value": 1102.9769701291107,
+      "original_unit": "kg/h",
+      "source_tag": "WWVF41",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622824
+      ]
+    },
+    "replay_reference_sghp_warm_inlet_pressure": {
+      "source_object_id": 1671239,
+      "source_object": "S4",
+      "source_property": "pressure",
+      "source_property_value_id": 622827,
+      "original_value": 399.9947768525805,
+      "original_unit": "kPa",
+      "source_tag": "WWPT41",
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622827
+      ]
+    },
+    "replay_reference_sghp_warm_inlet_enthalpy": {
+      "source_object_id": 1671239,
+      "source_object": "S4",
+      "source_property": "enth_mass",
+      "source_property_value_id": 622830,
+      "original_value": 131.4664770501257,
+      "original_unit": "kJ/kg",
+      "source_tag": null,
+      "basis": "Captured platform stream value for comparison or an explicitly chosen replay assumption; not an immutable solve result, physical measurement, or saturation closure.",
+      "source_property_value_ids": [
+        622830
+      ]
+    },
+    "replay_reference_sghp_performance_electrical_power": {
+      "source_object_id": 1670817,
+      "source_object": "HP Compressor",
+      "source_property": "work_mechanical",
+      "source_property_value_id": 617785,
+      "original_value": 2.375729672279988,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        617785
+      ]
+    },
+    "replay_reference_sghp_performance_warm_water_duty": {
+      "source_object_id": 1670814,
+      "source_object": "Subcooler",
+      "source_property": "heat_duty",
+      "source_property_value_id": 617462,
+      "original_value": 12.251268113763134,
+      "original_unit": "kW",
+      "source_tag": null,
+      "basis": "Captured current value. May be calculated or manipulated in the platform; not automatically fixed in the local model.",
+      "source_property_value_ids": [
+        617462
+      ]
+    },
+    "replay_calibrated_cop": {
+      "basis": "(captured condenser duty + captured subcooler duty) / captured compressor work; single-point replay calibration. Same-point agreement is not predictive validation. Compressor mechanical power is treated as electrical power without motor losses.",
+      "source_property_value_ids": [
+        617511,
+        617462,
+        617785
+      ]
+    }
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "relationship": "flowsheet",
+  "submodels": {
+    "sghp": {
+      "relationship": "aggregate",
+      "submodels": {
+        "cop_model": {
+          "relationship": "specified",
+          "submodels": {}
+        },
+        "power_model": {
+          "relationship": "specified",
+          "submodels": {}
+        },
+        "warm_water_heater": {
+          "relationship": "energy_balance",
+          "submodels": {}
+        }
+      }
+    },
+    "phnix": {
+      "relationship": "aggregate",
+      "submodels": {
+        "cop_model": {
+          "relationship": "specified",
+          "submodels": {}
+        },
+        "source_inlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        },
+        "source_outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        },
+        "sink_inlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        },
+        "sink_outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        },
+        "power_model": {
+          "relationship": "specified",
+          "submodels": {}
+        }
+      }
+    },
+    "source_heater": {
+      "relationship": "energy_balance",
+      "submodels": {}
+    },
+    "source_tank": {
+      "relationship": "energy_balance",
+      "submodels": {}
+    },
+    "source_valve": {
+      "relationship": "isenthalpic",
+      "submodels": {}
+    },
+    "warm_water_mixer": {
+      "relationship": "balance",
+      "submodels": {}
+    },
+    "warm_water_splitter": {
+      "relationship": "split",
+      "submodels": {}
+    },
+    "cooling_exchanger": {
+      "relationship": "lumped",
+      "submodels": {}
+    },
+    "hot_water_mixer": {
+      "relationship": "balance",
+      "submodels": {}
+    },
+    "flash_valve": {
+      "relationship": "isenthalpic",
+      "submodels": {}
+    },
+    "flash_tank": {
+      "relationship": "enthalpy_balance",
+      "submodels": {}
+    },
+    "steam_valve": {
+      "relationship": "isenthalpic",
+      "submodels": {}
+    },
+    "source_pump": {
+      "relationship": "incompressible",
+      "submodels": {
+        "outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        }
+      }
+    },
+    "warm_water_pump": {
+      "relationship": "incompressible",
+      "submodels": {
+        "outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        }
+      }
+    },
+    "hot_water_pump": {
+      "relationship": "incompressible",
+      "submodels": {
+        "outlet_state": {
+          "relationship": "constant_properties",
+          "submodels": {
+            "water": {
+              "relationship": "constant_properties",
+              "submodels": {}
+            }
+          }
+        }
+      }
+    },
+    "warm_water_valve": {
+      "relationship": "isenthalpic"
+    },
+    "warm_makeup_valve": {
+      "relationship": "isenthalpic"
+    }
+  }
+}

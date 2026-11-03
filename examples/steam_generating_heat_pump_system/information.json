@@ -1,0 +1,227 @@
+[
+  {
+    "id": "config_sghp_condenser_parameters_conductance",
+    "tag": "ahuora.property_value.617509",
+    "information_type": "equipment_specification",
+    "variable_path": "sghp.condenser.parameters.conductance",
+    "value": 30000.0,
+    "unit": "W/K",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_sghp_evaporator_parameters_conductance",
+    "tag": "ahuora.property_value.617721",
+    "information_type": "equipment_specification",
+    "variable_path": "sghp.evaporator.parameters.conductance",
+    "value": 5000.0,
+    "unit": "W/K",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_sghp_subcooler_parameters_conductance",
+    "tag": "ahuora.property_value.617460",
+    "information_type": "equipment_specification",
+    "variable_path": "sghp.subcooler.parameters.conductance",
+    "value": 400.0,
+    "unit": "W/K",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_sghp_ihx_parameters_conductance",
+    "tag": "ahuora.property_value.617579",
+    "information_type": "equipment_specification",
+    "variable_path": "sghp.ihx.parameters.conductance",
+    "value": 5.0,
+    "unit": "W/K",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_cooling_exchanger_parameters_conductance",
+    "tag": "ahuora.property_value.617319",
+    "information_type": "equipment_specification",
+    "variable_path": "cooling_exchanger.parameters.conductance",
+    "value": 540.0,
+    "unit": "W/K",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_hot_water_pump_parameters_efficiency",
+    "tag": "ahuora.property_value.617911",
+    "information_type": "equipment_specification",
+    "variable_path": "hot_water_pump.parameters.efficiency",
+    "value": 1.0,
+    "unit": "dimensionless",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_warm_water_pump_parameters_efficiency",
+    "tag": "ahuora.property_value.622809",
+    "information_type": "equipment_specification",
+    "variable_path": "warm_water_pump.parameters.efficiency",
+    "value": 0.9,
+    "unit": "dimensionless",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_source_pump_parameters_efficiency",
+    "tag": "ahuora.property_value.623095",
+    "information_type": "equipment_specification",
+    "variable_path": "source_pump.parameters.efficiency",
+    "value": 0.9,
+    "unit": "dimensionless",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_sghp_compressor_parameters_efficiency",
+    "tag": "ahuora.property_value.617782",
+    "information_type": "equipment_specification",
+    "variable_path": "sghp.compressor.parameters.efficiency",
+    "value": 0.75,
+    "unit": "dimensionless",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_warm_water_splitter_parameters_fraction",
+    "tag": "ahuora.property_value.617401",
+    "information_type": "equipment_specification",
+    "variable_path": "warm_water_splitter.parameters.fraction",
+    "value": 0.778700556319703,
+    "unit": "dimensionless",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_phnix_power_model_parameters_electrical_power",
+    "tag": "ahuora.property_value.622923",
+    "information_type": "equipment_specification",
+    "variable_path": "phnix.power_model.parameters.electrical_power",
+    "value": 25.0,
+    "unit": "kW",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_phnix_cop_model_parameters_cop",
+    "tag": "ahuora.property_value.622926",
+    "information_type": "equipment_specification",
+    "variable_path": "phnix.cop_model.parameters.cop",
+    "value": 2.0,
+    "unit": "dimensionless",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_source_heater_parameters_heat_duty",
+    "tag": "SOEH31",
+    "information_type": "equipment_specification",
+    "variable_path": "source_heater.parameters.heat_duty",
+    "value": 200.0,
+    "unit": "W",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_source_pump_parameters_pressure_rise",
+    "tag": "ahuora.property_value.623096",
+    "information_type": "equipment_specification",
+    "variable_path": "source_pump.parameters.pressure_rise",
+    "value": 7.0,
+    "unit": "kPa",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_warm_water_pump_performance_work",
+    "tag": "ahuora.property_value.622812",
+    "information_type": "equipment_specification",
+    "variable_path": "warm_water_pump.performance.work",
+    "value": 6.0,
+    "unit": "W",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_makeup_inlet_pressure",
+    "tag": "ahuora.property_value.617371",
+    "information_type": "equipment_specification",
+    "variable_path": "makeup_inlet.pressure",
+    "value": 400.0,
+    "unit": "kPa",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_phnix_source_inlet_pressure",
+    "tag": "ahuora.property_value.623024",
+    "information_type": "equipment_specification",
+    "variable_path": "phnix_source_inlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_cooling_water_inlet_pressure",
+    "tag": "ahuora.property_value.632096",
+    "information_type": "equipment_specification",
+    "variable_path": "cooling_water_inlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_phnix_sink_inlet_pressure",
+    "tag": "ahuora.property_value.623144",
+    "information_type": "equipment_specification",
+    "variable_path": "phnix.sink_inlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_sghp_hot_inlet_flow",
+    "tag": "ahuora.property_value.622781",
+    "information_type": "equipment_specification",
+    "variable_path": "sghp.hot_inlet.flow",
+    "value": 5525.64300096,
+    "unit": "kg/h",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_phnix_sink_inlet_flow",
+    "tag": "ahuora.property_value.623141",
+    "information_type": "equipment_specification",
+    "variable_path": "phnix.sink_inlet.flow",
+    "value": 1.8015268,
+    "unit": "kg/s",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_phnix_source_inlet_flow",
+    "tag": "ahuora.property_value.623021",
+    "information_type": "equipment_specification",
+    "variable_path": "phnix_source_inlet.flow",
+    "value": 9.007634000000001,
+    "unit": "kg/s",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_cooling_water_inlet_flow",
+    "tag": "ahuora.property_value.632093",
+    "information_type": "equipment_specification",
+    "variable_path": "cooling_water_inlet.flow",
+    "value": 0.288244288,
+    "unit": "kg/s",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_flash_tank_inlet_pressure",
+    "tag": "ahuora.property_value.617851",
+    "information_type": "equipment_specification",
+    "variable_path": "flash_tank.inlet.pressure",
+    "value": 200.0,
+    "unit": "kPa",
+    "trust_rank": 8
+  },
+  {
+    "id": "config_hot_water_pump_outlet_pressure",
+    "tag": "ahuora.property_value.617929",
+    "information_type": "equipment_specification",
+    "variable_path": "hot_water_pump.outlet.pressure",
+    "value": 400.0,
+    "unit": "kPa",
+    "trust_rank": 8
+  }
+]

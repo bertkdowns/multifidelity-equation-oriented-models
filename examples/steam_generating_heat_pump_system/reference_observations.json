@@ -1,0 +1,902 @@
+[
+  {
+    "id": "reference_makeup_inlet_flow",
+    "tag": "ahuora.property_value.617368",
+    "information_type": "assumption",
+    "variable_path": "makeup_inlet.flow",
+    "value": 0.5629463598318226,
+    "unit": "t/h",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_makeup_inlet_pressure",
+    "tag": "ahuora.property_value.617371",
+    "information_type": "assumption",
+    "variable_path": "makeup_inlet.pressure",
+    "value": 400.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_makeup_inlet_enthalpy",
+    "tag": "ahuora.property_value.617374",
+    "information_type": "assumption",
+    "variable_path": "makeup_inlet.enthalpy",
+    "value": 105.18874430649564,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_exchanger_hot_outlet_flow",
+    "tag": "ahuora.property_value.617357",
+    "information_type": "assumption",
+    "variable_path": "cooling_exchanger.hot_outlet.flow",
+    "value": 0.1500085028603578,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_exchanger_hot_outlet_pressure",
+    "tag": "ahuora.property_value.617360",
+    "information_type": "assumption",
+    "variable_path": "cooling_exchanger.hot_outlet.pressure",
+    "value": 399.9947768526026,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_exchanger_hot_outlet_enthalpy",
+    "tag": "ahuora.property_value.617363",
+    "information_type": "assumption",
+    "variable_path": "cooling_exchanger.hot_outlet.enthalpy",
+    "value": 158.8192857817041,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_mixer_outlet_flow",
+    "tag": "ahuora.property_value.617390",
+    "information_type": "assumption",
+    "variable_path": "warm_water_mixer.outlet.flow",
+    "value": 0.30638249170253073,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_mixer_outlet_pressure",
+    "tag": "ahuora.property_value.617393",
+    "information_type": "assumption",
+    "variable_path": "warm_water_mixer.outlet.pressure",
+    "value": 399.9947768525639,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_mixer_outlet_enthalpy",
+    "tag": "ahuora.property_value.617396",
+    "information_type": "assumption",
+    "variable_path": "warm_water_mixer.outlet.enthalpy",
+    "value": 131.44689368566122,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_exchanger_hot_inlet_flow",
+    "tag": "ahuora.property_value.617414",
+    "information_type": "assumption",
+    "variable_path": "cooling_exchanger.hot_inlet.flow",
+    "value": 0.1500085028603578,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_exchanger_hot_inlet_pressure",
+    "tag": "ahuora.property_value.617417",
+    "information_type": "assumption",
+    "variable_path": "cooling_exchanger.hot_inlet.pressure",
+    "value": 399.99477685259706,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_exchanger_hot_inlet_enthalpy",
+    "tag": "ahuora.property_value.617420",
+    "information_type": "assumption",
+    "variable_path": "cooling_exchanger.hot_inlet.enthalpy",
+    "value": 171.45331848382074,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_splitter_branch_flow",
+    "tag": "ahuora.property_value.617425",
+    "information_type": "assumption",
+    "variable_path": "warm_water_splitter.branch.flow",
+    "value": 0.06780227496715077,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_splitter_branch_pressure",
+    "tag": "ahuora.property_value.617428",
+    "information_type": "assumption",
+    "variable_path": "warm_water_splitter.branch.pressure",
+    "value": 399.99477685259154,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_splitter_branch_enthalpy",
+    "tag": "ahuora.property_value.617431",
+    "information_type": "assumption",
+    "variable_path": "warm_water_splitter.branch.enthalpy",
+    "value": 171.45331848381988,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_hot_outlet_flow",
+    "tag": "HWVF51",
+    "information_type": "assumption",
+    "variable_path": "sghp.hot_outlet.flow",
+    "value": 5525.64300096,
+    "unit": "kg/h",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_hot_outlet_pressure",
+    "tag": "ahuora.property_value.617539",
+    "information_type": "assumption",
+    "variable_path": "sghp.hot_outlet.pressure",
+    "value": 377.19289470582476,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_hot_outlet_enthalpy",
+    "tag": "ahuora.property_value.617542",
+    "information_type": "assumption",
+    "variable_path": "sghp.hot_outlet.enthalpy",
+    "value": 355.2798995235012,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_warm_outlet_flow",
+    "tag": "ahuora.property_value.617487",
+    "information_type": "assumption",
+    "variable_path": "sghp.warm_outlet.flow",
+    "value": 1102.9769701291104,
+    "unit": "kg/h",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_warm_outlet_pressure",
+    "tag": "ahuora.property_value.617490",
+    "information_type": "assumption",
+    "variable_path": "sghp.warm_outlet.pressure",
+    "value": 399.99477685258876,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_warm_outlet_enthalpy",
+    "tag": "ahuora.property_value.617493",
+    "information_type": "assumption",
+    "variable_path": "sghp.warm_outlet.enthalpy",
+    "value": 171.45331848381406,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_source_outlet_flow",
+    "tag": "SOVF31",
+    "information_type": "assumption",
+    "variable_path": "sghp.source_outlet.flow",
+    "value": 108.09160800000002,
+    "unit": "kg/min",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_source_outlet_pressure",
+    "tag": "SOPT31",
+    "information_type": "assumption",
+    "variable_path": "sghp.source_outlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_source_outlet_enthalpy",
+    "tag": "ahuora.property_value.617765",
+    "information_type": "assumption",
+    "variable_path": "sghp.source_outlet.enthalpy",
+    "value": 340.3464716788019,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_flash_tank_inlet_flow",
+    "tag": "ahuora.property_value.617848",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.inlet.flow",
+    "value": 1.5349008335999998,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_flash_tank_inlet_pressure",
+    "tag": "ahuora.property_value.617851",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.inlet.pressure",
+    "value": 200.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_flash_tank_inlet_enthalpy",
+    "tag": "ahuora.property_value.617854",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.inlet.enthalpy",
+    "value": 355.27989952350543,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_hot_water_pump_outlet_flow",
+    "tag": "ahuora.property_value.617926",
+    "information_type": "assumption",
+    "variable_path": "hot_water_pump.outlet.flow",
+    "value": 1.5349008335999998,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_hot_water_pump_outlet_pressure",
+    "tag": "ahuora.property_value.617929",
+    "information_type": "assumption",
+    "variable_path": "hot_water_pump.outlet.pressure",
+    "value": 400.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_hot_water_pump_outlet_enthalpy",
+    "tag": "ahuora.property_value.617932",
+    "information_type": "assumption",
+    "variable_path": "hot_water_pump.outlet.enthalpy",
+    "value": 355.4863256727024,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_hot_water_mixer_outlet_flow",
+    "tag": "ahuora.property_value.617965",
+    "information_type": "assumption",
+    "variable_path": "hot_water_mixer.outlet.flow",
+    "value": 1.6027031085671508,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_hot_water_mixer_outlet_pressure",
+    "tag": "HWPT51",
+    "information_type": "assumption",
+    "variable_path": "hot_water_mixer.outlet.pressure",
+    "value": 342.9827201611059,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_hot_water_mixer_outlet_enthalpy",
+    "tag": "ahuora.property_value.617971",
+    "information_type": "assumption",
+    "variable_path": "hot_water_mixer.outlet.enthalpy",
+    "value": 347.70081849439737,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_flash_tank_vapor_flow",
+    "tag": "STVF61",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.vapor.flow",
+    "value": 0.0,
+    "unit": "kg/h",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_flash_tank_vapor_pressure",
+    "tag": "STPT61",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.vapor.pressure",
+    "value": 200.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_flash_tank_vapor_enthalpy",
+    "tag": "ahuora.property_value.617886",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.vapor.enthalpy",
+    "value": 2282.233938360952,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_steam_outlet_flow",
+    "tag": "STVF61",
+    "information_type": "assumption",
+    "variable_path": "steam_outlet.flow",
+    "value": 0.0,
+    "unit": "kg/h",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_steam_outlet_pressure",
+    "tag": "STPT61",
+    "information_type": "assumption",
+    "variable_path": "steam_outlet.pressure",
+    "value": 200.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_steam_outlet_enthalpy",
+    "tag": "ahuora.property_value.617886",
+    "information_type": "assumption",
+    "variable_path": "steam_outlet.enthalpy",
+    "value": 2282.233938360952,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_flash_tank_liquid_flow",
+    "tag": "ahuora.property_value.617891",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.liquid.flow",
+    "value": 1.5349008335999998,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_flash_tank_liquid_pressure",
+    "tag": "ahuora.property_value.617894",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.liquid.pressure",
+    "value": 200.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_flash_tank_liquid_enthalpy",
+    "tag": "ahuora.property_value.617897",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.liquid.enthalpy",
+    "value": 355.27989952351345,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_hot_inlet_flow",
+    "tag": "ahuora.property_value.622781",
+    "information_type": "assumption",
+    "variable_path": "sghp.hot_inlet.flow",
+    "value": 5525.64300096,
+    "unit": "kg/h",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_hot_inlet_pressure",
+    "tag": "ahuora.property_value.622784",
+    "information_type": "assumption",
+    "variable_path": "sghp.hot_inlet.pressure",
+    "value": 377.19289470582476,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_hot_inlet_enthalpy",
+    "tag": "ahuora.property_value.622787",
+    "information_type": "assumption",
+    "variable_path": "sghp.hot_inlet.enthalpy",
+    "value": 335.2495008653479,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_warm_inlet_flow",
+    "tag": "WWVF41",
+    "information_type": "assumption",
+    "variable_path": "sghp.warm_inlet.flow",
+    "value": 1102.9769701291107,
+    "unit": "kg/h",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_warm_inlet_pressure",
+    "tag": "WWPT41",
+    "information_type": "assumption",
+    "variable_path": "sghp.warm_inlet.pressure",
+    "value": 399.9947768525805,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_warm_inlet_enthalpy",
+    "tag": "ahuora.property_value.622830",
+    "information_type": "assumption",
+    "variable_path": "sghp.warm_inlet.enthalpy",
+    "value": 131.4664770501257,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_pump_inlet_flow",
+    "tag": "ahuora.property_value.622852",
+    "information_type": "assumption",
+    "variable_path": "warm_water_pump.inlet.flow",
+    "value": 0.30638249170253073,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_pump_inlet_pressure",
+    "tag": "ahuora.property_value.622855",
+    "information_type": "assumption",
+    "variable_path": "warm_water_pump.inlet.pressure",
+    "value": 382.4510568089407,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_pump_inlet_enthalpy",
+    "tag": "ahuora.property_value.622858",
+    "information_type": "assumption",
+    "variable_path": "warm_water_pump.inlet.enthalpy",
+    "value": 131.4468936856588,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_hot_water_mixer_makeup_flow",
+    "tag": "ahuora.property_value.622906",
+    "information_type": "assumption",
+    "variable_path": "hot_water_mixer.makeup.flow",
+    "value": 0.06780227496715077,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_hot_water_mixer_makeup_pressure",
+    "tag": "ahuora.property_value.622909",
+    "information_type": "assumption",
+    "variable_path": "hot_water_mixer.makeup.pressure",
+    "value": 342.9827201611058,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_hot_water_mixer_makeup_enthalpy",
+    "tag": "ahuora.property_value.622912",
+    "information_type": "assumption",
+    "variable_path": "hot_water_mixer.makeup.enthalpy",
+    "value": 171.4533184838088,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_source_inlet_flow",
+    "tag": "ahuora.property_value.623021",
+    "information_type": "assumption",
+    "variable_path": "phnix_source_inlet.flow",
+    "value": 9.007634000000001,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_source_inlet_pressure",
+    "tag": "ahuora.property_value.623024",
+    "information_type": "assumption",
+    "variable_path": "phnix_source_inlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_source_inlet_enthalpy",
+    "tag": "ahuora.property_value.623027",
+    "information_type": "assumption",
+    "variable_path": "phnix_source_inlet.enthalpy",
+    "value": 83.99972230464546,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_source_outlet_flow",
+    "tag": "ahuora.property_value.623032",
+    "information_type": "assumption",
+    "variable_path": "phnix_source_outlet.flow",
+    "value": 9.007634000000001,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_source_outlet_pressure",
+    "tag": "ahuora.property_value.623035",
+    "information_type": "assumption",
+    "variable_path": "phnix_source_outlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_source_outlet_enthalpy",
+    "tag": "ahuora.property_value.623038",
+    "information_type": "assumption",
+    "variable_path": "phnix_source_outlet.enthalpy",
+    "value": 81.22429870281695,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_sink_outlet_flow",
+    "tag": "ahuora.property_value.622962",
+    "information_type": "assumption",
+    "variable_path": "phnix.sink_outlet.flow",
+    "value": 1.8015268,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_sink_outlet_pressure",
+    "tag": "ahuora.property_value.622965",
+    "information_type": "assumption",
+    "variable_path": "phnix.sink_outlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_sink_outlet_enthalpy",
+    "tag": "ahuora.property_value.622968",
+    "information_type": "assumption",
+    "variable_path": "phnix.sink_outlet.enthalpy",
+    "value": 362.78311488568255,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_source_pump_inlet_flow",
+    "tag": "ahuora.property_value.623078",
+    "information_type": "assumption",
+    "variable_path": "source_pump.inlet.flow",
+    "value": 1.8015268000000004,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_source_pump_inlet_pressure",
+    "tag": "ahuora.property_value.623081",
+    "information_type": "assumption",
+    "variable_path": "source_pump.inlet.pressure",
+    "value": 93.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_source_pump_inlet_enthalpy",
+    "tag": "ahuora.property_value.623084",
+    "information_type": "assumption",
+    "variable_path": "source_pump.inlet.enthalpy",
+    "value": 340.3464716788038,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_source_pump_outlet_flow",
+    "tag": "ahuora.property_value.623110",
+    "information_type": "assumption",
+    "variable_path": "source_pump.outlet.flow",
+    "value": 1.8015268000000004,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_source_pump_outlet_pressure",
+    "tag": "ahuora.property_value.623113",
+    "information_type": "assumption",
+    "variable_path": "source_pump.outlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_source_pump_outlet_enthalpy",
+    "tag": "ahuora.property_value.623116",
+    "information_type": "assumption",
+    "variable_path": "source_pump.outlet.enthalpy",
+    "value": 340.3544817592326,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_sink_inlet_flow",
+    "tag": "ahuora.property_value.623141",
+    "information_type": "assumption",
+    "variable_path": "phnix.sink_inlet.flow",
+    "value": 1.8015268,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_sink_inlet_pressure",
+    "tag": "ahuora.property_value.623144",
+    "information_type": "assumption",
+    "variable_path": "phnix.sink_inlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_sink_inlet_enthalpy",
+    "tag": "ahuora.property_value.623147",
+    "information_type": "assumption",
+    "variable_path": "phnix.sink_inlet.enthalpy",
+    "value": 335.0288788676576,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_source_inlet_flow",
+    "tag": "ahuora.property_value.630965",
+    "information_type": "assumption",
+    "variable_path": "sghp.source_inlet.flow",
+    "value": 1.8015268,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_source_inlet_pressure",
+    "tag": "ahuora.property_value.630968",
+    "information_type": "assumption",
+    "variable_path": "sghp.source_inlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_source_inlet_enthalpy",
+    "tag": "ahuora.property_value.630971",
+    "information_type": "assumption",
+    "variable_path": "sghp.source_inlet.enthalpy",
+    "value": 362.8941318297629,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_water_inlet_flow",
+    "tag": "ahuora.property_value.632093",
+    "information_type": "assumption",
+    "variable_path": "cooling_water_inlet.flow",
+    "value": 0.288244288,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_water_inlet_pressure",
+    "tag": "ahuora.property_value.632096",
+    "information_type": "assumption",
+    "variable_path": "cooling_water_inlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_water_inlet_enthalpy",
+    "tag": "ahuora.property_value.632099",
+    "information_type": "assumption",
+    "variable_path": "cooling_water_inlet.enthalpy",
+    "value": 146.70763119826032,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_water_outlet_flow",
+    "tag": "ahuora.property_value.617346",
+    "information_type": "assumption",
+    "variable_path": "cooling_water_outlet.flow",
+    "value": 0.288244288,
+    "unit": "kg/s",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_water_outlet_pressure",
+    "tag": "ahuora.property_value.617349",
+    "information_type": "assumption",
+    "variable_path": "cooling_water_outlet.pressure",
+    "value": 100.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_water_outlet_enthalpy",
+    "tag": "ahuora.property_value.617352",
+    "information_type": "assumption",
+    "variable_path": "cooling_water_outlet.enthalpy",
+    "value": 153.2826524896843,
+    "unit": "kJ/kg",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_performance_electrical_power",
+    "tag": "ahuora.property_value.617785",
+    "information_type": "assumption",
+    "variable_path": "sghp.performance.electrical_power",
+    "value": 2.375729672279988,
+    "unit": "kW",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_performance_hot_water_duty",
+    "tag": "ahuora.property_value.617511",
+    "information_type": "assumption",
+    "variable_path": "sghp.performance.hot_water_duty",
+    "value": 30.74467559775288,
+    "unit": "kW",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_performance_warm_water_duty",
+    "tag": "ahuora.property_value.617462",
+    "information_type": "assumption",
+    "variable_path": "sghp.performance.warm_water_duty",
+    "value": 12.251268113763134,
+    "unit": "kW",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_performance_cooling_duty",
+    "tag": "ahuora.property_value.617723",
+    "information_type": "assumption",
+    "variable_path": "sghp.performance.cooling_duty",
+    "value": 40.62021403923478,
+    "unit": "kW",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_performance_cop",
+    "tag": "ahuora.property_value.622926",
+    "information_type": "assumption",
+    "variable_path": "phnix.performance.cop",
+    "value": 2.0,
+    "unit": "dimensionless",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_phnix_performance_electrical_power",
+    "tag": "ahuora.property_value.622923",
+    "information_type": "assumption",
+    "variable_path": "phnix.performance.electrical_power",
+    "value": 25.0,
+    "unit": "kW",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_hot_water_pump_parameters_pressure_rise",
+    "tag": "ahuora.property_value.617912",
+    "information_type": "assumption",
+    "variable_path": "hot_water_pump.parameters.pressure_rise",
+    "value": 200.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_pump_parameters_pressure_rise",
+    "tag": "ahuora.property_value.622810",
+    "information_type": "assumption",
+    "variable_path": "warm_water_pump.parameters.pressure_rise",
+    "value": 17.543720043634288,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_source_valve_parameters_pressure_drop",
+    "tag": "ahuora.property_value.623061",
+    "information_type": "assumption",
+    "variable_path": "source_valve.parameters.pressure_drop",
+    "value": 7.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_water_valve_parameters_pressure_drop",
+    "tag": "ahuora.property_value.622835",
+    "information_type": "assumption",
+    "variable_path": "warm_water_valve.parameters.pressure_drop",
+    "value": 17.54372004363152,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_flash_valve_parameters_pressure_drop",
+    "tag": "ahuora.property_value.617831",
+    "information_type": "assumption",
+    "variable_path": "flash_valve.parameters.pressure_drop",
+    "value": 177.19289470582473,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_warm_makeup_valve_parameters_pressure_drop",
+    "tag": "ahuora.property_value.622889",
+    "information_type": "assumption",
+    "variable_path": "warm_makeup_valve.parameters.pressure_drop",
+    "value": 57.01205669148573,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_compressor_parameters_pressure_rise",
+    "tag": "ahuora.property_value.617783",
+    "information_type": "assumption",
+    "variable_path": "sghp.compressor.parameters.pressure_rise",
+    "value": 999.9999999996236,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_expansion_valve_parameters_pressure_drop",
+    "tag": "ahuora.property_value.617634",
+    "information_type": "assumption",
+    "variable_path": "sghp.expansion_valve.parameters.pressure_drop",
+    "value": 999.9999999996237,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_condenser_parameters_temperature_difference",
+    "tag": "ahuora.property_value.617511",
+    "information_type": "assumption",
+    "variable_path": "sghp.condenser.parameters.temperature_difference",
+    "value": 1.024822519925096,
+    "unit": "K",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_evaporator_parameters_temperature_difference",
+    "tag": "ahuora.property_value.617723",
+    "information_type": "assumption",
+    "variable_path": "sghp.evaporator.parameters.temperature_difference",
+    "value": 8.124042807846957,
+    "unit": "K",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_subcooler_parameters_temperature_difference",
+    "tag": "ahuora.property_value.617462",
+    "information_type": "assumption",
+    "variable_path": "sghp.subcooler.parameters.temperature_difference",
+    "value": 30.628170284407833,
+    "unit": "K",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_sghp_ihx_parameters_temperature_difference",
+    "tag": "ahuora.property_value.617581",
+    "information_type": "assumption",
+    "variable_path": "sghp.ihx.parameters.temperature_difference",
+    "value": 29.16646729706403,
+    "unit": "K",
+    "trust_rank": 2
+  },
+  {
+    "id": "reference_cooling_exchanger_parameters_temperature_difference",
+    "tag": "ahuora.property_value.617321",
+    "information_type": "assumption",
+    "variable_path": "cooling_exchanger.parameters.temperature_difference",
+    "value": 3.509652464318715,
+    "unit": "K",
+    "trust_rank": 2
+  }
+]

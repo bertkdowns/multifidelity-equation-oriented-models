@@ -16,6 +16,7 @@ The [model viewer](model-viewer/README.md) browses the JSON definitions in `src/
 - [`examples/information/`](examples/information/): information documents and record inspection.
 - [`examples/specification/`](examples/specification/): applying operating specifications.
 - [`examples/dynamic_tank/`](examples/dynamic_tank/): dynamic model construction and initial conditions.
+- [`examples/steam_generating_heat_pump_system/`](examples/steam_generating_heat_pump_system/): one SGHP plant with independently selectable SGHP and PHNIX representations.
 
 ## Run
 

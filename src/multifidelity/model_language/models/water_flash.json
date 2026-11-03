@@ -1,0 +1,157 @@
+{
+  "id": "water_flash",
+  "description": "Adiabatic water flash mass/energy balance with supplied liquid and vapor outlet specific enthalpies at the inlet pressure. Supply consistent saturated-water enthalpies externally for an equilibrium flash. No saturation property correlation, inventory, or pressure dynamics is embedded. Unlike flash_separator.split, the outlets can have distinct enthalpies.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "liquid": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "vapor": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "liquid_enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "vapor_enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "enthalpy_balance": {
+      "constraints": {
+        "liquid_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "liquid.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "liquid.pressure[t]"
+        },
+        "liquid_enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "liquid.enthalpy[t]",
+          "rhs": "parameters.liquid_enthalpy[t]",
+          "determines": "liquid.enthalpy[t]"
+        },
+        "vapor_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "vapor.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "vapor.pressure[t]"
+        },
+        "vapor_enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "vapor.enthalpy[t]",
+          "rhs": "parameters.vapor_enthalpy[t]",
+          "determines": "vapor.enthalpy[t]"
+        },
+        "mass": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "liquid.flow[t]",
+          "rhs": "inlet.flow[t] - vapor.flow[t]",
+          "determines": "liquid.flow[t]"
+        },
+        "energy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "inlet.flow[t] * inlet.enthalpy[t]",
+          "rhs": "(inlet.flow[t] - vapor.flow[t]) * liquid.enthalpy[t] + vapor.flow[t] * vapor.enthalpy[t]",
+          "determines": "vapor.flow[t]"
+        }
+      }
+    }
+  }
+}

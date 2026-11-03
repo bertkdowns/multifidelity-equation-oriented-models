@@ -1,0 +1,6071 @@
+{
+  "source": {
+    "id": 2384,
+    "name": "SGHP-DT",
+    "project_id": 1380,
+    "content_revision": 2,
+    "current_state_id": 1506,
+    "root_grouping_id": 3436,
+    "captured_at": "2026-11-03T20:10:43.396944Z",
+    "url": "https://ahuoratech.app/project/2384/flowsheet",
+    "kind": "current_configuration_snapshot",
+    "note": "Stored current values, not immutable SolveRun results or live plant measurements. Enabled flags alone do not identify fixed specifications: control replacements and formulas also matter. value and displayValue are retained separately; displayValue may be stale."
+  },
+  "objects": [
+    {
+      "id": 1670757,
+      "name": "Flowsheet",
+      "type": "group",
+      "compounds": [],
+      "properties": [],
+      "ports": []
+    },
+    {
+      "id": 1670760,
+      "name": "CW Out",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 562691,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617346,
+              "value": 0.288244288,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562692,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617347,
+              "value": 16,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562693,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617348,
+              "value": 36.573373888208835,
+              "display_value": "50",
+              "enabled": false,
+              "formula": null,
+              "tag": "CWTC22",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562694,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617349,
+              "value": 100,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562695,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617350,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562697,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617352,
+              "value": 153.2826524896843,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670761,
+      "name": "HS4",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 562704,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617357,
+              "value": 0.1500085028603578,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562705,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617358,
+              "value": 8.326742786194343,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562706,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617359,
+              "value": 37.83426997105181,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "WWTT43",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562707,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617360,
+              "value": 399.9947768526026,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562708,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617361,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562710,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617363,
+              "value": 158.8192857817041,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670762,
+      "name": "Fresh Makeup",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 562717,
+          "key": "flow_mass",
+          "unit": "t/h",
+          "values": [
+            {
+              "id": 617368,
+              "value": 0.5629463598318226,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562718,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617369,
+              "value": 8.680081186811817,
+              "display_value": "1.10104",
+              "enabled": true,
+              "formula": "",
+              "tag": null,
+              "indices": [],
+              "control_manipulated": 7195,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562719,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617370,
+              "value": 25.000000000009152,
+              "display_value": "25",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562720,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617371,
+              "value": 400,
+              "display_value": "400",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562721,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617372,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562723,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617374,
+              "value": 105.18874430649564,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670764,
+      "name": "S7",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 562743,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617390,
+              "value": 0.30638249170253073,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562744,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617391,
+              "value": 17.00682397300616,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562745,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617392,
+              "value": 31.283094302209577,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562746,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617393,
+              "value": 399.9947768525639,
+              "display_value": "400",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562747,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617394,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562749,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617396,
+              "value": 131.44689368566122,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670766,
+      "name": "CTin",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 562770,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617414,
+              "value": 0.1500085028603578,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562771,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617415,
+              "value": 8.326742786194343,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562772,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617416,
+              "value": 40.85798542489033,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562773,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617417,
+              "value": 399.99477685259706,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562774,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617418,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562776,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617420,
+              "value": 171.45331848382074,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670767,
+      "name": "Warm Makeup",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 562783,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617425,
+              "value": 0.06780227496715077,
+              "display_value": "1",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562784,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617426,
+              "value": 3.7636006839948632,
+              "display_value": "1.10104",
+              "enabled": false,
+              "formula": "",
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562785,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617427,
+              "value": 40.85798542489135,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562786,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617428,
+              "value": 399.99477685259154,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562787,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617429,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562789,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617431,
+              "value": 171.45331848381988,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670768,
+      "name": "Mixer1",
+      "type": "mixer",
+      "compounds": [],
+      "properties": [],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670762
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670764
+        },
+        {
+          "key": "inlet",
+          "index": 1,
+          "direction": "inlet",
+          "stream_id": 1670761
+        }
+      ]
+    },
+    {
+      "id": 1670771,
+      "name": "HW Sink Outlet",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 562884,
+          "key": "flow_mass",
+          "unit": "kg/h",
+          "values": [
+            {
+              "id": 617536,
+              "value": 5525.64300096,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HWVF51",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562885,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617537,
+              "value": 85.19999999999999,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562886,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617538,
+              "value": 84.77176725143954,
+              "display_value": "118",
+              "enabled": false,
+              "formula": "",
+              "tag": "HWTT52",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562887,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617539,
+              "value": 377.19289470582476,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562888,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617540,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562890,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617542,
+              "value": 355.2798995235012,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670772,
+      "name": "Condensed Vap",
+      "type": "stream",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 562897,
+          "key": "flow_mass",
+          "unit": "kg/h",
+          "values": [
+            {
+              "id": 617547,
+              "value": 732.3397199999466,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562898,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617548,
+              "value": 3.499999999999745,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562899,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617549,
+              "value": 78.28492317500803,
+              "display_value": "120",
+              "enabled": false,
+              "formula": null,
+              "tag": "HPTT03",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562900,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617550,
+              "value": 2132.0459820812302,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HPPT03",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562901,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617551,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562903,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617553,
+              "value": -232.77327453239616,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670775,
+      "name": "warm water out",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 562827,
+          "key": "flow_mass",
+          "unit": "kg/h",
+          "values": [
+            {
+              "id": 617487,
+              "value": 1102.9769701291104,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562828,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617488,
+              "value": 17.006823973006156,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562829,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617489,
+              "value": 40.85798542488851,
+              "display_value": "85",
+              "enabled": false,
+              "formula": null,
+              "tag": "WWTT42",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562830,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617490,
+              "value": 399.99477685258876,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562831,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617491,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562833,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617493,
+              "value": 171.45331848381406,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670776,
+      "name": "Subcooled Liq",
+      "type": "stream",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 562840,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617498,
+              "value": 0.2034276999999759,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562841,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617499,
+              "value": 3.499999999999585,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562842,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617500,
+              "value": 55.9948180044409,
+              "display_value": "87",
+              "enabled": false,
+              "formula": null,
+              "tag": "HPTT04",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562843,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617501,
+              "value": 2132.0459820812302,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562844,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617502,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562846,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617504,
+              "value": -292.99746284974765,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670778,
+      "name": "Mixed flow",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 563160,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617848,
+              "value": 1.5349008335999998,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563161,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617849,
+              "value": 85.19999999999999,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563162,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617850,
+              "value": 84.8049039861491,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563163,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617851,
+              "value": 200,
+              "display_value": "200",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": 7083
+            }
+          ]
+        },
+        {
+          "id": 563164,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617852,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563166,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617854,
+              "value": 355.27989952350543,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670781,
+      "name": "Evaporator out",
+      "type": "stream",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 563072,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617748,
+              "value": 0.20342769999996269,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563073,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617749,
+              "value": 3.4999999999993583,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563074,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617750,
+              "value": 85.29849044019761,
+              "display_value": "72",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563075,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617751,
+              "value": 1132.0459820816068,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563076,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617752,
+              "value": 0.42168321294544403,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563078,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617754,
+              "value": -92.60171352098625,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670782,
+      "name": "HS30",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 563085,
+          "key": "flow_mass",
+          "unit": "kg/min",
+          "values": [
+            {
+              "id": 617759,
+              "value": 108.09160800000002,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "SOVF31",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563086,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617760,
+              "value": 100.00000000000001,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563087,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617761,
+              "value": 81.26702388787862,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563088,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617762,
+              "value": 100,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "SOPT31",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563089,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617763,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563091,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617765,
+              "value": 340.3464716788019,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670787,
+      "name": "Expansion Inlet",
+      "type": "stream",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 562941,
+          "key": "flow_mass",
+          "unit": "kg/h",
+          "values": [
+            {
+              "id": 617606,
+              "value": 732.3397199998801,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HPMF01",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562942,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617607,
+              "value": 3.499999999999427,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562943,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617608,
+              "value": 56.26875792604733,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HPTT05",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562944,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617609,
+              "value": 2132.0459820812302,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562945,
+          "key": "vapor_frac",
+          "unit": "percent",
+          "values": [
+            {
+              "id": 617610,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HPEV_VAPOR_IN",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562947,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617612,
+              "value": -292.2805873382806,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670788,
+      "name": "HS22",
+      "type": "stream",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 562954,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617617,
+              "value": 0.20342769999996257,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562955,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617618,
+              "value": 3.499999999999356,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562956,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617619,
+              "value": 85.29844877381578,
+              "display_value": "74",
+              "enabled": false,
+              "formula": null,
+              "tag": "HPTT07",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562957,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617620,
+              "value": 1132.0459820816068,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HPPT01",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562958,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617621,
+              "value": 0.4191627260396447,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562960,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617623,
+              "value": -93.31858903245963,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670790,
+      "name": "S24",
+      "type": "stream",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 562986,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617651,
+              "value": 0.20342769999996263,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562987,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617652,
+              "value": 3.499999999999357,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562988,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617653,
+              "value": 56.40163098719,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HPTT06",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562989,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617654,
+              "value": 1132.0459820816068,
+              "display_value": "1020.31",
+              "enabled": false,
+              "formula": "",
+              "tag": "HPPT06",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562990,
+          "key": "vapor_frac",
+          "unit": "percent",
+          "values": [
+            {
+              "id": 617655,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HPEV_VAPOR_OUT",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562992,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617657,
+              "value": -292.28058733827953,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670791,
+      "name": "Pump1",
+      "type": "pump",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 563212,
+          "key": "efficiency_pump",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617911,
+              "value": 1,
+              "display_value": "1",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563213,
+          "key": "deltaP",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617912,
+              "value": 200,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563215,
+          "key": "work_mechanical",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 617914,
+              "value": 0.3168436684762427,
+              "display_value": "0.1",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": 7088,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670809
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670793
+        }
+      ]
+    },
+    {
+      "id": 1670793,
+      "name": "S40",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 563230,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617926,
+              "value": 1.5349008335999998,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563231,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617927,
+              "value": 85.19999999999999,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563232,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617928,
+              "value": 84.8166555019261,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563233,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617929,
+              "value": 400,
+              "display_value": "400",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": 7088
+            }
+          ]
+        },
+        {
+          "id": 563234,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617930,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563236,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617932,
+              "value": 355.4863256727024,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670796,
+      "name": "ManualRecycle",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 563269,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617965,
+              "value": 1.6027031085671508,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563270,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617966,
+              "value": 88.96360068399485,
+              "display_value": "30",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563271,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617967,
+              "value": 82.97317294216714,
+              "display_value": "118",
+              "enabled": false,
+              "formula": null,
+              "tag": "HWTT51",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563272,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617968,
+              "value": 342.9827201611059,
+              "display_value": "400",
+              "enabled": false,
+              "formula": null,
+              "tag": "HWPT51",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563273,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617969,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563275,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617971,
+              "value": 347.70081849439737,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670801,
+      "name": "Discharge",
+      "type": "stream",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 563115,
+          "key": "flow_mass",
+          "unit": "kg/h",
+          "values": [
+            {
+              "id": 617797,
+              "value": 732.3397199999999,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563116,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617798,
+              "value": 3.5,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563117,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617799,
+              "value": 117.95358491349793,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563118,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617800,
+              "value": 2132.0459820812302,
+              "display_value": "2132",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": 7329
+            }
+          ]
+        },
+        {
+          "id": 563119,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617801,
+              "value": 0.13600381032991246,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563121,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617803,
+              "value": -81.6400925824657,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670802,
+      "name": "Recycle1",
+      "type": "recycle",
+      "compounds": [],
+      "properties": [],
+      "ports": [],
+      "recycle": {
+        "id": 1509,
+        "tear_object_id": 1670781,
+        "property_connections": [
+          {
+            "id": 2877,
+            "property_key": "flow_mol",
+            "property_info_id": 563073,
+            "is_tear_variable_fixed": false
+          },
+          {
+            "id": 2876,
+            "property_key": "mole_frac_comp",
+            "property_info_id": 563071,
+            "is_tear_variable_fixed": false
+          },
+          {
+            "id": 2879,
+            "property_key": "pressure",
+            "property_info_id": 563075,
+            "is_tear_variable_fixed": false
+          },
+          {
+            "id": 2878,
+            "property_key": "temperature",
+            "property_info_id": 563074,
+            "is_tear_variable_fixed": false
+          }
+        ]
+      }
+    },
+    {
+      "id": 1670805,
+      "name": "Recycle5",
+      "type": "recycle",
+      "compounds": [],
+      "properties": [],
+      "ports": [],
+      "recycle": {
+        "id": 1508,
+        "tear_object_id": 1670766,
+        "property_connections": [
+          {
+            "id": 3050,
+            "property_key": "flow_mol",
+            "property_info_id": 562771,
+            "is_tear_variable_fixed": false
+          },
+          {
+            "id": 3049,
+            "property_key": "mole_frac_comp",
+            "property_info_id": 562769,
+            "is_tear_variable_fixed": false
+          },
+          {
+            "id": 3052,
+            "property_key": "pressure",
+            "property_info_id": 562773,
+            "is_tear_variable_fixed": false
+          },
+          {
+            "id": 3051,
+            "property_key": "temperature",
+            "property_info_id": 562772,
+            "is_tear_variable_fixed": false
+          }
+        ]
+      }
+    },
+    {
+      "id": 1670806,
+      "name": "Splitter1",
+      "type": "splitter",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 562755,
+          "key": "split_fraction",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617401,
+              "value": 0.778700556319703,
+              "display_value": "0.9",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [
+                "outlet_1"
+              ],
+              "control_manipulated": null,
+              "control_set_point": null
+            },
+            {
+              "id": 617402,
+              "value": 0.22129944368028892,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [
+                "outlet_2"
+              ],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670775
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670766
+        },
+        {
+          "key": "outlet",
+          "index": 1,
+          "direction": "outlet",
+          "stream_id": 1670767
+        }
+      ]
+    },
+    {
+      "id": 1670808,
+      "name": "Steam",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 563187,
+          "key": "flow_mass",
+          "unit": "kg/h",
+          "values": [
+            {
+              "id": 617880,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "STVF61",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563188,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617881,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563189,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617882,
+              "value": 120.25120638401324,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "STTT61",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563190,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617883,
+              "value": 200,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "STPT61",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563191,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617884,
+              "value": 0.80740781810447,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563193,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617886,
+              "value": 2282.233938360952,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670809,
+      "name": "Condensate",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 563200,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 617891,
+              "value": 1.5349008335999998,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563201,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 617892,
+              "value": 85.19999999999999,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563202,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 617893,
+              "value": 84.80490398614887,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HWTC51",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563203,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617894,
+              "value": 200,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563204,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617895,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563206,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 617897,
+              "value": 355.27989952351345,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1670810,
+      "name": "Condenser",
+      "type": "heatExchanger",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 562852,
+          "key": "overall_heat_transfer_coefficient",
+          "unit": "W/(m^2.K)",
+          "values": [
+            {
+              "id": 617509,
+              "value": 100,
+              "display_value": "100",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562853,
+          "key": "area",
+          "unit": "m^2",
+          "values": [
+            {
+              "id": 617510,
+              "value": 300,
+              "display_value": "300",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562854,
+          "key": "heat_duty",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 617511,
+              "value": 30.74467559775288,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 968503,
+          "key": "minimum_temperature_approach",
+          "unit": "delta_degC",
+          "values": [
+            {
+              "id": 1057293,
+              "value": 5,
+              "display_value": 5,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "coldInlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671235
+        },
+        {
+          "key": "hotInlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671916
+        },
+        {
+          "key": "coldOutlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670771
+        },
+        {
+          "key": "hotOutlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670772
+        }
+      ]
+    },
+    {
+      "id": 1670811,
+      "name": "Valve1",
+      "type": "valve_fixed_coefficient",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 562966,
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617634,
+              "value": 999.9999999996237,
+              "display_value": "2011",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": 7281,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670787
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670790
+        }
+      ]
+    },
+    {
+      "id": 1670812,
+      "name": "Evaporator",
+      "type": "heatExchanger",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 563040,
+          "key": "overall_heat_transfer_coefficient",
+          "unit": "W/(m^2.K)",
+          "values": [
+            {
+              "id": 617721,
+              "value": 1000,
+              "display_value": "1000",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563041,
+          "key": "area",
+          "unit": "m^2",
+          "values": [
+            {
+              "id": 617722,
+              "value": 5,
+              "display_value": "5",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563042,
+          "key": "heat_duty",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 617723,
+              "value": 40.62021403923478,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 968504,
+          "key": "minimum_temperature_approach",
+          "unit": "delta_degC",
+          "values": [
+            {
+              "id": 1057294,
+              "value": 5,
+              "display_value": 5,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "coldInlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670790
+        },
+        {
+          "key": "hotInlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671841
+        },
+        {
+          "key": "coldOutlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670781
+        },
+        {
+          "key": "hotOutlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670782
+        }
+      ]
+    },
+    {
+      "id": 1670814,
+      "name": "Subcooler",
+      "type": "heatExchanger",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 562795,
+          "key": "overall_heat_transfer_coefficient",
+          "unit": "W/(m^2.K)",
+          "values": [
+            {
+              "id": 617460,
+              "value": 1000,
+              "display_value": "1000",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562796,
+          "key": "area",
+          "unit": "m^2",
+          "values": [
+            {
+              "id": 617461,
+              "value": 0.4,
+              "display_value": "0.4",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562797,
+          "key": "heat_duty",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 617462,
+              "value": 12.251268113763134,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 968505,
+          "key": "minimum_temperature_approach",
+          "unit": "delta_degC",
+          "values": [
+            {
+              "id": 1057295,
+              "value": 5,
+              "display_value": 5,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "coldInlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671239
+        },
+        {
+          "key": "hotInlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670772
+        },
+        {
+          "key": "coldOutlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670775
+        },
+        {
+          "key": "hotOutlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670776
+        }
+      ]
+    },
+    {
+      "id": 1670815,
+      "name": "Cooling Tower",
+      "type": "heatExchanger",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 562659,
+          "key": "overall_heat_transfer_coefficient",
+          "unit": "W/(m^2.K)",
+          "values": [
+            {
+              "id": 617319,
+              "value": 1000,
+              "display_value": "1000",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562660,
+          "key": "area",
+          "unit": "m^2",
+          "values": [
+            {
+              "id": 617320,
+              "value": 0.54,
+              "display_value": "0.54",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562661,
+          "key": "heat_duty",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 617321,
+              "value": 1.895212330732106,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 968506,
+          "key": "minimum_temperature_approach",
+          "unit": "delta_degC",
+          "values": [
+            {
+              "id": 1057296,
+              "value": 5,
+              "display_value": 5,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "coldInlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671926
+        },
+        {
+          "key": "hotInlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670766
+        },
+        {
+          "key": "coldOutlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670760
+        },
+        {
+          "key": "hotOutlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670761
+        }
+      ]
+    },
+    {
+      "id": 1670816,
+      "name": "IHX",
+      "type": "heatExchanger",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 562909,
+          "key": "overall_heat_transfer_coefficient",
+          "unit": "W/(m^2.K)",
+          "values": [
+            {
+              "id": 617579,
+              "value": 100,
+              "display_value": "100",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562910,
+          "key": "area",
+          "unit": "m^2",
+          "values": [
+            {
+              "id": 617580,
+              "value": 0.05,
+              "display_value": "0.05",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 562911,
+          "key": "heat_duty",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 617581,
+              "value": 0.14583233648532015,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 968507,
+          "key": "minimum_temperature_approach",
+          "unit": "delta_degC",
+          "values": [
+            {
+              "id": 1057297,
+              "value": 5,
+              "display_value": 5,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "coldInlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670776
+        },
+        {
+          "key": "hotInlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670781
+        },
+        {
+          "key": "coldOutlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670787
+        },
+        {
+          "key": "hotOutlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670788
+        }
+      ]
+    },
+    {
+      "id": 1670817,
+      "name": "HP Compressor",
+      "type": "compressor",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 563097,
+          "key": "efficiency_isentropic",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617782,
+              "value": 0.75,
+              "display_value": "0.75",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563098,
+          "key": "deltaP",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617783,
+              "value": 999.9999999996236,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 563100,
+          "key": "work_mechanical",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 617785,
+              "value": 2.375729672279988,
+              "display_value": "6",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": 7329,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671912
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670801
+        }
+      ]
+    },
+    {
+      "id": 1670818,
+      "name": "Flash Valve",
+      "type": "valve",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 563140,
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 617831,
+              "value": 177.19289470582473,
+              "display_value": "200",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": 7083,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670771
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670778
+        }
+      ]
+    },
+    {
+      "id": 1670819,
+      "name": "Flash Separator",
+      "type": "phaseSeparator",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 563172,
+          "key": "split_fraction",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 617865,
+              "value": 0,
+              "display_value": "0",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [
+                "outlet_1",
+                "Liq"
+              ],
+              "control_manipulated": null,
+              "control_set_point": null
+            },
+            {
+              "id": 617866,
+              "value": 1,
+              "display_value": "1",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [
+                "outlet_1",
+                "Vap"
+              ],
+              "control_manipulated": null,
+              "control_set_point": null
+            },
+            {
+              "id": 617867,
+              "value": 1,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [
+                "outlet_2",
+                "Liq"
+              ],
+              "control_manipulated": null,
+              "control_set_point": null
+            },
+            {
+              "id": 617868,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [
+                "outlet_2",
+                "Vap"
+              ],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670778
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670808
+        },
+        {
+          "key": "outlet",
+          "index": 1,
+          "direction": "outlet",
+          "stream_id": 1670809
+        }
+      ]
+    },
+    {
+      "id": 1670820,
+      "name": "Mixer2",
+      "type": "mixer",
+      "compounds": [],
+      "properties": [],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671246
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1670796
+        },
+        {
+          "key": "inlet",
+          "index": 1,
+          "direction": "inlet",
+          "stream_id": 1670793
+        }
+      ]
+    },
+    {
+      "id": 1671235,
+      "name": "M",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 567351,
+          "key": "flow_mass",
+          "unit": "kg/h",
+          "values": [
+            {
+              "id": 622781,
+              "value": 5525.64300096,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567352,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 622782,
+              "value": 85.19999999999999,
+              "display_value": "60",
+              "enabled": true,
+              "formula": "@[HWVSD: ](unit1671974)@[Variable](prop632694) * mol/s * 2.13",
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567353,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 622783,
+              "value": 79.99999999999994,
+              "display_value": "80",
+              "enabled": true,
+              "formula": "",
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567354,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 622784,
+              "value": 377.19289470582476,
+              "display_value": "400",
+              "enabled": true,
+              "formula": "",
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567355,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 622785,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567357,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 622787,
+              "value": 335.2495008653479,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671237,
+      "name": "Pump1",
+      "type": "pump",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 567376,
+          "key": "efficiency_pump",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 622809,
+              "value": 0.9,
+              "display_value": "0.9",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567377,
+          "key": "deltaP",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 622810,
+              "value": 17.543720043634288,
+              "display_value": "7",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567379,
+          "key": "work_mechanical",
+          "unit": "W",
+          "values": [
+            {
+              "id": 622812,
+              "value": 6,
+              "display_value": "1",
+              "enabled": true,
+              "formula": "@[HWVSD: ](unit1671923)@[Variable](prop632078) / 10 * W",
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671242
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671239
+        }
+      ]
+    },
+    {
+      "id": 1671239,
+      "name": "S4",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 567394,
+          "key": "flow_mass",
+          "unit": "kg/h",
+          "values": [
+            {
+              "id": 622824,
+              "value": 1102.9769701291107,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "WWVF41",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567395,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 622825,
+              "value": 17.00682397300616,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567396,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 622826,
+              "value": 31.287781018914814,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "WWTT41",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567397,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 622827,
+              "value": 399.9947768525805,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "WWPT41",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567398,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 622828,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567400,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 622830,
+              "value": 131.4664770501257,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671240,
+      "name": "Pipe Pressure Loss",
+      "type": "valve_fixed_coefficient",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 567406,
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 622835,
+              "value": 17.54372004363152,
+              "display_value": "5",
+              "enabled": true,
+              "formula": "@[Pump1: ](unit1671237)@[Pressure Increase](prop622810)",
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670764
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671242
+        }
+      ]
+    },
+    {
+      "id": 1671242,
+      "name": "S6",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 567426,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 622852,
+              "value": 0.30638249170253073,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567427,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 622853,
+              "value": 17.00682397300616,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567428,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 622854,
+              "value": 31.28690780371977,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "WWTC41",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567429,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 622855,
+              "value": 382.4510568089407,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567430,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 622856,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567432,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 622858,
+              "value": 131.4468936856588,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671244,
+      "name": "Valve2",
+      "type": "valve_fixed_coefficient",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 567451,
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 622889,
+              "value": 57.01205669148573,
+              "display_value": "3",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": 7317,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670767
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671246
+        }
+      ]
+    },
+    {
+      "id": 1671246,
+      "name": "S9",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 567471,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 622906,
+              "value": 0.06780227496715077,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567472,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 622907,
+              "value": 3.763600683994863,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567473,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 622908,
+              "value": 40.87004510116566,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567474,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 622909,
+              "value": 342.9827201611058,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567475,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 622910,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567477,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 622912,
+              "value": 171.4533184838088,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671247,
+      "name": "PHNIX HP",
+      "type": "heatPump",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 567483,
+          "key": "work_mechanical",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 622923,
+              "value": 25,
+              "display_value": "25",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567484,
+          "key": "efficiency",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 622924,
+              "value": 0.4720525297703915,
+              "display_value": "0.9",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": 7197,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567486,
+          "key": "coefficient_of_performance",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 622926,
+              "value": 2,
+              "display_value": "2",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": 7197
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "source_inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671248
+        },
+        {
+          "key": "sink_inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671261
+        },
+        {
+          "key": "source_outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671250
+        },
+        {
+          "key": "sink_outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671251
+        }
+      ]
+    },
+    {
+      "id": 1671248,
+      "name": "Air Source",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 567570,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 623021,
+              "value": 9.007634000000001,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567571,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 623022,
+              "value": 500,
+              "display_value": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567572,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 623023,
+              "value": 19.999999999992554,
+              "display_value": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567573,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 623024,
+              "value": 100,
+              "display_value": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567574,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 623025,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567576,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 623027,
+              "value": 83.99972230464546,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671250,
+      "name": "Air Out",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 567583,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 623032,
+              "value": 9.007634000000001,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567584,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 623033,
+              "value": 500,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567585,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 623034,
+              "value": 19.336654199904103,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567586,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 623035,
+              "value": 100,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567587,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 623036,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567589,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 623038,
+              "value": 81.22429870281695,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671251,
+      "name": "SNK_R13",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 567529,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 622962,
+              "value": 1.8015268,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567530,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 622963,
+              "value": 100,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567531,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 622964,
+              "value": 86.60964122307843,
+              "display_value": "80",
+              "enabled": false,
+              "formula": null,
+              "tag": "SOTT33",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567532,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 622965,
+              "value": 100,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567533,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 622966,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567535,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 622968,
+              "value": 362.78311488568255,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671252,
+      "name": "Valve3",
+      "type": "valve",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 567595,
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 623061,
+              "value": 7,
+              "display_value": "5",
+              "enabled": true,
+              "formula": "@[Pump2: ](unit1671255)@[Pressure Increase](prop623096)",
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670782
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671254
+        }
+      ]
+    },
+    {
+      "id": 1671254,
+      "name": "S15",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 567615,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 623078,
+              "value": 1.8015268000000004,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567616,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 623079,
+              "value": 100.00000000000001,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567617,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 623080,
+              "value": 81.26834658709828,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567618,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 623081,
+              "value": 93,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567619,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 623082,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567621,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 623084,
+              "value": 340.3464716788038,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671255,
+      "name": "Pump2",
+      "type": "pump",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 567627,
+          "key": "efficiency_pump",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 623095,
+              "value": 0.9,
+              "display_value": "0.9",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567628,
+          "key": "deltaP",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 623096,
+              "value": 7,
+              "display_value": "7",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": 7199
+            }
+          ]
+        },
+        {
+          "id": 567630,
+          "key": "work_mechanical",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 623098,
+              "value": 0.014430374555887289,
+              "display_value": "0",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": 7199,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671254
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671257
+        }
+      ]
+    },
+    {
+      "id": 1671257,
+      "name": "S17",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 567645,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 623110,
+              "value": 1.8015268000000004,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567646,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 623111,
+              "value": 100.00000000000001,
+              "display_value": "",
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567647,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 623112,
+              "value": 81.26893222982284,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "SOTT32",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567648,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 623113,
+              "value": 100,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567649,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 623114,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567651,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 623116,
+              "value": 340.3544817592326,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671261,
+      "name": "S19",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 567671,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 623141,
+              "value": 1.8015268,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567672,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 623142,
+              "value": 100,
+              "display_value": "100",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567673,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 623143,
+              "value": 80.00000000000063,
+              "display_value": "80",
+              "enabled": true,
+              "formula": "",
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567674,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 623144,
+              "value": 100,
+              "display_value": "100",
+              "enabled": true,
+              "formula": "",
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567675,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 623145,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 567677,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 623147,
+              "value": 335.0288788676576,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671839,
+      "name": "SOEH31",
+      "type": "heater",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 573911,
+          "key": "heat_duty",
+          "unit": "W",
+          "values": [
+            {
+              "id": 630940,
+              "value": 200,
+              "display_value": "200",
+              "enabled": true,
+              "formula": null,
+              "tag": "SOEH31",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 573912,
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 630941,
+              "value": 0,
+              "display_value": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671251
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671841
+        }
+      ]
+    },
+    {
+      "id": 1671841,
+      "name": "S22",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 573938,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 630965,
+              "value": 1.8015268,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 573939,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 630966,
+              "value": 100,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 573940,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 630967,
+              "value": 86.63606239257592,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "SOTT31",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 573941,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 630968,
+              "value": 100,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 573942,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 630969,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 573944,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 630971,
+              "value": 362.8941318297629,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671910,
+      "name": "Suction Accumulator",
+      "type": "heater",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 574795,
+          "key": "heat_duty",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 631877,
+              "value": 0,
+              "display_value": "0",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574796,
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 631878,
+              "value": 0,
+              "display_value": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670788
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671912
+        }
+      ]
+    },
+    {
+      "id": 1671912,
+      "name": "S26",
+      "type": "stream",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 574822,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 631902,
+              "value": 0.20342769999996238,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574823,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 631903,
+              "value": 3.499999999999353,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574824,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 631904,
+              "value": 85.29844877381578,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HPTT01",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574825,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 631905,
+              "value": 1132.0459820816068,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574826,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 631906,
+              "value": 0.41916272603964444,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574828,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 631908,
+              "value": -93.3185890324597,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671914,
+      "name": "Oil Separator",
+      "type": "heater",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 574847,
+          "key": "heat_duty",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 631941,
+              "value": 0,
+              "display_value": "0",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574848,
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 631942,
+              "value": 0,
+              "display_value": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1670801
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671916
+        }
+      ]
+    },
+    {
+      "id": 1671916,
+      "name": "S29",
+      "type": "stream",
+      "compounds": [
+        "n-butane"
+      ],
+      "properties": [
+        {
+          "id": 574874,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 631966,
+              "value": 0.20342769999999505,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574875,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 631967,
+              "value": 3.4999999999999147,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574876,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 631968,
+              "value": 117.95358491349793,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HPTT02",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574877,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 631969,
+              "value": 2132.0459820812302,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "HPPT02",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574878,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 631970,
+              "value": 0.1360038103299033,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574880,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 631972,
+              "value": -81.6400925824677,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671923,
+      "name": "WWVSD",
+      "type": "custom_variable",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 574955,
+          "key": "variable",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 632078,
+              "value": 60,
+              "display_value": "60",
+              "enabled": true,
+              "formula": null,
+              "tag": "WWVS41",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671924,
+      "name": "Pipe CW In",
+      "type": "heater",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 574956,
+          "key": "heat_duty",
+          "unit": "kW",
+          "values": [
+            {
+              "id": 632079,
+              "value": 0,
+              "display_value": "0",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574957,
+          "key": "deltaP_inverted",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 632080,
+              "value": 0,
+              "display_value": null,
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "key": "inlet",
+          "index": 0,
+          "direction": "inlet",
+          "stream_id": 1671925
+        },
+        {
+          "key": "outlet",
+          "index": 0,
+          "direction": "outlet",
+          "stream_id": 1671926
+        }
+      ]
+    },
+    {
+      "id": 1671925,
+      "name": "S31",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 574970,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 632093,
+              "value": 0.288244288,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574971,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 632094,
+              "value": 16,
+              "display_value": "16",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574972,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 632095,
+              "value": 35.000000000002785,
+              "display_value": "35",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574973,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 632096,
+              "value": 100,
+              "display_value": "100",
+              "enabled": true,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574974,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 632097,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574976,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 632099,
+              "value": 146.70763119826032,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671926,
+      "name": "S32",
+      "type": "stream",
+      "compounds": [
+        "water"
+      ],
+      "properties": [
+        {
+          "id": 574983,
+          "key": "flow_mass",
+          "unit": "kg/s",
+          "values": [
+            {
+              "id": 632104,
+              "value": 0.288244288,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574984,
+          "key": "flow_mol",
+          "unit": "mol/s",
+          "values": [
+            {
+              "id": 632105,
+              "value": 16,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574985,
+          "key": "temperature",
+          "unit": "degC",
+          "values": [
+            {
+              "id": 632106,
+              "value": 35.00000000000233,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": "CWTC21",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574986,
+          "key": "pressure",
+          "unit": "kPa",
+          "values": [
+            {
+              "id": 632107,
+              "value": 100,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574987,
+          "key": "vapor_frac",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 632108,
+              "value": 0,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        },
+        {
+          "id": 574989,
+          "key": "enth_mass",
+          "unit": "kJ/kg",
+          "values": [
+            {
+              "id": 632110,
+              "value": 146.70763119825716,
+              "display_value": null,
+              "enabled": false,
+              "formula": null,
+              "tag": null,
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1671974,
+      "name": "HWVSD",
+      "type": "custom_variable",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 575544,
+          "key": "variable",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 632694,
+              "value": 40,
+              "display_value": "40",
+              "enabled": true,
+              "formula": null,
+              "tag": "HWVS51",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    },
+    {
+      "id": 1672030,
+      "name": "Recycle4",
+      "type": "recycle",
+      "compounds": [],
+      "properties": [],
+      "ports": [],
+      "recycle": {
+        "id": 1584,
+        "tear_object_id": 1670801,
+        "property_connections": [
+          {
+            "id": 3054,
+            "property_key": "flow_mol",
+            "property_info_id": 563116,
+            "is_tear_variable_fixed": false
+          },
+          {
+            "id": 3053,
+            "property_key": "mole_frac_comp",
+            "property_info_id": 563114,
+            "is_tear_variable_fixed": false
+          },
+          {
+            "id": 3056,
+            "property_key": "pressure",
+            "property_info_id": 563118,
+            "is_tear_variable_fixed": false
+          },
+          {
+            "id": 3055,
+            "property_key": "temperature",
+            "property_info_id": 563117,
+            "is_tear_variable_fixed": false
+          }
+        ]
+      }
+    },
+    {
+      "id": 1680240,
+      "name": "Valve1000",
+      "type": "custom_variable",
+      "compounds": [],
+      "properties": [
+        {
+          "id": 673018,
+          "key": "variable",
+          "unit": "dimensionless",
+          "values": [
+            {
+              "id": 738149,
+              "value": "370",
+              "display_value": "370",
+              "enabled": true,
+              "formula": null,
+              "tag": "HPEV01",
+              "indices": [],
+              "control_manipulated": null,
+              "control_set_point": null
+            }
+          ]
+        }
+      ],
+      "ports": []
+    }
+  ]
+}
