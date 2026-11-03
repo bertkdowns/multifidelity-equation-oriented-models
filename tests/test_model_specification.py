@@ -9,7 +9,7 @@ from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import (
     InformationDocument, Library, ModelDocument, SpecificationDocument,
-    apply_specification, build_model,
+    apply_specification, build_model, get_variable,
 )
 
 
@@ -17,7 +17,7 @@ EXAMPLE = Path(__file__).parents[1] / "examples/specification"
 
 
 def valve():
-    return build_model("valve", {"model": "valve", "relationship": "isenthalpic"})
+    return build_model("valve", {"relationship": "isenthalpic"})
 
 
 def information(path="inlet.pressure", **changes):
@@ -28,29 +28,26 @@ def information(path="inlet.pressure", **changes):
     }])
 
 
-def document(path="inlet.pressure", record_id="reading"):
-    return {"specifications": [{
-        "variable_path": path, "information_record_id": record_id,
-    }]}
+def document(record_id="reading"):
+    return {"specifications": [record_id]}
 
 
 def test_document_round_trip_and_minimal_shape():
     spec = SpecificationDocument.load_json(EXAMPLE / "specification.json")
     assert SpecificationDocument.from_json(spec.model_dump_json()) == spec
     assert set(spec.model_dump()) == {"specifications"}
-    assert set(spec.specifications[0].model_dump()) == {
-        "variable_path", "information_record_id",
-    }
+    assert spec.specifications[0] == "inlet_flow"
     with pytest.raises(ValidationError):
-        spec.specifications[0].variable_path = "outlet.pressure"
+        spec.specifications = ("other",)
+
 
 
 @pytest.mark.parametrize("data", [
     {},
     {"specifications": [{"variable_path": "inlet.pressure"}]},
     {"specifications": [{"variable_path": "", "information_record_id": "reading"}]},
-    {"specifications": [{"variable_path": "inlet.pressure", "information_record_id": ""}]},
-    {"specifications": [dict(document()["specifications"][0], action="fix")]},
+    {"specifications": [{"information_record_id": ""}]},
+    {"specifications": [1]},
     dict(document(), structural_status="complete"),
     {"specifications": document()["specifications"] * 2},
 ])
@@ -61,7 +58,7 @@ def test_invalid_document_shapes(data):
 
 def test_application_converts_and_fixes_without_changing_information():
     model = valve()
-    pressure = model.fs.root.structs.inlet.pressure[0]
+    pressure = get_variable(model, "inlet.pressure")[0]
     pressure.set_value(42)
     table = information()
     assert apply_specification(model, document(), table) is None
@@ -73,9 +70,8 @@ def test_application_converts_and_fixes_without_changing_information():
 
 
 @pytest.mark.parametrize("path,record_id,changes,error", [
-    ("missing.pressure", "reading", {}, "Unknown specification variable"),
+    ("missing.pressure", "reading", {}, "Unknown model variable"),
     ("inlet.pressure", "absent", {}, "Unknown information record"),
-    ("outlet.pressure", "reading", {}, "does not match"),
     ("inlet.pressure", "reading", {"unit": "kg"}, "inlet.pressure"),
     ("inlet.pressure", "reading", {"unit": "not_a_unit"}, "inlet.pressure"),
     ("inlet.pressure", "reading", {"type": "series", "value": [1, 2]}, "shape"),
@@ -83,7 +79,7 @@ def test_application_converts_and_fixes_without_changing_information():
 def test_invalid_context_does_not_change_model(path, record_id, changes, error):
     model = valve()
     with pytest.raises(ValueError, match=error):
-        apply_specification(model, document(path, record_id), information(**changes))
+        apply_specification(model, document(record_id), information(path, **changes))
     assert all(v.value is None and not v.fixed
                for component in model._model_language_variables.values()
                for v in component.values())
@@ -91,18 +87,21 @@ def test_invalid_context_does_not_change_model(path, record_id, changes, error):
 
 def test_all_entries_validate_before_any_values_change():
     model = valve()
-    pressure = model.fs.root.structs.inlet.pressure[0]
+    pressure = get_variable(model, "inlet.pressure")[0]
     pressure.set_value(123)
     spec = document()
-    spec["specifications"] += document("missing.variable")["specifications"]
-    with pytest.raises(ValueError, match="Unknown specification variable"):
-        apply_specification(model, spec, information())
+    spec["specifications"] += document("missing")["specifications"]
+    table = information()
+    missing = table.get("reading").model_copy(update={"id": "missing", "variable_path": "missing.variable"})
+    table.add(missing)
+    with pytest.raises(ValueError, match="Unknown model variable"):
+        apply_specification(model, spec, table)
     assert pressure.value == 123 and not pressure.fixed
 
 
 def test_bounds_and_existing_fixations_are_rejected_without_overwriting():
     model = valve()
-    pressure = model.fs.root.structs.inlet.pressure[0]
+    pressure = get_variable(model, "inlet.pressure")[0]
     pressure.setub(150000)
     with pytest.raises(ValueError, match="outside variable bounds"):
         apply_specification(model, document(), information())
@@ -124,37 +123,37 @@ def test_selected_child_paths_and_cloned_models():
         }}},
     })
     model = build_model("wrapper", {
-        "model": "wrapper", "relationship": "pair", "submodels": {
+         "relationship": "pair", "submodels": {
             name: {"relationship": "isenthalpic"} for name in ("first", "second")
         },
     }, library=library)
     cloned = model.clone()
     path = "second.inlet.pressure"
-    apply_specification(cloned, document(path), information(path))
+    apply_specification(cloned, document(), information(path))
     assert cloned.fs.root.relationship.models.second.structs.inlet.pressure[0].fixed
     assert not cloned.fs.root.relationship.models.first.structs.inlet.pressure[0].fixed
     assert not model.fs.root.relationship.models.second.structs.inlet.pressure[0].fixed
 
 
 def test_constants_and_series_use_final_grid_and_scalar_variables():
-    model = build_model("tank", {"model": "tank", "relationship": "mixed"},
+    model = build_model("tank", {"relationship": "mixed"},
                         mode="dynamic", domain_values={"time": [0, 60]})
     TransformationFactory("dae.finite_difference").apply_to(
         model, wrt=model.fs.time, nfe=2, scheme="BACKWARD",
     )
     path = "inlet.temperature"
-    apply_specification(model, document(path), information(
+    apply_specification(model, document(), information(
         path, type="series", value=[30, 35, 40], unit="K",
     ))
     assert list(model.fs.root.structs.inlet.temperature) == [0, 30, 60]
     assert [v.value for v in model.fs.root.structs.inlet.temperature.values()] == [30, 35, 40]
     assert all(v.fixed for v in model.fs.root.structs.inlet.temperature.values())
     path = "parameters.area"
-    apply_specification(model, document(path), information(path, value=2, unit="m**2"))
+    apply_specification(model, document(), information(path, value=2, unit="m**2"))
     assert model.fs.root.structs.parameters.area.value == 2
     assert model.fs.root.structs.parameters.area.fixed
     path = "inlet.flow"
-    apply_specification(model, document(path), information(path, value=3, unit="kg/s"))
+    apply_specification(model, document(), information(path, value=3, unit="kg/s"))
     assert all(v.fixed and value(v) == 3 for v in model.fs.root.structs.inlet.flow.values())
 
 
@@ -175,7 +174,7 @@ def test_example_fully_specifies_and_solves(solver):
     assert outputs == pytest.approx({
         "flow_kg_per_s": 2, "pressure_Pa": 175000, "enthalpy_J_per_kg": 100000,
     })
-    assert model.fs.root.structs.inlet.pressure[0].value == 200000
+    assert get_variable(model, "inlet.pressure")[0].value == 200000
     assert all(not v.fixed for v in model.fs.root.structs.outlet.pressure.values())
 
 
@@ -188,10 +187,10 @@ def test_multidimensional_series_convert_in_declared_axis_order():
         }}},
         "relationships": {"specified": {}},
     })
-    model = build_model("grid", {"model": "grid", "relationship": "specified"},
+    model = build_model("grid", {"relationship": "specified"},
                         library=library, domain_values={"cells": ["b", "a"], "time": [0, 10]})
     path = "feed.flow"
-    apply_specification(model, document(path), information(
+    apply_specification(model, document(), information(
         path, type="series", value=[[1, 2], [3, 4]], unit="kg/s",
     ))
     assert [(index, v.value) for index, v in model.fs.root.structs.feed.flow.items()] == [
@@ -201,7 +200,7 @@ def test_multidimensional_series_convert_in_declared_axis_order():
 
 
 def test_late_grid_conflict_preserves_all_previous_values():
-    model = build_model("valve", {"model": "valve", "relationship": "isenthalpic"},
+    model = build_model("valve", {"relationship": "isenthalpic"},
                         domain_values={"time": [0, 10]})
     pressure = model.fs.root.structs.inlet.pressure
     pressure[0].set_value(10)
@@ -214,7 +213,7 @@ def test_late_grid_conflict_preserves_all_previous_values():
 
 
 def test_unexpected_fix_failure_rolls_back_prior_writes(monkeypatch):
-    model = build_model("valve", {"model": "valve", "relationship": "isenthalpic"},
+    model = build_model("valve", {"relationship": "isenthalpic"},
                         domain_values={"time": [0, 10]})
     pressure = model.fs.root.structs.inlet.pressure
     pressure[0].set_value(10)
@@ -230,3 +229,27 @@ def test_unexpected_fix_failure_rolls_back_prior_writes(monkeypatch):
         apply_specification(model, document(), information())
     assert pressure[0].value == 10 and not pressure[0].fixed
     assert pressure[10].value is None and not pressure[10].fixed
+
+
+def test_different_records_for_same_variable_are_rejected_atomically():
+    model = valve()
+    pressure = get_variable(model, "inlet.pressure")[0]
+    pressure.set_value(123)
+    table = information()
+    table.add(table.get("reading").model_copy(update={"id": "fallback", "value": 190}))
+    spec = SpecificationDocument.model_validate({"specifications": [
+        "reading", "fallback",
+    ]})
+    with pytest.raises(ValueError, match="Multiple information records specify variable"):
+        apply_specification(model, spec, table)
+    assert pressure.value == 123 and not pressure.fixed
+
+
+def test_public_variable_lookup_returns_live_families_and_checks_context():
+    model = valve()
+    pressure = get_variable(model, "inlet.pressure")
+    assert pressure is model.fs.root.structs.inlet.pressure
+    with pytest.raises(ValueError, match="Unknown model variable"):
+        get_variable(model, "missing.pressure")
+    with pytest.raises(ValueError, match="constructed by"):
+        get_variable(ConcreteModel(), "inlet.pressure")

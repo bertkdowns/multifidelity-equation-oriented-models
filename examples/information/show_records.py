@@ -4,11 +4,11 @@ from pathlib import Path
 
 from pyomo.environ import TransformationFactory
 
-from multifidelity.model_language import InformationDocument, build_model
+from multifidelity.model_language import InformationDocument, build_model, get_variable
 
 HERE = Path(__file__).parent
 model = build_model(
-    "tank", {"model": "tank", "relationship": "mixed"},
+    "tank", {"relationship": "mixed"},
     mode="dynamic", domain_values={"time": [0, 60]},
 )
 TransformationFactory("dae.finite_difference").apply_to(
@@ -16,5 +16,5 @@ TransformationFactory("dae.finite_difference").apply_to(
 )
 table = InformationDocument.load_json(HERE / "records.json")
 for record in table.candidates("inlet.temperature"):
-    values = record.values_for(model.fs.root.structs.inlet.temperature)
+    values = record.values_for(get_variable(model, "inlet.temperature"))
     print(f"{record.id} ({record.type}): {values} [{record.unit}]")

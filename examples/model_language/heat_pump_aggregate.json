@@ -1,20 +1,17 @@
 {
-  "model": "heat_pump_flowsheet",
   "relationship": "flowsheet",
   "submodels": {
     "heat_pump": {
       "relationship": "aggregate",
       "submodels": {
         "cop_model": {
-          "relationship": "specified",
-          "submodels": {}
+          "relationship": "specified"
         },
         "source_inlet_state": {
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -22,8 +19,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -31,8 +27,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -40,14 +35,12 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
         "power_model": {
-          "relationship": "specified",
-          "submodels": {}
+          "relationship": "specified"
         }
       }
     }

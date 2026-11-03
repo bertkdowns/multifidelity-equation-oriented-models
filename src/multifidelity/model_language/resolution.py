@@ -56,7 +56,7 @@ class Library:
         self.models: dict[str, ModelDocument] = {}
         self._providers: dict[str, Provider] = {}
         for path in sorted(directory.glob("*.json")):
-            document = ModelDocument.model_validate_json(path.read_text())
+            document = ModelDocument.load_json(path)
             if document.id in self.models:
                 raise ValueError(f"Duplicate model ID: {document.id}")
             self.models[document.id] = document

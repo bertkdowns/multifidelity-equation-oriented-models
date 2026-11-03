@@ -1,12 +1,15 @@
 {
-  "model": "pump_flowsheet",
   "relationship": "flowsheet",
   "submodels": {
     "pump": {
       "relationship": "composed",
       "submodels": {
-        "properties": {"relationship": "constant_python"},
-        "core": {"relationship": "python"}
+        "properties": {
+          "relationship": "constant_python"
+        },
+        "core": {
+          "relationship": "python"
+        }
       }
     }
   }

@@ -39,12 +39,12 @@ def select(library, model, relationship=None, parameters=None):
             relationship="detailed" if child_model == "milk_evaporator" else None,
             parameters=child_parameters,
         )
-    selection = {"model": model, "relationship": relationship, "submodels": children}
+    selection = {"relationship": relationship, "submodels": children}
     return selection
 
 
 def heat_pump_flowsheet_selection(selection):
-    return {"model": "heat_pump_flowsheet", "relationship": "flowsheet",
+    return {"relationship": "flowsheet",
             "submodels": {"heat_pump": selection}}
 
 
@@ -589,7 +589,7 @@ def test_generic_argument_interface_is_checked(change):
 def test_generic_root_is_explicitly_unsupported():
     with pytest.raises(ValueError, match="Root generic models"):
         build_model(
-            "property_pair", {"model": "property_pair", "relationship": "evaluate"}
+            "property_pair", {"relationship": "evaluate"}
         )
 
 
@@ -630,11 +630,11 @@ def test_generic_arguments_are_local_to_each_occurrence():
         assert value(equation.body) == pytest.approx(value(equation.lower))
 
 
-def test_generic_child_selection_must_match_resolved_model():
+def test_child_selection_cannot_override_model_reference():
     library = Library()
     selection = select(library, "water_property_pair")
     selection["submodels"]["states"]["submodels"]["inlet"]["model"] = "valve"
-    with pytest.raises(ValueError, match="does not match reference"):
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
         build_model("water_property_pair", selection, library=library)
 
 

@@ -86,7 +86,7 @@ def test_repeated_occurrences_get_fresh_blocks_and_config():
     model = build_model(
         "pair",
         {
-            "model": "pair",
+
             "relationship": "both",
             "submodels": {
                 "first": {"relationship": "constant_python"},
@@ -130,7 +130,7 @@ def test_declared_dependencies_support_parent_inverse_determination():
         }
     )
     chosen = {
-        "model": "inverse",
+
         "relationship": "evaluate",
         "submodels": {"core": {"relationship": "python"}},
     }
@@ -160,14 +160,14 @@ def test_invalid_interface_mappings_include_occurrence_and_provider(kind):
     ):
         build_model(
             "liquid_density",
-            {"model": "liquid_density", "relationship": "constant_python"},
+            {"relationship": "constant_python"},
             library=library,
         )
 
 
 def test_missing_duplicate_and_failing_providers():
     library = Library(HERE / "models")
-    chosen = {"model": "liquid_density", "relationship": "constant_python"}
+    chosen = {"relationship": "constant_python"}
     with pytest.raises(ValueError, match="Unknown provider: example.liquid_density"):
         build_model("liquid_density", chosen, library=library)
 
@@ -217,7 +217,7 @@ def test_dependency_declarations_use_public_paths(dependencies):
     with pytest.raises(ValueError, match="dependencies"):
         required_inputs(
             "liquid_density",
-            {"model": "liquid_density", "relationship": "constant_python"},
+            {"relationship": "constant_python"},
             library=library,
         )
 
@@ -246,7 +246,7 @@ def test_scalar_provider_contract_remains_supported(tmp_path):
     from examples.custom_models.build import build_density
     library = Library(tmp_path)
     library.register_provider('example.liquid_density', build_density)
-    m = build_model('scalar', {'model': 'scalar', 'relationship': 'python'}, library=library)
+    m = build_model('scalar', {'relationship': 'python'}, library=library)
     assert not m.fs.root.structs.properties.density.is_indexed()
     assert hasattr(m.fs.root.relationship, 'provider')
     assert len(m.fs.root.relationship.bindings) == 1
@@ -281,7 +281,7 @@ def test_provider_time_slices_share_scalar_inputs_and_expand(tmp_path):
         return {'settings.factor': block.factor, 'source.x': block.x, 'result.y': block.y}
 
     library.register_provider('scale', provider)
-    m = build_model('scaled', {'model': 'scaled', 'relationship': 'python'}, library=library,
+    m = build_model('scaled', {'relationship': 'python'}, library=library,
                     mode='dynamic', domain_values={'time': [0, 10]})
     from pyomo.environ import TransformationFactory
     from pyomo.core.expr.visitor import identify_variables
@@ -317,4 +317,4 @@ def test_provider_shape_errors_are_detected_without_construction(shape):
     else:
         definition.structs['performance'].variables['work'].dimensions = []
     with pytest.raises(ValueError, match='scalar or time-indexed|time-indexed outputs'):
-        required_inputs('pump_core', {'model': 'pump_core', 'relationship': 'python'}, library=library)
+        required_inputs('pump_core', {'relationship': 'python'}, library=library)

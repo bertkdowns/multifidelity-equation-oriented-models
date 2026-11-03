@@ -111,7 +111,7 @@ and [IDAES structural-singularity example](https://idaes-examples.readthedocs.io
 ## Specification document and separate algorithm diagnostics
 
 The implemented [specification document](../src/multifidelity/model_language/README.md#specification-documents)
-contains only variable paths and selected information-record IDs. It has no
+contains only selected information-record IDs; each record supplies its variable path. It has no
 implementation references, values, actions, structural status or unused-information
 fields. Application receives the numerical model and information table separately.
 The trust-ranked selection algorithm remains proposed.

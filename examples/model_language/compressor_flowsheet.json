@@ -1,5 +1,4 @@
 {
-  "model": "compressor_flowsheet",
   "relationship": "flowsheet",
   "submodels": {
     "compressor": {
@@ -9,8 +8,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -18,8 +16,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -27,8 +24,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         }

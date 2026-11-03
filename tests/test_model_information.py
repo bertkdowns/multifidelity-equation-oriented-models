@@ -229,7 +229,7 @@ def test_values_for_scalar_and_final_dynamic_grid():
     from pyomo.environ import TransformationFactory
     from multifidelity.model_language import build_model
 
-    model = build_model('tank', {'model': 'tank', 'relationship': 'mixed'},
+    model = build_model('tank', {'relationship': 'mixed'},
                         mode='dynamic', domain_values={'time': [0, 60]})
     scalar = model.fs.root.structs.parameters.area
     inlet = model.fs.root.structs.inlet.temperature
@@ -285,3 +285,17 @@ def test_values_for_rejects_ambiguous_index_domains():
     constant = InformationRecord.model_validate(record(value=1))
     assert constant.values_for(m.x) == {1: 1, 2: 1}
     assert constant.values_for(m.y) == {(1, 2): 1, (3, 4): 1}
+
+
+def test_information_document_is_pydantic_and_round_trips_as_an_array():
+    from pydantic import BaseModel
+
+    document = InformationDocument.model_validate([record()])
+    assert isinstance(document, BaseModel)
+    assert InformationDocument.from_json(document.model_dump_json()) == document
+    assert document.model_dump(mode="json")[0]["id"] == "measurement"
+    document.add(record("fallback", trust_rank=1))
+    assert [r.id for r in document.records] == ["measurement", "fallback"]
+    with pytest.raises(ValidationError, match="Duplicate"):
+        document.root = (*document.root, document.root[0])
+    assert [r.id for r in document.records] == ["measurement", "fallback"]

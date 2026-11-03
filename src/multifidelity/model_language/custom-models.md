@@ -168,7 +168,7 @@ library = Library("path/to/model_definitions")
 library.register_provider("example.liquid_density", build_density)
 
 selection = {
-    "model": "liquid_density",
+
     "relationship": "constant_python"
 }
 
@@ -251,14 +251,17 @@ The existing implementation document chooses a relationship for each child:
 
 ```json
 {
-  "model": "pump_flowsheet",
   "relationship": "flowsheet",
   "submodels": {
     "pump": {
       "relationship": "composed",
       "submodels": {
-        "properties": {"relationship": "constant_python"},
-        "core": {"relationship": "python"}
+        "properties": {
+          "relationship": "constant_python"
+        },
+        "core": {
+          "relationship": "python"
+        }
       }
     }
   }

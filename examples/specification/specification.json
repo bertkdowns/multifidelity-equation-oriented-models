@@ -1,8 +1,8 @@
 {
   "specifications": [
-    {"variable_path": "inlet.flow", "information_record_id": "inlet_flow"},
-    {"variable_path": "inlet.pressure", "information_record_id": "pressure_measurement"},
-    {"variable_path": "inlet.enthalpy", "information_record_id": "inlet_enthalpy"},
-    {"variable_path": "parameters.pressure_drop", "information_record_id": "valve_pressure_drop"}
+    "inlet_flow",
+    "pressure_measurement",
+    "inlet_enthalpy",
+    "valve_pressure_drop"
   ]
 }

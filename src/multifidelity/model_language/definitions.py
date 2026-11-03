@@ -5,7 +5,8 @@ expanding reusable definitions into a tree. Parsing checks document shape; the
 builder still owns scope, interface, determination and equation validation.
 """
 
-from typing import Annotated, Literal
+from pathlib import Path
+from typing import Annotated, Literal, Self
 
 from pydantic import (
     AfterValidator,
@@ -31,6 +32,14 @@ class Definition(BaseModel):
     """Reject misspelled fields rather than silently discarding definition data."""
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    @classmethod
+    def from_json(cls, text: str | bytes) -> Self:
+        return cls.model_validate_json(text)
+
+    @classmethod
+    def load_json(cls, path: str | Path) -> Self:
+        return cls.from_json(Path(path).read_text(encoding="utf-8"))
 
 
 class Bounds(Definition):

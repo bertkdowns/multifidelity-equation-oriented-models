@@ -12,6 +12,31 @@ from multifidelity.model_language import Library, build_model, register_standard
 
 EXAMPLES = Path(__file__).parents[1] / 'examples/model_language'
 SELECTIONS = sorted(p for p in EXAMPLES.glob('*.json') if p.name != 'milk_evaporator_aggregate.json')
+EXAMPLE_MODELS = {
+    "compressor_flowsheet": "compressor_flowsheet",
+    "en12900_compressor_map": "en12900_compressor_map",
+    "heat_exchanger_lumped": "heat_exchanger",
+    "heat_pump_aggregate": "heat_pump_flowsheet",
+    "heat_pump_cycle": "heat_pump_flowsheet",
+    "heat_pump_evaporator_flowsheet": "heat_pump_evaporator_flowsheet",
+    "helmholtz_propane_ph": "helmholtz_propane_ph",
+    "helmholtz_water_ph": "helmholtz_water_ph",
+    "helmholtz_water_property_pair": "helmholtz_water_property_pair",
+    "humid_air_state": "humid_air_state",
+    "mapped_propane_compressor": "mapped_propane_compressor",
+    "milk_evaporator_aggregate": "milk_evaporator",
+    "milk_evaporator_detailed": "milk_evaporator",
+    "pump_flowsheet": "pump_flowsheet",
+    "source_loop_loop": "source_loop",
+    "steam_generating_heat_pump_aggregate": "steam_generating_heat_pump",
+    "steam_generating_heat_pump_flowsheet": "steam_generating_heat_pump",
+    "tank_mixed": "tank",
+    "water_isentropic_package_constant_properties": "water_isentropic_package",
+    "water_property_package_constant_properties": "water_property_package",
+    "water_property_pair_evaluate": "water_property_pair",
+    "water_state_constant_properties": "water_state",
+    "water_state_ps_constant_properties": "water_state_ps"
+}
 
 
 def require_dependencies(model, selection):
@@ -31,10 +56,11 @@ def require_dependencies(model, selection):
 @pytest.mark.parametrize('mode', ['steady', 'dynamic'])
 def test_every_example_uses_shared_time_and_expands(path, mode):
     selection = json.loads(path.read_text())
+    model_id = EXAMPLE_MODELS[path.stem]
     library = Library()
     register_standard_providers(library)
-    require_dependencies(library.resolve(selection['model']), selection)
-    m = build_model(selection['model'], selection, library=library, mode=mode,
+    require_dependencies(library.resolve(model_id), selection)
+    m = build_model(model_id, selection, library=library, mode=mode,
                     domain_values={'time': [0, 10]})
     if mode == 'dynamic':
         pyo.TransformationFactory('dae.finite_difference').apply_to(
@@ -48,7 +74,7 @@ def test_every_example_uses_shared_time_and_expands(path, mode):
         assert list(v) == list(m.fs.time)
         assert all(not x.fixed for x in v.values())
     # Input discovery still describes families, independent of numerical points.
-    assert required_inputs(selection['model'], selection, library=library) is not None
+    assert required_inputs(model_id, selection, library=library) is not None
 
 
 def test_library_operating_interfaces_and_fixed_coefficients():
@@ -69,7 +95,7 @@ def test_library_operating_interfaces_and_fixed_coefficients():
 
 
 def test_steady_valve_slices_are_independent():
-    m = build_model('valve', {'model': 'valve', 'relationship': 'isenthalpic'},
+    m = build_model('valve', {'relationship': 'isenthalpic'},
                     domain_values={'time': [0, 1]})
     b = m.fs.root
     for t, flow in [(0, 2), (1, 5)]:
@@ -117,7 +143,7 @@ def test_dynamic_map_drives_energy_accumulator(tmp_path, solver):
     from multifidelity.model_language.definitions import ModelDocument
     library.models['meter'] = ModelDocument.model_validate(definition)
     register_standard_providers(library)
-    m = build_model('meter', {'model': 'meter', 'relationship': 'metered',
+    m = build_model('meter', {'relationship': 'metered',
                               'submodels': {'map': {'relationship': 'cooling_60rps'}}},
                     library=library, mode='dynamic', domain_values={'time': [0, 10]},
                     initial_values=[{'variable_path': 'inventory.energy', 'value': 0}])

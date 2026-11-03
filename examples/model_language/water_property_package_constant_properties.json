@@ -1,10 +1,8 @@
 {
-  "model": "water_property_package",
   "relationship": "constant_properties",
   "submodels": {
     "water": {
-      "relationship": "constant_properties",
-      "submodels": {}
+      "relationship": "constant_properties"
     }
   }
 }

@@ -1,5 +1,4 @@
 {
-  "model": "mapped_propane_compressor",
   "relationship": "evaluate",
   "submodels": {
     "compressor": {

@@ -1,42 +1,32 @@
 {
-  "model": "steam_generating_heat_pump",
   "relationship": "flowsheet",
   "submodels": {
     "condenser": {
-      "relationship": "lumped",
-      "submodels": {}
+      "relationship": "lumped"
     },
     "subcooler": {
-      "relationship": "lumped",
-      "submodels": {}
+      "relationship": "lumped"
     },
     "evaporator": {
-      "relationship": "lumped",
-      "submodels": {}
+      "relationship": "lumped"
     },
     "cooling_exchanger": {
-      "relationship": "lumped",
-      "submodels": {}
+      "relationship": "lumped"
     },
     "ihx": {
-      "relationship": "lumped",
-      "submodels": {}
+      "relationship": "lumped"
     },
     "expansion_valve": {
-      "relationship": "isenthalpic",
-      "submodels": {}
+      "relationship": "isenthalpic"
     },
     "hot_water_valve": {
-      "relationship": "isenthalpic",
-      "submodels": {}
+      "relationship": "isenthalpic"
     },
     "steam_valve": {
-      "relationship": "isenthalpic",
-      "submodels": {}
+      "relationship": "isenthalpic"
     },
     "source_valve": {
-      "relationship": "isenthalpic",
-      "submodels": {}
+      "relationship": "isenthalpic"
     },
     "compressor": {
       "relationship": "isentropic",
@@ -45,8 +35,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -54,8 +43,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -63,16 +51,14 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         }
       }
     },
     "flash": {
-      "relationship": "split",
-      "submodels": {}
+      "relationship": "split"
     },
     "hot_water_pump": {
       "relationship": "incompressible",
@@ -81,16 +67,14 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         }
       }
     },
     "hot_water_mixer": {
-      "relationship": "balance",
-      "submodels": {}
+      "relationship": "balance"
     },
     "warm_water_pump": {
       "relationship": "incompressible",
@@ -99,20 +83,17 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         }
       }
     },
     "splitter": {
-      "relationship": "split",
-      "submodels": {}
+      "relationship": "split"
     },
     "warm_water_mixer": {
-      "relationship": "balance",
-      "submodels": {}
+      "relationship": "balance"
     },
     "source_pump": {
       "relationship": "incompressible",
@@ -121,20 +102,17 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         }
       }
     },
     "source_heater": {
-      "relationship": "energy_balance",
-      "submodels": {}
+      "relationship": "energy_balance"
     },
     "source_tank": {
-      "relationship": "energy_balance",
-      "submodels": {}
+      "relationship": "energy_balance"
     }
   }
 }

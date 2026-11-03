@@ -1,11 +1,9 @@
 """Compile JSON equations or call explicitly registered symbolic providers."""
 
 import ast
-import json
 import operator
 from collections.abc import Mapping
 from copy import deepcopy
-from pathlib import Path
 
 from idaes.core import FlowsheetBlock
 from pyomo.core.expr.visitor import identify_variables
@@ -14,9 +12,9 @@ from pyomo.core.base.var import VarData
 from pyomo.environ import Block, ConcreteModel, Constraint, ConstraintList, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
-from .implementation import ImplementationDocument
-from .resolution import Library, ModelView
-from .requirements import connection_endpoints, determination_sources
+from .resolution import Library
+from ._validation import connection_endpoints
+from ._traversal import _walk_implementation
 from .domains import BuildDomains
 from .dynamics import apply_initial_values, build_derivatives
 from .indexing import dotted_name, variable_dimensions
@@ -127,12 +125,6 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     specifications fix only entries at the first time point in dynamic mode.
     """
     library = library or Library()
-    if isinstance(implementation, (str, Path)):
-        implementation = json.loads(Path(implementation).read_text())
-    if isinstance(implementation, ImplementationDocument):
-        implementation = implementation.model_dump(exclude_none=True)
-    if implementation.get("model") != model_id:
-        raise ValueError("Root implementation must identify the requested model")
     root = library.resolve(model_id)
     build_domains = BuildDomains(root, domain_values, mode)
 
@@ -163,31 +155,19 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                 pending.extend(graph.get(current, ()))
         return False
 
-    def populate(block, resolved: ModelView, selection, parent_domains=None):
-        """Build one occurrence and return only its public variable references.
-
-        Each call creates fresh components, even when several occurrences share
-        a definition. ``path`` identifies the occurrence in validation errors.
-        """
+    def enter(occurrence, parent, alias):
+        """Create this occurrence's variables before visiting its children."""
+        resolved = occurrence.model
         definition = resolved.definition
-        definition_id, path = resolved.id, resolved.path
-        if selection.get("model", definition_id) != definition_id:
-            raise ValueError(f"{path}: implementation model does not match reference")
-        relationship_id = selection.get("relationship")
-        if relationship_id not in definition.relationships:
-            raise ValueError(
-                f"{path}: unknown or missing relationship {relationship_id!r}"
-            )
-        relationship = resolved.relationships[relationship_id]
-        # Shared with required-input discovery; validate before materialization.
-        determination_sources(resolved, relationship_id)
+        path = resolved.path
+        relationship = occurrence.relationship
+        if parent is None:
+            block, parent_domains = model.fs.root, None
+        else:
+            parent_block, _, parent_domains = parent
+            block = Block()
+            parent_block.relationship.models.add_component(alias, block)
         domains = build_domains.populate(block, resolved, parent_domains, model.fs.time)
-        refs = relationship.models
-        selected = selection.get("submodels", {})
-        # Validate against the selected relationship only: alternatives may have
-        # entirely different children and are not materialized in this build.
-        if set(selected) != set(refs):
-            raise ValueError(f"{path}: submodels must be exactly {sorted(refs)}")
         block.structs = Block()
         variables = {}
         # Struct blocks own variables. This lookup contains references to those
@@ -203,29 +183,29 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                 var = Var(*sets, bounds=(variable.bounds.min, variable.bounds.max), units=unit)
                 struct_block.add_component(variable_id, var)
                 variables[f"{struct_id}.{variable_id}"] = var
-                prefix = "" if path == model_id else path[len(model_id) + 1:] + "."
-                registry[prefix + f"{struct_id}.{variable_id}"] = (var, variable, domains)
+                registry[occurrence.prefix + f"{struct_id}.{variable_id}"] = (var, variable, domains)
         block.relationship = Block()
         active = block.relationship
         external = relationship.definition.external
         if external is not None:
             _build_external(
-                active, external, variables, library, f"{path}.{relationship_id}", dependencies
+                active, external, variables, library,
+                f"{path}.{occurrence.relationship_id}", dependencies,
             )
+        else:
+            active.models = Block()
+        return block, variables, domains
+
+    def leave(occurrence, context, children):
+        """Compile equations after child interfaces and dependencies exist."""
+        resolved = occurrence.model
+        relationship = occurrence.relationship
+        relationship_id = occurrence.relationship_id
+        path = resolved.path
+        block, variables, domains = context
+        active = block.relationship
+        if relationship.definition.external is not None:
             return variables
-        active.models = Block()
-        children = {}
-        # Build children before equations so all referenced variables exist.
-        # Local aliases distinguish repeated uses of the same model definition.
-        for alias, reference in refs.items():
-            child = Block()
-            active.models.add_component(alias, child)
-            children[alias] = populate(
-                child,
-                reference,
-                selected[alias],
-                domains,
-            )
 
         def resolve(reference, index_values=None, index_domains=None):
             # A relationship sees its parent's structs and its immediate
@@ -322,7 +302,7 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
         # containing relationship resolves references to this occurrence.
         return variables
 
-    populate(model.fs.root, root, implementation)
+    _walk_implementation(root, implementation, enter, leave)
     build_domains.check_unused()
     # Check the complete equation tree without fixing values or calling a solver.
     assert_units_consistent(model)

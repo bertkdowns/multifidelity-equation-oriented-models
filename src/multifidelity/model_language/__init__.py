@@ -6,9 +6,10 @@ from .resolution import Library, ModelView, RelationshipView
 from .requirements import required_inputs, print_required_inputs, required_initial_values
 from .information import InformationRecord, InformationDocument, InformationType
 from .specification import (
-    SpecificationDocument, SpecificationEntry,
+    SpecificationDocument,
     apply_specification,
 )
+from .variables import get_variable
 from .standard import register_standard_providers
 
 
@@ -30,11 +31,11 @@ __all__ = [
     "InformationDocument",
     "InformationType",
     "SpecificationDocument",
-    "SpecificationEntry",
     "apply_specification",
     "ModelView",
     "RelationshipView",
     "build_model",
+    "get_variable",
     "required_inputs",
     "required_initial_values",
     "print_required_inputs",

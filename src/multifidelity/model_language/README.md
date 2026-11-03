@@ -331,11 +331,11 @@ Existing implementation selections and required-input family paths are unchanged
 Python access to operating values now needs an index even in steady mode:
 
 ```python
-steady = build_model("valve", {"model": "valve", "relationship": "isenthalpic"})
+steady = build_model("valve", {"relationship": "isenthalpic"})
 steady.fs.root.structs.inlet.pressure[0].fix(200000)
 
 transient = build_model(
-    "valve", {"model": "valve", "relationship": "isenthalpic"},
+    "valve", {"relationship": "isenthalpic"},
     mode="dynamic", domain_values={"time": [0, 60]},
 )
 ```
@@ -416,7 +416,7 @@ specification document; pass the initial-value list to the builder explicitly:
 ```python
 from multifidelity.model_language import build_model, required_initial_values
 
-selection = {"model": "tank", "relationship": "mixed"}
+selection = {"relationship": "mixed"}
 print(required_initial_values("tank", selection).keys())
 # inventory.energy, inventory.level
 
@@ -610,9 +610,10 @@ is no coefficient struct or coefficient plumbing on the pair.
 
 `implementation.py` defines the Pydantic `ImplementationDocument` root and recursive
 `ImplementationSelection` type. Every node requires an explicit `relationship`;
-`submodels` maps local child reference names to further selections. The root
-requires `model`, while nested model IDs may be omitted because references already
-determine them. Leaves have an empty `submodels` map by default.
+`submodels` maps local child reference names to further selections. No node
+contains a model ID: the caller supplies the root model ID to `build_model()` or
+the requirement queries, and child model references determine the descendants.
+Leaves omit `submodels`, which defaults to an empty map.
 
 ```python
 from multifidelity.model_language.implementation import ImplementationDocument
@@ -626,12 +627,18 @@ all children of a selected relationship are present, choose relationships
 implicitly, or specify numerical values. Instance types remain deferred. The
 builder accepts an `ImplementationDocument`, a dictionary, or a JSON file path.
 
+The internal `_traversal.py` helper handles document parsing, selected relationship
+and child checks, and recursive occurrence traversal for both construction and
+requirement queries. It calls the shared checks in `_validation.py`. The backend
+creates variables on entry and equations after visiting children; requirement
+queries collect metadata without creating numerical objects. No additional public
+`Implementation` class is required.
 
-An implementation document identifies the root model and chooses its relationship:
+
+An implementation document chooses relationships for a separately supplied model:
 
 ```json
 {
-  "model": "heat_pump_flowsheet",
   "relationship": "flowsheet",
   "submodels": {
     "heat_pump": {
@@ -644,8 +651,7 @@ An implementation document identifies the root model and chooses its relationshi
               "relationship": "constant_properties",
               "submodels": {
                 "water": {
-                  "relationship": "constant_properties",
-                  "submodels": {}
+                  "relationship": "constant_properties"
                 }
               }
             },
@@ -653,8 +659,7 @@ An implementation document identifies the root model and chooses its relationshi
               "relationship": "constant_properties",
               "submodels": {
                 "water": {
-                  "relationship": "constant_properties",
-                  "submodels": {}
+                  "relationship": "constant_properties"
                 }
               }
             },
@@ -662,39 +667,32 @@ An implementation document identifies the root model and chooses its relationshi
               "relationship": "constant_properties",
               "submodels": {
                 "water": {
-                  "relationship": "constant_properties",
-                  "submodels": {}
+                  "relationship": "constant_properties"
                 }
               }
             }
           }
         },
         "condenser": {
-          "relationship": "lumped",
-          "submodels": {}
+          "relationship": "lumped"
         },
         "subcooler": {
-          "relationship": "lumped",
-          "submodels": {}
+          "relationship": "lumped"
         },
         "ihx": {
-          "relationship": "lumped",
-          "submodels": {}
+          "relationship": "lumped"
         },
         "expansion_valve": {
-          "relationship": "isenthalpic",
-          "submodels": {}
+          "relationship": "isenthalpic"
         },
         "evaporator": {
-          "relationship": "lumped",
-          "submodels": {}
+          "relationship": "lumped"
         },
         "source_inlet_state": {
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -702,8 +700,7 @@ An implementation document identifies the root model and chooses its relationshi
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -711,8 +708,7 @@ An implementation document identifies the root model and chooses its relationshi
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -720,8 +716,7 @@ An implementation document identifies the root model and chooses its relationshi
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         }
@@ -1161,6 +1156,12 @@ discretized tank inlet without changing any model values.
 
 ### Information-table interface
 
+`InformationDocument` is a Pydantic `RootModel` whose root is a tuple of
+`InformationRecord` objects. Its JSON representation remains an array. Like model,
+implementation and specification documents, it supports `model_validate()`,
+`model_validate_json()`, `model_dump_json()`, `from_json()` and `load_json()`.
+
+
 ```python
 from multifidelity.model_language import InformationRecord, InformationDocument
 
@@ -1199,28 +1200,44 @@ and trust ranks integers from 1 through 10. Missing standard deviation remains
 model, physical applicability or unit compatibility. The table describes one
 operating case and neither selects a winning record nor fixes any model variables.
 
+## Numerical variable lookup
+
+Use `get_variable(model, variable_path)` to access a live variable family using
+the same root-relative paths as information records:
+
+```python
+from multifidelity.model_language import get_variable
+
+pressure = get_variable(model, "inlet.pressure")
+pressure_at_start = pressure[model.fs.time.first()]
+# Nested occurrence example: get_variable(model, "heat_pump.compressor.inlet.pressure")
+```
+
+Scalar families return scalar Pyomo variables; indexed families are indexed by the
+caller. The lookup follows cloning and discretization. Unknown paths and models
+not built by `build_model()` raise `ValueError`.
+
 ## Specification documents
 
-A `SpecificationDocument` contains only a `specifications` array. Each entry
-means “fix this variable family using this information record”:
+A `SpecificationDocument` contains only a `specifications` array of record IDs.
+Each ID means “fix the variable family named by this information record”:
 
 ```json
 {
   "specifications": [
-    {
-      "variable_path": "inlet.pressure",
-      "information_record_id": "pressure_measurement"
-    }
+    "pressure_measurement"
   ]
 }
 ```
 
 It contains no action, values, source-document references, structural status or
 unused-information records. The model instance and information table are passed
-separately. Variable paths are root-relative, such as `inlet.pressure` or
-`heat_pump.compressor.inlet.pressure`; they name whole variable families, without
-index selectors. Each path may occur only once, and the selected information
-record must declare that same path. Declared outputs can also be specified.
+separately. Each entry is an information-record ID string; the selected
+record supplies its `variable_path`, value and unit. Paths in information records
+are root-relative, such as `inlet.pressure` or `heat_pump.compressor.inlet.pressure`,
+and name whole variable families without index selectors. Duplicate record IDs
+and different records targeting the same variable are rejected. Declared outputs
+can also be specified.
 
 ```python
 from multifidelity.model_language import (
@@ -1239,7 +1256,7 @@ The method also accepts a specification dictionary or JSON file path.
 `model_dump_json()` serializes the document. The information argument must be an
 `InformationDocument`. Numerical models must come from `build_model()`.
 
-Application validates all paths, record references, path agreement, array shapes,
+Application validates all paths, record references, duplicate targets, array shapes,
 unit conversions, finite converted values, variable bounds and existing fixations
 before fixing any variable. It updates the model in place and returns `None`. A validation error leaves all values and fixation statuses
 unchanged. Existing fixations are rejected, even if equal; applying a new document

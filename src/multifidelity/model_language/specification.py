@@ -2,20 +2,13 @@
 
 import math
 from pathlib import Path
+from typing import Annotated
 
 from pydantic import ConfigDict, Field, model_validator
 
 from .definitions import Definition
 from .information import InformationDocument
-
-
-class SpecificationEntry(Definition):
-    """Fix a variable family using one information record's central values."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    variable_path: str = Field(min_length=1)
-    information_record_id: str = Field(min_length=1)
+from .variables import get_variable
 
 
 class SpecificationDocument(Definition):
@@ -23,22 +16,14 @@ class SpecificationDocument(Definition):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    specifications: tuple[SpecificationEntry, ...]
+    specifications: tuple[Annotated[str, Field(min_length=1)], ...]
 
     @model_validator(mode="after")
-    def unique_variables(self):
-        paths = [entry.variable_path for entry in self.specifications]
-        if len(paths) != len(set(paths)):
-            raise ValueError("Each variable path may be specified only once")
+    def unique_records(self):
+        ids = self.specifications
+        if len(ids) != len(set(ids)):
+            raise ValueError("Each information record may be selected only once")
         return self
-
-    @classmethod
-    def from_json(cls, text: str | bytes) -> "SpecificationDocument":
-        return cls.model_validate_json(text)
-
-    @classmethod
-    def load_json(cls, path: str | Path) -> "SpecificationDocument":
-        return cls.from_json(Path(path).read_text(encoding="utf-8"))
 
 
 def _prepare(model, specification, information):
@@ -57,17 +42,17 @@ def _prepare(model, specification, information):
         raise ValueError("Model must be constructed by model_language.build_model")
 
     prepared = []
-    for entry in specification.specifications:
-        path = entry.variable_path
-        if path not in registry:
-            raise ValueError(f"Unknown specification variable {path!r}")
+    seen_paths = set()
+    for record_id in specification.specifications:
         try:
-            record = information.get(entry.information_record_id)
+            record = information.get(record_id)
         except KeyError as error:
             raise ValueError(str(error)) from error
-        if record.variable_path != path:
-            raise ValueError(f"{record.id}: information variable path does not match {path!r}")
-        component = registry[path]
+        path = record.variable_path
+        if path in seen_paths:
+            raise ValueError(f"Multiple information records specify variable {path!r}")
+        seen_paths.add(path)
+        component = get_variable(model, path)
         try:
             source_unit = _expression(record.unit, lambda name: getattr(units, name))
             target_unit = units.get_units(component)

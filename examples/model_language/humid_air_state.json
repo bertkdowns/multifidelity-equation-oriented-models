@@ -1,4 +1,3 @@
 {
-  "model": "humid_air_state",
   "relationship": "pysmo"
 }

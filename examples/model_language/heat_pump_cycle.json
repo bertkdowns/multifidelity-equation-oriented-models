@@ -1,5 +1,4 @@
 {
-  "model": "heat_pump_flowsheet",
   "relationship": "flowsheet",
   "submodels": {
     "heat_pump": {
@@ -12,8 +11,7 @@
               "relationship": "constant_properties",
               "submodels": {
                 "water": {
-                  "relationship": "constant_properties",
-                  "submodels": {}
+                  "relationship": "constant_properties"
                 }
               }
             },
@@ -21,8 +19,7 @@
               "relationship": "constant_properties",
               "submodels": {
                 "water": {
-                  "relationship": "constant_properties",
-                  "submodels": {}
+                  "relationship": "constant_properties"
                 }
               }
             },
@@ -30,39 +27,32 @@
               "relationship": "constant_properties",
               "submodels": {
                 "water": {
-                  "relationship": "constant_properties",
-                  "submodels": {}
+                  "relationship": "constant_properties"
                 }
               }
             }
           }
         },
         "condenser": {
-          "relationship": "lumped",
-          "submodels": {}
+          "relationship": "lumped"
         },
         "subcooler": {
-          "relationship": "lumped",
-          "submodels": {}
+          "relationship": "lumped"
         },
         "ihx": {
-          "relationship": "lumped",
-          "submodels": {}
+          "relationship": "lumped"
         },
         "expansion_valve": {
-          "relationship": "isenthalpic",
-          "submodels": {}
+          "relationship": "isenthalpic"
         },
         "evaporator": {
-          "relationship": "lumped",
-          "submodels": {}
+          "relationship": "lumped"
         },
         "source_inlet_state": {
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -70,8 +60,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -79,8 +68,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -88,8 +76,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         }

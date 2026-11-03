@@ -1,5 +1,4 @@
 {
-  "model": "helmholtz_water_property_pair",
   "relationship": "evaluate",
   "submodels": {
     "states": {

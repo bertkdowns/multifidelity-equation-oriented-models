@@ -17,7 +17,7 @@ from multifidelity.model_language import (
 )
 from multifidelity.model_language.definitions import ModelDocument
 
-TANK_SELECTION = {"model": "tank", "relationship": "mixed"}
+TANK_SELECTION = {"relationship": "mixed"}
 
 
 def integration_definition(*, differentiate=False):
@@ -49,7 +49,7 @@ def make_library(tmp_path, definition):
 def build_integrator(tmp_path, definition=None, **kwargs):
     definition = definition or integration_definition()
     return build_model(
-        "integrator", {"model": "integrator", "relationship": "integrate"},
+        "integrator", {"relationship": "integrate"},
         library=make_library(tmp_path, definition), **kwargs,
     )
 
@@ -186,7 +186,7 @@ def test_time_and_rate_unit_scaling(tmp_path, solver, time_unit, rate_unit, rate
 def test_differentiation_direction_and_uncovered_endpoint(tmp_path, solver):
     definition = integration_definition(differentiate=True)
     library = make_library(tmp_path, definition)
-    selection = {'model': 'integrator', 'relationship': 'integrate'}
+    selection = {'relationship': 'integrate'}
     assert set(required_initial_values('integrator', selection, library=library)) == {'signal.rate'}
     m = build_integrator(tmp_path, definition, mode='dynamic', domain_values={'time': [0, 10]},
                          initial_values=[{'variable_path': 'signal.rate', 'value': 7}])
@@ -327,7 +327,7 @@ def test_nested_derivative_and_initial_paths(tmp_path):
     }}
     (tmp_path / 'parent.json').write_text(json.dumps(parent))
     library = make_library(tmp_path, child)
-    selection = {'model': 'parent', 'relationship': 'wrap', 'submodels': {
+    selection = {'relationship': 'wrap', 'submodels': {
         'integrator': {'relationship': 'integrate'},
     }}
     assert set(required_initial_values('parent', selection, library=library)) == {

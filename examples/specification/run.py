@@ -9,19 +9,17 @@ from pyomo.environ import assert_optimal_termination, value
 
 from multifidelity.model_language import (
     ImplementationDocument, InformationDocument, SpecificationDocument,
-    apply_specification, build_model,
+    apply_specification, build_model, get_variable,
 )
 
 HERE = Path(__file__).parent
 
 
 def run(solver=None):
-    implementation = ImplementationDocument.model_validate_json(
-        (HERE / "implementation.json").read_text()
-    )
+    implementation = ImplementationDocument.load_json(HERE / "implementation.json")
     information = InformationDocument.load_json(HERE / "information.json")
     specification = SpecificationDocument.load_json(HERE / "specification.json")
-    model = build_model(implementation.model, implementation)
+    model = build_model("valve", implementation)
     apply_specification(model, specification, information)
     dof = degrees_of_freedom(model)
     if dof != 0:
@@ -31,12 +29,11 @@ def run(solver=None):
         raise RuntimeError("IPOPT is required; install/configure the IDAES solver extensions")
     result = solver.solve(model)
     assert_optimal_termination(result)
-    outlet = model.fs.root.structs.outlet
     t = model.fs.time.first()
     outputs = {
-        "flow_kg_per_s": value(outlet.flow[t]),
-        "pressure_Pa": value(outlet.pressure[t]),
-        "enthalpy_J_per_kg": value(outlet.enthalpy[t]),
+        "flow_kg_per_s": value(get_variable(model, "outlet.flow")[t]),
+        "pressure_Pa": value(get_variable(model, "outlet.pressure")[t]),
+        "enthalpy_J_per_kg": value(get_variable(model, "outlet.enthalpy")[t]),
     }
     print(json.dumps({
         "degrees_of_freedom": dof,

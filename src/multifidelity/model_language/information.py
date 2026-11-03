@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Annotated, Literal, TYPE_CHECKING, cast
 
 from pydantic import (
-    BaseModel, BeforeValidator, ConfigDict, Field, FiniteFloat, TypeAdapter,
+    BaseModel, BeforeValidator, ConfigDict, Field, FiniteFloat, RootModel, field_validator,
     model_validator,
 )
 
@@ -126,57 +126,49 @@ class InformationRecord(BaseModel):
         return dict(zip(keys, entries(self.value), strict=True))
 
 
-_RECORDS = TypeAdapter(list[InformationRecord])
+class InformationDocument(RootModel[tuple[InformationRecord, ...]]):
+    """Pydantic array document retaining alternative records for one case.
 
-
-class InformationDocument:
-    """An information document containing the information table for one operating case.
-
-    Paths and units remain declarations here. The specification algorithm checks
-    applicability to a selected model; this table never fixes or combines values.
+    Serialization uses the same JSON array as loading. Records and the root tuple
+    cannot be mutated in place; add() validates a replacement tuple atomically.
     """
 
-    def __init__(self, records: Iterable[InformationRecord | dict] = ()):
-        self._records: dict[str, InformationRecord] = {}
-        for record in records:
-            self.add(record)
+    model_config = ConfigDict(validate_assignment=True)
+    root: tuple[InformationRecord, ...] = ()
+
+    @field_validator("root")
+    @classmethod
+    def unique_ids(cls, records):
+        ids = [record.id for record in records]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Duplicate information record ID")
+        return records
 
     @classmethod
     def from_json(cls, text: str | bytes) -> "InformationDocument":
-        """Create a table from a JSON array, rejecting invalid or duplicate records."""
-        return cls(_RECORDS.validate_json(text))
+        return cls.model_validate_json(text)
 
     @classmethod
     def load_json(cls, path: str | Path) -> "InformationDocument":
-        """Load a JSON array of records from a UTF-8 file."""
         return cls.from_json(Path(path).read_text(encoding="utf-8"))
 
     @property
     def records(self) -> list[InformationRecord]:
-        """Return records in insertion order without exposing mutable storage."""
-        return list(self._records.values())
+        return list(self.root)
 
     def add(self, record: InformationRecord | dict) -> InformationRecord:
-        """Validate and insert one record; never overwrite an existing ID."""
         record = InformationRecord.model_validate(record)
-        if record.id in self._records:
-            raise ValueError(f"Duplicate information record ID: {record.id}")
-        self._records[record.id] = record
+        self.root = (*self.root, record)
         return record
 
     def get(self, record_id: str) -> InformationRecord:
-        try:
-            return self._records[record_id]
-        except KeyError:
-            raise KeyError(f"Unknown information record: {record_id}") from None
+        for record in self.root:
+            if record.id == record_id:
+                return record
+        raise KeyError(f"Unknown information record: {record_id}")
 
     def candidates(self, variable_path: str) -> list[InformationRecord]:
-        """Return all alternatives, highest trust first, then record ID for ties."""
         return sorted(
-            (
-                record
-                for record in self._records.values()
-                if record.variable_path == variable_path
-            ),
+            (record for record in self.root if record.variable_path == variable_path),
             key=lambda record: (-record.trust_rank, record.id),
         )

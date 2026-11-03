@@ -43,7 +43,7 @@ def library_for(tmp_path, *definitions):
 def build_pipe(tmp_path, definition=None, **kwargs):
     definition = definition or pipe_definition()
     return build_model(
-        definition["id"], {"model": definition["id"], "relationship": "pass_through"},
+        definition["id"], {"relationship": "pass_through"},
         library=library_for(tmp_path, definition), **kwargs,
     )
 
@@ -51,7 +51,7 @@ def build_pipe(tmp_path, definition=None, **kwargs):
 def test_time_indexed_pipe_and_required_input_family(tmp_path):
     definition = pipe_definition()
     library = library_for(tmp_path, definition)
-    selection = {"model": "indexed_pipe", "relationship": "pass_through"}
+    selection = {"relationship": "pass_through"}
     m = build_model("indexed_pipe", selection, library=library,
                     domain_values={"time": [0, 10, 30]})
     b = m.fs.root
@@ -108,7 +108,7 @@ def hierarchy():
             "outlet": {"from": "pipe.outlet", "to": "outlet"},
         },
     }}
-    selection = {"model": "network", "relationship": "network", "submodels": {
+    selection = {"relationship": "network", "submodels": {
         "pipe": {"relationship": "pass_through"},
     }}
     return parent, child, selection
@@ -236,7 +236,7 @@ def test_local_discrete_domains_are_owned_by_each_occurrence(tmp_path):
     parent = {"id": "parent", "structs": {}, "relationships": {"pair": {
         "models": {"a": {"model": "local"}, "b": {"model": "local"}},
     }}}
-    selection = {"model": "parent", "relationship": "pair", "submodels": {
+    selection = {"relationship": "pair", "submodels": {
         "a": {"relationship": "empty"}, "b": {"relationship": "empty"},
     }}
     library = library_for(tmp_path, parent, child)

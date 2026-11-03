@@ -1,5 +1,3 @@
 {
-  "model": "milk_evaporator",
-  "relationship": "aggregate",
-  "submodels": {}
+  "relationship": "aggregate"
 }

@@ -13,7 +13,7 @@ EXAMPLES = Path(__file__).parents[1] / "examples/model_language"
 
 
 def test_leaf_requires_all_inputs_and_no_outputs(capsys):
-    selection = ImplementationDocument(model="valve", relationship="isenthalpic")
+    selection = ImplementationDocument(relationship="isenthalpic")
     required = required_inputs("valve", selection)
     assert set(required) == {
         "inlet.flow",
@@ -114,8 +114,6 @@ def test_only_selected_relationships_are_traversed():
         "missing_child",
         "extra_child",
         "unknown_relationship",
-        "wrong_child_model",
-        "wrong_root",
     ],
 )
 def test_invalid_implementations_do_not_produce_incomplete_lists(change):
@@ -128,10 +126,6 @@ def test_invalid_implementations_do_not_produce_incomplete_lists(change):
         selection.submodels["other"] = selection.submodels["states"]
     elif change == "unknown_relationship":
         selection.relationship = "absent"
-    elif change == "wrong_child_model":
-        selection.submodels["states"].model = "valve"
-    else:
-        selection.model = "valve"
     with pytest.raises(ValueError):
         required_inputs("water_property_pair", selection)
 
@@ -166,6 +160,6 @@ def test_dictionary_input_and_file_output():
 
     output = StringIO()
     print_required_inputs(
-        "valve", {"model": "valve", "relationship": "isenthalpic"}, file=output
+        "valve", {"relationship": "isenthalpic"}, file=output
     )
     assert "parameters.pressure_drop [Pa]" in output.getvalue()

@@ -24,14 +24,14 @@ model identities: references use the `id` declared inside a model document.
 | Model occurrence | One use of a definition at a particular hierarchy path; separate occurrences create separate numerical variables. | Context carried by `ModelView` |
 | Model library | Collection of model documents indexed by model ID, plus registered symbolic providers. | `Library` |
 | Model view | Navigable definition in a reference and generic-argument context. Exposes all relationship alternatives, without selecting one or building numerical objects. | `ModelView` / `RelationshipView` |
-| Implementation document | Recursive relationship choices identifying a root model and exactly the children of each selected relationship. Contains no operating values. | `ImplementationDocument`, containing `ImplementationSelection` entries |
-| Implementation | Selected model hierarchy obtained by interpreting an implementation document against a model library. One relationship participates per occurrence. | Traversed by the builder and requirement queries; no standalone class yet |
+| Implementation document | Recursive relationship choices for a separately supplied root model and exactly the children of each selected relationship. Contains no model IDs or operating values. | `ImplementationDocument`, containing `ImplementationSelection` entries |
+| Implementation | Selected model hierarchy obtained by interpreting an implementation document against a model library. One relationship participates per occurrence. | Shared internal traversal used by the builder and requirement queries; no separate public class |
 | Information record | One observation, equipment specification, parameter, setpoint or assumption, with variable path, value(s), units, trust rank and optional uncertainty. | `InformationRecord` |
 | Information table | Collection of available records for an operating case, retaining alternative records for the same variable. | Contents of `InformationDocument` |
 | Information document | Portable representation of an information table; the JSON format is an array of records. | `InformationDocument` |
 | Quantity of interest / prediction target | Variable whose value an analysis aims to predict. | Variable path |
 | Quantity-of-interest document | Prediction target paths, without target values or accuracy thresholds. | Proposed JSON shape: `{"quantities": [{"variable_path": "..."}]}`; no typed class yet |
-| Specification document | List of variable paths and chosen information-record IDs. Each entry fixes a variable family to the referenced central values; context and diagnostics are separate. | `SpecificationDocument`, containing `SpecificationEntry` entries; `apply_specification()` |
+| Specification document | List of chosen information-record IDs; variable paths come from those records. Each entry fixes a variable family to the referenced central values; context and diagnostics are separate. | `SpecificationDocument` with a `specifications` array of ID strings; `apply_specification()` |
 | Specification plan | The decisions contained in a specification document; not a separate document type. | Same conceptual artifact as the specification document |
 | Numerical instance | Live numerical equation system for an implementation with its specifications applied. Construction alone may leave it unspecified. | Pyomo `ConcreteModel` with IDAES `FlowsheetBlock`; no instance-document class |
 | Solve result | Outputs, solver status and provenance from one solve attempt, distinct from structural specification status. | No model-language result type yet |
@@ -40,7 +40,7 @@ model identities: references use the `id` declared inside a model document.
 
 ```text
 Model documents + Implementation document
-    → Implementation
+    → Implementation (root model supplied separately)
 
 Implementation + Information document + Quantity-of-interest document
     → Specification document
@@ -72,8 +72,7 @@ for the proposed algorithms and audit contents.
 
 ## Python API naming changes
 
-The document JSON shapes and model IDs are unchanged. Python imports use the
-following names (old names are not retained as aliases):
+Python imports use the following names (old names are not retained as aliases):
 
 | Previous name | Current name |
 | --- | --- |
@@ -87,3 +86,15 @@ These current types are also available from `multifidelity.model_language`.
 `ImplementationSelection` remains the name for nested selection entries.
 `Library.resolve()` remains the reference-navigation operation and returns a
 `ModelView`; it does not select an implementation.
+
+## Current document shapes
+
+- Model document: a Pydantic object containing the reusable definition and its `id`.
+- Implementation document: a Pydantic object with `relationship` and optional
+  recursive `submodels`. No model IDs; the root is supplied to the operation.
+- Information document: a Pydantic array of `InformationRecord` objects.
+- Specification document: a Pydantic object with `specifications`, an array of
+  selected information-record ID strings. No separate entry wrapper type.
+
+All support Pydantic validation/serialization plus `from_json()` and `load_json()`.
+`get_variable(model, path)` provides public access to numerical variable families.

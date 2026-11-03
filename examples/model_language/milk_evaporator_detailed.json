@@ -1,22 +1,17 @@
 {
-  "model": "milk_evaporator",
   "relationship": "detailed",
   "submodels": {
     "valve": {
-      "relationship": "isenthalpic",
-      "submodels": {}
+      "relationship": "isenthalpic"
     },
     "heat_exchanger": {
-      "relationship": "lumped",
-      "submodels": {}
+      "relationship": "lumped"
     },
     "separator": {
-      "relationship": "split",
-      "submodels": {}
+      "relationship": "split"
     },
     "translator": {
-      "relationship": "identity",
-      "submodels": {}
+      "relationship": "identity"
     },
     "mvr": {
       "relationship": "isentropic",
@@ -25,8 +20,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -34,8 +28,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         },
@@ -43,8 +36,7 @@
           "relationship": "constant_properties",
           "submodels": {
             "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+              "relationship": "constant_properties"
             }
           }
         }
