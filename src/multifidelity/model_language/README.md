@@ -5,8 +5,8 @@ for recursive multifidelity modelling. It builds a selected equation hierarchy
 inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constraints.
 The builder does not solve or set initial guesses. Specification documents can
 be applied separately to fix values from an information document.
-An optional `initial_values` argument fixes explicitly supplied initial entries;
-ordinary operating inputs remain free until specified by the caller.
+Construction leaves all public variables free and without values. Operating
+specifications and initial conditions are both applied through `apply_specification()`.
 Here "build" means creating Python modelling objects, not numerical initialization.
 
 Relationships can also use registered Python providers to construct symbolic
@@ -179,8 +179,7 @@ A model contains `id`, optional `description`, `structs`, and `relationships`:
 
 Variable declarations support `unit` (default `dimensionless`), `value_type`
 (currently only `real`) and `bounds: {"min": ..., "max": ...}`. Bounds are numerical
-values in the declared unit. Without optional initial specifications, all
-variables start free and without values.
+values in the declared unit. All variables start free and without values during construction.
 Variables may declare ordered named `dimensions`; see indexed models below.
 Input/output describes struct direction, not fixed/free solver status. No default
 values, automatic input fixation, or permanent input/output role on variables is
@@ -410,41 +409,59 @@ relation determines. Families with other dimensions need a starting profile.
 It describes specification requirements, not DAE index or numerical solvability.
 
 Initial values belong to instance data, not model definitions or implementation
-selections. Initial-only selectors are separate from the whole-family
-specification document; pass the initial-value list to the builder explicitly:
+selections. They are selected by the `initial_values` list of a specification
+document, alongside ordinary `specifications`. Both lists contain information-record
+IDs; paths, values, units and uncertainty stay in the information document.
 
 ```python
-from multifidelity.model_language import build_model, required_initial_values
+from pathlib import Path
+from multifidelity.model_language import (
+    build_model, required_initial_values, InformationDocument,
+    SpecificationDocument, apply_specification,
+)
+from pyomo.environ import TransformationFactory
 
 selection = {"relationship": "mixed"}
 print(required_initial_values("tank", selection).keys())
 # inventory.energy, inventory.level
-
 model = build_model(
-    "tank", selection,
-    mode="dynamic",
-    domain_values={"time": [0, 1000]},
-    initial_values=[
-        {"variable_path": "inventory.level", "value": 1, "unit": "m"},
-        {"variable_path": "inventory.energy", "value": 125400000, "unit": "J"},
-    ],
+    "tank", selection, mode="dynamic", domain_values={"time": [0, 1000]},
 )
+TransformationFactory("dae.finite_difference").apply_to(
+    model, wrt=model.fs.time, nfe=100, scheme="BACKWARD",
+)
+folder = Path("examples/dynamic_tank")
+information = InformationDocument.load_json(folder / "information.json")
+specification = SpecificationDocument.load_json(folder / "specification.json")
+apply_specification(model, specification, information)
 ```
 
-Each entry fixes only the first time point. An omitted `unit` uses the variable's
-declared unit. Optional `at` selectors address non-time dimensions; for example,
-`"at": {"cells": 2}` selects one cell. Without selectors the value is uniform
-over all other axes. Overlaps, invalid selectors, nonfinite values, incompatible
-units, and bound violations are rejected before any initial entries are fixed.
-Paths use child aliases but omit the root model ID, like `required_inputs()`.
+`specifications` fixes whole variable families; `initial_values` fixes only the
+first time point (`model.fs.time.first()`, which need not be zero). Initial entries
+require a dynamic model and a variable indexed by its time domain. A constant
+record broadcasts over the non-time dimensions at that first time point. A series
+record supplies an initial profile with a shape matching only the non-time axes,
+in their declared order. For dimensions `[cells, time]`, an initial series `[1, 3]`
+supplies two cells at the initial time; it is not a full time trajectory.
 
-Initial values are optional during construction: a caller can apply them later
-through Pyomo. The builder does not solve initialization or require that every
-default initial output be fixed. An alternative set, such as initial level and
-temperature instead of level and energy, can determine the starting state through
-the physical equations. Checking independence and solving for consistent values
-remain the caller's responsibility. Initial values passed in steady mode are an
-error; steady operating specifications are applied separately.
+Both lists are validated together before any values are fixed. Duplicate record
+IDs, different records targeting the same variable, existing fixations, incompatible
+units, shape errors and bound violations are rejected atomically. Initial conditions
+may also be applied before discretization when the initial profile grid is final;
+new time points remain free. Apply whole-time series after finalizing the time grid.
+
+The builder never fixes values and no longer accepts `initial_values`. The old
+`InitialValue` / `apply_initial_values` format and its optional `at` selectors are
+removed. Information records require an explicit unit. Use an array-valued record
+for a full initial profile rather than separate sparse cell selectors.
+
+The application API does not require every default initial output to be fixed.
+An alternative set, such as initial level and temperature instead of level and
+energy, can determine the starting state through the physical equations. Checking
+independence and solving for consistent initial conditions remain the caller's
+responsibility. Solver initial guesses remain separate, free-variable values.
+Steady models reject the `initial_values` list; use ordinary `specifications` for
+steady operating conditions.
 
 For differentiation, backward differences leave the first rate outside the
 discretization equations. Its supplied initial value closes that endpoint; other
@@ -485,8 +502,10 @@ snapshots and adaptive integration internally; IPOPT uses 100 backward-differenc
 elements. Both require IPOPT for this example; the second also requires the
 IDAES PETSc executable. The physical equations and initial-state calculations
 remain in the JSON model. Python supplies numerical settings and specifications.
-The initial-value list is saved separately in
-`examples/dynamic_tank/initial_values.json`.
+The example stores evidence in `examples/dynamic_tank/information.json` and
+selects operating values and initial conditions in `specification.json`.
+`steady_specification.json` selects the steady operating conditions. The script
+applies specifications after discretization and sets solver guesses separately.
 
 A relationship's `models` maps local aliases to definitions:
 
@@ -1219,14 +1238,13 @@ not built by `build_model()` raise `ValueError`.
 
 ## Specification documents
 
-A `SpecificationDocument` contains only a `specifications` array of record IDs.
-Each ID means “fix the variable family named by this information record”:
+A `SpecificationDocument` has two optional arrays of information-record IDs.
+Both default to empty; existing documents with only `specifications` remain valid:
 
 ```json
 {
-  "specifications": [
-    "pressure_measurement"
-  ]
+  "specifications": ["inlet_flow", "inlet_temperature", "tank_area"],
+  "initial_values": ["starting_level", "starting_energy"]
 }
 ```
 
@@ -1235,8 +1253,10 @@ unused-information records. The model instance and information table are passed
 separately. Each entry is an information-record ID string; the selected
 record supplies its `variable_path`, value and unit. Paths in information records
 are root-relative, such as `inlet.pressure` or `heat_pump.compressor.inlet.pressure`,
-and name whole variable families without index selectors. Duplicate record IDs
-and different records targeting the same variable are rejected. Declared outputs
+and name variable families without index selectors. `specifications` fixes the
+whole family; `initial_values` fixes only the initial time slice. Duplicate record
+IDs and different records targeting the same variable, including across the two
+lists, are rejected. Declared outputs
 can also be specified.
 
 ```python
@@ -1262,10 +1282,11 @@ before fixing any variable. It updates the model in place and returns `None`. A 
 unchanged. Existing fixations are rejected, even if equal; applying a new document
 does not silently replace an earlier specification or an initial condition.
 
-Constants broadcast over a variable's current grid; series must match its ordered
-index-domain product exactly. Scalar variables are supported. Finalize dynamic
-and spatial grids before applying a document. There is no automatic interpolation,
-per-point selection or reapplication after discretization.
+For ordinary specifications, constants broadcast over the current grid and series
+must match the full ordered domain product. Initial values instead use the first
+time slice and series match the non-time dimensions. Scalar variables support
+ordinary specifications but cannot have initial values. Finalize grids before
+application; there is no automatic interpolation or reapplication after discretization.
 
 Selected central values are fixed even for uncertain records. The source records,
 including uncertainty and trust rank, remain unchanged. The API does not rank

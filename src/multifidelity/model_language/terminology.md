@@ -31,8 +31,9 @@ model identities: references use the `id` declared inside a model document.
 | Information document | Portable representation of an information table; the JSON format is an array of records. | `InformationDocument` |
 | Quantity of interest / prediction target | Variable whose value an analysis aims to predict. | Variable path |
 | Quantity-of-interest document | Prediction target paths, without target values or accuracy thresholds. | Proposed JSON shape: `{"quantities": [{"variable_path": "..."}]}`; no typed class yet |
-| Specification document | List of chosen information-record IDs; variable paths come from those records. Each entry fixes a variable family to the referenced central values; context and diagnostics are separate. | `SpecificationDocument` with a `specifications` array of ID strings; `apply_specification()` |
+| Specification document | Chosen information-record IDs in `specifications` (whole families) and `initial_values` (first time slice). Records own paths and values; context and diagnostics are separate. | `SpecificationDocument` with two arrays of ID strings; `apply_specification()` |
 | Specification plan | The decisions contained in a specification document; not a separate document type. | Same conceptual artifact as the specification document |
+| Initial condition | A fixed value or profile at the first time point, selected through `initial_values`; distinct from an unfixed solver initial guess. | Applied by `apply_specification()` |
 | Numerical instance | Live numerical equation system for an implementation with its specifications applied. Construction alone may leave it unspecified. | Pyomo `ConcreteModel` with IDAES `FlowsheetBlock`; no instance-document class |
 | Solve result | Outputs, solver status and provenance from one solve attempt, distinct from structural specification status. | No model-language result type yet |
 
@@ -94,7 +95,8 @@ These current types are also available from `multifidelity.model_language`.
   recursive `submodels`. No model IDs; the root is supplied to the operation.
 - Information document: a Pydantic array of `InformationRecord` objects.
 - Specification document: a Pydantic object with `specifications`, an array of
-  selected information-record ID strings. No separate entry wrapper type.
+  selected information-record ID strings, plus `initial_values` for initial conditions.
+  Both arrays default to empty. No separate entry wrapper type.
 
 All support Pydantic validation/serialization plus `from_json()` and `load_json()`.
 `get_variable(model, path)` provides public access to numerical variable families.

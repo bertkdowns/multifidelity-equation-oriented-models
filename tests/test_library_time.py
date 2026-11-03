@@ -8,7 +8,7 @@ import pyomo.environ as pyo
 from pyomo.core.expr.visitor import identify_variables
 from pyomo.util.check_units import assert_units_consistent
 
-from multifidelity.model_language import Library, build_model, register_standard_providers, required_inputs
+from multifidelity.model_language import Library, build_model, register_standard_providers, required_inputs, InformationDocument, apply_specification
 
 EXAMPLES = Path(__file__).parents[1] / 'examples/model_language'
 SELECTIONS = sorted(p for p in EXAMPLES.glob('*.json') if p.name != 'milk_evaporator_aggregate.json')
@@ -145,8 +145,11 @@ def test_dynamic_map_drives_energy_accumulator(tmp_path, solver):
     register_standard_providers(library)
     m = build_model('meter', {'relationship': 'metered',
                               'submodels': {'map': {'relationship': 'cooling_60rps'}}},
-                    library=library, mode='dynamic', domain_values={'time': [0, 10]},
-                    initial_values=[{'variable_path': 'inventory.energy', 'value': 0}])
+                    library=library, mode='dynamic', domain_values={'time': [0, 10]})
+    apply_specification(m, {'initial_values': ['starting_energy']}, InformationDocument([{
+        'id': 'starting_energy', 'tag': 'starting_energy', 'information_type': 'assumption',
+        'trust_rank': 5, 'variable_path': 'inventory.energy', 'value': 0, 'unit': 'J',
+    }]))
     pyo.TransformationFactory('dae.finite_difference').apply_to(
         m, wrt=m.fs.time, nfe=2, scheme='BACKWARD',
     )

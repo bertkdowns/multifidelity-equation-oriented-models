@@ -11,13 +11,31 @@ import pyomo.environ as pyo
 from pyomo.core.base.units_container import UnitsError
 from pyomo.util.check_units import assert_units_consistent
 
-from examples.dynamic_tank.run import fix_inputs, make_tank, simulate
+from examples.dynamic_tank.run import specify_tank, set_initial_guesses, make_tank, simulate
 from multifidelity.model_language import (
     Library, build_model, required_initial_values, required_inputs,
+    InformationDocument, apply_specification, get_variable,
 )
 from multifidelity.model_language.definitions import ModelDocument
 
 TANK_SELECTION = {"relationship": "mixed"}
+
+
+def with_initial_values(model, entries):
+    """Test convenience: create information records and apply their IDs."""
+    records = []
+    for index, entry in enumerate(entries):
+        path = entry["variable_path"]
+        unit = entry.get("unit", str(pyo.units.get_units(get_variable(model, path))))
+        records.append({
+            "id": f"initial_{index}", "tag": f"initial_{index}",
+            "information_type": "assumption", "trust_rank": 5,
+            **entry, "unit": unit,
+        })
+    information = InformationDocument(records)
+    apply_specification(model, {"initial_values": [r.id for r in information.records]}, information)
+    return model
+
 
 
 def integration_definition(*, differentiate=False):
@@ -65,6 +83,9 @@ def test_tank_construction_and_specification_discovery():
     assert len(derivatives) == 2
     assert derivatives[0].get_state_var() is m.fs.root.structs.inventory.level
     b = m.fs.root.structs
+    assert not b.inventory.level[0].fixed
+    assert not b.inventory.energy[0].fixed
+    specify_tank(m)
     assert b.inventory.level[0].fixed
     assert b.inventory.energy[0].fixed
     assert not b.inventory.level[1000].fixed
@@ -89,6 +110,7 @@ def test_discretization_expands_every_equation_and_preserves_units():
 
 def test_tank_steady_rebuild_has_zero_rates_and_no_initial_fixes():
     dynamic = make_tank()
+    specify_tank(dynamic)
     steady = make_tank(mode='steady')
     assert not isinstance(steady.fs.time, ContinuousSet)
     assert not list(steady.component_objects(DerivativeVar))
@@ -118,7 +140,8 @@ def test_filling_tank_conserves_mass_and_energy(solver):
     pyo.TransformationFactory('dae.finite_difference').apply_to(
         m, wrt=m.fs.time, nfe=10, scheme='BACKWARD',
     )
-    fix_inputs(m, inflow=1.2, outflow=0.8, loss=1000)
+    specify_tank(m, inflow=1.2, outflow=0.8, loss=1000)
+    set_initial_guesses(m, outflow=0.8)
     pyo.assert_optimal_termination(solver.solve(m))
     b = m.fs.root.structs
     energy = 125400000
@@ -131,7 +154,8 @@ def test_filling_tank_conserves_mass_and_energy(solver):
 
 def test_tank_steady_solve_calculates_withdrawal_and_temperature(solver):
     m = make_tank(mode='steady')
-    fix_inputs(m, steady=True, loss=4180)
+    specify_tank(m, loss=4180)
+    set_initial_guesses(m)
     pyo.assert_optimal_termination(solver.solve(m))
     b = m.fs.root.structs
     assert pyo.value(b.withdrawal.flow[0]) == pytest.approx(1)
@@ -140,12 +164,11 @@ def test_tank_steady_solve_calculates_withdrawal_and_temperature(solver):
 
 
 def test_initial_temperature_can_replace_energy(solver):
-    m = build_model('tank', TANK_SELECTION, mode='dynamic', domain_values={'time': [0, 100]},
-                    initial_values=[
+    m = with_initial_values(build_model('tank', TANK_SELECTION, mode='dynamic', domain_values={'time': [0, 100]}), [
                         {'variable_path': 'inventory.level', 'value': 1},
                         {'variable_path': 'inventory.temperature', 'value': 303.15, 'unit': 'K'},
                     ])
-    simulate(m, nfe=10)
+    simulate(m, nfe=10, initial_values=[])
     assert not m.fs.root.structs.inventory.energy[0].fixed
     assert pyo.value(m.fs.root.structs.inventory.energy[0]) == pytest.approx(125400000)
 
@@ -170,8 +193,8 @@ def test_tank_petsc_integration(solver):
 def test_time_and_rate_unit_scaling(tmp_path, solver, time_unit, rate_unit, rate_value, horizon):
     definition = integration_definition()
     definition['structs']['signal']['variables']['rate']['unit'] = rate_unit
-    m = build_integrator(tmp_path, definition, mode='dynamic', time_unit=time_unit,
-                         domain_values={'time': [0, horizon]}, initial_values=[
+    m = with_initial_values(build_integrator(tmp_path, definition, mode='dynamic', time_unit=time_unit,
+                         domain_values={'time': [0, horizon]}), [
                              {'variable_path': 'state.level', 'value': 100, 'unit': 'cm'},
                          ])
     pyo.TransformationFactory('dae.finite_difference').apply_to(
@@ -188,8 +211,7 @@ def test_differentiation_direction_and_uncovered_endpoint(tmp_path, solver):
     library = make_library(tmp_path, definition)
     selection = {'relationship': 'integrate'}
     assert set(required_initial_values('integrator', selection, library=library)) == {'signal.rate'}
-    m = build_integrator(tmp_path, definition, mode='dynamic', domain_values={'time': [0, 10]},
-                         initial_values=[{'variable_path': 'signal.rate', 'value': 7}])
+    m = with_initial_values(build_integrator(tmp_path, definition, mode='dynamic', domain_values={'time': [0, 10]}), [{'variable_path': 'signal.rate', 'value': 7}])
     pyo.TransformationFactory('dae.finite_difference').apply_to(
         m, wrt=m.fs.time, nfe=5, scheme='BACKWARD',
     )
@@ -256,35 +278,22 @@ def test_missing_evolution_fails_output_coverage(tmp_path):
     ({'mode': 'unknown'}, 'mode must be'),
     ({'mode': 'dynamic'}, 'at least two time points'),
     ({'mode': 'dynamic', 'domain_values': {'time': [0]}}, 'at least two time points'),
-    ({'initial_values': [{'variable_path': 'state.level', 'value': 1}]}, 'only in dynamic mode'),
 ])
 def test_run_mode_validation(tmp_path, kwargs, message):
     with pytest.raises(ValueError, match=message):
         build_integrator(tmp_path, **kwargs)
 
 
-@pytest.mark.parametrize('spec,message', [
-    ({'variable_path': 'missing.level', 'value': 1}, 'Unknown initial variable'),
-    ({'variable_path': 'state.level', 'value': 1, 'at': {'time': 0}}, 'non-time dimensions'),
-    ({'variable_path': 'state.level', 'value': 1, 'at': {'missing': 0}}, 'non-time dimensions'),
-])
-def test_initial_specification_validation(tmp_path, spec, message):
-    with pytest.raises(ValueError, match=message):
-        build_integrator(tmp_path, mode='dynamic', domain_values={'time': [0, 1]},
-                         initial_values=[spec])
-
 
 def test_initial_values_are_optional_during_construction_and_overlap_is_rejected(tmp_path):
     m = build_integrator(tmp_path, mode='dynamic', domain_values={'time': [0, 1]})
     assert not m.fs.root.structs.state.level[0].fixed
     spec = {'variable_path': 'state.level', 'value': 1}
-    with pytest.raises(ValueError, match='Overlapping'):
-        build_integrator(tmp_path, mode='dynamic', domain_values={'time': [0, 1]},
-                         initial_values=[spec, spec])
+    with pytest.raises(ValueError, match='Multiple information records'):
+        with_initial_values(build_integrator(tmp_path, mode='dynamic', domain_values={'time': [0, 1]}), [spec, spec])
     spec['value'] = float('nan')
     with pytest.raises(ValidationError):
-        build_integrator(tmp_path, mode='dynamic', domain_values={'time': [0, 1]},
-                         initial_values=[spec])
+        with_initial_values(build_integrator(tmp_path, mode='dynamic', domain_values={'time': [0, 1]}), [spec])
 
 
 def test_bundled_tank_round_trips():
@@ -297,11 +306,10 @@ def test_initial_profiles_with_time_as_second_axis(tmp_path, solver):
     d['domains']['cells'] = {'kind': 'discrete'}
     for struct in d['structs'].values():
         next(iter(struct['variables'].values()))['dimensions'] = ['cells', 'time']
-    m = build_integrator(tmp_path, d, mode='dynamic', domain_values={
+    m = with_initial_values(build_integrator(tmp_path, d, mode='dynamic', domain_values={
         'time': [0, 10], 'cells': ['a', 'b'],
-    }, initial_values=[
-        {'variable_path': 'state.level', 'at': {'cells': 'a'}, 'value': 1},
-        {'variable_path': 'state.level', 'at': {'cells': 'b'}, 'value': 3},
+    }), [
+        {'variable_path': 'state.level', 'type': 'series', 'value': [1, 3]},
     ])
     pyo.TransformationFactory('dae.finite_difference').apply_to(
         m, wrt=m.fs.time, nfe=2, scheme='BACKWARD',
@@ -333,8 +341,8 @@ def test_nested_derivative_and_initial_paths(tmp_path):
     assert set(required_initial_values('parent', selection, library=library)) == {
         'integrator.state.level',
     }
-    m = build_model('parent', selection, library=library, mode='dynamic',
-                    domain_values={'time': [0, 10]}, initial_values=[
+    m = with_initial_values(build_model('parent', selection, library=library, mode='dynamic',
+                    domain_values={'time': [0, 10]}), [
                         {'variable_path': 'integrator.state.level', 'value': 2},
                     ])
     nested = m.fs.root.relationship.models.integrator
@@ -353,11 +361,9 @@ def test_nested_derivative_and_initial_paths(tmp_path):
 ])
 def test_invalid_tank_initial_values(spec, message):
     with pytest.raises(ValueError, match=message):
-        build_model('tank', TANK_SELECTION, mode='dynamic', domain_values={'time': [0, 1]},
-                    initial_values=[spec])
+        with_initial_values(build_model('tank', TANK_SELECTION, mode='dynamic', domain_values={'time': [0, 1]}), [spec])
 
 
 def test_incompatible_initial_units(tmp_path):
-    with pytest.raises(UnitsError):
-        build_integrator(tmp_path, mode='dynamic', domain_values={'time': [0, 1]},
-                         initial_values=[{'variable_path': 'state.level', 'value': 1, 'unit': 'kg'}])
+    with pytest.raises(ValueError, match="state.level"):
+        with_initial_values(build_integrator(tmp_path, mode='dynamic', domain_values={'time': [0, 1]}), [{'variable_path': 'state.level', 'value': 1, 'unit': 'kg'}])

@@ -16,7 +16,7 @@ from .resolution import Library
 from ._validation import connection_endpoints
 from ._traversal import _walk_implementation
 from .domains import BuildDomains
-from .dynamics import apply_initial_values, build_derivatives
+from .dynamics import build_derivatives
 from .indexing import dotted_name, variable_dimensions
 
 
@@ -116,13 +116,13 @@ def _expression(text, resolve, indices=None, index_domains=None):
 
 
 def build_model(model_id, implementation, *, library=None, domain_values=None,
-                mode="steady", time_unit="s", initial_values=None):
+                mode="steady", time_unit="s"):
     """Construct a steady or dynamic tree without solving or fixing operating inputs.
 
     implementation is an ImplementationDocument, dict or JSON file path. Every selected relationship must
     specify exactly its declared submodels, recursively. Recursive definitions
-    are permitted only when the supplied selection terminates. Optional initial
-    specifications fix only entries at the first time point in dynamic mode.
+    are permitted only when the supplied selection terminates. All values and
+    fixations, including initial conditions, are applied separately.
     """
     library = library or Library()
     root = library.resolve(model_id)
@@ -133,8 +133,6 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
 
     time_units = parse_unit(time_unit)
     units.convert(1 * time_units, to_units=units.s)
-    if mode == "steady" and initial_values:
-        raise ValueError("Initial values apply only in dynamic mode; specify steady variables separately")
 
     model = ConcreteModel()
     model.fs = FlowsheetBlock(dynamic=mode == "dynamic", time_set=build_domains.time_points,
@@ -183,7 +181,7 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                 var = Var(*sets, bounds=(variable.bounds.min, variable.bounds.max), units=unit)
                 struct_block.add_component(variable_id, var)
                 variables[f"{struct_id}.{variable_id}"] = var
-                registry[occurrence.prefix + f"{struct_id}.{variable_id}"] = (var, variable, domains)
+                registry[occurrence.prefix + f"{struct_id}.{variable_id}"] = var
         block.relationship = Block()
         active = block.relationship
         external = relationship.definition.external
@@ -306,9 +304,7 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     build_domains.check_unused()
     # Check the complete equation tree without fixing values or calling a solver.
     assert_units_consistent(model)
-    if initial_values:
-        apply_initial_values(registry, model.fs.time, initial_values, parse_unit)
     # Retain the same occurrence-path lookup for later specification application.
     # Components stay live as discretization adds entries to indexed variables.
-    model._model_language_variables = {path: item[0] for path, item in registry.items()}
+    model._model_language_variables = registry
     return model

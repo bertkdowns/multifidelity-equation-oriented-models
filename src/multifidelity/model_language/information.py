@@ -105,15 +105,23 @@ class InformationRecord(BaseModel):
         dimension order. Values remain in the record's unit; this operation
         neither checks physical applicability nor converts units.
         """
-        if not variable.is_indexed():
-            self.validate_shape(())
-            return {None: cast(float, self.value)}
         if self.type == "constant":
-            return {key: cast(float, self.value) for key in variable.index_set()}
-        domains = list(variable.index_set().subsets())
+            keys = variable.index_set() if variable.is_indexed() else [None]
+            return {key: cast(float, self.value) for key in keys}
+        domains = list(variable.index_set().subsets()) if variable.is_indexed() else []
+        return self._values_for_domains(domains)
+
+    def _values_for_domains(self, domains):
+        """Map values over full domains or a caller-selected initial slice."""
         if any(not domain.isordered() or domain.dimen != 1 for domain in domains):
-            raise ValueError("Information arrays require ordered one-dimensional index domains")
+            if self.type == "series":
+                raise ValueError("Information arrays require ordered one-dimensional index domains")
         self.validate_shape(len(domain) for domain in domains)
+        if self.type == "constant":
+            return {
+                (None if not index else index[0] if len(index) == 1 else index): cast(float, self.value)
+                for index in product(*domains)
+            }
 
         def entries(value):
             if isinstance(value, tuple):
@@ -122,7 +130,8 @@ class InformationRecord(BaseModel):
             else:
                 yield value
 
-        keys = (index[0] if len(index) == 1 else index for index in product(*domains))
+        keys = (None if not index else index[0] if len(index) == 1 else index
+                for index in product(*domains))
         return dict(zip(keys, entries(self.value), strict=True))
 
 

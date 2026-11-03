@@ -35,7 +35,7 @@ def document(record_id="reading"):
 def test_document_round_trip_and_minimal_shape():
     spec = SpecificationDocument.load_json(EXAMPLE / "specification.json")
     assert SpecificationDocument.from_json(spec.model_dump_json()) == spec
-    assert set(spec.model_dump()) == {"specifications"}
+    assert set(spec.model_dump()) == {"specifications", "initial_values"}
     assert spec.specifications[0] == "inlet_flow"
     with pytest.raises(ValidationError):
         spec.specifications = ("other",)
@@ -43,7 +43,6 @@ def test_document_round_trip_and_minimal_shape():
 
 
 @pytest.mark.parametrize("data", [
-    {},
     {"specifications": [{"variable_path": "inlet.pressure"}]},
     {"specifications": [{"variable_path": "", "information_record_id": "reading"}]},
     {"specifications": [{"information_record_id": ""}]},
@@ -253,3 +252,134 @@ def test_public_variable_lookup_returns_live_families_and_checks_context():
         get_variable(model, "missing.pressure")
     with pytest.raises(ValueError, match="constructed by"):
         get_variable(ConcreteModel(), "inlet.pressure")
+
+
+def test_both_lists_default_to_empty_and_round_trip():
+    assert SpecificationDocument().specifications == ()
+    assert SpecificationDocument().initial_values == ()
+    document = SpecificationDocument(initial_values=["start"])
+    assert SpecificationDocument.from_json(document.model_dump_json()) == document
+    assert document.model_dump(mode="json") == {
+        "specifications": [], "initial_values": ["start"],
+    }
+
+
+@pytest.mark.parametrize("data", [
+    {"initial_values": [""]},
+    {"initial_values": [1]},
+    {"initial_values": ["start", "start"]},
+    {"specifications": ["start"], "initial_values": ["start"]},
+])
+def test_invalid_initial_record_selections(data):
+    with pytest.raises(ValidationError):
+        SpecificationDocument.model_validate(data)
+
+
+def dynamic_tank():
+    return build_model("tank", {"relationship": "mixed"}, mode="dynamic",
+                       domain_values={"time": [5, 65]})
+
+
+def test_operating_and_initial_values_apply_together_on_final_grid():
+    model = dynamic_tank()
+    TransformationFactory("dae.finite_difference").apply_to(
+        model, wrt=model.fs.time, nfe=2, scheme="BACKWARD",
+    )
+    table = information("inlet.flow", value=2, unit="kg/s")
+    table.add({**table.get("reading").model_dump(), "id": "start", "tag": "start",
+               "variable_path": "inventory.level", "value": 100, "unit": "cm"})
+    apply_specification(model, {
+        "specifications": ["reading"], "initial_values": ["start"],
+    }, table)
+    assert list(model.fs.time) == [5, 35, 65]
+    assert all(v.fixed and value(v) == 2 for v in get_variable(model, "inlet.flow").values())
+    level = get_variable(model, "inventory.level")
+    assert level[5].fixed and level[5].value == 1
+    assert not level[35].fixed and level[35].value is None
+    assert not level[65].fixed and level[65].value is None
+    assert table.get("start").value == 100
+
+
+@pytest.mark.parametrize("initial_path,initial_unit,initial_value,error", [
+    ("missing.level", "m", 1, "Unknown model variable"),
+    ("parameters.area", "m**2", 1, "time-indexed"),
+    ("inventory.level", "m", -1, "outside variable bounds"),
+    ("inventory.level", "kg", 1, "inventory.level"),
+])
+def test_invalid_initial_value_preserves_operating_values_and_guesses(
+    initial_path, initial_unit, initial_value, error,
+):
+    model = dynamic_tank()
+    flow = get_variable(model, "inlet.flow")
+    flow[5].set_value(42)
+    table = information("inlet.flow", value=2, unit="kg/s")
+    table.add({**table.get("reading").model_dump(), "id": "start", "tag": "start",
+               "variable_path": initial_path, "value": initial_value, "unit": initial_unit})
+    with pytest.raises(ValueError, match=error):
+        apply_specification(model, {
+            "specifications": ["reading"], "initial_values": ["start"],
+        }, table)
+    assert flow[5].value == 42 and not flow[5].fixed
+    assert flow[65].value is None and not flow[65].fixed
+    assert all(not v.fixed for component in model._model_language_variables.values()
+               for v in component.values())
+
+
+def test_initial_values_reject_steady_models_and_overlapping_families():
+    with pytest.raises(ValueError, match="only in dynamic mode"):
+        apply_specification(valve(), {"initial_values": ["reading"]}, information())
+    model = dynamic_tank()
+    table = information("inventory.level", value=1, unit="m")
+    table.add({**table.get("reading").model_dump(), "id": "start", "tag": "start"})
+    with pytest.raises(ValueError, match="Multiple information records"):
+        apply_specification(model, {
+            "specifications": ["reading"], "initial_values": ["start"],
+        }, table)
+    assert all(not v.fixed and v.value is None
+               for v in get_variable(model, "inventory.level").values())
+
+
+@pytest.mark.parametrize("dimensions", [["time", "cells"], ["cells", "time"],
+                                         ["cells", "time", "bands"]])
+@pytest.mark.parametrize("kind", ["constant", "series"])
+def test_initial_profiles_keep_non_time_axes_and_convert_units(dimensions, kind):
+    library = Library()
+    domain_values = {"time": [0, 10], "cells": ["a", "b"]}
+    domains = {"time": {"kind": "time"}, "cells": {"kind": "discrete"}}
+    if "bands" in dimensions:
+        domain_values["bands"] = ["x", "y"]
+        domains["bands"] = {"kind": "discrete"}
+    library.models["profile"] = ModelDocument.model_validate({
+        "id": "profile", "domains": domains, "structs": {
+            "state": {"direction": "input", "variables": {
+                "height": {"unit": "m", "dimensions": dimensions},
+            }},
+        }, "relationships": {"given": {}},
+    })
+    model = build_model("profile", {"relationship": "given"}, library=library,
+                        mode="dynamic", domain_values=domain_values)
+    profile = (100 if kind == "constant" else [[100, 200], [300, 400]]
+               if "bands" in dimensions else [100, 300])
+    table = information("state.height", value=profile, unit="cm", type=kind)
+    apply_specification(model, {"initial_values": ["reading"]}, table)
+    variable = get_variable(model, "state.height")
+    initial_values = []
+    for index, entry in variable.items():
+        if index[dimensions.index("time")] == 0:
+            assert entry.fixed
+            initial_values.append(entry.value)
+        else:
+            assert not entry.fixed and entry.value is None
+    expected = [1] * (4 if "bands" in dimensions else 2) if kind == "constant" else (
+        [1, 2, 3, 4] if "bands" in dimensions else [1, 3]
+    )
+    assert initial_values == expected
+
+
+def test_builder_no_longer_accepts_initial_values_and_leaves_all_values_free():
+    with pytest.raises(TypeError, match="initial_values"):
+        build_model("tank", {"relationship": "mixed"}, initial_values=[])
+    model = dynamic_tank()
+    assert all(not v.fixed and v.value is None
+               for component in model._model_language_variables.values()
+               for v in component.values())

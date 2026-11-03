@@ -16,14 +16,35 @@ class SpecificationDocument(Definition):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    specifications: tuple[Annotated[str, Field(min_length=1)], ...]
+    specifications: tuple[Annotated[str, Field(min_length=1)], ...] = ()
+    initial_values: tuple[Annotated[str, Field(min_length=1)], ...] = ()
 
     @model_validator(mode="after")
     def unique_records(self):
-        ids = self.specifications
+        ids = self.specifications + self.initial_values
         if len(ids) != len(set(ids)):
-            raise ValueError("Each information record may be selected only once")
+            raise ValueError("Each information record may be selected only once across both lists")
         return self
+
+
+def _initial_values_for(record, component, model):
+    """Map a record to the first time point, retaining all other index axes."""
+    if not model.fs.config.dynamic:
+        raise ValueError("Initial values apply only in dynamic mode")
+    domains = list(component.index_set().subsets()) if component.is_indexed() else []
+    time_axes = [axis for axis, domain in enumerate(domains) if domain is model.fs.time]
+    if len(time_axes) != 1:
+        raise ValueError("Initial values require a time-indexed variable")
+    time_axis = time_axes[0]
+    remaining = domains[:time_axis] + domains[time_axis + 1:]
+    values = record._values_for_domains(remaining)
+    result = {}
+    for key, value in values.items():
+        index = [] if not remaining else list(key if len(remaining) > 1 else (key,))
+        index.insert(time_axis, model.fs.time.first())
+        full_key = index[0] if len(index) == 1 else tuple(index)
+        result[full_key] = value
+    return result
 
 
 def _prepare(model, specification, information):
@@ -43,7 +64,9 @@ def _prepare(model, specification, information):
 
     prepared = []
     seen_paths = set()
-    for record_id in specification.specifications:
+    selected = [(record_id, False) for record_id in specification.specifications]
+    selected += [(record_id, True) for record_id in specification.initial_values]
+    for record_id, initial in selected:
         try:
             record = information.get(record_id)
         except KeyError as error:
@@ -56,7 +79,8 @@ def _prepare(model, specification, information):
         try:
             source_unit = _expression(record.unit, lambda name: getattr(units, name))
             target_unit = units.get_units(component)
-            values = record.values_for(component)
+            values = (_initial_values_for(record, component, model) if initial
+                      else record.values_for(component))
             if not values:
                 raise ValueError("variable has no grid entries")
             for index, original in values.items():
@@ -78,11 +102,13 @@ def _prepare(model, specification, information):
 
 
 def apply_specification(model, specification, information) -> None:
-    """Validate the entire document, then fix all selected entries.
+    """Validate both lists, then fix whole families or initial time slices.
 
     Validation failure leaves values and fixed/free statuses unchanged. The
     information document is read only. No solver or initialization is invoked.
     Reapplying to already fixed variables is an error, including equal values.
+    Initial values require dynamic time-indexed variables. Constants broadcast
+    over non-time axes; series give initial profiles in non-time dimension order.
     """
     prepared = _prepare(model, specification, information)
     # Roll back unexpected backend failures as well as preventing partial writes

@@ -1,0 +1,12 @@
+{
+  "specifications": [
+    "tank_area",
+    "density",
+    "heat_capacity",
+    "reference_temperature",
+    "inlet_flow",
+    "inlet_temperature",
+    "heat_loss",
+    "tank_level"
+  ]
+}

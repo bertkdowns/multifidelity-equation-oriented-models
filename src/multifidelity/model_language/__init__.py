@@ -14,12 +14,12 @@ from .standard import register_standard_providers
 
 
 def build_model(model_id, implementation, *, library=None, domain_values=None,
-                mode="steady", time_unit="s", initial_values=None):
+                mode="steady", time_unit="s"):
     """Convert a selected implementation using the Pyomo backend on demand."""
     from .builder import build_model as build
 
     return build(model_id, implementation, library=library, domain_values=domain_values,
-                 mode=mode, time_unit=time_unit, initial_values=initial_values)
+                 mode=mode, time_unit=time_unit)
 
 
 __all__ = [

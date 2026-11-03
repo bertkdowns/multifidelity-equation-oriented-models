@@ -1,0 +1,92 @@
+[
+  {
+    "id": "tank_area",
+    "tag": "tank_area",
+    "information_type": "assumption",
+    "variable_path": "parameters.area",
+    "value": 1,
+    "unit": "m**2",
+    "trust_rank": 5
+  },
+  {
+    "id": "density",
+    "tag": "density",
+    "information_type": "assumption",
+    "variable_path": "parameters.density",
+    "value": 1000,
+    "unit": "kg/m**3",
+    "trust_rank": 5
+  },
+  {
+    "id": "heat_capacity",
+    "tag": "heat_capacity",
+    "information_type": "assumption",
+    "variable_path": "parameters.heat_capacity",
+    "value": 4180,
+    "unit": "J/kg/K",
+    "trust_rank": 5
+  },
+  {
+    "id": "reference_temperature",
+    "tag": "reference_temperature",
+    "information_type": "assumption",
+    "variable_path": "parameters.reference_temperature",
+    "value": 273.15,
+    "unit": "K",
+    "trust_rank": 5
+  },
+  {
+    "id": "inlet_flow",
+    "tag": "inlet_flow",
+    "information_type": "assumption",
+    "variable_path": "inlet.flow",
+    "value": 1,
+    "unit": "kg/s",
+    "trust_rank": 5
+  },
+  {
+    "id": "inlet_temperature",
+    "tag": "inlet_temperature",
+    "information_type": "assumption",
+    "variable_path": "inlet.temperature",
+    "value": 333.15,
+    "unit": "K",
+    "trust_rank": 5
+  },
+  {
+    "id": "heat_loss",
+    "tag": "heat_loss",
+    "information_type": "assumption",
+    "variable_path": "loss.heat",
+    "value": 0,
+    "unit": "W",
+    "trust_rank": 5
+  },
+  {
+    "id": "withdrawal_flow",
+    "tag": "withdrawal_flow",
+    "information_type": "assumption",
+    "variable_path": "withdrawal.flow",
+    "value": 1,
+    "unit": "kg/s",
+    "trust_rank": 5
+  },
+  {
+    "id": "tank_level",
+    "tag": "tank_level",
+    "information_type": "assumption",
+    "variable_path": "inventory.level",
+    "value": 1,
+    "unit": "m",
+    "trust_rank": 5
+  },
+  {
+    "id": "starting_energy",
+    "tag": "starting_energy",
+    "information_type": "assumption",
+    "variable_path": "inventory.energy",
+    "value": 125400000,
+    "unit": "J",
+    "trust_rank": 5
+  }
+]
