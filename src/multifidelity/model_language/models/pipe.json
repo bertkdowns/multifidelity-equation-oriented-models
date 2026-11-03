@@ -95,6 +95,11 @@
           "model": "pipe_holdup",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "FluidProperties"
+            }
           }
         }
       },
@@ -102,32 +107,81 @@
         "feed": {
           "from": "inlet",
           "to": "contents.inlet"
+        },
+        "outlet": {
+          "from": "contents.outlet",
+          "to": "outlet"
         }
       },
-      "constraints": {
-        "flow": {
-          "for_each": {
-            "t": "time"
-          },
-          "lhs": "outlet.flow[t]",
-          "rhs": "inlet.flow[t]",
-          "determines": "outlet.flow[t]"
+      "constraints": {}
+    }
+  },
+  "model_parameters": {
+    "FluidProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
         },
-        "pressure": {
-          "for_each": {
-            "t": "time"
-          },
-          "lhs": "outlet.pressure[t]",
-          "rhs": "inlet.pressure[t]",
-          "determines": "outlet.pressure[t]"
-        },
-        "enthalpy": {
-          "for_each": {
-            "t": "time"
-          },
-          "lhs": "outlet.enthalpy[t]",
-          "rhs": "contents.inventory.enthalpy[t]",
-          "determines": "outlet.enthalpy[t]"
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
         }
       }
     }

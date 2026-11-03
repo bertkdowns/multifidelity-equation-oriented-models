@@ -1,6 +1,6 @@
 {
   "id": "steam_generating_heat_pump_unit",
-  "description": "Three-water-circuit SGHP unit boundary from SGHP P&ID V22: source evaporator, hot-water condenser, warm-water subcooler. Aggregate COP includes both useful heating duties. Cycle reuses the existing captured equipment definitions; water surrogate refrigerant properties and lumped exchangers are illustrative, not calibrated butane physics.",
+  "description": "Three-water-circuit SGHP unit: aggregate COP or refrigerant cycle with n-butane Helmholtz compressor properties. Helmholtz inlet water states support temperature-based specifications. Exchanger heat transfer remains lumped.",
   "domains": {
     "time": {
       "kind": "time"
@@ -207,6 +207,39 @@
           "domain_bindings": {
             "time": "time"
           }
+        },
+        "source_inlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
+          }
+        },
+        "hot_inlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
+          }
+        },
+        "warm_inlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
+          }
         }
       },
       "constraints": {
@@ -315,6 +348,18 @@
         "warm_out": {
           "from": "warm_water_heater.outlet",
           "to": "warm_outlet"
+        },
+        "source_inlet_state": {
+          "from": "source_inlet",
+          "to": "source_inlet_state.state"
+        },
+        "hot_inlet_state": {
+          "from": "hot_inlet",
+          "to": "hot_inlet_state.state"
+        },
+        "warm_inlet_state": {
+          "from": "warm_inlet",
+          "to": "warm_inlet_state.state"
         }
       }
     },
@@ -324,10 +369,7 @@
           "model": "compressor",
           "model_arguments": {
             "FluidProperties": {
-              "model": "water_property_package"
-            },
-            "IsentropicProperties": {
-              "model": "water_isentropic_package"
+              "model": "helmholtz_butane_ph"
             }
           },
           "domain_bindings": {
@@ -338,18 +380,42 @@
           "model": "heat_exchanger",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "HotSideProperties": {
+              "model": "helmholtz_butane_ph"
+            },
+            "ColdSideProperties": {
+              "model": "helmholtz_water_ph"
+            }
           }
         },
         "subcooler": {
           "model": "heat_exchanger",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "HotSideProperties": {
+              "model": "helmholtz_butane_ph"
+            },
+            "ColdSideProperties": {
+              "model": "helmholtz_water_ph"
+            }
           }
         },
         "ihx": {
           "model": "heat_exchanger",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "HotSideProperties": {
+              "model": "helmholtz_butane_ph"
+            },
+            "ColdSideProperties": {
+              "model": "helmholtz_butane_ph"
+            }
           }
         },
         "expansion_valve": {
@@ -362,6 +428,47 @@
           "model": "heat_exchanger",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "HotSideProperties": {
+              "model": "helmholtz_water_ph"
+            },
+            "ColdSideProperties": {
+              "model": "helmholtz_butane_ph"
+            }
+          }
+        },
+        "source_inlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
+          }
+        },
+        "hot_inlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
+          }
+        },
+        "warm_inlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
           }
         }
       },
@@ -467,6 +574,18 @@
         "warm_out": {
           "from": "subcooler.cold_outlet",
           "to": "warm_outlet"
+        },
+        "source_inlet_state": {
+          "from": "source_inlet",
+          "to": "source_inlet_state.state"
+        },
+        "hot_inlet_state": {
+          "from": "hot_inlet",
+          "to": "hot_inlet_state.state"
+        },
+        "warm_inlet_state": {
+          "from": "warm_inlet",
+          "to": "warm_inlet_state.state"
         }
       }
     }

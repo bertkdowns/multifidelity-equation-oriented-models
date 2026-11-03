@@ -41,15 +41,14 @@ def test_recursive_connections_do_not_duplicate_parameter_requirements(monkeypat
     library = Library()
     before = {name: model.model_dump() for name, model in library.models.items()}
     required = required_inputs(
-        "water_property_pair",
-        EXAMPLES / "water_property_pair_evaluate.json",
+        "water_state_block",
+        EXAMPLES / "water_state_block_evaluate.json",
         library=library,
     )
     assert set(required) == {
-        "states.inlet_state.pressure",
-        "states.inlet_state.enthalpy",
-        "states.outlet_state.pressure",
-        "states.outlet_state.enthalpy",
+        "states.state.flow",
+        "states.state.pressure",
+        "states.state.enthalpy",
     }
     assert {
         name: model.model_dump() for name, model in library.models.items()
@@ -58,7 +57,7 @@ def test_recursive_connections_do_not_duplicate_parameter_requirements(monkeypat
 
 def test_constraints_supply_individual_child_inputs():
     required = required_inputs("heat_pump_flowsheet", EXAMPLES / "heat_pump_cycle.json")
-    assert len(required) == 17
+    assert len(required) == 13
     assert "heat_pump.parameters.cop" not in required
     assert "heat_pump.performance.cop" not in required
     assert "heat_pump.performance.electrical_power" not in required
@@ -79,20 +78,20 @@ def test_configured_water_package_only_requires_state():
 
 def test_partial_child_struct_still_lists_other_inputs():
     library = Library()
-    rel = library.get("water_property_pair").relationships["evaluate"]
+    rel = library.get("water_state_block").relationships["evaluate"]
     rel.constraints["pressure"] = Constraint(for_each={"t": "time"},
-        lhs='states.inlet_state.pressure[t]',
-        rhs='states.outlet_state.pressure[t]',
-        determines='states.inlet_state.pressure[t]',
+        lhs='states.state.pressure[t]',
+        rhs='100000 * units.Pa',
+        determines='states.state.pressure[t]',
     )
     required = required_inputs(
-        "water_property_pair",
-        EXAMPLES / "water_property_pair_evaluate.json",
+        "water_state_block",
+        EXAMPLES / "water_state_block_evaluate.json",
         library=library,
     )
-    assert "states.inlet_state.pressure" not in required
-    assert "states.inlet_state.enthalpy" in required
-    assert "states.outlet_state.pressure" in required
+    assert "states.state.pressure" not in required
+    assert "states.state.enthalpy" in required
+    assert "states.state.flow" in required
 
 
 def test_only_selected_relationships_are_traversed():
@@ -118,7 +117,7 @@ def test_only_selected_relationships_are_traversed():
 )
 def test_invalid_implementations_do_not_produce_incomplete_lists(change):
     selection = ImplementationDocument.model_validate_json(
-        (EXAMPLES / "water_property_pair_evaluate.json").read_text()
+        (EXAMPLES / "water_state_block_evaluate.json").read_text()
     )
     if change == "missing_child":
         del selection.submodels["states"]
@@ -127,25 +126,27 @@ def test_invalid_implementations_do_not_produce_incomplete_lists(change):
     elif change == "unknown_relationship":
         selection.relationship = "absent"
     with pytest.raises(ValueError):
-        required_inputs("water_property_pair", selection)
+        required_inputs("water_state_block", selection)
 
 
 @pytest.mark.parametrize("kind", ["constraint", "connection"])
 def test_duplicate_determinations_are_rejected(kind):
     library = Library()
-    rel = library.get("property_pair").relationships["evaluate"]
+    rel = library.get("state_block").relationships["evaluate"]
     if kind == "connection":
-        rel.connections["duplicate"] = Connection(from_="inlet_state", to="inlet.state")
+        # Match the concrete package fields to isolate duplicate-target validation.
+        library.get("state_block").structs["properties"].variables["viscosity"] = library.get("water_property_package").structs["properties"].variables["viscosity"]
+        rel.connections["duplicate"] = Connection(from_="fluid.properties", to="properties")
     else:
         rel.constraints["duplicate"] = Constraint(for_each={"t": "time"},
-            lhs='inlet.state.pressure[t]',
-            rhs='inlet_state.pressure[t]',
-            determines='inlet.state.pressure[t]',
+            lhs='fluid.state.pressure[t]',
+            rhs='state.pressure[t]',
+            determines='fluid.state.pressure[t]',
         )
     with pytest.raises(ValueError, match="duplicate determination"):
         required_inputs(
-            "water_property_pair",
-            EXAMPLES / "water_property_pair_evaluate.json",
+            "water_state_block",
+            EXAMPLES / "water_state_block_evaluate.json",
             library=library,
         )
 

@@ -8,34 +8,54 @@
           "relationship": "specified"
         },
         "source_inlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties"
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
             }
           }
         },
         "source_outlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties"
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
             }
           }
         },
         "sink_inlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties"
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
             }
           }
         },
         "sink_outlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties"
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
             }
           }
         },

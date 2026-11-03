@@ -5,13 +5,21 @@ from pathlib import Path
 import pytest
 from pyomo.environ import Constraint, value
 
-from multifidelity.model_language import build_model, required_inputs
+from multifidelity.model_language import build_model as _build_model, required_inputs, Library, register_standard_providers
+
+def build_model(*args, **kwargs):
+    library = kwargs.pop("library", None) or Library()
+    register_standard_providers(library)
+    return _build_model(*args, library=library, **kwargs)
 
 EXAMPLES = Path(__file__).parents[1] / "examples/model_language"
 
 
 def set_package(package, pressure, *, enthalpy=None, entropy=None):
-    """Populate a configured affine PH or PS state with an analytic solution."""
+    """Populate a configured affine PH state, optionally finding h from target entropy."""
+    wrapper = package if hasattr(package.relationship.models, "fluid") else None
+    if wrapper is not None:
+        package = wrapper.relationship.models.fluid
     water = package.relationship.models.water
     coefficients = {}
     for name, equation in package.relationship.constraints.component_map().items():
@@ -35,7 +43,7 @@ def set_package(package, pressure, *, enthalpy=None, entropy=None):
         enthalpy = c['reference_enthalpy'] + c['heat_capacity'] * (
             temperature - c['reference_temperature']
         ) + (pressure - c['reference_pressure']) / c['density']
-        state_values = dict(pressure=pressure, entropy=entropy)
+        state_values = dict(pressure=pressure, enthalpy=enthalpy)
     for state in (package.structs.state, water.structs.state):
         for name, number in state_values.items():
             getattr(state, name)[0].set_value(number)
@@ -45,6 +53,8 @@ def set_package(package, pressure, *, enthalpy=None, entropy=None):
         for name, number in properties.items():
             if hasattr(block, name):
                 getattr(block, name)[0].set_value(number)
+    from multifidelity.model_language.standard.initialization import seed_affine_state
+    seed_affine_state(wrapper if wrapper is not None else package, pressure, enthalpy, flow=2)
     return properties
 
 

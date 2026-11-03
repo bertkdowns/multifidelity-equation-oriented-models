@@ -1,0 +1,96 @@
+{
+  "id": "phase_mixture",
+  "description": "Mass-weighted phase enthalpy mixing. At zero total flow, use the supplied fallback phase enthalpy; this defines an empty port state without changing energy flux.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "phases": {
+      "direction": "input",
+      "variables": {
+        "liquid_flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "vapor_flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "liquid_enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "vapor_enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "fallback_vapor": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0,
+            "max": 1
+          }
+        }
+      }
+    },
+    "stream": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "mix": {
+      "external": {
+        "provider": "standard.phase_mixture",
+        "dependencies": {
+          "stream.flow": [
+            "phases.liquid_flow",
+            "phases.vapor_flow"
+          ],
+          "stream.enthalpy": [
+            "phases.liquid_flow",
+            "phases.vapor_flow",
+            "phases.liquid_enthalpy",
+            "phases.vapor_enthalpy",
+            "phases.fallback_vapor"
+          ]
+        }
+      }
+    }
+  }
+}

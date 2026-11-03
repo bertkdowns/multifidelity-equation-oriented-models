@@ -1,12 +1,12 @@
 {
-  "id": "water_property_pair",
-  "description": "Concrete wrapper selecting configured water_property_package for property_pair.",
+  "id": "water_state_block",
+  "description": "A single stream state block using water_property_package.",
   "structs": {},
   "relationships": {
     "evaluate": {
       "models": {
         "states": {
-          "model": "property_pair",
+          "model": "state_block",
           "model_arguments": {
             "FluidProperties": {
               "model": "water_property_package"

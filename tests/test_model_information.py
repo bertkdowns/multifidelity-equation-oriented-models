@@ -229,14 +229,14 @@ def test_values_for_scalar_and_final_dynamic_grid():
     from pyomo.environ import TransformationFactory
     from multifidelity.model_language import build_model
 
-    model = build_model('tank', {'relationship': 'mixed'},
+    model = build_model("tank_flowsheet", "examples/model_language/tank_mixed.json",
                         mode='dynamic', domain_values={'time': [0, 60]})
-    scalar = model.fs.root.structs.parameters.area
-    inlet = model.fs.root.structs.inlet.temperature
+    scalar = model.fs.root.relationship.models.tank.structs.parameters.area
+    inlet = model.fs.root.relationship.models.tank.structs.inlet.enthalpy
     constant = InformationRecord.model_validate(record(value=303.15))
     series = InformationRecord.model_validate(record(type='series', value=[303.15, 305.15, 310.15]))
     area = InformationRecord.model_validate(record(
-        variable_path='parameters.area', value=1, unit='m**2',
+        variable_path='tank.parameters.area', value=1, unit='m**2',
     ))
     assert area.values_for(scalar) == {None: 1}
     assert constant.values_for(inlet) == {0: 303.15, 60: 303.15}
@@ -251,6 +251,7 @@ def test_values_for_scalar_and_final_dynamic_grid():
     assert scalar.value is None and not scalar.fixed
     with pytest.raises(ValueError, match='does not match'):
         series.values_for(scalar)
+
 
 
 def test_values_for_respects_ordered_domain_axes_and_record_units():

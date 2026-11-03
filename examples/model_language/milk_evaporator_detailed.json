@@ -5,10 +5,84 @@
       "relationship": "isenthalpic"
     },
     "heat_exchanger": {
-      "relationship": "lumped"
+      "relationship": "lumped",
+      "submodels": {
+        "hot_inlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
+            }
+          }
+        },
+        "hot_outlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
+            }
+          }
+        },
+        "cold_inlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
+            }
+          }
+        },
+        "cold_outlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
+            }
+          }
+        },
+        "driving_force": {
+          "relationship": "smooth"
+        }
+      }
     },
     "separator": {
-      "relationship": "split"
+      "relationship": "phase_split",
+      "submodels": {
+        "inlet_state": {
+          "relationship": "helmholtz"
+        },
+        "liquid_state": {
+          "relationship": "helmholtz"
+        },
+        "vapor_state": {
+          "relationship": "helmholtz"
+        },
+        "liquid_mixture": {
+          "relationship": "mix"
+        },
+        "vapor_mixture": {
+          "relationship": "mix"
+        }
+      }
     },
     "translator": {
       "relationship": "identity"
@@ -17,18 +91,28 @@
       "relationship": "isentropic",
       "submodels": {
         "inlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties"
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
             }
           }
         },
         "outlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties"
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
             }
           }
         },

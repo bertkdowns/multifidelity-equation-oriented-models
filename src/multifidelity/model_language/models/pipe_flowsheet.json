@@ -1,0 +1,27 @@
+{
+  "id": "pipe_flowsheet",
+  "description": "Concrete water-package example of the pass-through or mixed pipe.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {},
+  "relationships": {
+    "flowsheet": {
+      "models": {
+        "pipe": {
+          "model": "pipe",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "water_property_package"
+            }
+          }
+        }
+      }
+    }
+  }
+}

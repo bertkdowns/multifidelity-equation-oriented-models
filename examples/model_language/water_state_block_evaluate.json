@@ -4,15 +4,7 @@
     "states": {
       "relationship": "evaluate",
       "submodels": {
-        "inlet": {
-          "relationship": "constant_properties",
-          "submodels": {
-            "water": {
-              "relationship": "constant_properties"
-            }
-          }
-        },
-        "outlet": {
+        "fluid": {
           "relationship": "constant_properties",
           "submodels": {
             "water": {

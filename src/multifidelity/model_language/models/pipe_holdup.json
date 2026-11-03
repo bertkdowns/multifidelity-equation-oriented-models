@@ -1,6 +1,6 @@
 {
   "id": "pipe_holdup",
-  "description": "Fully filled, constant-density cylindrical pipe inventory with perfect mixing. Stored thermal enthalpy H = density * volume * h; neglects pressure-energy effects, heat loss and wall storage. Pressure is prescribed, with no pressure dynamics. Positive length, diameter and density are required. Forward flow only.",
+  "description": "Filled, mixed pipe volume with property-package density and internal-energy storage. Pressure follows the inlet. Density changes are accommodated by mass accumulation and outlet flow; no pressure dynamics, heat loss, wall energy or spatial transport.",
   "domains": {
     "time": {
       "kind": "time"
@@ -47,12 +47,6 @@
           "bounds": {
             "min": 1e-08
           }
-        },
-        "density": {
-          "unit": "kg/m**3",
-          "bounds": {
-            "min": 1e-08
-          }
         }
       }
     },
@@ -81,6 +75,15 @@
           "dimensions": [
             "time"
           ]
+        },
+        "mass": {
+          "unit": "kg",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 1e-08
+          }
         }
       }
     },
@@ -89,6 +92,38 @@
       "variables": {
         "energy": {
           "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "mass": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
           "dimensions": [
             "time"
           ]
@@ -109,7 +144,7 @@
             "t": "time"
           },
           "lhs": "inventory.energy[t]",
-          "rhs": "parameters.density * geometry.volume * inventory.enthalpy[t]",
+          "rhs": "inventory.mass[t] * inventory.enthalpy[t] - inlet.pressure[t] * geometry.volume",
           "determines": "inventory.enthalpy[t]"
         },
         "energy_balance": {
@@ -117,8 +152,40 @@
             "t": "time"
           },
           "lhs": "rates.energy[t]",
-          "rhs": "inlet.flow[t] * (inlet.enthalpy[t] - inventory.enthalpy[t])",
+          "rhs": "inlet.flow[t] * inlet.enthalpy[t] - outlet.flow[t] * outlet.enthalpy[t]",
           "determines": "rates.energy[t]"
+        },
+        "mass_state": {
+          "lhs": "inventory.mass[t]",
+          "rhs": "contents_state.properties.density[t] * geometry.volume",
+          "determines": "inventory.mass[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "mass_balance": {
+          "lhs": "rates.mass[t]",
+          "rhs": "inlet.flow[t] - outlet.flow[t]",
+          "determines": "outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "outlet_enthalpy": {
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "inventory.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "outlet_pressure": {
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
         }
       },
       "derivatives": {
@@ -127,6 +194,101 @@
           "rate": "rates.energy",
           "with_respect_to": "time",
           "determines": "inventory.energy"
+        },
+        "mass": {
+          "state": "inventory.mass",
+          "rate": "rates.mass",
+          "with_respect_to": "time",
+          "determines": "rates.mass"
+        }
+      },
+      "models": {
+        "contents_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "FluidProperties"
+            }
+          }
+        }
+      },
+      "connections": {
+        "contents_state": {
+          "from": "outlet",
+          "to": "contents_state.state"
+        }
+      }
+    }
+  },
+  "model_parameters": {
+    "FluidProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
         }
       }
     }

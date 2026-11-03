@@ -120,7 +120,7 @@ function SavedLayoutFlow({ graph, storageKey, children, ...props }) {
   return <ReactFlow {...props} nodes={nodes.map(node => ({ ...node, data: { ...node.data, setOrientation } }))} onNodesChange={onNodesChange} edges={edges}>{children}</ReactFlow>;
 }
 function App() {
-  const [trail, setTrail] = useState([{ definition: library.steam_generating_heat_pump, bindings: {}, alias: 'steam_generating_heat_pump' }]);
+  const [trail, setTrail] = useState([{ definition: library.steam_generating_heat_pump_system, bindings: {}, alias: 'steam_generating_heat_pump_system' }]);
   const current = trail.at(-1);
   const [choices, setChoices] = useState({});
   const [view, setView] = useState('detailed');

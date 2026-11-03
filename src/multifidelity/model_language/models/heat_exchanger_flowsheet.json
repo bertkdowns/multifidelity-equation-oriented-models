@@ -1,0 +1,30 @@
+{
+  "id": "heat_exchanger_flowsheet",
+  "description": "Concrete water-package example of heat_exchanger.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {},
+  "relationships": {
+    "flowsheet": {
+      "models": {
+        "heat_exchanger": {
+          "model": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "HotSideProperties": {
+              "model": "water_property_package"
+            },
+            "ColdSideProperties": {
+              "model": "water_property_package"
+            }
+          }
+        }
+      }
+    }
+  }
+}

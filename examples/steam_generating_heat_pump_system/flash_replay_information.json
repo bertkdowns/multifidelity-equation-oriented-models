@@ -1,0 +1,29 @@
+[
+  {
+    "id": "flash_replay_reference_flash_tank_inlet_pressure",
+    "tag": "ahuora.property_value.630494",
+    "information_type": "assumption",
+    "variable_path": "flash_separator.inlet.pressure",
+    "value": 200.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "id": "flash_liquid_to_liquid",
+    "tag": "ahuora.phase_routing.liquid_to_liquid",
+    "information_type": "equipment_specification",
+    "variable_path": "flash_separator.parameters.liquid_to_liquid",
+    "value": 1,
+    "unit": "dimensionless",
+    "trust_rank": 8
+  },
+  {
+    "id": "flash_vapor_to_liquid",
+    "tag": "ahuora.phase_routing.vapor_to_liquid",
+    "information_type": "equipment_specification",
+    "variable_path": "flash_separator.parameters.vapor_to_liquid",
+    "value": 0,
+    "unit": "dimensionless",
+    "trust_rank": 8
+  }
+]

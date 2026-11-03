@@ -1,6 +1,6 @@
 {
   "id": "heat_exchanger",
-  "description": "Time-indexed illustrative equations, not a numerical reproduction of the existing property-package models.",
+  "description": "Lumped counter-current exchanger with two configurable PH property packages, energy balances and smoothed LMTD; no pressure drop.",
   "structs": {
     "hot_inlet": {
       "direction": "input",
@@ -99,12 +99,6 @@
       "variables": {
         "conductance": {
           "unit": "W/K"
-        },
-        "temperature_difference": {
-          "unit": "K",
-          "dimensions": [
-            "time"
-          ]
         }
       }
     },
@@ -122,7 +116,58 @@
   },
   "relationships": {
     "lumped": {
-      "models": {},
+      "models": {
+        "hot_inlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "HotSideProperties"
+            }
+          }
+        },
+        "hot_outlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "HotSideProperties"
+            }
+          }
+        },
+        "cold_inlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "ColdSideProperties"
+            }
+          }
+        },
+        "cold_outlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "ColdSideProperties"
+            }
+          }
+        },
+        "driving_force": {
+          "model": "log_mean_temperature_difference",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
       "constraints": {
         "hot_mass_balance": {
           "lhs": "hot_outlet.flow[t]",
@@ -174,19 +219,190 @@
         },
         "heat_transfer": {
           "lhs": "performance.heat_duty[t]",
-          "rhs": "parameters.conductance * parameters.temperature_difference[t]",
+          "rhs": "parameters.conductance * driving_force.mean.temperature_difference[t]",
           "determines": "performance.heat_duty[t]",
           "for_each": {
             "t": "time"
           }
+        },
+        "hot_end_difference": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "driving_force.ends.hot[t]",
+          "rhs": "hot_inlet_state.properties.temperature[t] - cold_outlet_state.properties.temperature[t]",
+          "determines": "driving_force.ends.hot[t]"
+        },
+        "cold_end_difference": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "driving_force.ends.cold[t]",
+          "rhs": "hot_outlet_state.properties.temperature[t] - cold_inlet_state.properties.temperature[t]",
+          "determines": "driving_force.ends.cold[t]"
         }
       },
-      "connections": {}
+      "connections": {
+        "hot_inlet_state": {
+          "from": "hot_inlet",
+          "to": "hot_inlet_state.state"
+        },
+        "hot_outlet_state": {
+          "from": "hot_outlet",
+          "to": "hot_outlet_state.state"
+        },
+        "cold_inlet_state": {
+          "from": "cold_inlet",
+          "to": "cold_inlet_state.state"
+        },
+        "cold_outlet_state": {
+          "from": "cold_outlet",
+          "to": "cold_outlet_state.state"
+        }
+      }
     }
   },
   "domains": {
     "time": {
       "kind": "time"
+    }
+  },
+  "model_parameters": {
+    "HotSideProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ColdSideProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        }
+      }
     }
   }
 }

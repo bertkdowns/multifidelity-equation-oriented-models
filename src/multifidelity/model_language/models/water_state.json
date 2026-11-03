@@ -1,6 +1,6 @@
 {
   "id": "water_state",
-  "description": "Constant-property liquid-water approximation with affine mass-specific enthalpy. Coefficients are explicit caller-supplied inputs; no phase equilibrium or transport correlations.",
+  "description": "Constant-property liquid-water approximation with affine mass-specific enthalpy. Coefficients are explicit caller-supplied inputs; no phase equilibrium or transport correlations. Liquid-only vapor fraction is zero. Saturation temperatures use IAPWS-IF97 region 4, Eq31/Table34, valid for 611.213 Pa to 22.064 MPa; this does not add two-phase thermodynamics.",
   "structs": {
     "state": {
       "direction": "input",
@@ -9,7 +9,11 @@
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "bounds": {
+            "min": 611.213,
+            "max": 22064000
+          }
         },
         "temperature": {
           "unit": "K",
@@ -80,6 +84,24 @@
           "dimensions": [
             "time"
           ]
+        },
+        "vapor_fraction": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "temperature_bubble": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "temperature_dew": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -127,6 +149,30 @@
           "for_each": {
             "t": "time"
           }
+        },
+        "temperature_bubble": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "properties.temperature_bubble[t]",
+          "rhs": "(650.17534844798 + (2 * (-724213.16703206 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 - 3232555.0322333 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) + 405113.40542057) / (-(1167.0521452767 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 + 12020.824702470 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) - 4823.2657361591) - ((1167.0521452767 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 + 12020.824702470 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) - 4823.2657361591) ** 2 - 4 * (((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 - 17.073846940092 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) + 14.915108613530) * (-724213.16703206 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 - 3232555.0322333 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) + 405113.40542057)) ** 0.5)) - ((650.17534844798 + (2 * (-724213.16703206 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 - 3232555.0322333 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) + 405113.40542057) / (-(1167.0521452767 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 + 12020.824702470 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) - 4823.2657361591) - ((1167.0521452767 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 + 12020.824702470 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) - 4823.2657361591) ** 2 - 4 * (((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 - 17.073846940092 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) + 14.915108613530) * (-724213.16703206 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 - 3232555.0322333 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) + 405113.40542057)) ** 0.5))) ** 2 - 4 * (-0.23855557567849 + 650.17534844798 * (2 * (-724213.16703206 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 - 3232555.0322333 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) + 405113.40542057) / (-(1167.0521452767 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 + 12020.824702470 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) - 4823.2657361591) - ((1167.0521452767 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 + 12020.824702470 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) - 4823.2657361591) ** 2 - 4 * (((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 - 17.073846940092 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) + 14.915108613530) * (-724213.16703206 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) ** 2 - 3232555.0322333 * ((state.pressure[t] / (1000000 * units.Pa)) ** 0.25) + 405113.40542057)) ** 0.5)))) ** 0.5) * units.K / 2",
+          "determines": "properties.temperature_bubble[t]"
+        },
+        "temperature_dew": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "properties.temperature_dew[t]",
+          "rhs": "properties.temperature_bubble[t]",
+          "determines": "properties.temperature_dew[t]"
+        },
+        "vapor_fraction": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "properties.vapor_fraction[t]",
+          "rhs": "0",
+          "determines": "properties.vapor_fraction[t]"
         }
       },
       "connections": {}

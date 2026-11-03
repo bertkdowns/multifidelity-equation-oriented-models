@@ -5,10 +5,20 @@
       "relationship": "mapped",
       "submodels": {
         "inlet_state": {
-          "relationship": "helmholtz"
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "helmholtz"
+            }
+          }
         },
         "outlet_state": {
-          "relationship": "helmholtz"
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "helmholtz"
+            }
+          }
         },
         "map": {
           "relationship": "cooling_60rps"

@@ -1,100 +1,73 @@
 [
   {
     "id": "replay_reference_sghp_source_inlet_flow",
-    "tag": "ahuora.property_value.630965",
+    "tag": "ahuora.property_value.630787",
     "information_type": "assumption",
     "variable_path": "source_inlet.flow",
-    "value": 1.8015268,
+    "value": 9.007633999999996,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
     "id": "replay_reference_sghp_source_inlet_pressure",
-    "tag": "ahuora.property_value.630968",
+    "tag": "user.source_loop_pressure",
     "information_type": "assumption",
     "variable_path": "source_inlet.pressure",
-    "value": 100.0,
-    "unit": "kPa",
-    "trust_rank": 2
-  },
-  {
-    "id": "replay_reference_sghp_source_inlet_enthalpy",
-    "tag": "ahuora.property_value.630971",
-    "information_type": "assumption",
-    "variable_path": "source_inlet.enthalpy",
-    "value": 362.8941318297629,
-    "unit": "kJ/kg",
-    "trust_rank": 2
+    "value": 2,
+    "unit": "bar",
+    "trust_rank": 10
   },
   {
     "id": "replay_reference_sghp_hot_inlet_flow",
-    "tag": "ahuora.property_value.622781",
+    "tag": "ahuora.property_value.630628",
     "information_type": "assumption",
     "variable_path": "hot_inlet.flow",
-    "value": 5525.64300096,
-    "unit": "kg/h",
+    "value": 0.830463850734013,
+    "unit": "kg/s",
     "trust_rank": 2
   },
   {
     "id": "replay_reference_sghp_hot_inlet_pressure",
-    "tag": "ahuora.property_value.622784",
+    "tag": "ahuora.property_value.630631",
     "information_type": "assumption",
     "variable_path": "hot_inlet.pressure",
-    "value": 377.19289470582476,
+    "value": 396.99324280996854,
     "unit": "kPa",
-    "trust_rank": 2
-  },
-  {
-    "id": "replay_reference_sghp_hot_inlet_enthalpy",
-    "tag": "ahuora.property_value.622787",
-    "information_type": "assumption",
-    "variable_path": "hot_inlet.enthalpy",
-    "value": 335.2495008653479,
-    "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
     "id": "replay_reference_sghp_warm_inlet_flow",
-    "tag": "WWVF41",
+    "tag": "ahuora.property_value.630671",
     "information_type": "assumption",
     "variable_path": "warm_inlet.flow",
-    "value": 1102.9769701291107,
-    "unit": "kg/h",
+    "value": 0.19353170431922537,
+    "unit": "kg/s",
     "trust_rank": 2
   },
   {
     "id": "replay_reference_sghp_warm_inlet_pressure",
-    "tag": "WWPT41",
+    "tag": "ahuora.property_value.630674",
     "information_type": "assumption",
     "variable_path": "warm_inlet.pressure",
-    "value": 399.9947768525805,
+    "value": 399.9929657079141,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "replay_reference_sghp_warm_inlet_enthalpy",
-    "tag": "ahuora.property_value.622830",
-    "information_type": "assumption",
-    "variable_path": "warm_inlet.enthalpy",
-    "value": 131.4664770501257,
-    "unit": "kJ/kg",
-    "trust_rank": 2
-  },
-  {
     "id": "replay_reference_sghp_performance_electrical_power",
-    "tag": "ahuora.property_value.617785",
+    "tag": "ahuora.property_value.630428",
     "information_type": "assumption",
     "variable_path": "power_model.parameters.electrical_power",
-    "value": 2.375729672279988,
+    "value": 12.755835603752978,
     "unit": "kW",
     "trust_rank": 2
   },
   {
     "id": "replay_reference_sghp_performance_warm_water_duty",
-    "tag": "ahuora.property_value.617462",
+    "tag": "ahuora.property_value.630105",
     "information_type": "assumption",
     "variable_path": "warm_water_heater.parameters.heat_duty",
-    "value": 12.251268113763134,
+    "value": 20.69473222747439,
     "unit": "kW",
     "trust_rank": 2
   },
@@ -103,8 +76,35 @@
     "tag": "derived.sghp.total_heating_cop",
     "information_type": "assumption",
     "variable_path": "cop_model.parameters.cop",
-    "value": 18.097994992103963,
+    "value": 5.288199521202138,
     "unit": "dimensionless",
     "trust_rank": 2
+  },
+  {
+    "id": "replay_source_inlet_temperature",
+    "tag": "ahuora.property_value.630789",
+    "information_type": "assumption",
+    "variable_path": "source_inlet_state.properties.temperature",
+    "value": 350.15000000040436,
+    "unit": "K",
+    "trust_rank": 8
+  },
+  {
+    "id": "replay_hot_inlet_temperature",
+    "tag": "ahuora.property_value.630630",
+    "information_type": "assumption",
+    "variable_path": "hot_inlet_state.properties.temperature",
+    "value": 392.72659727435075,
+    "unit": "K",
+    "trust_rank": 8
+  },
+  {
+    "id": "replay_warm_inlet_temperature",
+    "tag": "ahuora.property_value.630673",
+    "information_type": "assumption",
+    "variable_path": "warm_inlet_state.properties.temperature",
+    "value": 332.63462987445513,
+    "unit": "K",
+    "trust_rank": 8
   }
 ]

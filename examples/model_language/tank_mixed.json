@@ -1,3 +1,36 @@
 {
-  "relationship": "mixed"
+  "relationship": "flowsheet",
+  "submodels": {
+    "tank": {
+      "relationship": "mixed",
+      "submodels": {
+        "inlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
+            }
+          }
+        },
+        "contents_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

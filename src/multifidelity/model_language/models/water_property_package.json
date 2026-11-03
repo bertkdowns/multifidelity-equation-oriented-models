@@ -51,6 +51,24 @@
           "dimensions": [
             "time"
           ]
+        },
+        "vapor_fraction": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "temperature_bubble": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "temperature_dew": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }

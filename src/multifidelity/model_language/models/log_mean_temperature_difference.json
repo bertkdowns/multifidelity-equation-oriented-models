@@ -1,0 +1,58 @@
+{
+  "id": "log_mean_temperature_difference",
+  "description": "Positive terminal temperature differences and the IDAES smoothed logarithmic mean (epsilon 1e-10), including the equal-endpoint limit.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "ends": {
+      "direction": "input",
+      "variables": {
+        "hot": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 1e-08
+          }
+        },
+        "cold": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 1e-08
+          }
+        }
+      }
+    },
+    "mean": {
+      "direction": "output",
+      "variables": {
+        "temperature_difference": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "smooth": {
+      "external": {
+        "provider": "standard.lmtd",
+        "dependencies": {
+          "mean.temperature_difference": [
+            "ends.hot",
+            "ends.cold"
+          ]
+        }
+      }
+    }
+  }
+}

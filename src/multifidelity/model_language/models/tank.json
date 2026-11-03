@@ -1,6 +1,6 @@
 {
   "id": "tank",
-  "description": "Perfectly mixed constant-density liquid tank. Prescribed inlet and outlet mass flows; constant heat capacity; no phase change, pressure dynamics, or kinetic/potential energy. Energy and stream enthalpy use the same reference temperature.",
+  "description": "Well-mixed liquid tank with PH streams, property-package density, prescribed pressure, mass and internal-energy inventories; no pressure dynamics or kinetic/potential energy.",
   "domains": {
     "time": {
       "kind": "time"
@@ -14,19 +14,19 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ],
-          "bounds": {
-            "min": 0
-          }
+          ]
         },
-        "temperature": {
-          "unit": "K",
+        "pressure": {
+          "unit": "Pa",
           "dimensions": [
             "time"
-          ],
-          "bounds": {
-            "min": 0
-          }
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -53,23 +53,11 @@
             "min": 1e-08
           }
         },
-        "density": {
-          "unit": "kg/m**3",
-          "bounds": {
-            "min": 1e-08
-          }
-        },
-        "heat_capacity": {
-          "unit": "J/kg/K",
-          "bounds": {
-            "min": 1e-08
-          }
-        },
-        "reference_temperature": {
-          "unit": "K",
-          "bounds": {
-            "min": 0
-          }
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
@@ -110,14 +98,29 @@
           "bounds": {
             "min": 0
           }
+        },
+        "mass": {
+          "unit": "kg",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 1e-08
+          }
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     },
     "rates": {
       "direction": "output",
       "variables": {
-        "level": {
-          "unit": "m/s",
+        "mass": {
+          "unit": "kg/s",
           "dimensions": [
             "time"
           ]
@@ -137,19 +140,19 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ],
-          "bounds": {
-            "min": 0
-          }
+          ]
         },
-        "temperature": {
-          "unit": "K",
+        "pressure": {
+          "unit": "Pa",
           "dimensions": [
             "time"
-          ],
-          "bounds": {
-            "min": 0
-          }
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -165,51 +168,199 @@
           "rhs": "withdrawal.flow[t]",
           "determines": "outlet.flow[t]"
         },
-        "outlet_temperature": {
+        "outlet_pressure": {
           "for_each": {
             "t": "time"
           },
-          "lhs": "outlet.temperature[t]",
-          "rhs": "inventory.temperature[t]",
-          "determines": "outlet.temperature[t]"
+          "lhs": "outlet.pressure[t]",
+          "rhs": "parameters.pressure[t]",
+          "determines": "outlet.pressure[t]"
+        },
+        "outlet_enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "inventory.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]"
+        },
+        "contents_flow": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "contents_state.state.flow[t]",
+          "rhs": "outlet.flow[t]",
+          "determines": "contents_state.state.flow[t]"
+        },
+        "contents_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "contents_state.state.pressure[t]",
+          "rhs": "parameters.pressure[t]",
+          "determines": "contents_state.state.pressure[t]"
+        },
+        "contents_enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "contents_state.state.enthalpy[t]",
+          "rhs": "inventory.enthalpy[t]",
+          "determines": "contents_state.state.enthalpy[t]"
+        },
+        "temperature": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "inventory.temperature[t]",
+          "rhs": "contents_state.properties.temperature[t]",
+          "determines": "inventory.temperature[t]"
+        },
+        "level": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "inventory.mass[t]",
+          "rhs": "contents_state.properties.density[t] * parameters.area * inventory.level[t]",
+          "determines": "inventory.level[t]"
         },
         "thermal_state": {
           "for_each": {
             "t": "time"
           },
           "lhs": "inventory.energy[t]",
-          "rhs": "parameters.density * parameters.area * inventory.level[t] * parameters.heat_capacity * (inventory.temperature[t] - parameters.reference_temperature)",
-          "determines": "inventory.temperature[t]"
+          "rhs": "inventory.mass[t] * inventory.enthalpy[t] - parameters.pressure[t] * parameters.area * inventory.level[t]",
+          "determines": "inventory.enthalpy[t]"
         },
         "mass_balance": {
           "for_each": {
             "t": "time"
           },
-          "lhs": "parameters.density * parameters.area * rates.level[t]",
+          "lhs": "rates.mass[t]",
           "rhs": "inlet.flow[t] - outlet.flow[t]",
-          "determines": "rates.level[t]"
+          "determines": "rates.mass[t]"
         },
         "energy_balance": {
           "for_each": {
             "t": "time"
           },
           "lhs": "rates.energy[t]",
-          "rhs": "inlet.flow[t] * parameters.heat_capacity * (inlet.temperature[t] - parameters.reference_temperature) - outlet.flow[t] * parameters.heat_capacity * (outlet.temperature[t] - parameters.reference_temperature) - loss.heat[t]",
+          "rhs": "inlet.flow[t] * inlet.enthalpy[t] - outlet.flow[t] * outlet.enthalpy[t] - loss.heat[t]",
           "determines": "rates.energy[t]"
         }
       },
       "derivatives": {
-        "level": {
-          "state": "inventory.level",
-          "rate": "rates.level",
+        "mass": {
+          "state": "inventory.mass",
+          "rate": "rates.mass",
           "with_respect_to": "time",
-          "determines": "inventory.level"
+          "determines": "inventory.mass"
         },
         "energy": {
           "state": "inventory.energy",
           "rate": "rates.energy",
           "with_respect_to": "time",
           "determines": "inventory.energy"
+        }
+      },
+      "models": {
+        "inlet_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "FluidProperties"
+            }
+          }
+        },
+        "contents_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "FluidProperties"
+            }
+          }
+        }
+      },
+      "connections": {
+        "inlet_state": {
+          "from": "inlet",
+          "to": "inlet_state.state"
+        }
+      }
+    }
+  },
+  "model_parameters": {
+    "FluidProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
         }
       }
     }

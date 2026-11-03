@@ -69,6 +69,30 @@
           "dimensions": [
             "time"
           ]
+        },
+        "enthalpy_liquid_sat": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy_vapor_sat": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy_liquid": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy_vapor": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
         }
       }
     }
@@ -111,6 +135,20 @@
           ],
           "properties.temperature_dew": [
             "state.pressure"
+          ],
+          "properties.enthalpy_liquid_sat": [
+            "state.pressure"
+          ],
+          "properties.enthalpy_vapor_sat": [
+            "state.pressure"
+          ],
+          "properties.enthalpy_liquid": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.enthalpy_vapor": [
+            "state.pressure",
+            "state.enthalpy"
           ]
         }
       }

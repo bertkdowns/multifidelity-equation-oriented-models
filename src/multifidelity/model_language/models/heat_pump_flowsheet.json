@@ -16,9 +16,6 @@
             },
             "RefrigerantProperties": {
               "model": "water_property_package"
-            },
-            "IsentropicProperties": {
-              "model": "water_isentropic_package"
             }
           },
           "domain_bindings": {

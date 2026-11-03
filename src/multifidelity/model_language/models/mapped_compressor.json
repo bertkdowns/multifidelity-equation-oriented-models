@@ -24,8 +24,32 @@
         "properties": {
           "direction": "output",
           "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
             "temperature": {
               "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
               "dimensions": [
                 "time"
               ]
@@ -261,15 +285,25 @@
     "mapped": {
       "models": {
         "inlet_state": {
-          "model_parameter": "FluidProperties",
+          "model": "state_block",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "FluidProperties"
+            }
           }
         },
         "outlet_state": {
-          "model_parameter": "FluidProperties",
+          "model": "state_block",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "FluidProperties"
+            }
           }
         },
         "map": {
@@ -284,38 +318,6 @@
           "lhs": "outlet.pressure[t]",
           "rhs": "inlet.pressure[t] + parameters.pressure_rise[t]",
           "determines": "outlet.pressure[t]",
-          "for_each": {
-            "t": "time"
-          }
-        },
-        "inlet_state_pressure": {
-          "lhs": "inlet_state.state.pressure[t]",
-          "rhs": "inlet.pressure[t]",
-          "determines": "inlet_state.state.pressure[t]",
-          "for_each": {
-            "t": "time"
-          }
-        },
-        "inlet_state_enthalpy": {
-          "lhs": "inlet_state.state.enthalpy[t]",
-          "rhs": "inlet.enthalpy[t]",
-          "determines": "inlet_state.state.enthalpy[t]",
-          "for_each": {
-            "t": "time"
-          }
-        },
-        "outlet_state_pressure": {
-          "lhs": "outlet_state.state.pressure[t]",
-          "rhs": "outlet.pressure[t]",
-          "determines": "outlet_state.state.pressure[t]",
-          "for_each": {
-            "t": "time"
-          }
-        },
-        "outlet_state_enthalpy": {
-          "lhs": "outlet_state.state.enthalpy[t]",
-          "rhs": "outlet.enthalpy[t]",
-          "determines": "outlet_state.state.enthalpy[t]",
           "for_each": {
             "t": "time"
           }
@@ -439,6 +441,36 @@
           "for_each": {
             "t": "time"
           }
+        },
+        "inlet_state_pressure": {
+          "lhs": "inlet_state.state.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "inlet_state.state.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "inlet_state_enthalpy": {
+          "lhs": "inlet_state.state.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "inlet_state.state.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "inlet_state_flow": {
+          "lhs": "inlet_state.state.flow[t]",
+          "rhs": "performance.mass_flow[t]",
+          "determines": "inlet_state.state.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {
+        "outlet_state": {
+          "from": "outlet",
+          "to": "outlet_state.state"
         }
       }
     }

@@ -68,7 +68,7 @@ The command-line interface supports the same providers:
 | `en12900_compressor_map` | `cooling_60rps` | `standard.en12900_map`, default propane cooling map |
 | `mapped_compressor` | `mapped` | Generic JSON composition of property models and a map |
 | `mapped_propane_compressor` | `evaluate` | Concrete wrapper supplying propane properties and map |
-| `helmholtz_water_property_pair` | `evaluate` | Existing narrow property-pair interface with richer properties |
+| `helmholtz_water_state_block` | `evaluate` | Single stream state with Helmholtz water properties |
 
 Each concrete model has an implementation document in `examples/model_language/`.
 Use the [custom-model guide](custom-models.md) to add providers or other configured
@@ -78,9 +78,9 @@ provider registration does not insert model definitions.
 ## Helmholtz pressure–enthalpy state
 
 The provider wraps Ahuora's `HelmholtzExtendedParameterBlock` in mass-basis PH
-form. It uses IDAES's registered pure-fluid data without changing the global data
-directory through Ahuora's compound-registration helper. This avoids changing
-property data for other models in the process.
+form. Water and propane use IDAES's registered data. Additional n-butane EOS
+data is selected only during expression construction; the previous global
+directory and registry are restored afterwards.
 
 Inputs are `state.pressure` in Pa and `state.enthalpy` in J/kg. Outputs on
 `properties` are:
@@ -95,6 +95,8 @@ Inputs are `state.pressure` in Pa and `state.enthalpy` in J/kg. Outputs on
 | `vapor_fraction` | dimensionless |
 | `temperature_bubble` | K |
 | `temperature_dew` | K |
+| `enthalpy_liquid`, `enthalpy_vapor` | J/kg (actual phase enthalpies at the PH state) |
+| `enthalpy_liquid_sat`, `enthalpy_vapor_sat` | J/kg (saturated phase enthalpies at pressure) |
 
 Configure the provider through ordinary JSON values:
 
@@ -104,7 +106,8 @@ Configure the provider through ordinary JSON values:
 
 Defaults are `fluid: "h2o"` and `viscosity_phase: "Liq"`. Available fluids depend
 on the installed IDAES data. Viscosity is the selected phase's viscosity, not an
-effective two-phase mixing rule. Bubble/dew temperatures coincide for pure fluids
+effective two-phase mixing rule. The installed n-butane data has no transport
+correlation, so its wrapper omits viscosity. Bubble/dew temperatures coincide for pure fluids
 and depend only on pressure; use saturation outputs in the subcritical region.
 The provider retains Ahuora's small enthalpy-dependent smoothing of reported
 temperature. That can slightly change superheat compared with the unsmoothed EOS
@@ -231,8 +234,39 @@ fluid identity or consistent enthalpy reference conventions. When replacing
 arguments, keep map refrigerant, property fluid, and reference conventions
 consistent. Passing water properties with a propane map is not physically valid.
 
-Saturation outputs are only required where needed. Existing constant-property
-water models keep their original interface. `property_pair` now projects its
-five required output fields using individual equations, so it accepts richer
-models without forcing the public output structs to grow. Whole-struct connections
-still require matching fields; their semantics have not changed.
+The common `state_block` interface exposes seven thermodynamic properties:
+density, heat capacity, temperature, entropy, vapor fraction, and bubble/dew
+temperatures. Viscosity is available directly on supporting property packages,
+but is not required by the common state block. Affine liquid water reports zero
+vapor fraction and IF97 saturation temperatures; it does not model vapor enthalpy
+or latent heat and cannot satisfy the generic flash's phase-enthalpy requirements.
+
+## Shared refrigerant PH states and phase separation
+
+`helmholtz_butane_ph` uses Ahuora n-butane EOS data without a viscosity output.
+The compressor accepts one `FluidProperties` argument, instantiated for its inlet,
+actual outlet and isentropic reference. For the reference PH state, outlet
+pressure is supplied and calculated entropy is equated to inlet entropy. The
+solver determines its enthalpy; no separate PS model/provider is needed.
+The SGHP uses butane PH for all three occurrences and PHNIX uses propane PH.
+The additional butane data path is scoped to construction and restored afterwards.
+
+`flash_separator.phase_split` takes a `FluidProperties` argument. It uses inlet
+quality and actual phase enthalpies from that package to route each phase to two
+outlets, conserving mass and energy. `parameters.liquid_to_liquid` and
+`parameters.vapor_to_liquid` route inlet phases to the liquid-labelled outlet;
+the second outlet receives their complements. Each output's temperature and
+quality are evaluated with the same chosen package. `flash_flowsheet` supplies
+Helmholtz water as a concrete example; propane is also covered by numerical tests.
+The water-specific model and native separator adapter have been removed.
+
+`phase_mixture` supplies mass-weighted outlet enthalpies. If an outlet has zero
+flow, it uses the corresponding inlet phase enthalpy as a reporting convention;
+there is no epsilon mass or energy leakage. `standard.phase_mixture` and
+`standard.lmtd` require only Pyomo, while Helmholtz properties require their native
+EOS dependencies. Providers construct symbolic equations and never solve.
+
+A PH property model can also serve as a temperature-specification block: link its
+state pressure/enthalpy to a stream, select an information record for
+`properties.temperature`, and leave enthalpy free. The provider remains symbolic
+inside the solve. See the [SGHP demonstration](../../../examples/steam_generating_heat_pump_system/README.md).

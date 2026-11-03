@@ -32,7 +32,7 @@ test('series previews show shape without inventing time coordinates', () => {
 });
 
 test('paths match the root and nested occurrences independently, across relationships', () => {
-  const context = { definition: library.steam_generating_heat_pump, bindings: {} };
+  const context = { definition: library.steam_generating_heat_pump_unit, bindings: {} };
   assert.equal(findVariable(context, 'condenser.parameters.conductance', library).unit, 'W/K');
   assert.equal(findVariable(context, 'cop_model.parameters.cop', library).unit, 'dimensionless');
   assert.equal(findVariable(context, 'wrong.parameters.conductance', library), undefined);

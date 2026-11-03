@@ -5,10 +5,15 @@
       "relationship": "incompressible",
       "submodels": {
         "outlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties"
+            "fluid": {
+              "relationship": "constant_properties",
+              "submodels": {
+                "water": {
+                  "relationship": "constant_properties"
+                }
+              }
             }
           }
         }

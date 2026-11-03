@@ -33,19 +33,21 @@ test('concrete wrapper binds generics through drill down', () => {
   const pump = resolveReference(wrapper.relationships.flowsheet.models.pump, {}, library);
   const graph = makeGraph(pump, 'incompressible', library);
   assert.deepEqual(graph.warnings, []);
-  assert.equal(graph.nodes.find(node => node.id === 'model:outlet_state').data.child.definition.id, 'water_property_package');
+  assert.equal(graph.nodes.find(node => node.id === 'model:outlet_state').data.child.definition.id, 'state_block');
   const energy = graph.edges.filter(edge => edge.source === 'constraint:energy_balance');
   assert.equal(energy.length, 1);
   assert.equal(energy[0].targetHandle, 'outlet.enthalpy:in');
 });
 
-test('struct connections preserve source and destination ports', () => {
-  const graph = makeGraph({ definition: library.property_pair, bindings: {} }, 'evaluate', library);
-  const edge = graph.edges.find(edge => edge.id === 'connection:inlet_state');
-  assert.equal(edge.source, 'struct:inlet_state');
-  assert.equal(edge.target, 'model:inlet');
+test('struct connections can read a parent outlet to supply a child state input', () => {
+  const pump = resolveReference(library.pump_flowsheet.relationships.flowsheet.models.pump, {}, library);
+  const graph = makeGraph(pump, 'incompressible', library);
+  const edge = graph.edges.find(edge => edge.id === 'connection:outlet_state');
+  assert.equal(edge.source, 'struct:outlet');
+  assert.equal(edge.target, 'model:outlet_state');
+  assert.equal(edge.sourceHandle, 'outlet:out');
   assert.equal(edge.targetHandle, 'state:in');
-  assert.equal(graph.warnings.length, 2);
+  assert.deepEqual(graph.warnings, []);
 });
 
 test('summary gives every edge a distinct, evenly spaced attachment on each side', () => {
@@ -89,15 +91,15 @@ test('summary heat exchanger ports follow struct order even when connections are
 
 test('dynamic tank connects indexed equations and both derivative relations without unresolved ports', () => {
   for (const view of ['summary', 'detailed']) {
-    const graph = makeGraph({ definition: library.tank, bindings: {} }, 'mixed', library, view);
+    const graph = makeGraph(resolveReference(library.tank_flowsheet.relationships.flowsheet.models.tank, {}, library), 'mixed', library, view);
     assert.deepEqual(graph.warnings, []);
-    const derivative = graph.nodes.find(node => node.id === 'constraint:derivative:level');
+    const derivative = graph.nodes.find(node => node.id === 'constraint:derivative:mass');
     assert.equal(derivative.data.equation.derivative.with_respect_to, 'time');
-    const output = graph.edges.find(edge => edge.id === 'constraint:derivative:level:determines');
+    const output = graph.edges.find(edge => edge.id === 'constraint:derivative:mass:determines');
     assert.equal(output.target, 'struct:inventory');
     const balanceOutput = graph.edges.find(edge => edge.id === 'constraint:mass_balance:determines');
     assert.equal(balanceOutput.target, 'struct:rates');
-    assert.equal(balanceOutput.label, 'rates.level[t]');
+    assert.equal(balanceOutput.label, 'rates.mass[t]');
     assert.ok(!graph.edges.some(edge => edge.source === 'struct:rates' && edge.target === 'constraint:mass_balance'));
   }
   assert.equal(variableLabel('flow', { dimensions: ['time', 'components'] }), 'flow[time, components]');

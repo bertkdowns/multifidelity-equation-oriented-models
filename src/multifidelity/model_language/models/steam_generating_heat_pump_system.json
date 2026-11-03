@@ -7,29 +7,6 @@
     }
   },
   "structs": {
-    "makeup_inlet": {
-      "direction": "input",
-      "variables": {
-        "flow": {
-          "unit": "kg/s",
-          "dimensions": [
-            "time"
-          ]
-        },
-        "pressure": {
-          "unit": "Pa",
-          "dimensions": [
-            "time"
-          ]
-        },
-        "enthalpy": {
-          "unit": "J/kg",
-          "dimensions": [
-            "time"
-          ]
-        }
-      }
-    },
     "steam_outlet": {
       "direction": "output",
       "variables": {
@@ -53,54 +30,8 @@
         }
       }
     },
-    "phnix_source_inlet": {
-      "direction": "input",
-      "variables": {
-        "flow": {
-          "unit": "kg/s",
-          "dimensions": [
-            "time"
-          ]
-        },
-        "pressure": {
-          "unit": "Pa",
-          "dimensions": [
-            "time"
-          ]
-        },
-        "enthalpy": {
-          "unit": "J/kg",
-          "dimensions": [
-            "time"
-          ]
-        }
-      }
-    },
     "phnix_source_outlet": {
       "direction": "output",
-      "variables": {
-        "flow": {
-          "unit": "kg/s",
-          "dimensions": [
-            "time"
-          ]
-        },
-        "pressure": {
-          "unit": "Pa",
-          "dimensions": [
-            "time"
-          ]
-        },
-        "enthalpy": {
-          "unit": "J/kg",
-          "dimensions": [
-            "time"
-          ]
-        }
-      }
-    },
-    "cooling_water_inlet": {
-      "direction": "input",
       "variables": {
         "flow": {
           "unit": "kg/s",
@@ -191,16 +122,13 @@
           },
           "model_arguments": {
             "HotSideProperties": {
-              "model": "water_property_package"
+              "model": "helmholtz_water_ph"
             },
             "ColdSideProperties": {
-              "model": "water_property_package"
+              "model": "helmholtz_water_ph"
             },
             "RefrigerantProperties": {
-              "model": "water_property_package"
-            },
-            "IsentropicProperties": {
-              "model": "water_isentropic_package"
+              "model": "helmholtz_propane_ph"
             }
           }
         },
@@ -238,6 +166,14 @@
           "model": "heat_exchanger",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "HotSideProperties": {
+              "model": "helmholtz_water_ph"
+            },
+            "ColdSideProperties": {
+              "model": "helmholtz_water_ph"
+            }
           }
         },
         "hot_water_mixer": {
@@ -253,9 +189,14 @@
           }
         },
         "flash_tank": {
-          "model": "water_flash",
+          "model": "flash_separator",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
           }
         },
         "steam_valve": {
@@ -271,7 +212,7 @@
           },
           "model_arguments": {
             "FluidProperties": {
-              "model": "water_property_package"
+              "model": "helmholtz_water_ph"
             }
           }
         },
@@ -282,7 +223,7 @@
           },
           "model_arguments": {
             "FluidProperties": {
-              "model": "water_property_package"
+              "model": "helmholtz_water_ph"
             }
           }
         },
@@ -293,7 +234,7 @@
           },
           "model_arguments": {
             "FluidProperties": {
-              "model": "water_property_package"
+              "model": "helmholtz_water_ph"
             }
           }
         },
@@ -307,6 +248,39 @@
           "model": "valve",
           "domain_bindings": {
             "time": "time"
+          }
+        },
+        "makeup_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
+          }
+        },
+        "phnix_source_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
+          }
+        },
+        "cooling_water_state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
           }
         }
       },
@@ -346,7 +320,7 @@
       },
       "connections": {
         "makeup_feed": {
-          "from": "makeup_inlet",
+          "from": "makeup_state.state",
           "to": "warm_water_mixer.makeup"
         },
         "warm_return": {
@@ -426,7 +400,7 @@
           "to": "sghp.source_inlet"
         },
         "phnix_source_feed": {
-          "from": "phnix_source_inlet",
+          "from": "phnix_source_state.state",
           "to": "phnix.source_inlet"
         },
         "phnix_source_export": {
@@ -434,7 +408,7 @@
           "to": "phnix_source_outlet"
         },
         "cooling_water_feed": {
-          "from": "cooling_water_inlet",
+          "from": "cooling_water_state.state",
           "to": "cooling_exchanger.cold_inlet"
         },
         "cooling_water_export": {

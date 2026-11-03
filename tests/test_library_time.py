@@ -14,30 +14,27 @@ EXAMPLES = Path(__file__).parents[1] / 'examples/model_language'
 SELECTIONS = sorted(p for p in EXAMPLES.glob('*.json') if p.name != 'milk_evaporator_aggregate.json')
 EXAMPLE_MODELS = {
     "compressor_flowsheet": "compressor_flowsheet",
+    "flash_flowsheet": "flash_flowsheet",
     "en12900_compressor_map": "en12900_compressor_map",
-    "heat_exchanger_lumped": "heat_exchanger",
+    "heat_exchanger_lumped": "heat_exchanger_flowsheet",
     "heat_pump_aggregate": "heat_pump_flowsheet",
     "heat_pump_cycle": "heat_pump_flowsheet",
     "heat_pump_evaporator_flowsheet": "heat_pump_evaporator_flowsheet",
     "helmholtz_propane_ph": "helmholtz_propane_ph",
     "helmholtz_water_ph": "helmholtz_water_ph",
-    "helmholtz_water_property_pair": "helmholtz_water_property_pair",
+    "helmholtz_water_state_block": "helmholtz_water_state_block",
     "humid_air_state": "humid_air_state",
     "mapped_propane_compressor": "mapped_propane_compressor",
     "milk_evaporator_aggregate": "milk_evaporator",
     "milk_evaporator_detailed": "milk_evaporator",
     "pump_flowsheet": "pump_flowsheet",
     "source_loop_loop": "source_loop",
-    "steam_generating_heat_pump_aggregate": "steam_generating_heat_pump",
-    "steam_generating_heat_pump_flowsheet": "steam_generating_heat_pump",
-    "tank_mixed": "tank",
-    "pipe_pass_through": "pipe",
-    "pipe_lumped": "pipe",
-    "water_isentropic_package_constant_properties": "water_isentropic_package",
+    "tank_mixed": "tank_flowsheet",
+    "pipe_pass_through": "pipe_flowsheet",
+    "pipe_lumped": "pipe_flowsheet",
     "water_property_package_constant_properties": "water_property_package",
-    "water_property_pair_evaluate": "water_property_pair",
+    "water_state_block_evaluate": "water_state_block",
     "water_state_constant_properties": "water_state",
-    "water_state_ps_constant_properties": "water_state_ps"
 }
 
 
@@ -86,8 +83,8 @@ def test_library_operating_interfaces_and_fixed_coefficients():
         assert model.domains['time'].kind == 'time'
         for sid, struct in model.structs.items():
             for field, variable in struct.variables.items():
-                fixed = (name == 'pipe_holdup' and sid in {'parameters', 'geometry'}) or (name in {'water_state', 'water_state_ph', 'water_state_ps', 'tank'}
-                         and sid == 'parameters') or (
+                fixed = (name == 'pipe_holdup' and sid in {'parameters', 'geometry'}) or (name in {'water_state', 'water_state_ph', 'tank'}
+                         and sid == 'parameters' and (name != 'tank' or field == 'area')) or (
                              name == 'heat_exchanger' and sid == 'parameters' and field == 'conductance'
                          )
                 assert variable.dimensions == ([] if fixed else ['time']), (name, sid, field)

@@ -1,3 +1,8 @@
 {
-  "relationship": "pass_through"
+  "relationship": "flowsheet",
+  "submodels": {
+    "pipe": {
+      "relationship": "pass_through"
+    }
+  }
 }

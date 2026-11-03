@@ -124,12 +124,25 @@
           "model": "heat_exchanger",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "HotSideProperties": {
+              "model": "water_property_package"
+            },
+            "ColdSideProperties": {
+              "model": "water_property_package"
+            }
           }
         },
         "separator": {
           "model": "flash_separator",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
           }
         },
         "translator": {
@@ -143,9 +156,6 @@
           "model_arguments": {
             "FluidProperties": {
               "model": "water_property_package"
-            },
-            "IsentropicProperties": {
-              "model": "water_isentropic_package"
             }
           },
           "domain_bindings": {

@@ -1,0 +1,27 @@
+{
+  "id": "flash_flowsheet",
+  "description": "Concrete water-package example of flash_separator.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {},
+  "relationships": {
+    "flowsheet": {
+      "models": {
+        "flash_separator": {
+          "model": "flash_separator",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_water_ph"
+            }
+          }
+        }
+      }
+    }
+  }
+}

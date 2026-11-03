@@ -1,6 +1,7 @@
 """Derivative ownership, initial specifications, and real tank simulations."""
 
 from copy import deepcopy
+from pathlib import Path
 import json
 import math
 
@@ -18,7 +19,7 @@ from multifidelity.model_language import (
 )
 from multifidelity.model_language.definitions import ModelDocument
 
-TANK_SELECTION = {"relationship": "mixed"}
+TANK_SELECTION = Path("examples/model_language/tank_mixed.json")
 
 
 def with_initial_values(model, entries):
@@ -73,16 +74,16 @@ def build_integrator(tmp_path, definition=None, **kwargs):
 
 
 def test_tank_construction_and_specification_discovery():
-    assert set(required_initial_values("tank", TANK_SELECTION)) == {
-        "inventory.level", "inventory.energy",
+    assert set(required_initial_values("tank_flowsheet", TANK_SELECTION)) == {
+        "tank.inventory.mass", "tank.inventory.energy",
     }
-    assert 'inventory.energy' not in required_inputs("tank", TANK_SELECTION)
+    assert 'tank.inventory.energy' not in required_inputs("tank_flowsheet", TANK_SELECTION)
     m = make_tank()
     assert isinstance(m.fs.time, ContinuousSet)
     derivatives = list(m.component_objects(DerivativeVar))
     assert len(derivatives) == 2
-    assert derivatives[0].get_state_var() is m.fs.root.structs.inventory.level
-    b = m.fs.root.structs
+    assert derivatives[0].get_state_var() is m.fs.root.relationship.models.tank.structs.inventory.mass
+    b = m.fs.root.relationship.models.tank.structs
     assert not b.inventory.level[0].fixed
     assert not b.inventory.energy[0].fixed
     specify_tank(m)
@@ -94,18 +95,20 @@ def test_tank_construction_and_specification_discovery():
     assert_units_consistent(m)
 
 
+
 def test_discretization_expands_every_equation_and_preserves_units():
     m = make_tank(horizon=100)
     pyo.TransformationFactory('dae.finite_difference').apply_to(
         m, wrt=m.fs.time, nfe=4, scheme='BACKWARD',
     )
     assert list(m.fs.time) == [0, 25, 50, 75, 100]
-    r = m.fs.root.relationship
+    r = m.fs.root.relationship.models.tank.relationship
     assert len(r.constraints.energy_balance) == 5
     assert len(r.derivatives.energy.equation) == 5
     assert len(r.derivatives.energy.coordinate_rate_disc_eq) == 4
-    assert not m.fs.root.structs.inventory.energy[25].fixed
+    assert not m.fs.root.relationship.models.tank.structs.inventory.energy[25].fixed
     assert_units_consistent(m)
+
 
 
 def test_tank_steady_rebuild_has_zero_rates_and_no_initial_fixes():
@@ -114,25 +117,27 @@ def test_tank_steady_rebuild_has_zero_rates_and_no_initial_fixes():
     steady = make_tank(mode='steady')
     assert not isinstance(steady.fs.time, ContinuousSet)
     assert not list(steady.component_objects(DerivativeVar))
-    b = steady.fs.root.structs
+    b = steady.fs.root.relationship.models.tank.structs
     assert not b.inventory.level[0].fixed
     assert not b.inventory.energy[0].fixed
-    assert dynamic.fs.root.structs.inventory.level[0].fixed
+    assert dynamic.fs.root.relationship.models.tank.structs.inventory.level[0].fixed
     b.rates.energy[0].set_value(0)
-    assert pyo.value(steady.fs.root.relationship.derivatives.energy.equation[0].body) == 0
+    assert pyo.value(steady.fs.root.relationship.models.tank.relationship.derivatives.energy.equation[0].body) == 0
     assert_units_consistent(steady)
+
 
 
 def test_tank_implicit_simulation_matches_discrete_solution(solver):
     m = simulate(make_tank(), nfe=100)
-    b = m.fs.root.structs
-    expected = 333.15 - 30 / (1 + 10 / 1000) ** 100
+    b = m.fs.root.relationship.models.tank.structs
+    expected = 333.15 - 30 / (1 + 10 / 997) ** 100
     assert pyo.value(b.inventory.level[1000]) == pytest.approx(1, abs=1e-7)
     assert pyo.value(b.inventory.temperature[1000]) == pytest.approx(expected, abs=1e-5)
     assert pyo.value(b.inventory.temperature[1000]) == pytest.approx(
-        333.15 - 30 * math.exp(-1), abs=0.06,
+        333.15 - 30 * math.exp(-1000/997), abs=0.06,
     )
     assert pyo.value(b.rates.energy[0]) == pytest.approx(125400, abs=1e-4)
+
 
 
 def test_filling_tank_conserves_mass_and_energy(solver):
@@ -143,13 +148,14 @@ def test_filling_tank_conserves_mass_and_energy(solver):
     specify_tank(m, inflow=1.2, outflow=0.8, loss=1000)
     set_initial_guesses(m, outflow=0.8)
     pyo.assert_optimal_termination(solver.solve(m))
-    b = m.fs.root.structs
-    energy = 125400000
+    b = m.fs.root.relationship.models.tank.structs
+    energy = 997*(104920.1198085+4180*5)-101325
     for t in list(m.fs.time)[1:]:
-        mass = 1000 + 0.4 * t
-        energy = (energy + 10 * (1.2 * 4180 * 60 - 1000)) / (1 + 10 * 0.8 / mass)
-        assert pyo.value(b.inventory.level[t]) == pytest.approx(mass / 1000, abs=1e-7)
+        mass = 997 + 0.4 * t
+        energy = (energy + 10 * (1.2 * (104920.1198085+4180*35) - 0.8 * 101325/997 - 1000)) / (1 + 10 * 0.8 / mass)
+        assert pyo.value(b.inventory.level[t]) == pytest.approx(mass / 997, abs=1e-7)
         assert pyo.value(b.inventory.energy[t]) == pytest.approx(energy, rel=1e-8)
+
 
 
 def test_tank_steady_solve_calculates_withdrawal_and_temperature(solver):
@@ -157,20 +163,22 @@ def test_tank_steady_solve_calculates_withdrawal_and_temperature(solver):
     specify_tank(m, loss=4180)
     set_initial_guesses(m)
     pyo.assert_optimal_termination(solver.solve(m))
-    b = m.fs.root.structs
+    b = m.fs.root.relationship.models.tank.structs
     assert pyo.value(b.withdrawal.flow[0]) == pytest.approx(1)
     assert pyo.value(b.inventory.temperature[0]) == pytest.approx(332.15)
     assert pyo.value(b.rates.energy[0]) == pytest.approx(0)
 
 
+
 def test_initial_temperature_can_replace_energy(solver):
-    m = with_initial_values(build_model('tank', TANK_SELECTION, mode='dynamic', domain_values={'time': [0, 100]}), [
-                        {'variable_path': 'inventory.level', 'value': 1},
-                        {'variable_path': 'inventory.temperature', 'value': 303.15, 'unit': 'K'},
+    m = with_initial_values(build_model('tank_flowsheet', TANK_SELECTION, mode='dynamic', domain_values={'time': [0, 100]}), [
+                        {'variable_path': 'tank.inventory.level', 'value': 1},
+                        {'variable_path': 'tank.inventory.temperature', 'value': 303.15, 'unit': 'K'},
                     ])
     simulate(m, nfe=10, initial_values=[])
-    assert not m.fs.root.structs.inventory.energy[0].fixed
-    assert pyo.value(m.fs.root.structs.inventory.energy[0]) == pytest.approx(125400000)
+    assert not m.fs.root.relationship.models.tank.structs.inventory.energy[0].fixed
+    assert pyo.value(m.fs.root.relationship.models.tank.structs.inventory.energy[0]) == pytest.approx(997*(104920.1198085+4180*5)-101325)
+
 
 
 def test_tank_petsc_integration(solver):
@@ -179,12 +187,13 @@ def test_tank_petsc_integration(solver):
     if not petsc_available():
         pytest.skip('IDAES PETSc executable is required')
     m = simulate(make_tank(), backend='petsc', nfe=1)
-    b = m.fs.root.structs
+    b = m.fs.root.relationship.models.tank.structs
     assert pyo.value(b.inventory.level[1000]) == pytest.approx(1, abs=1e-6)
     assert pyo.value(b.inventory.temperature[1000]) == pytest.approx(
-        333.15 - 30 * math.exp(-1), abs=1e-3,
+        333.15 - 30 * math.exp(-1000/997), abs=1e-3,
     )
     assert not b.inventory.energy[1000].fixed
+
 
 
 @pytest.mark.parametrize('time_unit,rate_unit,rate_value,horizon', [
@@ -356,12 +365,13 @@ def test_nested_derivative_and_initial_paths(tmp_path):
 
 
 @pytest.mark.parametrize('spec,message', [
-    ({'variable_path': 'parameters.area', 'value': 1}, 'time-indexed'),
-    ({'variable_path': 'inventory.level', 'value': -1}, 'outside variable bounds'),
+    ({'variable_path': 'tank.parameters.area', 'value': 1}, 'time-indexed'),
+    ({'variable_path': 'tank.inventory.level', 'value': -1}, 'outside variable bounds'),
 ])
 def test_invalid_tank_initial_values(spec, message):
     with pytest.raises(ValueError, match=message):
-        with_initial_values(build_model('tank', TANK_SELECTION, mode='dynamic', domain_values={'time': [0, 1]}), [spec])
+        with_initial_values(build_model('tank_flowsheet', TANK_SELECTION, mode='dynamic', domain_values={'time': [0, 1]}), [spec])
+
 
 
 def test_incompatible_initial_units(tmp_path):

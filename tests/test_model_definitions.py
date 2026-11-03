@@ -19,10 +19,10 @@ def test_bundled_definitions_parse_and_round_trip(path):
 
 
 def test_definition_navigation_preserves_generic_references():
-    model = ModelDocument.model_validate_json((MODELS / "property_pair.json").read_text())
-    assert model.structs["inlet_state"].variables["pressure"].unit == "Pa"
+    model = ModelDocument.model_validate_json((MODELS / "state_block.json").read_text())
+    assert model.structs["state"].variables["pressure"].unit == "Pa"
     assert (
-        model.relationships["evaluate"].models["inlet"].model_parameter
+        model.relationships["evaluate"].models["fluid"].model_parameter
         == "FluidProperties"
     )
 

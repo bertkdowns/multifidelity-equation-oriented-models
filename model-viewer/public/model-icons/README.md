@@ -15,20 +15,18 @@ Source mappings:
 - `mixer.svg` ← `mixer.svg`
 - `prescribed_cop.svg` ← `controlBlock.svg`
 - `prescribed_power.svg` ← `powerconnected.svg`
-- `property_pair.svg` ← `stream.svg`
+- `state_block.svg` ← `stream.svg`
 - `pump.svg` ← `pump.svg`
 - `pump_flowsheet.svg` ← `pump.svg`
 - `source_loop.svg` ← `group.svg`
 - `splitter.svg` ← `splitter.svg`
-- `steam_generating_heat_pump.svg` ← `heatPump.svg`
+- `steam_generating_heat_pump_system.svg` ← `heatPump.svg`
 - `thermal_conditioner.svg` ← `heater.svg`
 - `translator.svg` ← `translator.svg`
 - `valve.svg` ← `valve.svg`
-- `water_isentropic_package.svg` ← `stream.svg`
 - `water_property_package.svg` ← `stream.svg`
-- `water_property_pair.svg` ← `stream.svg`
+- `water_state_block.svg` ← `stream.svg`
 - `water_state.svg` ← `stream.svg`
 - `water_state_ph.svg` ← `stream.svg`
-- `water_state_ps.svg` ← `stream.svg`
 
 Flowsheets reuse their main equipment icon. Property models use the stream icon; milk evaporator uses the vessel icon; source loop uses the group icon.

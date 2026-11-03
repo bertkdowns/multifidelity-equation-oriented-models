@@ -1,12 +1,12 @@
 {
-  "id": "helmholtz_water_property_pair",
-  "description": "Existing narrow property_pair interface evaluated with a richer Helmholtz model.",
+  "id": "helmholtz_water_state_block",
+  "description": "A single stream state block using helmholtz_water_ph.",
   "structs": {},
   "relationships": {
     "evaluate": {
       "models": {
         "states": {
-          "model": "property_pair",
+          "model": "state_block",
           "model_arguments": {
             "FluidProperties": {
               "model": "helmholtz_water_ph"

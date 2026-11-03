@@ -4,10 +4,7 @@
     "states": {
       "relationship": "evaluate",
       "submodels": {
-        "inlet": {
-          "relationship": "helmholtz"
-        },
-        "outlet": {
+        "fluid": {
           "relationship": "helmholtz"
         }
       }

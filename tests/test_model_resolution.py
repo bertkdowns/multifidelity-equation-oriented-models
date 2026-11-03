@@ -8,18 +8,18 @@ from multifidelity.model_language.definitions import ConcreteModelReference, Mod
 
 def test_generic_references_are_resolved_during_navigation():
     library = Library()
-    root = library.resolve("water_property_pair")
+    root = library.resolve("water_state_block")
     pair = root.relationships["evaluate"].models["states"]
     assert isinstance(pair, ModelView)
-    assert pair.id == "property_pair"
+    assert pair.id == "state_block"
     assert pair.model_arguments["FluidProperties"].id == "water_property_package"
     states = pair.relationships["evaluate"].models
-    assert states["inlet"].definition is library.get("water_property_package")
-    assert states["outlet"].definition is states["inlet"].definition
-    assert states["inlet"].path != states["outlet"].path
-    assert states["inlet"].structs["state"].variables["pressure"].unit == "Pa"
+    assert states["fluid"].definition is library.get("water_property_package")
+    assert set(states) == {"fluid"}
+    assert states["fluid"].path == "water_state_block.states.fluid"
+    assert states["fluid"].structs["state"].variables["pressure"].unit == "Pa"
     assert (
-        states["inlet"]
+        states["fluid"]
         .relationships["constant_properties"]
         .constraints["density"]
         .determines
@@ -61,26 +61,26 @@ def test_interface_errors_are_available_without_conversion():
     library = Library()
     library.get("water_property_package").structs["state"].direction = "output"
     with pytest.raises(ValueError, match="incompatible required struct"):
-        library.resolve("water_property_pair").relationships["evaluate"].models
+        library.resolve("water_state_block").relationships["evaluate"].models
 
 
 def test_unknown_generic_parameter_is_reported_without_conversion():
     library = Library()
-    library.get("water_property_pair").relationships["evaluate"].models["states"] = (
+    library.get("water_state_block").relationships["evaluate"].models["states"] = (
         ConcreteModelReference.model_validate(
             {
-                "model": "property_pair",
+                "model": "state_block",
                 "model_arguments": {"FluidProperties": {"model_parameter": "Missing"}},
             }
         )
     )
     with pytest.raises(ValueError, match="unknown model parameter"):
-        library.resolve("water_property_pair").relationships["evaluate"].models
+        library.resolve("water_state_block").relationships["evaluate"].models
 
 
 def test_fresh_views_see_definition_edits():
     library = Library()
-    before = library.resolve("water_property_pair").relationships["evaluate"].models
-    library.get("water_property_pair").relationships["evaluate"].models.clear()
+    before = library.resolve("water_state_block").relationships["evaluate"].models
+    library.get("water_state_block").relationships["evaluate"].models.clear()
     assert "states" in before
-    assert library.resolve("water_property_pair").relationships["evaluate"].models == {}
+    assert library.resolve("water_state_block").relationships["evaluate"].models == {}

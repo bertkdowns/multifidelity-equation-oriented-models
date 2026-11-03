@@ -17,8 +17,8 @@ def test_existing_implementation_examples_parse_and_round_trip(path):
 
 
 def test_recursive_selections_can_be_navigated():
-    document = ImplementationDocument.load_json(EXAMPLES / "water_property_pair_evaluate.json")
-    inlet = document.submodels["states"].submodels["inlet"]
+    document = ImplementationDocument.load_json(EXAMPLES / "water_state_block_evaluate.json")
+    inlet = document.submodels["states"].submodels["fluid"]
     assert isinstance(inlet, ImplementationSelection)
     assert inlet.relationship == "constant_properties"
     assert set(inlet.submodels) == {"water"}
@@ -69,21 +69,21 @@ def test_all_operations_validate_document_shape_consistently(tmp_path, operation
 def test_selected_hierarchy_errors_are_identical_for_all_operations(change):
     from multifidelity.model_language import build_model, required_inputs, required_initial_values
 
-    document = ImplementationDocument.load_json(EXAMPLES / "water_property_pair_evaluate.json")
+    document = ImplementationDocument.load_json(EXAMPLES / "water_state_block_evaluate.json")
     states = document.submodels["states"]
     if change == "unknown_relationship":
-        states.submodels["inlet"].relationship = "absent"
+        states.submodels["fluid"].relationship = "absent"
     elif change == "missing_child":
-        del states.submodels["inlet"]
+        del states.submodels["fluid"]
     else:
-        states.submodels["other"] = states.submodels["inlet"]
+        states.submodels["other"] = states.submodels["fluid"]
     errors = []
     for operation in (build_model, required_inputs, required_initial_values):
         with pytest.raises(ValueError) as error:
-            operation("water_property_pair", document)
+            operation("water_state_block", document)
         errors.append(str(error.value))
     assert errors[0] == errors[1] == errors[2]
-    assert "water_property_pair.states" in errors[0]
+    assert "water_state_block.states" in errors[0]
 
 
 def test_finite_recursive_selection_ignores_unselected_broken_alternatives():

@@ -1,0 +1,152 @@
+{
+  "id": "helmholtz_butane_ph",
+  "description": "Mass-basis n-butane Helmholtz PH state using Ahuora EOS data. No viscosity output: the packaged butane data has no viscosity correlation.",
+  "structs": {
+    "state": {
+      "direction": "input",
+      "variables": {
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "properties": {
+      "direction": "output",
+      "variables": {
+        "density": {
+          "unit": "kg/m**3",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "temperature": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "entropy": {
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "vapor_fraction": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "temperature_bubble": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "temperature_dew": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy_liquid_sat": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy_vapor_sat": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy_liquid": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy_vapor": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "helmholtz": {
+      "external": {
+        "provider": "standard.helmholtz_ph",
+        "config": {
+          "fluid": "n-butane",
+          "include_viscosity": false
+        },
+        "dependencies": {
+          "properties.density": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.heat_capacity": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.temperature": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.entropy": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.vapor_fraction": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.temperature_bubble": [
+            "state.pressure"
+          ],
+          "properties.temperature_dew": [
+            "state.pressure"
+          ],
+          "properties.enthalpy_liquid_sat": [
+            "state.pressure"
+          ],
+          "properties.enthalpy_vapor_sat": [
+            "state.pressure"
+          ],
+          "properties.enthalpy_liquid": [
+            "state.pressure",
+            "state.enthalpy"
+          ],
+          "properties.enthalpy_vapor": [
+            "state.pressure",
+            "state.enthalpy"
+          ]
+        }
+      }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

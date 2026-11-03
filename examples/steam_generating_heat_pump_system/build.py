@@ -9,7 +9,7 @@ from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import (
     InformationDocument, apply_specification, build_model, required_inputs,
-    select_specification,
+    select_specification, Library, register_standard_providers,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -18,7 +18,9 @@ MODEL = 'steam_generating_heat_pump_system'
 
 def build(sghp='aggregate', phnix='aggregate'):
     implementation = HERE / f'{sghp}_{phnix}.json'
-    model = build_model(MODEL, implementation)
+    library = Library()
+    register_standard_providers(library)
+    model = build_model(MODEL, implementation, library=library)
     assert_units_consistent(model)
     return model
 

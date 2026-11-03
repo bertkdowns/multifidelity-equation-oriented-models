@@ -25,29 +25,6 @@
         }
       }
     },
-    "makeup_inlet": {
-      "direction": "input",
-      "variables": {
-        "flow": {
-          "unit": "kg/s",
-          "dimensions": [
-            "time"
-          ]
-        },
-        "pressure": {
-          "unit": "Pa",
-          "dimensions": [
-            "time"
-          ]
-        },
-        "enthalpy": {
-          "unit": "J/kg",
-          "dimensions": [
-            "time"
-          ]
-        }
-      }
-    },
     "milk_outlet": {
       "direction": "output",
       "variables": {
@@ -145,7 +122,7 @@
     "flowsheet": {
       "models": {
         "heat_pump": {
-          "model": "steam_generating_heat_pump",
+          "model": "steam_generating_heat_pump_system",
           "domain_bindings": {
             "time": "time"
           }
@@ -180,10 +157,6 @@
         "milk_feed": {
           "from": "milk_inlet",
           "to": "steam_injection.main"
-        },
-        "makeup_feed": {
-          "from": "makeup_inlet",
-          "to": "heat_pump.makeup_inlet"
         },
         "steam_supply": {
           "from": "heat_pump.steam_outlet",

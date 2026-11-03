@@ -5,16 +5,37 @@
       "relationship": "aggregate",
       "submodels": {
         "cop_model": {
-          "relationship": "specified",
-          "submodels": {}
+          "relationship": "specified"
         },
         "power_model": {
-          "relationship": "specified",
-          "submodels": {}
+          "relationship": "specified"
         },
         "warm_water_heater": {
-          "relationship": "energy_balance",
-          "submodels": {}
+          "relationship": "energy_balance"
+        },
+        "source_inlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "helmholtz"
+            }
+          }
+        },
+        "hot_inlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "helmholtz"
+            }
+          }
+        },
+        "warm_inlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "helmholtz"
+            }
+          }
         }
       }
     },
@@ -25,141 +46,315 @@
           "relationship": "isentropic",
           "submodels": {
             "inlet_state": {
-              "relationship": "constant_properties",
+              "relationship": "evaluate",
               "submodels": {
-                "water": {
-                  "relationship": "constant_properties",
-                  "submodels": {}
+                "fluid": {
+                  "relationship": "helmholtz"
                 }
               }
             },
             "outlet_state": {
-              "relationship": "constant_properties",
+              "relationship": "evaluate",
               "submodels": {
-                "water": {
-                  "relationship": "constant_properties",
-                  "submodels": {}
+                "fluid": {
+                  "relationship": "helmholtz"
                 }
               }
             },
             "isentropic_state": {
-              "relationship": "constant_properties",
-              "submodels": {
-                "water": {
-                  "relationship": "constant_properties",
-                  "submodels": {}
-                }
-              }
+              "relationship": "helmholtz"
             }
           }
         },
         "condenser": {
           "relationship": "lumped",
-          "submodels": {}
+          "submodels": {
+            "hot_inlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "hot_outlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "cold_inlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "cold_outlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "driving_force": {
+              "relationship": "smooth"
+            }
+          }
         },
         "subcooler": {
           "relationship": "lumped",
-          "submodels": {}
+          "submodels": {
+            "hot_inlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "hot_outlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "cold_inlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "cold_outlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "driving_force": {
+              "relationship": "smooth"
+            }
+          }
         },
         "ihx": {
           "relationship": "lumped",
-          "submodels": {}
+          "submodels": {
+            "hot_inlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "hot_outlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "cold_inlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "cold_outlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "driving_force": {
+              "relationship": "smooth"
+            }
+          }
         },
         "expansion_valve": {
-          "relationship": "isenthalpic",
-          "submodels": {}
+          "relationship": "isenthalpic"
         },
         "evaporator": {
           "relationship": "lumped",
-          "submodels": {}
+          "submodels": {
+            "hot_inlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "hot_outlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "cold_inlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "cold_outlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz"
+                }
+              }
+            },
+            "driving_force": {
+              "relationship": "smooth"
+            }
+          }
         },
         "source_inlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+            "fluid": {
+              "relationship": "helmholtz"
             }
           }
         },
         "source_outlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+            "fluid": {
+              "relationship": "helmholtz"
             }
           }
         },
         "sink_inlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+            "fluid": {
+              "relationship": "helmholtz"
             }
           }
         },
         "sink_outlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+            "fluid": {
+              "relationship": "helmholtz"
             }
           }
         }
       }
     },
     "source_heater": {
-      "relationship": "energy_balance",
-      "submodels": {}
+      "relationship": "energy_balance"
     },
     "source_tank": {
-      "relationship": "energy_balance",
-      "submodels": {}
+      "relationship": "energy_balance"
     },
     "source_valve": {
-      "relationship": "isenthalpic",
-      "submodels": {}
+      "relationship": "isenthalpic"
     },
     "warm_water_mixer": {
-      "relationship": "balance",
-      "submodels": {}
+      "relationship": "balance"
     },
     "warm_water_splitter": {
-      "relationship": "split",
-      "submodels": {}
+      "relationship": "split"
     },
     "cooling_exchanger": {
       "relationship": "lumped",
-      "submodels": {}
+      "submodels": {
+        "hot_inlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "helmholtz"
+            }
+          }
+        },
+        "hot_outlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "helmholtz"
+            }
+          }
+        },
+        "cold_inlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "helmholtz"
+            }
+          }
+        },
+        "cold_outlet_state": {
+          "relationship": "evaluate",
+          "submodels": {
+            "fluid": {
+              "relationship": "helmholtz"
+            }
+          }
+        },
+        "driving_force": {
+          "relationship": "smooth"
+        }
+      }
     },
     "hot_water_mixer": {
-      "relationship": "balance",
-      "submodels": {}
+      "relationship": "balance"
     },
     "flash_valve": {
-      "relationship": "isenthalpic",
-      "submodels": {}
+      "relationship": "isenthalpic"
     },
     "flash_tank": {
-      "relationship": "enthalpy_balance",
-      "submodels": {}
+      "relationship": "phase_split",
+      "submodels": {
+        "inlet_state": {
+          "relationship": "helmholtz"
+        },
+        "liquid_state": {
+          "relationship": "helmholtz"
+        },
+        "vapor_state": {
+          "relationship": "helmholtz"
+        },
+        "liquid_mixture": {
+          "relationship": "mix"
+        },
+        "vapor_mixture": {
+          "relationship": "mix"
+        }
+      }
     },
     "steam_valve": {
-      "relationship": "isenthalpic",
-      "submodels": {}
+      "relationship": "isenthalpic"
     },
     "source_pump": {
       "relationship": "incompressible",
       "submodels": {
         "outlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+            "fluid": {
+              "relationship": "helmholtz"
             }
           }
         }
@@ -169,11 +364,10 @@
       "relationship": "incompressible",
       "submodels": {
         "outlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+            "fluid": {
+              "relationship": "helmholtz"
             }
           }
         }
@@ -183,11 +377,10 @@
       "relationship": "incompressible",
       "submodels": {
         "outlet_state": {
-          "relationship": "constant_properties",
+          "relationship": "evaluate",
           "submodels": {
-            "water": {
-              "relationship": "constant_properties",
-              "submodels": {}
+            "fluid": {
+              "relationship": "helmholtz"
             }
           }
         }
@@ -198,6 +391,30 @@
     },
     "warm_makeup_valve": {
       "relationship": "isenthalpic"
+    },
+    "makeup_state": {
+      "relationship": "evaluate",
+      "submodels": {
+        "fluid": {
+          "relationship": "helmholtz"
+        }
+      }
+    },
+    "phnix_source_state": {
+      "relationship": "evaluate",
+      "submodels": {
+        "fluid": {
+          "relationship": "helmholtz"
+        }
+      }
+    },
+    "cooling_water_state": {
+      "relationship": "evaluate",
+      "submodels": {
+        "fluid": {
+          "relationship": "helmholtz"
+        }
+      }
     }
   }
 }

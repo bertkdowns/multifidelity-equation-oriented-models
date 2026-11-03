@@ -1,8 +1,28 @@
 {
-  "relationship": "lumped",
+  "relationship": "flowsheet",
   "submodels": {
-    "contents": {
-      "relationship": "mixed"
+    "pipe": {
+      "relationship": "lumped",
+      "submodels": {
+        "contents": {
+          "relationship": "mixed",
+          "submodels": {
+            "contents_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "constant_properties",
+                  "submodels": {
+                    "water": {
+                      "relationship": "constant_properties"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

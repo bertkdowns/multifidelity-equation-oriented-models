@@ -28,10 +28,12 @@ def connection_endpoints(
             raise ValueError(f"{path}: unknown struct {endpoint}")
         endpoints.append((definition.structs[struct_id], prefix + struct_id, bool(sep)))
     source, target = endpoints
-    if source[0].direction != ("output" if source[2] else "input") or target[
-        0
-    ].direction != ("input" if target[2] else "output"):
+    # Child inputs and outputs are both readable by their containing relationship.
+    # Only destinations declare responsibility for determining a variable.
+    if target[0].direction != ("input" if target[2] else "output"):
         raise ValueError(f"{path}: invalid connection direction")
+    if source[1] == target[1]:
+        raise ValueError(f"{path}: connection endpoints must differ")
     if set(source[0].variables) != set(target[0].variables):
         raise ValueError(f"{path}: connection fields differ")
     for field in source[0].variables:

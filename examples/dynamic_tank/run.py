@@ -22,9 +22,9 @@ IMPLEMENTATION = Path(__file__).parents[1] / "model_language/tank_mixed.json"
 HERE = Path(__file__).parent
 
 
-def make_tank(*, mode="dynamic", horizon=1000, time_unit="s"):
+def make_tank(*, mode="dynamic", horizon=1000, time_unit="s", library=None):
     return build_model(
-        "tank", IMPLEMENTATION, mode=mode, time_unit=time_unit,
+        "tank_flowsheet", IMPLEMENTATION, mode=mode, time_unit=time_unit, library=library,
         domain_values={"time": [0, horizon]} if mode == "dynamic" else None,
     )
 
@@ -52,14 +52,35 @@ def specify_tank(model, *, inflow=1, outflow=1, loss=0,
 
 
 def set_initial_guesses(model, *, outflow=1):
-    b = model.fs.root.structs
+    b = model.fs.root.relationship.models.tank.structs
     # Guesses do not fix any additional states or derivatives.
+    for variable in model.component_data_objects(pyo.Var):
+        if variable.value is None:
+            variable.set_value(max(variable.lb or 1, 1))
+    for path, family in model._model_language_variables.items():
+        if path.endswith("state.pressure"):
+            for v in family.values():
+                if not v.fixed: v.set_value(101325)
+        if path.endswith("state.enthalpy"):
+            for v in family.values():
+                if not v.fixed: v.set_value(125820.1198085)
+    from multifidelity.model_language.standard.initialization import seed_affine_state
+    tank = model.fs.root.relationship.models.tank
+    pressure = 101325
+    inlet_h = 104920.1198085 + 4180 * 35
+    contents_h = 104920.1198085 + 4180 * 5
+    seed_affine_state(tank.relationship.models.inlet_state, pressure, inlet_h)
+    seed_affine_state(tank.relationship.models.contents_state, pressure, contents_h)
     for t in model.fs.time:
         for variable, guess in (
             (b.inventory.level[t], 1),
-            (b.inventory.energy[t], 125400000),
+            (b.inventory.mass[t], 997),
+            (b.inventory.energy[t], 997*contents_h-pressure),
             (b.inventory.temperature[t], 303.15),
-            (b.outlet.temperature[t], 303.15),
+            (b.inventory.enthalpy[t], contents_h),
+            (b.inlet.enthalpy[t], inlet_h),
+            (b.outlet.enthalpy[t], contents_h),
+            (b.outlet.pressure[t], pressure),
             (b.outlet.flow[t], outflow),
             (b.withdrawal.flow[t], outflow),
         ):
@@ -102,8 +123,8 @@ def main():
                        nfe=1 if args.backend == "petsc" else 100)
     for label, model in (("steady", steady), ("dynamic", dynamic)):
         t = model.fs.time.last()
-        level = get_variable(model, "inventory.level")[t]
-        temperature = get_variable(model, "inventory.temperature")[t]
+        level = get_variable(model, "tank.inventory.level")[t]
+        temperature = get_variable(model, "tank.inventory.temperature")[t]
         print(f"{label}: level={pyo.value(level):.4f} m, "
               f"temperature={pyo.value(temperature):.4f} K")
 

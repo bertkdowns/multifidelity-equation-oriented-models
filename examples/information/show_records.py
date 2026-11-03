@@ -8,13 +8,13 @@ from multifidelity.model_language import InformationDocument, build_model, get_v
 
 HERE = Path(__file__).parent
 model = build_model(
-    "tank", {"relationship": "mixed"},
+    "tank_flowsheet", "examples/model_language/tank_mixed.json",
     mode="dynamic", domain_values={"time": [0, 60]},
 )
 TransformationFactory("dae.finite_difference").apply_to(
     model, wrt=model.fs.time, nfe=2, scheme="BACKWARD",
 )
 table = InformationDocument.load_json(HERE / "records.json")
-for record in table.candidates("inlet.temperature"):
-    values = record.values_for(get_variable(model, "inlet.temperature"))
+for record in table.candidates("tank.inlet_state.properties.temperature"):
+    values = record.values_for(get_variable(model, "tank.inlet_state.properties.temperature"))
     print(f"{record.id} ({record.type}): {values} [{record.unit}]")

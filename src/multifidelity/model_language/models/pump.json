@@ -29,6 +29,42 @@
               "dimensions": [
                 "time"
               ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
             }
           }
         }
@@ -131,9 +167,14 @@
     "incompressible": {
       "models": {
         "outlet_state": {
-          "model_parameter": "FluidProperties",
+          "model": "state_block",
           "domain_bindings": {
             "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "FluidProperties"
+            }
           }
         }
       },
@@ -162,22 +203,6 @@
             "t": "time"
           }
         },
-        "outlet_pressure": {
-          "lhs": "outlet_state.state.pressure[t]",
-          "rhs": "outlet.pressure[t]",
-          "determines": "outlet_state.state.pressure[t]",
-          "for_each": {
-            "t": "time"
-          }
-        },
-        "outlet_enthalpy": {
-          "lhs": "outlet_state.state.enthalpy[t]",
-          "rhs": "outlet.enthalpy[t]",
-          "determines": "outlet_state.state.enthalpy[t]",
-          "for_each": {
-            "t": "time"
-          }
-        },
         "fluid_work": {
           "lhs": "performance.fluid_work[t]",
           "rhs": "parameters.pressure_rise[t] * outlet.flow[t] / outlet_state.properties.density[t]",
@@ -195,7 +220,12 @@
           }
         }
       },
-      "connections": {}
+      "connections": {
+        "outlet_state": {
+          "from": "outlet",
+          "to": "outlet_state.state"
+        }
+      }
     }
   },
   "domains": {

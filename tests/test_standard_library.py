@@ -61,23 +61,25 @@ def test_registration_and_inspection_do_not_construct_optional_providers(monkeyp
     ) == {"state.temperature", "state.pressure", "state.water_mole_fraction"}
 
 
-def test_richer_helmholtz_interface_satisfies_existing_property_pair():
+def test_richer_helmholtz_interface_satisfies_existing_state_block():
     require_helmholtz()
     library = Library()
     register_standard_providers(library)
-    selection = choose("helmholtz_water_property_pair")
-    model = build_model("helmholtz_water_property_pair", selection, library=library)
+    selection = choose("helmholtz_water_state_block")
+    model = build_model("helmholtz_water_state_block", selection, library=library)
     assert_units_consistent(model)
-    assert degrees_of_freedom(model) == 4
+    assert degrees_of_freedom(model) == 2
+    # Flow is a required stream input but thermodynamic equations do not use it.
     assert (
         len(
-            required_inputs("helmholtz_water_property_pair", selection, library=library)
+            required_inputs("helmholtz_water_state_block", selection, library=library)
         )
-        == 4
+        == 3
     )
-    # Existing public projection stays narrow; saturation remains private here.
+    # Saturation is part of the common thermodynamic projection; transport is not.
     pair = model.fs.root.relationship.models.states
-    assert not hasattr(pair.structs.inlet_properties, "temperature_dew")
+    assert hasattr(pair.structs.properties, "temperature_dew")
+    assert not hasattr(pair.structs.properties, "viscosity")
     assert (
         "temperature_dew"
         in library.get("helmholtz_water_ph").structs["properties"].variables
@@ -92,6 +94,7 @@ def test_mapped_compressor_rejects_property_model_without_saturation():
         .models["compressor"]
     )
     reference.model_arguments["FluidProperties"].model = "water_property_package"
+    del library.get("water_property_package").structs["properties"].variables["temperature_bubble"]
     with pytest.raises(
         ValueError, match="missing required variable properties.temperature_bubble"
     ):
@@ -102,21 +105,21 @@ def test_mapped_compressor_rejects_property_model_without_saturation():
         )
 
 
-def test_existing_property_models_remain_saturation_free():
+def test_affine_water_exposes_liquid_fraction_and_saturation_temperatures():
     library = Library()
     assert (
         "temperature_dew"
-        not in library.get("water_property_package").structs["properties"].variables
+        in library.get("water_property_package").structs["properties"].variables
     )
     assert (
         len(
             required_inputs(
-                "water_property_pair",
-                EXAMPLES / "water_property_pair_evaluate.json",
+                "water_state_block",
+                EXAMPLES / "water_state_block_evaluate.json",
                 library=library,
             )
         )
-        == 4
+        == 3
     )
 
 
@@ -221,7 +224,7 @@ def test_composed_compressor_matches_source_rating_and_energy_balance():
         library=library,
     )
     compressor = model.fs.root.relationship.models.compressor
-    inlet_provider = compressor.relationship.models.inlet_state.relationship.slices[0].provider
+    inlet_provider = compressor.relationship.models.inlet_state.relationship.models.fluid.relationship.slices[0].provider
     thermo = HelmholtzThermoExpressions(
         inlet_provider, inlet_provider.parameters, amount_basis=AmountBasis.MASS
     )

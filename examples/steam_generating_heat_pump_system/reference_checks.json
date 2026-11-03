@@ -1,13 +1,13 @@
 {
   "source": {
-    "id": 2384,
-    "name": "SGHP-DT",
-    "project_id": 1380,
-    "content_revision": 2,
-    "current_state_id": 1506,
-    "root_grouping_id": 3436,
-    "captured_at": "2026-11-03T20:10:43.396944Z",
-    "url": "https://ahuoratech.app/project/2384/flowsheet",
+    "id": 2450,
+    "name": "SGHP-DT-Spec",
+    "project_id": 1414,
+    "content_revision": 13,
+    "current_state_id": 153,
+    "root_grouping_id": 3510,
+    "captured_at": "2026-11-03T21:03:27.819523Z",
+    "url": "https://ahuoratech.app/project/2450/flowsheet",
     "kind": "current_configuration_snapshot",
     "note": "Stored current values, not immutable SolveRun results or live plant measurements. Enabled flags alone do not identify fixed specifications: control replacements and formulas also matter. value and displayValue are retained separately; displayValue may be stale."
   },
@@ -16,36 +16,36 @@
     {
       "cut": "hot-water manual return",
       "upstream_stream": "ManualRecycle",
-      "upstream_stream_id": 1670796,
+      "upstream_stream_id": 1671828,
       "downstream_stream": "M",
-      "downstream_stream_id": 1671235,
-      "upstream_mass_flow_kg_s": 1.6027031085671508,
-      "downstream_mass_flow_kg_s": 1.5349008336,
-      "mass_flow_difference_kg_s": 0.06780227496715074,
-      "upstream_enthalpy_J_kg": 347700.8184943974,
-      "downstream_enthalpy_J_kg": 335249.5008653479,
-      "energy_flow_difference_W": 42686.44431010698
+      "downstream_stream_id": 1671747,
+      "upstream_mass_flow_kg_s": 0.825752472120307,
+      "downstream_mass_flow_kg_s": 0.830463850734013,
+      "mass_flow_difference_kg_s": -0.004711378613705963,
+      "upstream_enthalpy_J_kg": 502116.34885088145,
+      "downstream_enthalpy_J_kg": 502116.34885088145,
+      "energy_flow_difference_W": -2365.66022756818
     },
     {
       "cut": "source-water manual return",
       "upstream_stream": "S17",
-      "upstream_stream_id": 1671257,
+      "upstream_stream_id": 1671766,
       "downstream_stream": "S19",
-      "downstream_stream_id": 1671261,
-      "upstream_mass_flow_kg_s": 1.8015268000000004,
-      "downstream_mass_flow_kg_s": 1.8015268,
-      "mass_flow_difference_kg_s": 4.440892098500626e-16,
-      "upstream_enthalpy_J_kg": 340354.4817592326,
-      "downstream_enthalpy_J_kg": 335028.8788676576,
-      "energy_flow_difference_W": 9594.216335329926
+      "downstream_stream_id": 1671765,
+      "upstream_mass_flow_kg_s": 9.007633999999996,
+      "downstream_mass_flow_kg_s": 9.007633999999996,
+      "mass_flow_difference_kg_s": 0.0,
+      "upstream_enthalpy_J_kg": 816545.1286831303,
+      "downstream_enthalpy_J_kg": 816545.1286831361,
+      "energy_flow_difference_W": -5.21540641784668e-08
     }
   ],
-  "source_loop_net_heat_input_W": 9594.216335321107,
+  "source_loop_net_heat_input_W": -1.7447746358811855e-08,
   "warm_split_snapshot": {
-    "inlet_mass_flow_kg_s": 0.3063824917025307,
-    "configured_return_fraction": 0.778700556319703,
-    "expected_return_mass_flow_kg_s": 0.23858021673537744,
-    "captured_return_mass_flow_kg_s": 0.1500085028603578
+    "inlet_mass_flow_kg_s": 0.19353170431922542,
+    "expected_return_mass_flow_kg_s": 0.17797915880617673,
+    "captured_return_mass_flow_kg_s": 0.17797915880617574,
+    "captured_return_fraction": 0.919638254787468
   },
-  "steam_mass_flow_kg_s": 0.0
+  "steam_mass_flow_kg_s": 0.02026392412669512
 }

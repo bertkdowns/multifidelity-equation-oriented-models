@@ -135,25 +135,26 @@ def test_selected_child_paths_and_cloned_models():
 
 
 def test_constants_and_series_use_final_grid_and_scalar_variables():
-    model = build_model("tank", {"relationship": "mixed"},
+    model = build_model("tank_flowsheet", "examples/model_language/tank_mixed.json",
                         mode="dynamic", domain_values={"time": [0, 60]})
     TransformationFactory("dae.finite_difference").apply_to(
         model, wrt=model.fs.time, nfe=2, scheme="BACKWARD",
     )
-    path = "inlet.temperature"
+    path = "tank.inlet.enthalpy"
     apply_specification(model, document(), information(
-        path, type="series", value=[30, 35, 40], unit="K",
+        path, type="series", value=[30, 35, 40], unit="J/kg",
     ))
-    assert list(model.fs.root.structs.inlet.temperature) == [0, 30, 60]
-    assert [v.value for v in model.fs.root.structs.inlet.temperature.values()] == [30, 35, 40]
-    assert all(v.fixed for v in model.fs.root.structs.inlet.temperature.values())
-    path = "parameters.area"
+    assert list(model.fs.root.relationship.models.tank.structs.inlet.enthalpy) == [0, 30, 60]
+    assert [v.value for v in model.fs.root.relationship.models.tank.structs.inlet.enthalpy.values()] == [30, 35, 40]
+    assert all(v.fixed for v in model.fs.root.relationship.models.tank.structs.inlet.enthalpy.values())
+    path = "tank.parameters.area"
     apply_specification(model, document(), information(path, value=2, unit="m**2"))
-    assert model.fs.root.structs.parameters.area.value == 2
-    assert model.fs.root.structs.parameters.area.fixed
-    path = "inlet.flow"
+    assert model.fs.root.relationship.models.tank.structs.parameters.area.value == 2
+    assert model.fs.root.relationship.models.tank.structs.parameters.area.fixed
+    path = "tank.inlet.flow"
     apply_specification(model, document(), information(path, value=3, unit="kg/s"))
-    assert all(v.fixed and value(v) == 3 for v in model.fs.root.structs.inlet.flow.values())
+    assert all(v.fixed and value(v) == 3 for v in model.fs.root.relationship.models.tank.structs.inlet.flow.values())
+
 
 
 def test_unregistered_models_and_empty_documents():
@@ -276,8 +277,9 @@ def test_invalid_initial_record_selections(data):
 
 
 def dynamic_tank():
-    return build_model("tank", {"relationship": "mixed"}, mode="dynamic",
+    return build_model("tank_flowsheet", "examples/model_language/tank_mixed.json", mode="dynamic",
                        domain_values={"time": [5, 65]})
+
 
 
 def test_operating_and_initial_values_apply_together_on_final_grid():
@@ -285,19 +287,20 @@ def test_operating_and_initial_values_apply_together_on_final_grid():
     TransformationFactory("dae.finite_difference").apply_to(
         model, wrt=model.fs.time, nfe=2, scheme="BACKWARD",
     )
-    table = information("inlet.flow", value=2, unit="kg/s")
+    table = information("tank.inlet.flow", value=2, unit="kg/s")
     table.add({**table.get("reading").model_dump(), "id": "start", "tag": "start",
-               "variable_path": "inventory.level", "value": 100, "unit": "cm"})
+               "variable_path": "tank.inventory.level", "value": 100, "unit": "cm"})
     apply_specification(model, {
         "specifications": ["reading"], "initial_values": ["start"],
     }, table)
     assert list(model.fs.time) == [5, 35, 65]
-    assert all(v.fixed and value(v) == 2 for v in get_variable(model, "inlet.flow").values())
-    level = get_variable(model, "inventory.level")
+    assert all(v.fixed and value(v) == 2 for v in get_variable(model, "tank.inlet.flow").values())
+    level = get_variable(model, "tank.inventory.level")
     assert level[5].fixed and level[5].value == 1
     assert not level[35].fixed and level[35].value is None
     assert not level[65].fixed and level[65].value is None
     assert table.get("start").value == 100
+
 
 
 @pytest.mark.parametrize("initial_path,initial_unit,initial_value,error", [
@@ -310,11 +313,11 @@ def test_invalid_initial_value_preserves_operating_values_and_guesses(
     initial_path, initial_unit, initial_value, error,
 ):
     model = dynamic_tank()
-    flow = get_variable(model, "inlet.flow")
+    flow = get_variable(model, "tank.inlet.flow")
     flow[5].set_value(42)
-    table = information("inlet.flow", value=2, unit="kg/s")
+    table = information("tank.inlet.flow", value=2, unit="kg/s")
     table.add({**table.get("reading").model_dump(), "id": "start", "tag": "start",
-               "variable_path": initial_path, "value": initial_value, "unit": initial_unit})
+               "variable_path": "tank." + initial_path, "value": initial_value, "unit": initial_unit})
     with pytest.raises(ValueError, match=error):
         apply_specification(model, {
             "specifications": ["reading"], "initial_values": ["start"],
@@ -325,18 +328,20 @@ def test_invalid_initial_value_preserves_operating_values_and_guesses(
                for v in component.values())
 
 
+
 def test_initial_values_reject_steady_models_and_overlapping_families():
     with pytest.raises(ValueError, match="only in dynamic mode"):
         apply_specification(valve(), {"initial_values": ["reading"]}, information())
     model = dynamic_tank()
-    table = information("inventory.level", value=1, unit="m")
+    table = information("tank.inventory.level", value=1, unit="m")
     table.add({**table.get("reading").model_dump(), "id": "start", "tag": "start"})
     with pytest.raises(ValueError, match="Multiple information records"):
         apply_specification(model, {
             "specifications": ["reading"], "initial_values": ["start"],
         }, table)
     assert all(not v.fixed and v.value is None
-               for v in get_variable(model, "inventory.level").values())
+               for v in get_variable(model, "tank.inventory.level").values())
+
 
 
 @pytest.mark.parametrize("dimensions", [["time", "cells"], ["cells", "time"],
@@ -378,7 +383,7 @@ def test_initial_profiles_keep_non_time_axes_and_convert_units(dimensions, kind)
 
 def test_builder_no_longer_accepts_initial_values_and_leaves_all_values_free():
     with pytest.raises(TypeError, match="initial_values"):
-        build_model("tank", {"relationship": "mixed"}, initial_values=[])
+        build_model("tank_flowsheet", "examples/model_language/tank_mixed.json", initial_values=[])
     model = dynamic_tank()
     assert all(not v.fixed and v.value is None
                for component in model._model_language_variables.values()
