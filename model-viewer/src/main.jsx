@@ -6,6 +6,7 @@ import './style.css';
 import { makeGraph, variableLabel } from './graph.js';
 import { layoutKey, restorePositions, savePositions } from './layout-storage.js';
 import { parseInformation, indexInformation, informationPreview, findVariable } from './information.js';
+import { routeDetailedEdges } from './edge-routing.js';
 
 const documents = import.meta.glob('../../src/multifidelity/model_language/models/*.json', { eager: true, import: 'default' });
 const library = Object.fromEntries(Object.values(documents).map(model => [model.id, model]));
@@ -49,7 +50,7 @@ function VariableInformation({ variable }) {
   </div>;
 }
 function Port({ id }) {
-  return <><Handle type="target" position={Position.Left} id={`${id}:in`} isConnectable={false}/><Handle type="source" position={Position.Right} id={`${id}:out`} isConnectable={false}/></>;
+  return <><Handle type="target" position={Position.Left} id={`${id}:in`} isConnectable={false}/><Handle type="source" position={Position.Right} id={`${id}:out`} isConnectable={false}/><Handle type="source" position={Position.Left} id={`${id}:out-left`} isConnectable={false}/><Handle type="target" position={Position.Right} id={`${id}:in-right`} isConnectable={false}/></>;
 }
 function Entity({ id, data, selected }) {
   const [structsCollapsed, setStructsCollapsed] = useState(false);
@@ -115,7 +116,8 @@ function SavedLayoutFlow({ graph, storageKey, children, ...props }) {
       return next;
     });
   }
-  return <ReactFlow {...props} nodes={nodes.map(node => ({ ...node, data: { ...node.data, setOrientation } }))} onNodesChange={onNodesChange} defaultEdges={graph.edges}>{children}</ReactFlow>;
+  const edges = useMemo(() => routeDetailedEdges(nodes, graph.edges), [nodes, graph.edges]);
+  return <ReactFlow {...props} nodes={nodes.map(node => ({ ...node, data: { ...node.data, setOrientation } }))} onNodesChange={onNodesChange} edges={edges}>{children}</ReactFlow>;
 }
 function App() {
   const [trail, setTrail] = useState([{ definition: library.steam_generating_heat_pump, bindings: {}, alias: 'steam_generating_heat_pump' }]);
