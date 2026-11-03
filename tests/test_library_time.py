@@ -31,6 +31,8 @@ EXAMPLE_MODELS = {
     "steam_generating_heat_pump_aggregate": "steam_generating_heat_pump",
     "steam_generating_heat_pump_flowsheet": "steam_generating_heat_pump",
     "tank_mixed": "tank",
+    "pipe_pass_through": "pipe",
+    "pipe_lumped": "pipe",
     "water_isentropic_package_constant_properties": "water_isentropic_package",
     "water_property_package_constant_properties": "water_property_package",
     "water_property_pair_evaluate": "water_property_pair",
@@ -84,7 +86,7 @@ def test_library_operating_interfaces_and_fixed_coefficients():
         assert model.domains['time'].kind == 'time'
         for sid, struct in model.structs.items():
             for field, variable in struct.variables.items():
-                fixed = (name in {'water_state', 'water_state_ph', 'water_state_ps', 'tank'}
+                fixed = (name == 'pipe_holdup' and sid in {'parameters', 'geometry'}) or (name in {'water_state', 'water_state_ph', 'water_state_ps', 'tank'}
                          and sid == 'parameters') or (
                              name == 'heat_exchanger' and sid == 'parameters' and field == 'conductance'
                          )

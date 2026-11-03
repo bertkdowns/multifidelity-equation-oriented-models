@@ -12,7 +12,7 @@ The [model viewer](model-viewer/README.md) browses the JSON definitions in `src/
 
 - [`examples/model_language/`](examples/model_language/): reusable model documents and implementation selections.
 - [`examples/custom_models/`](examples/custom_models/): custom Python providers integrated with JSON model definitions.
-- [`examples/indexed_models/`](examples/indexed_models/): indexed variables and model references.
+- [`examples/model_language/pipe_lumped.json`](examples/model_language/pipe_lumped.json): a pipe with cylindrical geometry and lumped thermal dynamics.
 - [`examples/information/`](examples/information/): information documents and record inspection.
 - [`examples/specification/`](examples/specification/): applying operating specifications.
 - [`examples/dynamic_tank/`](examples/dynamic_tank/): dynamic model construction and initial conditions.

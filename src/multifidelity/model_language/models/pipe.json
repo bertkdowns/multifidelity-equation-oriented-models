@@ -1,0 +1,135 @@
+{
+  "id": "pipe",
+  "description": "Adiabatic pipe with ideal pass-through or fixed-volume, perfectly mixed thermal holdup. No pressure drop, wall storage, or spatial transport delay. Forward flow only.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "pass_through": {
+      "constraints": {
+        "flow": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.flow[t]",
+          "rhs": "inlet.flow[t]",
+          "determines": "outlet.flow[t]"
+        },
+        "pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "outlet.pressure[t]"
+        },
+        "enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]"
+        }
+      }
+    },
+    "lumped": {
+      "models": {
+        "contents": {
+          "model": "pipe_holdup",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "connections": {
+        "feed": {
+          "from": "inlet",
+          "to": "contents.inlet"
+        }
+      },
+      "constraints": {
+        "flow": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.flow[t]",
+          "rhs": "inlet.flow[t]",
+          "determines": "outlet.flow[t]"
+        },
+        "pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "outlet.pressure[t]"
+        },
+        "enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "contents.inventory.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]"
+        }
+      }
+    }
+  }
+}

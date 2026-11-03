@@ -1,0 +1,134 @@
+{
+  "id": "pipe_holdup",
+  "description": "Fully filled, constant-density cylindrical pipe inventory with perfect mixing. Stored thermal enthalpy H = density * volume * h; neglects pressure-energy effects, heat loss and wall storage. Pressure is prescribed, with no pressure dynamics. Positive length, diameter and density are required. Forward flow only.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          }
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "length": {
+          "unit": "m",
+          "bounds": {
+            "min": 1e-08
+          }
+        },
+        "diameter": {
+          "unit": "m",
+          "bounds": {
+            "min": 1e-08
+          }
+        },
+        "density": {
+          "unit": "kg/m**3",
+          "bounds": {
+            "min": 1e-08
+          }
+        }
+      }
+    },
+    "geometry": {
+      "direction": "output",
+      "variables": {
+        "volume": {
+          "unit": "m**3",
+          "bounds": {
+            "min": 0
+          }
+        }
+      }
+    },
+    "inventory": {
+      "direction": "output",
+      "variables": {
+        "energy": {
+          "unit": "J",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "rates": {
+      "direction": "output",
+      "variables": {
+        "energy": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "mixed": {
+      "constraints": {
+        "volume": {
+          "lhs": "geometry.volume",
+          "rhs": "3.141592653589793 * parameters.diameter ** 2 * parameters.length / 4",
+          "determines": "geometry.volume"
+        },
+        "thermal_state": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "inventory.energy[t]",
+          "rhs": "parameters.density * geometry.volume * inventory.enthalpy[t]",
+          "determines": "inventory.enthalpy[t]"
+        },
+        "energy_balance": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "rates.energy[t]",
+          "rhs": "inlet.flow[t] * (inlet.enthalpy[t] - inventory.enthalpy[t])",
+          "determines": "rates.energy[t]"
+        }
+      },
+      "derivatives": {
+        "energy": {
+          "state": "inventory.energy",
+          "rate": "rates.energy",
+          "with_respect_to": "time",
+          "determines": "inventory.energy"
+        }
+      }
+    }
+  }
+}

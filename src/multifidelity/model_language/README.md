@@ -338,8 +338,7 @@ instantaneous algebraic equations inside a dynamic flowsheet. It does not gain
 holdup, delay, or a derivative merely by sharing continuous time. Multiple points
 in steady mode remain independent operating points.
 
-Run the complete pass-through pipe example with
-`.venv/bin/python examples/indexed_models/build.py` from the repository root.
+The library examples, including `pipe` and `tank`, demonstrate time-indexed variables.
 Spatial derivatives and indexed collections of child occurrences remain future
 work.
 
@@ -1480,3 +1479,29 @@ information paths, copied Ahuora configuration with provenance, and limitations.
 All four plant representations construct; the aggregate SGHP unit also has an
 IPOPT replay calibrated at the captured point. The full closed plant still needs
 a consistent operating specification and numerical validation.
+
+### Pipe relationships
+
+`pipe` has `pass_through` and `lumped` relationships, selected by
+`examples/model_language/pipe_pass_through.json` and `pipe_lumped.json`.
+Both expose time-indexed inlet/outlet flow, pressure and specific enthalpy.
+Pass-through equates all three and requires no geometry or initial inventory.
+
+The lumped relationship selects a `contents` submodel (`pipe_holdup`). Specify
+`contents.parameters.length`, `diameter`, and `density` as scalar inputs.
+It calculates `contents.geometry.volume = pi * diameter**2 * length / 4`.
+The fully filled, constant-density pipe has equal inlet and outlet flow and
+instantaneous pressure transmission. A single perfectly mixed thermal inventory
+obeys `dH/dt = flow * (h_in - h_out)` and `H = density * volume * h_out`.
+`contents.inventory.energy` stores this thermal enthalpy holdup; pressure-energy
+effects, wall storage and heat losses are neglected. This is a thermal lag, not
+a spatial transport delay.
+
+Build either selection in steady mode, or use `mode="dynamic"` with a time
+domain. The dynamic lumped selection requires an initial specification for
+`contents.inventory.energy` (or a consistent alternative such as
+`contents.inventory.enthalpy`), applied through the usual information and
+specification documents. In steady mode accumulation is zero; with nonzero
+flow the outlet enthalpy equals the inlet. At zero flow the steady inventory
+needs an additional thermal specification. Every output is determined exactly
+once, including the inventory state determined by its derivative relationship.
