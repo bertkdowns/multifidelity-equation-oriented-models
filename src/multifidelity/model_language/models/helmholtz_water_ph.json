@@ -10,14 +10,16 @@
           "dimensions": [
             "time"
           ],
-          "default": 200000
+          "default": 200000,
+          "scale": 1e-05
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "default": 100000
+          "default": 100000,
+          "scale": 1e-05
         }
       }
     },
@@ -29,83 +31,95 @@
           "dimensions": [
             "time"
           ],
-          "default": 1000
+          "default": 1000,
+          "scale": 0.001
         },
         "heat_capacity": {
           "unit": "J/kg/K",
           "dimensions": [
             "time"
           ],
-          "default": 4200
+          "default": 4200,
+          "scale": 0.001
         },
         "viscosity": {
           "unit": "Pa*s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1000.0
         },
         "temperature": {
           "unit": "K",
           "dimensions": [
             "time"
           ],
-          "default": 300
+          "default": 300,
+          "scale": 0.0033333333333333335
         },
         "entropy": {
           "unit": "J/kg/K",
           "dimensions": [
             "time"
           ],
-          "default": 1000
+          "default": 1000,
+          "scale": 0.001
         },
         "vapor_fraction": {
           "unit": "dimensionless",
           "dimensions": [
             "time"
           ],
-          "default": 0
+          "default": 0,
+          "scale": 1
         },
         "temperature_bubble": {
           "unit": "K",
           "dimensions": [
             "time"
           ],
-          "default": 373.15
+          "default": 373.15,
+          "scale": 0.0033333333333333335
         },
         "temperature_dew": {
           "unit": "K",
           "dimensions": [
             "time"
           ],
-          "default": 373.15
+          "default": 373.15,
+          "scale": 0.0033333333333333335
         },
         "enthalpy_liquid_sat": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "default": 420000
+          "default": 420000,
+          "scale": 1e-05
         },
         "enthalpy_vapor_sat": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "default": 2675000
+          "default": 2675000,
+          "scale": 1e-05
         },
         "enthalpy_liquid": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "default": 100000
+          "default": 100000,
+          "scale": 1e-05
         },
         "enthalpy_vapor": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "default": 2675000
+          "default": 2675000,
+          "scale": 1e-05
         }
       }
     }

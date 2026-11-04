@@ -349,3 +349,36 @@ by discretization. Metadata follows model cloning. Providers without callbacks
 are left untouched. The runner does not choose temporary free-input fixes or
 solve JSON parents. Use `initialize_model()` for the bottom-up DM procedure,
 which calls provider hooks at their own stages and then solves JSON parents.
+
+## Optional scaling callback
+
+Register a scaler with the same native-block/config signature:
+
+```python
+from idaes.core.util.scaling import set_scaling_factor
+
+def scale_pump(block, config):
+    set_scaling_factor(block.pressure_rise, 0.01)  # native kPa
+    set_scaling_factor(block.work, 0.1)            # native kW
+
+library.register_provider("example.pump", build_pump, scaler=scale_pump)
+```
+
+The callback assigns variable factors only: it must not change values, fixity,
+bounds, equations or activation, and must not solve. It runs when `apply_scaling()`
+or `initialize_model()` is called, never during symbolic construction. Native
+internal variables with no assigned scale fall back to 1. The Helmholtz provider
+supplies a bundled scaler for its native PH state and thermodynamic properties.
+
+Explicit public declarations take priority at mapped variables. Factors are
+converted with the unit-conversion slope: public pressure in Pa with `scale=1e-5`
+maps to native kPa with factor `0.01`. If a public declaration omits its scale,
+a native callback factor can supply it through the inverse conversion. If neither
+side supplies a factor, public fallback 1 is converted to the native variable's
+units. Remaining native variables fall back to factor 1. The framework normalises
+constraint Jacobian rows automatically after variable scaling; it does not retain
+custom equation factors in place of that automatic policy.
+
+Scaling metadata follows clones, and newly discretised provider slices receive
+the same registered scaler. Scalers should use characteristic magnitudes rather
+than blindly taking reciprocals of current values, which can be zero.

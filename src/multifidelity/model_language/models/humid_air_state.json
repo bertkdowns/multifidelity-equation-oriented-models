@@ -9,13 +9,15 @@
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0033333333333333335
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "water_mole_fraction": {
           "unit": "dimensionless",
@@ -25,7 +27,8 @@
           },
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         }
       }
     },
@@ -36,31 +39,36 @@
           "unit": "dimensionless",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         },
         "temperature_wet_bulb": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0033333333333333335
         },
         "enthalpy": {
           "unit": "J/mol",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.001
         },
         "entropy": {
           "unit": "J/mol/K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.1
         },
         "molar_volume": {
           "unit": "m**3/mol",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1000.0
         }
       }
     }

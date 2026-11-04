@@ -62,6 +62,7 @@ class Variable(Definition):
     bounds: Bounds = Field(default_factory=Bounds)
     dimensions: list[Name] = Field(default_factory=list)
     default: FiniteFloat | None = None
+    scale: FiniteFloat | None = Field(default=None, gt=0)
 
     @model_validator(mode="after")
     def distinct_dimensions(self):

@@ -126,7 +126,7 @@ def replay_flash(sghp_outputs, solver=None, *, phase_fractions=None,
         state.structs.state.enthalpy[0].set_value(h)
         provider.states[0].pressure.set_value(pressure)
         provider.states[0].enth_mass.set_value(h)
-        for field in state.structs.properties.component_map():
+        for field in state.structs.properties.component_map(Var):
             variable = getattr(provider, field)
             calculate_variable_from_constraint(variable, getattr(provider, field + '_equation'))
             getattr(state.structs.properties, field)[0].set_value(value(variable))

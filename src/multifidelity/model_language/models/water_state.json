@@ -14,14 +14,16 @@
             "min": 611.213,
             "max": 22064000
           },
-          "default": 200000
+          "default": 200000,
+          "scale": 1e-05
         },
         "temperature": {
           "unit": "K",
           "dimensions": [
             "time"
           ],
-          "default": 300
+          "default": 300,
+          "scale": 0.0033333333333333335
         }
       }
     },
@@ -29,30 +31,38 @@
       "direction": "input",
       "variables": {
         "reference_pressure": {
-          "unit": "Pa"
+          "unit": "Pa",
+          "scale": 1e-05
         },
         "reference_temperature": {
-          "unit": "K"
+          "unit": "K",
+          "scale": 0.0033333333333333335
         },
         "reference_enthalpy": {
-          "unit": "J/kg"
+          "unit": "J/kg",
+          "scale": 1e-05
         },
         "heat_capacity": {
           "unit": "J/kg/K",
-          "default": 4200
+          "default": 4200,
+          "scale": 0.001
         },
         "density": {
           "unit": "kg/m**3",
-          "default": 1000
+          "default": 1000,
+          "scale": 0.001
         },
         "viscosity": {
-          "unit": "Pa*s"
+          "unit": "Pa*s",
+          "scale": 1000.0
         },
         "reference_entropy": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "scale": 0.001
         },
         "thermal_expansion": {
-          "unit": "1/K"
+          "unit": "1/K",
+          "scale": 10000.0
         }
       }
     },
@@ -64,55 +74,63 @@
           "dimensions": [
             "time"
           ],
-          "default": 100000
+          "default": 100000,
+          "scale": 1e-05
         },
         "density": {
           "unit": "kg/m**3",
           "dimensions": [
             "time"
           ],
-          "default": 1000
+          "default": 1000,
+          "scale": 0.001
         },
         "heat_capacity": {
           "unit": "J/kg/K",
           "dimensions": [
             "time"
           ],
-          "default": 4200
+          "default": 4200,
+          "scale": 0.001
         },
         "viscosity": {
           "unit": "Pa*s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1000.0
         },
         "entropy": {
           "unit": "J/kg/K",
           "dimensions": [
             "time"
           ],
-          "default": 1000
+          "default": 1000,
+          "scale": 0.001
         },
         "vapor_fraction": {
           "unit": "dimensionless",
           "dimensions": [
             "time"
           ],
-          "default": 0
+          "default": 0,
+          "scale": 1
         },
         "temperature_bubble": {
           "unit": "K",
           "dimensions": [
             "time"
           ],
-          "default": 373.15
+          "default": 373.15,
+          "scale": 0.0033333333333333335
         },
         "temperature_dew": {
           "unit": "K",
           "dimensions": [
             "time"
           ],
-          "default": 373.15
+          "default": 373.15,
+          "scale": 0.0033333333333333335
         }
       }
     }

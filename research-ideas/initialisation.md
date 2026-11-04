@@ -144,15 +144,21 @@ block should be solved independently.
 
 ## Limits of the input-fixing rule
 
-Using public inputs first is a reasonable, understandable policy. However,
-input and output directions describe the model interface; the equation solver
-can determine either from the other. We may encounter an underconstrained part
-whose remaining freedom is internal or lies on an output.
+Temporary fixes must be selected from the current model's public input variables.
+This is an interface contract, not merely a preference that a numerical selection
+method can override. Internal variables and outputs remain unknowns when choosing
+which eligible inputs to fix. A future Jacobian-based method must respect the
+same restriction.
 
-For the first experiment, report that situation explicitly rather than silently
-fixing arbitrary internal variables. We can then decide whether that model
-needs a provider initialiser, an explicitly permitted internal starting
-specification, or a larger local solve boundary.
+The input interface defines the available boundary choices. The actual number
+of independent temporary fixes still comes from the equations, connections and
+existing specifications through DM analysis; it is not necessarily the raw
+number of declared input variables. For example, a specified temperature can
+remove one freedom from a pressure/enthalpy state.
+
+If the remaining freedom cannot be closed through eligible inputs, report it
+explicitly rather than fixing internal variables or outputs. Investigate the
+model interface, provider initialiser or local solve boundary instead.
 
 Similarly, an overconstrained system cannot be repaired by fixing more inputs.
 It needs a separate diagnostic. A zero overall degrees-of-freedom count is not
@@ -162,6 +168,81 @@ Even a complete structural matching does not prove numerical independence or
 physical feasibility. Redundant equations, poor scaling, invalid property
 states and incompatible operating specifications can still prevent a solve.
 The procedure needs to distinguish structural failure from numerical failure.
+
+## Scaling and numerical selection of temporary inputs
+
+Variable declarations now support an optional positive multiplicative `scale`,
+using the IDAES convention. For example, pressure in Pa with `scale: 1e-5` is
+multiplied by that factor; it is not divided by it. An omitted scale means factor
+1, independently of the variable's starting guess. Native providers can register
+an optional scaling callback, with conversion of mapped public/native factors
+across units. Equations are automatically scaled by normalising Jacobian rows
+after applying the variable scales.
+
+The implemented first method uses DM to identify eligible boundary inputs, then
+SVD of the scaled local Jacobian to identify its undetermined directions. Rank
+each eligible input by its squared participation across an orthonormal null-space
+basis, select one, and apply the existing structural trial check. Recompute after
+each accepted fix. Internal variables and outputs remain in the analysis but
+cannot be selected for fixing. Numerical ties use information trust then path
+and index; this is not a sequential-decomposition provenance preference.
+
+For a fixed-temperature water state, pressure should be preferred over enthalpy
+when the equations can determine enthalpy much more reliably. This is a local
+conditioning heuristic, not a universal thermodynamic preference or convergence
+guarantee. The integration test places the pressure equation on an ancestor,
+requiring the state block itself to choose pressure for its temporary closure.
+
+Record structural and numerical rank, rank tolerance, candidate scores, fallback
+scales and raw/scaled residuals. Stop explicitly if numerical rank is lower than
+structural rank, rather than fixing extra variables. Dense SVD is suitable for
+these bounded local experiments; valid derivatives and meaningful scales are
+still needed, and piecewise derivatives apply only to the current branch.
+
+Two alternative factorisations are future research directions:
+
+- **Null space followed by pivoted QR:** choose several eligible input fixes
+  together, seeking independent coverage of the undetermined directions rather
+  than selecting one at a time.
+- **Direct constrained QR of the Jacobian:** retain internal variables and
+  outputs as mandatory unknowns, and select only among eligible boundary inputs
+  without explicitly constructing a null-space basis. Investigate sparse
+  implementations for larger coupled problems.
+
+Compare these with the implemented method using the same final operating
+specifications and guesses. Include factorisation cost and numerical robustness;
+none of these methods should enumerate combinations of local solver attempts.
+
+## Future interaction with sequential decomposition
+
+Investigate how the bottom-up procedure should work with sequential decomposition
+of a flowsheet. These are different orders: the hierarchy describes model
+containment, while a sequential decomposition orders connected equipment and
+handles recycles. An upstream model's solution could be propagated through a
+connection before initialising the downstream model.
+
+This gives some downstream inputs values calculated from upstream equipment,
+while others still have declaration defaults or other guesses. We may want to
+prefer temporarily fixing inputs whose current values came from successfully
+initialised upstream models, leaving other eligible inputs free. That preference
+is a research question, not a rule implemented by the current initializer.
+
+Questions to investigate include:
+
+- How should upstream-derived values be distinguished from defaults and other
+  information, and when does that provenance become stale after a model changes?
+- Should upstream provenance take priority over numerical conditioning, or only
+  break ties between similarly conditioned choices? DM must still check the
+  structural validity of each proposed fix.
+- How should boundary-value propagation and temporary fixes interact with the
+  release of child fixes before solving a parent?
+- For recycles, how should values from a previous tear-stream iteration be
+  treated compared with values from upstream equipment in the current pass?
+
+An upstream-derived value remains an initialisation value, not a new permanent
+operating specification or independent measurement. It may need to change when
+the parent or complete recycle is solved. No new provenance data structure or
+fixed preference order is committed to here.
 
 ## Returning to the full system
 

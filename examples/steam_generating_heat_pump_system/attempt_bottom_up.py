@@ -10,7 +10,7 @@ from pathlib import Path
 
 from idaes.core.solvers import get_solver
 from multifidelity.model_language import (
-    InformationDocument, SpecificationDocument, initialize_model,
+    InformationDocument, SpecificationDocument, get_variable, initialize_model,
 )
 from attempt_solve import build_attempt
 
@@ -32,6 +32,21 @@ if __name__ == '__main__':
         'specification': 'attempt_specification.json',
         'information': 'attempt_information.json',
         **asdict(result),
+    }
+    # These are successful local initialisation states, not a converged plant
+    # solution. Failed-parent rollback retains the earlier child results.
+    initialized = {stage.model_path for stage in result.stages if stage.status == 'initialized'}
+    report['initialized_water_states'] = {}
+    for prefix in ['sghp.source_inlet_state', 'sghp.hot_inlet_state', 'sghp.warm_inlet_state']:
+        if prefix in initialized:
+            report['initialized_water_states'][prefix] = {
+                field: get_variable(model, f'{prefix}.{field}')[model.fs.time.first()].value
+                for field in ['state.flow', 'state.pressure', 'state.enthalpy',
+                              'properties.temperature', 'properties.density']
+            }
+    report['initialized_water_states_units'] = {
+        'state.flow': 'kg/s', 'state.pressure': 'Pa', 'state.enthalpy': 'J/kg',
+        'properties.temperature': 'K', 'properties.density': 'kg/m**3',
     }
     text = json.dumps(report, indent=2) + '\n'
     (HERE / 'attempt_bottom_up_result.json').write_text(text)

@@ -1,7 +1,7 @@
 """Native refrigerant compression using three occurrences of one PH model."""
 
 import pytest
-from pyomo.environ import value, units as u, assert_optimal_termination
+from pyomo.environ import Var, value, units as u, assert_optimal_termination
 from pyomo.util.calc_var_value import calculate_variable_from_constraint
 from pyomo.util.check_units import assert_units_consistent
 from idaes.core.util.model_statistics import degrees_of_freedom
@@ -67,7 +67,7 @@ def test_native_refrigerant_isentropic_compression(
         state.structs.state.enthalpy[0].set_value(h)
         provider.states[0].pressure.set_value(p)
         provider.states[0].enth_mass.set_value(h)
-        for field in package.structs.properties.component_map():
+        for field in package.structs.properties.component_map(Var):
             variable = getattr(provider, field)
             if not getattr(package.structs.properties, field)[0].fixed:
                 calculate_variable_from_constraint(variable, getattr(provider, field + '_equation'))

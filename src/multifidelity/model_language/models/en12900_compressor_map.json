@@ -9,13 +9,15 @@
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0033333333333333335
         },
         "condensing": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0033333333333333335
         }
       }
     },
@@ -26,31 +28,36 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         },
         "electrical_power": {
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         },
         "capacity": {
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         },
         "current": {
           "unit": "A",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.1
         },
         "rated_cop": {
           "unit": "dimensionless",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         }
       }
     },
@@ -61,13 +68,15 @@
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.1
         },
         "subcooling": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.1
         }
       }
     }

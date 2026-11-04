@@ -12,6 +12,8 @@ dependencies = [
     "pytest>=8,<10",
     "pydantic>=2.12,<3",
     "pint>=0.24,<1",
+    "numpy>=2,<3",
+    "scipy>=1.16,<2",
 ]
 
 [build-system]

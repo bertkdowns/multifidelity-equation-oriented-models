@@ -60,6 +60,25 @@ def _output(block, mapping, name, expression, unit):
     mapping['properties.' + name] = variable
 
 
+def scale_helmholtz_ph(block, config):
+    """Nominal mass-basis scales for native PH state and property variables."""
+    from idaes.core.util.scaling import set_scaling_factor
+    state = block.states[0]
+    set_scaling_factor(state.pressure, 1e-5)
+    set_scaling_factor(state.enth_mass, 1e-5)
+    set_scaling_factor(state.flow_mass, 1)
+    factors = {
+        'temperature': 1/300, 'density': 1e-3, 'heat_capacity': 1e-3,
+        'entropy': 1e-3, 'vapor_fraction': 1, 'temperature_bubble': 1/300,
+        'temperature_dew': 1/300, 'viscosity': 1e3,
+        'enthalpy_liquid_sat': 1e-5, 'enthalpy_vapor_sat': 1e-5,
+        'enthalpy_liquid': 1e-5, 'enthalpy_vapor': 1e-5,
+    }
+    for name, factor in factors.items():
+        if hasattr(block, name):
+            set_scaling_factor(getattr(block, name), factor)
+
+
 def build_helmholtz_ph(block: 'BlockData', config: dict[str, JsonValue]) -> dict[str, 'VarData']:
     """PH state; optional viscosity is omitted for n-butane's EOS-only data."""
     from idaes.models.properties.general_helmholtz import StateVars

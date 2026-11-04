@@ -10,7 +10,8 @@
           "default": 3,
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         }
       }
     },
@@ -22,7 +23,8 @@
           "default": 3,
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         }
       }
     }

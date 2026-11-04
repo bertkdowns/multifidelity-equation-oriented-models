@@ -14,19 +14,22 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         }
       }
     },
@@ -37,19 +40,22 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         }
       }
     },
@@ -60,19 +66,22 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         }
       }
     },
@@ -83,25 +92,29 @@
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         },
         "phnix_power": {
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         },
         "pump_power": {
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         },
         "electrical_power": {
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         }
       }
     }

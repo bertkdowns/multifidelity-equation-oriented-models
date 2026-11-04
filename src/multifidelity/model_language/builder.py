@@ -55,6 +55,10 @@ def _build_external_slice(active, external, variables, library, path, dependenci
             library.get_initializer(external.provider), deepcopy(external.config),
             dict(variables), dict(mapping), set(external.dependencies),
         )
+        active._model_language_scaling = (
+            library.get_scaler(external.provider), deepcopy(external.config),
+            dict(variables), dict(mapping),
+        )
     except Exception as error:
         raise ValueError(f"{path}: provider {external.provider!r}: {error}") from error
 
@@ -187,6 +191,10 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                 var = Var(*sets, bounds=(variable.bounds.min, variable.bounds.max),
                           units=unit, initialize=variable.default)
                 struct_block.add_component(variable_id, var)
+                var._model_language_scale = variable.scale
+                if variable.scale is not None:
+                    from idaes.core.util.scaling import set_scaling_factor
+                    set_scaling_factor(var, variable.scale)
                 variables[f"{struct_id}.{variable_id}"] = var
                 registry[occurrence.prefix + f"{struct_id}.{variable_id}"] = var
         block.relationship = Block()

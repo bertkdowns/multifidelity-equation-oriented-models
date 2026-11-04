@@ -434,10 +434,12 @@ dependencies = [
     { name = "ahuora-builder" },
     { name = "ahuora-compounds" },
     { name = "idaes-pse" },
+    { name = "numpy" },
     { name = "pint" },
     { name = "pydantic" },
     { name = "pyomo" },
     { name = "pytest" },
+    { name = "scipy" },
 ]
 
 [package.metadata]
@@ -445,10 +447,12 @@ requires-dist = [
     { name = "ahuora-builder", specifier = ">=0.1.9" },
     { name = "ahuora-compounds", specifier = ">=0.0.31" },
     { name = "idaes-pse", specifier = "==2.8.0" },
+    { name = "numpy", specifier = ">=2,<3" },
     { name = "pint", specifier = ">=0.24,<1" },
     { name = "pydantic", specifier = ">=2.12,<3" },
     { name = "pyomo", specifier = "==6.9.2" },
     { name = "pytest", specifier = ">=8,<10" },
+    { name = "scipy", specifier = ">=1.16,<2" },
 ]
 
 [[package]]

@@ -32,3 +32,13 @@ class Initializer(Protocol):
     """
 
     def __call__(self, block: "BlockData", config: dict[str, JsonValue]) -> None: ...
+
+
+class Scaler(Protocol):
+    """Assign multiplicative variable scaling factors without changing states.
+
+    Use IDAES set_scaling_factor; automatic Jacobian row scaling supplies
+    equation factors. Do not fix variables, solve, or change model equations.
+    """
+
+    def __call__(self, block: "BlockData", config: dict[str, JsonValue]) -> None: ...

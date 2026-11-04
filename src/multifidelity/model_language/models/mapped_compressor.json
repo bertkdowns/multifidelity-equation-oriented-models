@@ -152,13 +152,15 @@
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         }
       }
     },
@@ -172,7 +174,8 @@
           },
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "motor_efficiency": {
           "unit": "dimensionless",
@@ -182,7 +185,8 @@
           },
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         }
       }
     },
@@ -193,19 +197,22 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         }
       }
     },
@@ -216,67 +223,78 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         },
         "electrical_power": {
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         },
         "shaft_power": {
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         },
         "rated_capacity": {
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         },
         "current": {
           "unit": "A",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.1
         },
         "rated_cop": {
           "unit": "dimensionless",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         },
         "pressure_ratio": {
           "unit": "dimensionless",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         },
         "actual_superheat": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.1
         },
         "superheat_deviation": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.1
         },
         "rated_superheat": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.1
         },
         "rated_subcooling": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.1
         }
       }
     }

@@ -17,7 +17,8 @@
           ],
           "bounds": {
             "min": 0
-          }
+          },
+          "scale": 1
         },
         "vapor_flow": {
           "unit": "kg/s",
@@ -26,19 +27,22 @@
           ],
           "bounds": {
             "min": 0
-          }
+          },
+          "scale": 1
         },
         "liquid_enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "vapor_enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "fallback_vapor": {
           "unit": "dimensionless",
@@ -48,7 +52,8 @@
           "bounds": {
             "min": 0,
             "max": 1
-          }
+          },
+          "scale": 1
         }
       }
     },
@@ -62,13 +67,15 @@
           ],
           "bounds": {
             "min": 0
-          }
+          },
+          "scale": 1
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         }
       }
     }

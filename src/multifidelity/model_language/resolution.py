@@ -13,7 +13,7 @@ from .definitions import (
     ParameterModelReference,
     Relationship,
 )
-from .providers import Initializer, Provider
+from .providers import Initializer, Provider, Scaler
 
 
 # Unit compatibility is a property of definitions, not of the Pyomo backend.
@@ -56,6 +56,7 @@ class Library:
         self.models: dict[str, ModelDocument] = {}
         self._providers: dict[str, Provider] = {}
         self._initializers: dict[str, Initializer] = {}
+        self._scalers: dict[str, Scaler] = {}
         for path in sorted(directory.glob("*.json")):
             document = ModelDocument.load_json(path)
             if document.id in self.models:
@@ -63,13 +64,19 @@ class Library:
             self.models[document.id] = document
 
     def register_provider(self, name: str, provider: Provider, *,
-                          initializer: Initializer | None = None) -> None:
+                          initializer: Initializer | None = None,
+                          scaler: Scaler | None = None) -> None:
         """Register trusted Python code; definitions only store its stable name."""
         if name in self._providers:
             raise ValueError(f"Duplicate provider: {name}")
         self._providers[name] = provider
         if initializer is not None:
             self._initializers[name] = initializer
+        if scaler is not None:
+            self._scalers[name] = scaler
+
+    def get_scaler(self, name: str) -> Scaler | None:
+        return self._scalers.get(name)
 
     def get_initializer(self, name: str) -> Initializer | None:
         """Optional numerical callback, separate from symbolic construction."""

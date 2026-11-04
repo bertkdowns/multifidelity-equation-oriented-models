@@ -80,21 +80,24 @@
           "dimensions": [
             "time"
           ],
-          "default": 1
+          "default": 1,
+          "scale": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "default": 200000
+          "default": 200000,
+          "scale": 1e-05
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "default": 100000
+          "default": 100000,
+          "scale": 1e-05
         }
       }
     },
@@ -106,21 +109,24 @@
           "dimensions": [
             "time"
           ],
-          "default": 1
+          "default": 1,
+          "scale": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "default": 200000
+          "default": 200000,
+          "scale": 1e-05
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "default": 100000
+          "default": 100000,
+          "scale": 1e-05
         }
       }
     },
@@ -135,7 +141,8 @@
           "dimensions": [
             "time"
           ],
-          "default": 100000
+          "default": 100000,
+          "scale": 1e-05
         },
         "efficiency": {
           "unit": "dimensionless",
@@ -146,7 +153,8 @@
           "dimensions": [
             "time"
           ],
-          "default": 0.8
+          "default": 0.8,
+          "scale": 1
         }
       }
     },
@@ -160,13 +168,15 @@
           },
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         },
         "isentropic_work": {
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         }
       }
     }

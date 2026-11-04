@@ -17,19 +17,22 @@
           ],
           "bounds": {
             "min": 0
-          }
+          },
+          "scale": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         }
       }
     },
@@ -40,13 +43,15 @@
           "unit": "m",
           "bounds": {
             "min": 1e-08
-          }
+          },
+          "scale": 1
         },
         "diameter": {
           "unit": "m",
           "bounds": {
             "min": 1e-08
-          }
+          },
+          "scale": 1
         }
       }
     },
@@ -57,7 +62,8 @@
           "unit": "m**3",
           "bounds": {
             "min": 0
-          }
+          },
+          "scale": 1
         }
       }
     },
@@ -68,13 +74,15 @@
           "unit": "J",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-08
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "mass": {
           "unit": "kg",
@@ -83,7 +91,8 @@
           ],
           "bounds": {
             "min": 1e-08
-          }
+          },
+          "scale": 0.001
         }
       }
     },
@@ -94,13 +103,15 @@
           "unit": "W",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 0.0001
         },
         "mass": {
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1
         }
       }
     },
@@ -114,19 +125,22 @@
           ],
           "bounds": {
             "min": 0
-          }
+          },
+          "scale": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "scale": 1e-05
         }
       }
     }

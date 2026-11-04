@@ -182,6 +182,12 @@ Input/output describes struct direction, not fixed/free solver status. A default
 does not specify a model or fix an input.
 
 For example: `{"unit": "Pa", "default": 200000, "dimensions": ["time"]}`.
+An optional `scale` is a finite, strictly positive multiplicative scaling factor:
+`{"unit": "Pa", "default": 200000, "scale": 1e-5}` gives a scaled coordinate
+of 2. Missing scales default to 1, independently of guesses. Index entries share
+the declaration's scale, including entries added by discretization. Bundled
+models carry illustrative characteristic-magnitude scales in their declarations;
+these are not inferred from the current value at runtime.
 Defaults in the bundled state/property models are illustrative guesses, not
 validated operating points or mutually consistent thermodynamic states.
 
@@ -216,16 +222,21 @@ result = initialize_model(
 )
 ```
 
-The optional information arguments seed unused records and rank temporary fixes
-by trust. They do not apply operating specifications. Finalise the grid first;
+The optional information arguments seed unused records; trust breaks numerical
+ranking ties. They do not apply operating specifications. Finalise the grid first;
 multiple steady time points are supported, but dynamic initialisation is not.
 
 The initializer visits selected model occurrences in postorder, treating native
 providers as leaves. For each local subtree it preserves existing specifications,
 then trial-fixes one free boundary input entry to its current finite, in-bounds
-value. It recomputes DM after every trial, accepting only fixes that reduce
-deficiency without overconstraint. Higher-trust information guesses take priority,
-then path and index break ties. It does not fix arbitrary internal variables or
+value. DM first identifies eligible boundary inputs. The initializer evaluates
+the Jacobian in scaled variable coordinates, normalises equation rows to unit
+infinity norm, and uses SVD to find its null space. Eligible inputs are ranked
+by their squared row norm in an orthonormal null-space basis: their participation
+in the remaining freedom. Scores within the rounding precision of 12 decimal
+places tie; higher information trust, then path/index break ties. It recomputes
+DM and numerical scores after each accepted fix. Trials must reduce structural
+deficiency without overconstraint. It does not fix arbitrary internal variables or
 borrow descendant inputs to close a parent's boundary.
 
 Registered callbacks run only at their own provider occurrence. If the equations
@@ -236,7 +247,10 @@ and is solved under the original operating specification.
 
 The result contains `success`, `failed_model`, used starting-value record IDs,
 and a `stages` list with structural deficiency, temporary fixes, missing/invalid
-guesses, callback names, solver termination and residual checks. Initialisation
+guesses, callback names, solver termination and residual checks. Numerical
+evaluations record candidate scores, structural versus numerical rank, singular
+value extremes and rank thresholds. The result also records native scaling
+callbacks and variables assigned fallback-derived scales during that scaling pass. Initialisation
 stops at the first failure. That stage's values are restored, while values from
 earlier successful children remain. Original fixed values, fixity and constraint
 activation are restored on success or failure. Failed solver iterates are never
@@ -247,11 +261,29 @@ by a solver. A missing or invalid guess cannot be used as a temporary boundary
 fix. Nonfinite or out-of-bounds existing values prevent a local solve. Structural
 completeness does not guarantee numerical feasibility. Final variable values and
 equations are checked even after a reported solver success. The default residual
-tolerance is `1e-5` in each equation's own units; `max_constraint_violation` is a
-mixed-unit diagnostic, not a dimensionless norm or automatic scaling scheme.
-Use `residual_tolerance` to choose a different absolute threshold and `tee=True`
+tolerance is `1e-6` on scaled equation residuals. `max_constraint_violation` retains
+the raw mixed-unit diagnostic; `max_scaled_constraint_violation` reports the
+quantity used for acceptance. Use `residual_tolerance` to change the threshold and `tee=True`
 for solver output. Aggregate-first transfer and numerical recovery remain future
 work; a failed stage is returned for inspection without changing its fidelity.
+
+Scaling callbacks run once before local traversal. Row factors are recomputed at
+each Jacobian evaluation and after local closure; they remain fixed during that
+solve. Local IPOPT solves use the same multiplicative suffix factors through
+`nlp_scaling_method=user-scaling`; physical variables and authored equations are
+not transformed. Alternative solvers must support the scaling suffix convention.
+`apply_scaling(model)` can also be called explicitly for variable/provider scales;
+it returns a `ScalingReport` and never fixes or solves variables.
+
+The default `rank_tolerance=1e-10` is relative to the largest singular value.
+Numerical rank below the DM structural rank stops the stage explicitly, rather
+than creating extra fixes. Invalid derivatives or missing nonlinear state guesses
+produce diagnostics. Derivatives use Pyomo reverse symbolic differentiation and
+native external-function derivatives; PyNumero is not required. Piecewise
+`Expr_if` expressions are differentiated on the currently selected branch, so
+phase transitions, branch changes and poor starting points remain limitations.
+Dense SVD targets bounded local models; it is not a large-flowsheet sparse method
+or a guarantee of an optimal fixed-variable subset.
 
 ### Equations and connections
 

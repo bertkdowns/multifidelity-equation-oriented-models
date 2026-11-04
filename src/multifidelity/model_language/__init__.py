@@ -13,6 +13,7 @@ from .selection import SpecificationSelection, select_specification
 from .variables import get_variable
 from .initialization import apply_starting_values, initialize_custom_models
 from .hierarchical_initialization import initialize_model, InitializationResult, InitializationStage
+from .scaling import apply_scaling, ScalingReport
 from .standard import register_standard_providers
 
 
@@ -40,6 +41,8 @@ __all__ = [
     "initialize_model",
     "InitializationResult",
     "InitializationStage",
+    "apply_scaling",
+    "ScalingReport",
     "SpecificationSelection",
     "select_specification",
     "ModelView",
