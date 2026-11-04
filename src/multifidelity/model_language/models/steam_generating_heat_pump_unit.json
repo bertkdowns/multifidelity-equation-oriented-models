@@ -15,21 +15,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -41,21 +44,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -67,21 +73,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -93,21 +102,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -119,21 +131,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -145,21 +160,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -171,42 +189,48 @@
           "dimensions": [
             "time"
           ],
-          "scale": 0.0001
+          "scale": 0.0001,
+          "default": 3000
         },
         "hot_water_duty": {
           "unit": "W",
           "dimensions": [
             "time"
           ],
-          "scale": 0.0001
+          "scale": 0.0001,
+          "default": 3000
         },
         "warm_water_duty": {
           "unit": "W",
           "dimensions": [
             "time"
           ],
-          "scale": 0.0001
+          "scale": 0.0001,
+          "default": 0
         },
         "cooling_duty": {
           "unit": "W",
           "dimensions": [
             "time"
           ],
-          "scale": 0.0001
+          "scale": 0.0001,
+          "default": 2000
         },
         "electrical_power": {
           "unit": "W",
           "dimensions": [
             "time"
           ],
-          "scale": 0.0001
+          "scale": 0.0001,
+          "default": 1000
         },
         "cop": {
           "unit": "dimensionless",
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 3
         }
       }
     }

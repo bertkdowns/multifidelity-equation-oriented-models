@@ -221,6 +221,19 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
             for name, variable in variables.items()
             if resolved.definition.structs[name.split('.')[0]].direction == 'input'
         }
+        # A supplied input is still a boundary guess at its own local stage:
+        # its parent's defining equation is outside that subtree. At ancestor
+        # stages it is not independent, so only unsupplied inputs propagate up.
+        open_inputs = {
+            name: variable for name, variable in inputs.items()
+            if name[len(occurrence.prefix):] not in occurrence.supplied
+        }
+        if relationship.definition.external is None:
+            for child in block.relationship.models.component_objects(Block, descend_into=False):
+                inherited = child._model_language_open_initialization_inputs
+                inputs.update(inherited)
+                open_inputs.update(inherited)
+        block._model_language_open_initialization_inputs = open_inputs
         initialization_order.append((occurrence.prefix.rstrip('.') or model_id, block, inputs))
         active = block.relationship
         if relationship.definition.external is not None:

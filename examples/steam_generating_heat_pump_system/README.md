@@ -215,20 +215,35 @@ at 200 kPa and 77 degrees C with enthalpy 322523.13 J/kg. The hot and warm inlet
 states also initialise, making nine successful stages before reaching `sghp`.
 These are local initialisation results, not a converged plant solution.
 
-The current stop is the SGHP parent, with eight remaining local structural
-degrees of freedom. Its own inlet structs still have unset free values even
-though the connected child state blocks have been initialised, so the algorithm
-has no eligible guessed boundary input to fix. The parent is not sent to IPOPT.
+The first scaled attempt stopped at the SGHP parent, with eight remaining local
+structural degrees of freedom. Its own inlet structs still had unset free values
+despite the completed child state blocks, so there was no eligible guessed
+boundary input to fix. The parent was not sent to IPOPT.
 
-The saved report includes an additional structural inspection on a clone. Copying
-child state guesses to the parent inlets permits five independent boundary fixes,
-but leaves three freedoms. Fixing the descendant COP, electrical-power and
-warm-water heat-duty inputs closes those remaining freedoms. Those extra fixes
+An additional structural inspection on a clone, recorded in commit `170de47`, copied
+child state guesses to the parent inlets and permitted five independent boundary fixes,
+but left three freedoms. Fixing the descendant COP, electrical-power and
+warm-water heat-duty inputs closed those remaining freedoms. Those extra fixes
 were diagnostic only; they were not applied to the operating model or enabled
-as automatic parent-stage candidates. The current own-boundary rule therefore
-needs an explicit model-interface or eligibility decision for this composite,
-in addition to connection-based guess propagation. The report retains all
-per-stage rank/score diagnostics and successfully initialised water states.
+as automatic parent-stage candidates in that version.
+
+The initializer now includes descendant public inputs that are not connected to
+or defined by their parent. Supplied child inputs remain excluded at ancestor
+stages. To avoid needing value propagation, the SGHP unit declares stream guesses
+of 1 kg/s, 200 kPa and 100 kJ/kg on its own inlet/outlet structs, plus coherent
+performance guesses: COP 3, electrical power 1 kW, heating/hot-water duty 3 kW,
+warm-water duty zero and cooling duty 2 kW. These are unfixed initial guesses,
+and operating specifications still take precedence.
+
+With this change, all SGHP child stages and the SGHP parent initialise successfully.
+The local SGHP closure uses its five independent inlet choices and the descendant
+COP, power and warm-water-duty inputs; all temporary fixes are released afterwards.
+The complete attempt then reaches the PHNIX aggregate parent after its child
+states initialise. It stops during Jacobian evaluation because
+`phnix.performance.electrical_power` is unset in the product defining heating
+duty; other PHNIX stream/performance guesses are also missing. The current report
+records this failure, scores and local states. It is not a converged whole-plant
+solution. Guess propagation remains deferred.
 
 ## Evidence and remaining differences
 

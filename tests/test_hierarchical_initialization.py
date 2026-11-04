@@ -294,3 +294,109 @@ def test_hidden_internal_freedom_is_reported_instead_of_arbitrarily_fixed(tmp_pa
     assert stage.initial_deficiency == 2 and stage.remaining_deficiency == 1
     assert any('orphan' in name for name in stage.unresolved_variables)
     assert all(not v.fixed for v in model.component_data_objects(Var))
+
+
+def nested_open_input_plant(tmp_path, *, define_bias=False):
+    library = Library(tmp_path)
+    library.models['leaf'] = ModelDocument.model_validate({
+        'id': 'leaf', 'structs': {
+            'inlet': {'direction': 'input', 'variables': {'x': {'default': 1}}},
+            'parameters': {'direction': 'input', 'variables': {'bias': {'default': 3}}},
+            'outlet': {'direction': 'output', 'variables': {'y': {}}},
+        }, 'relationships': {'eq': {'constraints': {
+            'eq': {'lhs': 'outlet.y', 'rhs': '2 * inlet.x + parameters.bias', 'determines': 'outlet.y'}}}},
+    })
+    middle = {
+        'id': 'middle', 'structs': {
+            'inlet': {'direction': 'input', 'variables': {'x': {'default': 1}}},
+            'outlet': {'direction': 'output', 'variables': {'y': {}}},
+        }, 'relationships': {'eq': {'models': {'leaf': {'model': 'leaf'}},
+            'connections': {
+                'input': {'from': 'inlet', 'to': 'leaf.inlet'},
+                'output': {'from': 'leaf.outlet', 'to': 'outlet'},
+            }}},
+    }
+    if define_bias:
+        middle['relationships']['eq']['constraints'] = {
+            'bias': {'lhs': 'leaf.parameters.bias', 'rhs': '3', 'determines': 'leaf.parameters.bias'}}
+    library.models['middle'] = ModelDocument.model_validate(middle)
+    library.models['root'] = ModelDocument.model_validate({
+        'id': 'root', 'structs': {
+            'inlet': {'direction': 'input', 'variables': {'x': {'default': 5}}},
+            'outlet': {'direction': 'output', 'variables': {'y': {}}},
+        }, 'relationships': {'eq': {'models': {'middle': {'model': 'middle'}},
+            'connections': {
+                'input': {'from': 'inlet', 'to': 'middle.inlet'},
+                'output': {'from': 'middle.outlet', 'to': 'outlet'},
+            }}},
+    })
+    return build_model('root', {'relationship': 'eq', 'submodels': {'middle': {
+        'relationship': 'eq', 'submodels': {'leaf': {'relationship': 'eq'}}}}}, library=library)
+
+
+def test_unsupplied_descendant_inputs_close_parent_and_survive_cloning(tmp_path, solver):
+    model = nested_open_input_plant(tmp_path).clone()
+    get_variable(model, 'inlet.x').fix(5)
+    get_variable(model, 'outlet.y').fix(13)
+    result = initialize_model(model, solver=solver)
+    assert result.success, result
+    stage = next(s for s in result.stages if s.model_path == 'middle')
+    assert {f['variable_path'] for f in stage.temporary_fixes} == {
+        'middle.inlet.x', 'middle.leaf.parameters.bias'}
+    # The connected child inlet is eligible at its own stage, but excluded at
+    # both ancestors. The open bias remains eligible through multiple levels.
+    candidates = {path: set(inputs) for path, _, inputs in model._model_language_initialization_order}
+    assert 'middle.leaf.inlet.x' in candidates['middle.leaf']
+    assert 'middle.leaf.inlet.x' not in candidates['middle']
+    assert 'middle.inlet.x' not in candidates['root']
+    assert 'middle.leaf.parameters.bias' in candidates['root']
+    assert not get_variable(model, 'middle.leaf.parameters.bias').fixed
+    assert get_variable(model, 'middle.leaf.parameters.bias').value == pytest.approx(3)
+
+
+def test_parent_defined_child_input_is_excluded_from_ancestor_candidates(tmp_path, solver):
+    model = nested_open_input_plant(tmp_path, define_bias=True)
+    get_variable(model, 'inlet.x').fix(5)
+    candidates = {path: set(inputs) for path, _, inputs in model._model_language_initialization_order}
+    assert 'middle.leaf.parameters.bias' in candidates['middle.leaf']
+    assert 'middle.leaf.parameters.bias' not in candidates['middle']
+    assert 'middle.leaf.parameters.bias' not in candidates['root']
+    result = initialize_model(model, solver=solver)
+    assert result.success, result
+    assert get_variable(model, 'outlet.y').value == pytest.approx(13)
+
+
+def test_sghp_parent_candidates_include_only_unsupplied_child_inputs():
+    from examples.steam_generating_heat_pump_system.attempt_solve import build_attempt
+    model = build_attempt()
+    candidates = {path: set(inputs) for path, _, inputs in model._model_language_initialization_order}
+    names = candidates['sghp']
+    assert {'sghp.cop_model.parameters.cop',
+            'sghp.power_model.parameters.electrical_power',
+            'sghp.warm_water_heater.parameters.heat_duty'} <= names
+    assert 'sghp.warm_water_heater.inlet.flow' not in names
+    assert 'sghp.source_inlet_state.state.pressure' not in names
+    assert 'sghp.source_inlet_state.fluid.state.enthalpy' not in names
+    assert get_variable(model, 'sghp.source_inlet.pressure')[0].value == 200000
+    assert not get_variable(model, 'sghp.source_inlet.pressure')[0].fixed
+    assert get_variable(model, 'sghp.performance.electrical_power')[0].value == 1000
+    assert not get_variable(model, 'sghp.performance.electrical_power')[0].fixed
+
+
+def test_failed_parent_releases_descendant_input_fixes(tmp_path, solver):
+    model = nested_open_input_plant(tmp_path)
+    get_variable(model, 'inlet.x').fix(5)
+    get_variable(model, 'outlet.y').fix(13)
+    middle = model.fs.root.relationship.models.middle
+    class FailAtMiddle:
+        def solve(self, block, **kwargs):
+            if block is middle:
+                assert get_variable(model, 'middle.leaf.parameters.bias').fixed
+                raise RuntimeError('parent failed with descendant hold')
+            return solver.solve(block, **kwargs)
+    result = initialize_model(model, solver=FailAtMiddle())
+    assert result.failed_model == 'middle'
+    assert result.stages[-1].status == 'error'
+    assert not get_variable(model, 'middle.leaf.parameters.bias').fixed
+    assert not get_variable(model, 'middle.inlet.x').fixed
+    assert get_variable(model, 'inlet.x').fixed

@@ -236,8 +236,13 @@ by their squared row norm in an orthonormal null-space basis: their participatio
 in the remaining freedom. Scores within the rounding precision of 12 decimal
 places tie; higher information trust, then path/index break ties. It recomputes
 DM and numerical scores after each accepted fix. Trials must reduce structural
-deficiency without overconstraint. It does not fix arbitrary internal variables or
-borrow descendant inputs to close a parent's boundary.
+deficiency without overconstraint. In addition to the current occurrence's own
+inputs, eligible candidates include descendant public inputs that are not
+supplied by their immediate parent's incoming connections, defining constraints
+or derivatives. Parent-supplied inputs remain eligible at their own local stage,
+where the parent equations are outside the problem, but not at ancestor stages.
+This rule applies recursively and never admits outputs or native internal
+variables. Merely forwarding an input as a source does not define that input.
 
 Registered callbacks run only at their own provider occurrence. If the equations
 are not already satisfied, the configured solver completes the local solve.

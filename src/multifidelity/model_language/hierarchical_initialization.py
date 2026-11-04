@@ -76,7 +76,8 @@ def initialize_model(model, *, solver=None, information=None, specification=None
 
     Apply operating specifications before calling. Optional unused information
     supplies guesses, never new specifications. Only inputs on the current
-    occurrence's boundary can be temporarily fixed. Their finite, in-bounds
+    occurrence's boundary, plus descendant public inputs not supplied by their
+    parent equations/connections, can be temporarily fixed. Their finite, in-bounds
     values are trialled one entry at a time, ranked by scaled null-space
     participation (trust then path/index break numerical ties). Recompute DM
     and the Jacobian after every accepted fix. The root is never closed
@@ -200,7 +201,7 @@ def initialize_model(model, *, solver=None, information=None, specification=None
             elif stage.remaining_deficiency:
                 stage.status = 'underconstrained'
                 stage.error = ('Root requires additional operating specifications' if is_root else
-                               'No eligible boundary input guess closes the remaining freedom')
+                               'No eligible public input guess closes the remaining freedom')
             elif stage.invalid_starting_values:
                 stage.status = 'invalid_starting_values'
             else:

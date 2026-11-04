@@ -144,7 +144,8 @@ block should be solved independently.
 
 ## Limits of the input-fixing rule
 
-Temporary fixes must be selected from the current model's public input variables.
+Temporary fixes must be selected from public input variables: the current model's
+own inputs and descendant inputs not supplied by their immediate parent.
 This is an interface contract, not merely a preference that a numerical selection
 method can override. Internal variables and outputs remain unknowns when choosing
 which eligible inputs to fix. A future Jacobian-based method must respect the
@@ -160,15 +161,17 @@ If the remaining freedom cannot be closed through eligible inputs, report it
 explicitly rather than fixing internal variables or outputs. Investigate the
 model interface, provider initialiser or local solve boundary instead.
 
-The scaled SGHP retry demonstrates this distinction. Its child property states
+The first scaled SGHP retry demonstrated this distinction. Its child property states
 initialise, but the aggregate SGHP parent has eight local freedoms. On a diagnostic
 clone, its own inlet variables can supply only five independent closures after
 copying the child state guesses. Three additional closures correspond to the
-descendant COP, electrical-power and warm-water heat-duty inputs. Decide whether
-the composite should expose these as parent inputs or whether descendant public
-inputs should be eligible at parent stages. Neither is implemented automatically;
-this is separate from introducing arbitrary internal-variable fixes. Propagating
-guesses through connections is also needed to populate the parent inlet structs.
+descendant COP, electrical-power and warm-water heat-duty inputs. The chosen
+policy now admits these descendant public inputs at parent stages, while
+excluding inputs supplied by parent connections, constraints or derivatives.
+Those supplied inputs can still be temporarily fixed at their own local stage,
+where the parent equations are absent. This is separate from introducing
+arbitrary internal-variable fixes. Parent struct defaults provide guesses for
+now; propagation through connections remains deferred.
 
 Similarly, an overconstrained system cannot be repaired by fixing more inputs.
 It needs a separate diagnostic. A zero overall degrees-of-freedom count is not
@@ -266,8 +269,8 @@ system. Local initialisation success is not evidence that this final solve will
 succeed. In particular, tightly coupled recycles may need more than a single
 bottom-up pass.
 
-The implementation fixes only inputs on the current occurrence's own boundary,
-never arbitrary internal variables. It reports missing guesses on derived
+The implementation fixes only current-boundary inputs and unsupplied descendant
+public inputs, never outputs or arbitrary internal variables. It reports missing guesses on derived
 unknowns but allows the solver to find them; a temporary boundary fix always
 requires an existing finite, in-bounds value. It stops at the first failed stage,
 restores that stage's values, and retains earlier successful child values.

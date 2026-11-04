@@ -930,174 +930,1612 @@
     },
     {
       "model_path": "sghp",
-      "status": "underconstrained",
+      "status": "initialized",
       "initial_deficiency": 8,
-      "remaining_deficiency": 8,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "sghp.warm_water_heater.parameters.heat_duty",
+          "index": 0.0,
+          "value": 0.0,
+          "unit": "W",
+          "trust_rank": null,
+          "deficiency_before": 8,
+          "deficiency_after": 7,
+          "null_space_score": 0.375282599829612
+        },
+        {
+          "variable_path": "sghp.source_inlet.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 7,
+          "deficiency_after": 6,
+          "null_space_score": 0.3333333333333333
+        },
+        {
+          "variable_path": "sghp.cop_model.parameters.cop",
+          "index": 0.0,
+          "value": 3.0,
+          "unit": "dimensionless",
+          "trust_rank": null,
+          "deficiency_before": 6,
+          "deficiency_after": 5,
+          "null_space_score": 0.33284371003746677
+        },
+        {
+          "variable_path": "sghp.warm_inlet.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 5,
+          "deficiency_after": 4,
+          "null_space_score": 0.2
+        },
+        {
+          "variable_path": "sghp.hot_inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 4,
+          "deficiency_after": 3,
+          "null_space_score": 0.16527978742077837
+        },
+        {
+          "variable_path": "sghp.source_inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 0.16416158043867973
+        },
+        {
+          "variable_path": "sghp.warm_inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.12280406529960894
+        },
+        {
+          "variable_path": "sghp.power_model.parameters.electrical_power",
+          "index": 0.0,
+          "value": 1000.0,
+          "unit": "W",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.0397930760047752
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 1.100124791264534e-08,
+      "max_scaled_constraint_violation": 1.1001247912645339e-13,
+      "numerical_selections": [
+        {
+          "rows": 140,
+          "columns": 148,
+          "numerical_rank": 140,
+          "expected_rank": 140,
+          "nullity": 8,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.4347780122475483e-10,
+          "largest_singular_value": 2.4347780122475484,
+          "smallest_singular_value": 0.014711676547441278,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "sghp.warm_water_heater.parameters.heat_duty",
+              "index": 0.0,
+              "score": 0.375282599829612
+            },
+            {
+              "variable_path": "sghp.source_inlet.flow",
+              "index": 0.0,
+              "score": 0.3333333333333336
+            },
+            {
+              "variable_path": "sghp.cop_model.parameters.cop",
+              "index": 0.0,
+              "score": 0.33284435502164395
+            },
+            {
+              "variable_path": "sghp.warm_inlet.flow",
+              "index": 0.0,
+              "score": 0.20000000000000012
+            },
+            {
+              "variable_path": "sghp.hot_inlet.pressure",
+              "index": 0.0,
+              "score": 0.16527978743504687
+            },
+            {
+              "variable_path": "sghp.source_inlet.pressure",
+              "index": 0.0,
+              "score": 0.16416158044254292
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406545967291
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.04558662393845072
+            },
+            {
+              "variable_path": "sghp.source_inlet.enthalpy",
+              "index": 0.0,
+              "score": 1.0571328834635283e-07
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.682841490333623e-08
+            },
+            {
+              "variable_path": "sghp.hot_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.187014129109079e-08
+            }
+          ]
+        },
+        {
+          "rows": 140,
+          "columns": 147,
+          "numerical_rank": 140,
+          "expected_rank": 140,
+          "nullity": 7,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.434773663247553e-10,
+          "largest_singular_value": 2.434773663247553,
+          "smallest_singular_value": 0.014700326483605383,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "sghp.source_inlet.flow",
+              "index": 0.0,
+              "score": 0.3333333333333333
+            },
+            {
+              "variable_path": "sghp.cop_model.parameters.cop",
+              "index": 0.0,
+              "score": 0.33284371003746677
+            },
+            {
+              "variable_path": "sghp.warm_inlet.flow",
+              "index": 0.0,
+              "score": 0.20000000000000026
+            },
+            {
+              "variable_path": "sghp.hot_inlet.pressure",
+              "index": 0.0,
+              "score": 0.1652797874207788
+            },
+            {
+              "variable_path": "sghp.source_inlet.pressure",
+              "index": 0.0,
+              "score": 0.16416158043875434
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406529960894
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.04013462039489841
+            },
+            {
+              "variable_path": "sghp.source_inlet.enthalpy",
+              "index": 0.0,
+              "score": 1.0571328834372749e-07
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.6828414790075e-08
+            },
+            {
+              "variable_path": "sghp.hot_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.18701412838671e-08
+            }
+          ]
+        },
+        {
+          "rows": 140,
+          "columns": 146,
+          "numerical_rank": 140,
+          "expected_rank": 140,
+          "nullity": 6,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.2362501503318605e-10,
+          "largest_singular_value": 2.2362501503318604,
+          "smallest_singular_value": 0.014700326483605409,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "sghp.cop_model.parameters.cop",
+              "index": 0.0,
+              "score": 0.33284371003746677
+            },
+            {
+              "variable_path": "sghp.warm_inlet.flow",
+              "index": 0.0,
+              "score": 0.2000000000000002
+            },
+            {
+              "variable_path": "sghp.hot_inlet.pressure",
+              "index": 0.0,
+              "score": 0.16527978742077906
+            },
+            {
+              "variable_path": "sghp.source_inlet.pressure",
+              "index": 0.0,
+              "score": 0.1641615804387541
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406529960886
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.04013462039489849
+            },
+            {
+              "variable_path": "sghp.source_inlet.enthalpy",
+              "index": 0.0,
+              "score": 1.0571328834323972e-07
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.682841478978205e-08
+            },
+            {
+              "variable_path": "sghp.hot_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.187014128390846e-08
+            }
+          ]
+        },
+        {
+          "rows": 140,
+          "columns": 145,
+          "numerical_rank": 140,
+          "expected_rank": 140,
+          "nullity": 5,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.23624975744823e-10,
+          "largest_singular_value": 2.23624975744823,
+          "smallest_singular_value": 0.014700326483605424,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "sghp.warm_inlet.flow",
+              "index": 0.0,
+              "score": 0.2
+            },
+            {
+              "variable_path": "sghp.hot_inlet.pressure",
+              "index": 0.0,
+              "score": 0.1652797874207784
+            },
+            {
+              "variable_path": "sghp.source_inlet.pressure",
+              "index": 0.0,
+              "score": 0.16416158043867973
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406529960891
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.03979307601951781
+            },
+            {
+              "variable_path": "sghp.source_inlet.enthalpy",
+              "index": 0.0,
+              "score": 1.0571328834314076e-07
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.682841479085283e-08
+            },
+            {
+              "variable_path": "sghp.hot_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.187014128528092e-08
+            }
+          ]
+        },
+        {
+          "rows": 140,
+          "columns": 144,
+          "numerical_rank": 140,
+          "expected_rank": 140,
+          "nullity": 4,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.23624975744823e-10,
+          "largest_singular_value": 2.23624975744823,
+          "smallest_singular_value": 0.014700326482473847,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "sghp.hot_inlet.pressure",
+              "index": 0.0,
+              "score": 0.16527978742077837
+            },
+            {
+              "variable_path": "sghp.source_inlet.pressure",
+              "index": 0.0,
+              "score": 0.16416158043867954
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406529960905
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.039793076019517884
+            },
+            {
+              "variable_path": "sghp.source_inlet.enthalpy",
+              "index": 0.0,
+              "score": 1.0571328834322167e-07
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.682841479019826e-08
+            },
+            {
+              "variable_path": "sghp.hot_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.187014128450275e-08
+            }
+          ]
+        },
+        {
+          "rows": 140,
+          "columns": 143,
+          "numerical_rank": 140,
+          "expected_rank": 140,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.2362497574472666e-10,
+          "largest_singular_value": 2.2362497574472666,
+          "smallest_singular_value": 0.01470032648247394,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "sghp.source_inlet.pressure",
+              "index": 0.0,
+              "score": 0.16416158043867973
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406529960883
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.039793076011471
+            },
+            {
+              "variable_path": "sghp.source_inlet.enthalpy",
+              "index": 0.0,
+              "score": 1.0571328834418932e-07
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.68284147902449e-08
+            }
+          ]
+        },
+        {
+          "rows": 140,
+          "columns": 142,
+          "numerical_rank": 140,
+          "expected_rank": 140,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.2362497574356e-10,
+          "largest_singular_value": 2.2362497574356,
+          "smallest_singular_value": 0.014700326482473852,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406529960894
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.03979307600477524
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.682841478981303e-08
+            }
+          ]
+        },
+        {
+          "rows": 140,
+          "columns": 141,
+          "numerical_rank": 140,
+          "expected_rank": 140,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.2362497574356e-10,
+          "largest_singular_value": 2.2362497574356,
+          "smallest_singular_value": 0.014695784017349457,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.0397930760047752
+            }
+          ]
+        },
+        {
+          "rows": 140,
+          "columns": 140,
+          "numerical_rank": 140,
+          "expected_rank": 140,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.2334024085134456e-10,
+          "largest_singular_value": 2.2334024085134456,
+          "smallest_singular_value": 0.01469578401734934,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix.cop_model",
+      "status": "initialized",
+      "initial_deficiency": 0,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 0.0,
+      "max_scaled_constraint_violation": 0.0,
+      "numerical_selections": [
+        {
+          "rows": 1,
+          "columns": 1,
+          "numerical_rank": 1,
+          "expected_rank": 1,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1e-10,
+          "largest_singular_value": 1.0,
+          "smallest_singular_value": 1.0,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix.source_inlet_state.fluid",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "phnix.source_inlet_state.fluid.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.20658473190466148
+        },
+        {
+          "variable_path": "phnix.source_inlet_state.fluid.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.09677841850733314
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123553e-14,
+      "numerical_selections": [
+        {
+          "rows": 27,
+          "columns": 29,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.099741969032214e-10,
+          "largest_singular_value": 2.099741969032214,
+          "smallest_singular_value": 0.5071960786066415,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.source_inlet_state.fluid.state.pressure",
+              "index": 0.0,
+              "score": 0.20658473190466148
+            },
+            {
+              "variable_path": "phnix.source_inlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09912351305072828
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 28,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0970672755857986e-10,
+          "largest_singular_value": 2.0970672755857986,
+          "smallest_singular_value": 0.3806556792156157,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.source_inlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09677841850733314
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 27,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0491286044470547e-10,
+          "largest_singular_value": 2.0491286044470547,
+          "smallest_singular_value": 0.26368383878118645,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix.source_inlet_state",
+      "status": "initialized",
+      "initial_deficiency": 3,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "phnix.source_inlet_state.state.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 1.0000000000000002
+        },
+        {
+          "variable_path": "phnix.source_inlet_state.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.21794568680747775
+        },
+        {
+          "variable_path": "phnix.source_inlet_state.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.1589521220111776
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123555e-14,
+      "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 39,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.033343841961203e-10,
+          "largest_singular_value": 2.033343841961203,
+          "smallest_singular_value": 0.4450418679126285,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.source_inlet_state.state.flow",
+              "index": 0.0,
+              "score": 1.0000000000000002
+            },
+            {
+              "variable_path": "phnix.source_inlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "phnix.source_inlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1603471483121747
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 38,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0333438419612042e-10,
+          "largest_singular_value": 2.033343841961204,
+          "smallest_singular_value": 0.4450418679126284,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.source_inlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "phnix.source_inlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.160347148312175
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 37,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0325378086018166e-10,
+          "largest_singular_value": 2.0325378086018167,
+          "smallest_singular_value": 0.36729382377798975,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.source_inlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1589521220111776
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 36,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.022185672319327e-10,
+          "largest_singular_value": 2.0221856723193268,
+          "smallest_singular_value": 0.29377629322653054,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix.source_outlet_state.fluid",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "phnix.source_outlet_state.fluid.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.20658473190466148
+        },
+        {
+          "variable_path": "phnix.source_outlet_state.fluid.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.09677841850733314
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123553e-14,
+      "numerical_selections": [
+        {
+          "rows": 27,
+          "columns": 29,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.099741969032214e-10,
+          "largest_singular_value": 2.099741969032214,
+          "smallest_singular_value": 0.5071960786066415,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.source_outlet_state.fluid.state.pressure",
+              "index": 0.0,
+              "score": 0.20658473190466148
+            },
+            {
+              "variable_path": "phnix.source_outlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09912351305072828
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 28,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0970672755857986e-10,
+          "largest_singular_value": 2.0970672755857986,
+          "smallest_singular_value": 0.3806556792156157,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.source_outlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09677841850733314
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 27,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0491286044470547e-10,
+          "largest_singular_value": 2.0491286044470547,
+          "smallest_singular_value": 0.26368383878118645,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix.source_outlet_state",
+      "status": "initialized",
+      "initial_deficiency": 3,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "phnix.source_outlet_state.state.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 1.0000000000000002
+        },
+        {
+          "variable_path": "phnix.source_outlet_state.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.21794568680747775
+        },
+        {
+          "variable_path": "phnix.source_outlet_state.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.1589521220111776
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123555e-14,
+      "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 39,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.033343841961203e-10,
+          "largest_singular_value": 2.033343841961203,
+          "smallest_singular_value": 0.4450418679126285,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.source_outlet_state.state.flow",
+              "index": 0.0,
+              "score": 1.0000000000000002
+            },
+            {
+              "variable_path": "phnix.source_outlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "phnix.source_outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1603471483121747
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 38,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0333438419612042e-10,
+          "largest_singular_value": 2.033343841961204,
+          "smallest_singular_value": 0.4450418679126284,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.source_outlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "phnix.source_outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.160347148312175
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 37,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0325378086018166e-10,
+          "largest_singular_value": 2.0325378086018167,
+          "smallest_singular_value": 0.36729382377798975,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.source_outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1589521220111776
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 36,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.022185672319327e-10,
+          "largest_singular_value": 2.0221856723193268,
+          "smallest_singular_value": 0.29377629322653054,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix.sink_inlet_state.fluid",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "phnix.sink_inlet_state.fluid.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.20658473190466148
+        },
+        {
+          "variable_path": "phnix.sink_inlet_state.fluid.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.09677841850733314
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.phnix.relationship.models.sink_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123553e-14,
+      "numerical_selections": [
+        {
+          "rows": 27,
+          "columns": 29,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.099741969032214e-10,
+          "largest_singular_value": 2.099741969032214,
+          "smallest_singular_value": 0.5071960786066415,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.sink_inlet_state.fluid.state.pressure",
+              "index": 0.0,
+              "score": 0.20658473190466148
+            },
+            {
+              "variable_path": "phnix.sink_inlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09912351305072828
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 28,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0970672755857986e-10,
+          "largest_singular_value": 2.0970672755857986,
+          "smallest_singular_value": 0.3806556792156157,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.sink_inlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09677841850733314
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 27,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0491286044470547e-10,
+          "largest_singular_value": 2.0491286044470547,
+          "smallest_singular_value": 0.26368383878118645,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix.sink_inlet_state",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "phnix.sink_inlet_state.state.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 1.0000000000000004
+        },
+        {
+          "variable_path": "phnix.sink_inlet_state.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.21609297585429954
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 7.947906851768494e-06,
+      "max_scaled_constraint_violation": 7.947906851768495e-11,
+      "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 38,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.033320344095353e-10,
+          "largest_singular_value": 2.033320344095353,
+          "smallest_singular_value": 0.018444981894271822,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.sink_inlet_state.state.flow",
+              "index": 0.0,
+              "score": 1.0000000000000004
+            },
+            {
+              "variable_path": "phnix.sink_inlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21609297585429907
+            },
+            {
+              "variable_path": "phnix.sink_inlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 1.8664960469121175e-07
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 37,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.033320344095354e-10,
+          "largest_singular_value": 2.033320344095354,
+          "smallest_singular_value": 0.018444981894271812,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.sink_inlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21609297585429954
+            },
+            {
+              "variable_path": "phnix.sink_inlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 1.8664960469474049e-07
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 36,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0325138153772265e-10,
+          "largest_singular_value": 2.0325138153772264,
+          "smallest_singular_value": 0.018366013346750462,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix.sink_outlet_state.fluid",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "phnix.sink_outlet_state.fluid.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.20658473190466148
+        },
+        {
+          "variable_path": "phnix.sink_outlet_state.fluid.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.09677841850733314
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123553e-14,
+      "numerical_selections": [
+        {
+          "rows": 27,
+          "columns": 29,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.099741969032214e-10,
+          "largest_singular_value": 2.099741969032214,
+          "smallest_singular_value": 0.5071960786066415,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.sink_outlet_state.fluid.state.pressure",
+              "index": 0.0,
+              "score": 0.20658473190466148
+            },
+            {
+              "variable_path": "phnix.sink_outlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09912351305072828
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 28,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0970672755857986e-10,
+          "largest_singular_value": 2.0970672755857986,
+          "smallest_singular_value": 0.3806556792156157,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.sink_outlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09677841850733314
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 27,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0491286044470547e-10,
+          "largest_singular_value": 2.0491286044470547,
+          "smallest_singular_value": 0.26368383878118645,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix.sink_outlet_state",
+      "status": "initialized",
+      "initial_deficiency": 3,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "phnix.sink_outlet_state.state.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 1.0000000000000002
+        },
+        {
+          "variable_path": "phnix.sink_outlet_state.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.21794568680747775
+        },
+        {
+          "variable_path": "phnix.sink_outlet_state.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.1589521220111776
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123555e-14,
+      "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 39,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.033343841961203e-10,
+          "largest_singular_value": 2.033343841961203,
+          "smallest_singular_value": 0.4450418679126285,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.sink_outlet_state.state.flow",
+              "index": 0.0,
+              "score": 1.0000000000000002
+            },
+            {
+              "variable_path": "phnix.sink_outlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "phnix.sink_outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1603471483121747
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 38,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0333438419612042e-10,
+          "largest_singular_value": 2.033343841961204,
+          "smallest_singular_value": 0.4450418679126284,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.sink_outlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "phnix.sink_outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.160347148312175
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 37,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0325378086018166e-10,
+          "largest_singular_value": 2.0325378086018167,
+          "smallest_singular_value": 0.36729382377798975,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix.sink_outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1589521220111776
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 36,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.022185672319327e-10,
+          "largest_singular_value": 2.0221856723193268,
+          "smallest_singular_value": 0.29377629322653054,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix.power_model",
+      "status": "initialized",
+      "initial_deficiency": 0,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 3.637978807091713e-12,
+      "max_scaled_constraint_violation": 3.637978807091713e-16,
+      "numerical_selections": [
+        {
+          "rows": 1,
+          "columns": 1,
+          "numerical_rank": 1,
+          "expected_rank": 1,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1e-10,
+          "largest_singular_value": 1.0,
+          "smallest_singular_value": 1.0,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix",
+      "status": "jacobian_failed",
+      "initial_deficiency": 4,
+      "remaining_deficiency": 4,
       "temporary_fixes": [],
       "unresolved_variables": [
-        "fs.root.relationship.models.sghp.structs.hot_outlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_outlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.cop_model.structs.parameters.cop[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.power_model.structs.parameters.electrical_power[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_water_heater.structs.inlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_water_heater.structs.inlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.structs.state.flow[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.structs.state.pressure[0.0]",
-        "fs.root.relationship.models.sghp.structs.hot_inlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.structs.state.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.state.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].enth_mass",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.density",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.entropy",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.vapor_fraction",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.viscosity",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].pressure",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.density[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.heat_capacity[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.entropy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.vapor_fraction[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.state.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_bubble",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_dew",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_sat",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_sat",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.structs.properties.density[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.structs.properties.heat_capacity[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.structs.properties.entropy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.structs.properties.vapor_fraction[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.structs.state.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.temperature_bubble[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.temperature_dew[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid_sat[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor_sat[0.0]",
-        "fs.root.relationship.models.sghp.structs.hot_inlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.structs.properties.temperature_bubble[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.structs.properties.temperature_dew[0.0]",
-        "fs.root.relationship.models.sghp.structs.hot_outlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_water_heater.structs.outlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_water_heater.structs.parameters.heat_duty[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.warm_water_duty[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.hot_water_duty[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.cop_model.structs.performance.cop[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.cop[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.heating_duty[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.cooling_duty[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_outlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.power_model.structs.performance.electrical_power[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.electrical_power[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_inlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_water_heater.structs.outlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.structs.state.flow[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_outlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_inlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_water_heater.structs.outlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.structs.state.pressure[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_outlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.state.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].pressure",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.density",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.entropy",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.vapor_fraction",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_bubble",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_dew",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_sat",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_sat",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.viscosity",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].enth_mass",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.density[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.heat_capacity[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.entropy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.vapor_fraction[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.temperature_bubble[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.temperature_dew[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid_sat[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor_sat[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.state.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.structs.properties.density[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.structs.properties.heat_capacity[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.structs.properties.entropy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.structs.properties.vapor_fraction[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.structs.properties.temperature_bubble[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.structs.properties.temperature_dew[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.structs.state.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_inlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.warm_water_heater.structs.inlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_inlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_outlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_inlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.state.pressure[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_outlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].pressure",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.density",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.entropy",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.vapor_fraction",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_bubble",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_dew",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_sat",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_sat",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.viscosity",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].enth_mass",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.density[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.heat_capacity[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.entropy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.vapor_fraction[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.temperature_bubble[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.temperature_dew[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid_sat[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor_sat[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.state.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.structs.properties.density[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.structs.properties.heat_capacity[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.structs.properties.entropy[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.structs.properties.vapor_fraction[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.structs.properties.temperature_bubble[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.structs.properties.temperature_dew[0.0]",
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.structs.state.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_inlet.enthalpy[0.0]"
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.structs.state.flow[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.structs.state.pressure[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.structs.state.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_inlet_state.structs.state.flow[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_inlet.flow[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_outlet.flow[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_outlet.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.structs.state.flow[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.structs.state.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.state.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].enth_mass",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.density",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.entropy",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.vapor_fraction",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.viscosity",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.temperature[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.density[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.heat_capacity[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.entropy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.vapor_fraction[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.structs.properties.temperature[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.structs.properties.density[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.structs.properties.heat_capacity[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.structs.properties.entropy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.structs.properties.vapor_fraction[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_inlet.pressure[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.state.pressure[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_outlet.pressure[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].pressure",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.structs.state.pressure[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.density",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.entropy",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.vapor_fraction",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_bubble",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_dew",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_sat",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_sat",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.viscosity",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.state.pressure[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.temperature[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.density[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.heat_capacity[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.entropy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.vapor_fraction[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.temperature_bubble[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.temperature_dew[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid_sat[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor_sat[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].pressure",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.structs.properties.temperature[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.structs.properties.density[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.structs.properties.heat_capacity[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.structs.properties.entropy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.structs.properties.vapor_fraction[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.structs.properties.temperature_bubble[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.structs.properties.temperature_dew[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_bubble",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_dew",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_sat",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_sat",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.temperature_bubble[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.temperature_dew[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid_sat[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor_sat[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.structs.properties.temperature_bubble[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.structs.properties.temperature_dew[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_inlet.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.state.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].enth_mass",
+        "fs.root.relationship.models.phnix.structs.sink_inlet.flow[0.0]",
+        "fs.root.relationship.models.phnix.structs.sink_outlet.flow[0.0]",
+        "fs.root.relationship.models.phnix.structs.sink_outlet.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.structs.state.flow[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.structs.state.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.state.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.states[0].enth_mass",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.density",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.entropy",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.vapor_fraction",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.viscosity",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.properties.temperature[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.properties.density[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.properties.heat_capacity[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.properties.entropy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.properties.vapor_fraction[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.properties.enthalpy_liquid[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.properties.enthalpy_vapor[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.structs.properties.temperature[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.structs.properties.density[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.structs.properties.heat_capacity[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.structs.properties.entropy[0.0]",
+        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.structs.properties.vapor_fraction[0.0]"
       ],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.sghp.structs.source_inlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_inlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_inlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_outlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_outlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.structs.source_outlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.structs.hot_inlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.structs.hot_inlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.structs.hot_outlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.structs.hot_outlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.structs.hot_outlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_inlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_inlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_inlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_outlet.flow[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_outlet.pressure[0.0]",
-        "fs.root.relationship.models.sghp.structs.warm_outlet.enthalpy[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.heating_duty[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.hot_water_duty[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.warm_water_duty[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.cooling_duty[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.electrical_power[0.0]",
-        "fs.root.relationship.models.sghp.structs.performance.cop[0.0]"
+        "fs.root.relationship.models.phnix.structs.source_inlet.flow[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_inlet.pressure[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_inlet.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_outlet.flow[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_outlet.pressure[0.0]",
+        "fs.root.relationship.models.phnix.structs.source_outlet.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.structs.sink_inlet.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.structs.sink_outlet.flow[0.0]",
+        "fs.root.relationship.models.phnix.structs.sink_outlet.pressure[0.0]",
+        "fs.root.relationship.models.phnix.structs.sink_outlet.enthalpy[0.0]",
+        "fs.root.relationship.models.phnix.structs.performance.heating_duty[0.0]",
+        "fs.root.relationship.models.phnix.structs.performance.cooling_duty[0.0]",
+        "fs.root.relationship.models.phnix.structs.performance.cop[0.0]",
+        "fs.root.relationship.models.phnix.structs.performance.electrical_power[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -1107,14 +2545,14 @@
       "max_scaled_constraint_violation": null,
       "numerical_selections": [],
       "fallback_variable_scales": [],
-      "error": "No eligible boundary input guess closes the remaining freedom"
+      "error": "ValueError: fs.root.relationship.models.phnix.relationship.constraints.heating_duty_from_cop[0.0]: cannot evaluate Jacobian: No value for uninitialized NumericValue object fs.root.relationship.models.phnix.structs.performance.electrical_power[0.0]"
     }
   ],
   "starting_value_record_ids": [
     "config_phnix_sink_inlet_flow",
     "config_warm_water_splitter_parameters_fraction"
   ],
-  "failed_model": "sghp",
+  "failed_model": "phnix",
   "scaling_callbacks": [
     "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
     "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
@@ -1141,24 +2579,24 @@
   "initialized_water_states": {
     "sghp.source_inlet_state": {
       "state.flow": 1.0,
-      "state.pressure": 200000.0,
-      "state.enthalpy": 322523.1319423974,
+      "state.pressure": 199999.99999999997,
+      "state.enthalpy": 322523.13194238837,
       "properties.temperature": 350.15000000040436,
-      "properties.density": 973.6848591832862
+      "properties.density": 973.6848591832857
     },
     "sghp.hot_inlet_state": {
-      "state.flow": 1.0,
-      "state.pressure": 200000.0,
-      "state.enthalpy": 501977.6918467101,
+      "state.flow": 0.830463850734013,
+      "state.pressure": 199999.99999999997,
+      "state.enthalpy": 501977.6918467131,
       "properties.temperature": 392.72659727435075,
-      "properties.density": 943.4567010624364
+      "properties.density": 943.4567010624371
     },
     "sghp.warm_inlet_state": {
       "state.flow": 1.0,
-      "state.pressure": 200000.0,
-      "state.enthalpy": 249156.14694139094,
+      "state.pressure": 199999.99999999997,
+      "state.enthalpy": 249156.14694138497,
       "properties.temperature": 332.63462987445513,
-      "properties.density": 983.5056239998013
+      "properties.density": 983.5056239998037
     }
   },
   "initialized_water_states_units": {
@@ -1167,37 +2605,5 @@
     "state.enthalpy": "J/kg",
     "properties.temperature": "K",
     "properties.density": "kg/m**3"
-  },
-  "implementation_commit": "0eb50907f1683eb8676128bd9ef05f0d31f581a0",
-  "parent_boundary_inspection": {
-    "method": "Structural analysis on a clone only; no additional plant solve or operating specification changes.",
-    "initial_parent_deficiency": 8,
-    "diagnostic_parent_inlet_guesses": "Copied from successfully initialised child state blocks on the clone.",
-    "independent_parent_boundary_fixes": [
-      "sghp.source_inlet.flow",
-      "sghp.source_inlet.pressure",
-      "sghp.hot_inlet.pressure",
-      "sghp.warm_inlet.flow",
-      "sghp.warm_inlet.pressure"
-    ],
-    "remaining_deficiency_after_boundary_closure": 3,
-    "diagnostic_descendant_input_fixes": [
-      {
-        "variable_path": "sghp.cop_model.parameters.cop",
-        "guess": 3.0,
-        "remaining_deficiency": 2
-      },
-      {
-        "variable_path": "sghp.power_model.parameters.electrical_power",
-        "guess": 1000.0,
-        "remaining_deficiency": 1
-      },
-      {
-        "variable_path": "sghp.warm_water_heater.parameters.heat_duty",
-        "guess": 0.0,
-        "remaining_deficiency": 0
-      }
-    ],
-    "conclusion": "Parent boundary inputs alone cannot close this local model. Three remaining freedoms are closed by descendant COP, power and heat-duty inputs, which current own-boundary eligibility excludes."
   }
 }
