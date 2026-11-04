@@ -7,6 +7,7 @@
       "variables": {
         "cop": {
           "unit": "dimensionless",
+          "default": 3,
           "dimensions": [
             "time"
           ]
@@ -18,6 +19,7 @@
       "variables": {
         "cop": {
           "unit": "dimensionless",
+          "default": 3,
           "dimensions": [
             "time"
           ]

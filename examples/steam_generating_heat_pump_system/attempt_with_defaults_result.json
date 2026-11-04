@@ -1,0 +1,29 @@
+{
+  "implementation": "aggregate_aggregate",
+  "conditions_SI": {
+    "source_tank.parameters.heat_duty": 0,
+    "steam_outlet.pressure": 100000,
+    "warm_water_mixer.outlet.pressure": 200000,
+    "warm_makeup_valve.outlet.pressure": 200000,
+    "makeup_state.state.flow": 0.015552777777777778
+  },
+  "degrees_of_freedom": 0,
+  "initialization": "Declared defaults plus unused information guesses; no recursive initialization or replay helpers.",
+  "starting_value_record_ids": [
+    "config_phnix_sink_inlet_flow",
+    "config_warm_water_splitter_parameters_fraction"
+  ],
+  "custom_callbacks_run": [],
+  "solver_options": {
+    "max_iter": 500,
+    "tol": 1e-08,
+    "halt_on_ampl_error": "yes"
+  },
+  "solver_status": "warning",
+  "termination_condition": "maxIterations",
+  "iterations": 500,
+  "unscaled_constraint_violation": 11244586.207522813,
+  "solver_wall_time_seconds": 78.22676181793213,
+  "diagnostic": "The original source-pump 0/0 failure was avoided. IPOPT iterated, but did not converge within 500 iterations. No converged steam-production result is available.",
+  "note": "This unsuccessful solve does not establish infeasibility; residuals have mixed physical units."
+}

@@ -347,4 +347,5 @@ change bounds, alter model parameters, or activate/deactivate whole blocks.
 Time-indexed providers run once per existing time slice, including slices created
 by discretization. Metadata follows model cloning. Providers without callbacks
 are left untouched. The runner does not choose temporary free-input fixes or
-solve JSON parents: recursive DM initialisation remains a separate next step.
+solve JSON parents. Use `initialize_model()` for the bottom-up DM procedure,
+which calls provider hooks at their own stages and then solves JSON parents.

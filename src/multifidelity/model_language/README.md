@@ -1,6 +1,6 @@
 # JSON model specification language
 
-This is a first construction-only implementation of the model language discussed
+This is an implementation of the model language discussed
 for recursive multifidelity modelling. It builds a selected equation hierarchy
 inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constraints.
 The builder does not solve; declared defaults supply unfixed starting guesses. Specification documents can
@@ -203,6 +203,57 @@ initial conditions, not solver guesses.
 Custom providers may register an optional initialisation callback; see
 [custom initialisation](custom-models.md#optional-initialisation-callback).
 Neither building a model nor applying specifications invokes these callbacks.
+
+### Bottom-up steady-state initialisation
+
+After applying the operating specification, call:
+
+```python
+from multifidelity.model_language import initialize_model
+
+result = initialize_model(
+    model, solver=solver, information=information, specification=specification,
+)
+```
+
+The optional information arguments seed unused records and rank temporary fixes
+by trust. They do not apply operating specifications. Finalise the grid first;
+multiple steady time points are supported, but dynamic initialisation is not.
+
+The initializer visits selected model occurrences in postorder, treating native
+providers as leaves. For each local subtree it preserves existing specifications,
+then trial-fixes one free boundary input entry to its current finite, in-bounds
+value. It recomputes DM after every trial, accepting only fixes that reduce
+deficiency without overconstraint. Higher-trust information guesses take priority,
+then path and index break ties. It does not fix arbitrary internal variables or
+borrow descendant inputs to close a parent's boundary.
+
+Registered callbacks run only at their own provider occurrence. If the equations
+are not already satisfied, the configured solver completes the local solve.
+Temporary fixes are released before the parent stage; solved values remain as
+guesses for the larger coupled problem. The root receives no temporary fixes
+and is solved under the original operating specification.
+
+The result contains `success`, `failed_model`, used starting-value record IDs,
+and a `stages` list with structural deficiency, temporary fixes, missing/invalid
+guesses, callback names, solver termination and residual checks. Initialisation
+stops at the first failure. That stage's values are restored, while values from
+earlier successful children remain. Original fixed values, fixity and constraint
+activation are restored on success or failure. Failed solver iterates are never
+retained as successful initialisation.
+
+Missing free-variable guesses are reported; derived unknowns may still be found
+by a solver. A missing or invalid guess cannot be used as a temporary boundary
+fix. Nonfinite or out-of-bounds existing values prevent a local solve. Structural
+completeness does not guarantee numerical feasibility. Final variable values and
+equations are checked even after a reported solver success. The default residual
+tolerance is `1e-5` in each equation's own units; `max_constraint_violation` is a
+mixed-unit diagnostic, not a dimensionless norm or automatic scaling scheme.
+Use `residual_tolerance` to choose a different absolute threshold and `tee=True`
+for solver output. Aggregate-first transfer and numerical recovery remain future
+work; a failed stage is returned for inspection without changing its fidelity.
+
+### Equations and connections
 
 Constraints have `lhs` and `rhs` expression strings and always mean equality.
 Each constraint also requires a `determines` variable reference.
@@ -1439,7 +1490,7 @@ or prerequisites for the initial bounded experiments.
 - Detailed thermodynamics, component mixtures, shared material data, configurable
   equipment property dependencies, validated detailed equations and calibration.
 - JSON Schema authoring support, definition version pinning and broader diagnostics.
-- Solver integration, initialization algorithms and fidelity switching in place.
+- Aggregate-first initialisation, numerical recovery and fidelity switching in place.
 
 The builder checks selected references, scope, names, directions, connection fields,
 equation units, explicit determination targets, duplicate determinations and missing

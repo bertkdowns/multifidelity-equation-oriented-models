@@ -177,13 +177,39 @@ specification. Other applicable reference specifications are retained.
 .venv/bin/python examples/steam_generating_heat_pump_system/attempt_solve.py
 ```
 
-This assigns no numerical guesses. The model is structurally complete with zero
-degrees of freedom, but IPOPT fails at its initial equation evaluation before any
+The original attempt assigned no numerical guesses. The model was structurally complete with zero
+degrees of freedom, but IPOPT failed at its initial equation evaluation before any
 iterations. The diagnostic identifies `source_pump.fluid_work`: its division by
 the unset outlet-state density evaluates as 0/0. `attempt_result.json` records the
 outcome. This is a starting-point evaluation failure, not a demonstrated
 infeasibility of the requested operating conditions. Add `--diagnostic` to stop
 on the first invalid evaluation with the symbolic constraint name.
+
+Reusable declaration defaults now provide guesses during construction. A later
+attempt using these defaults and unused information moved past the 0/0 failure,
+but reached the 500-iteration limit without convergence; see
+`attempt_with_defaults_result.json`. The original result remains historical
+evidence rather than the expected outcome of rerunning with current defaults.
+
+## Bottom-up initialisation attempt
+
+```bash
+.venv/bin/python examples/steam_generating_heat_pump_system/attempt_bottom_up.py
+```
+
+This applies the same saved operating specification, seeds unused information,
+and invokes `initialize_model()`. It writes `attempt_bottom_up_result.json` and
+returns a nonzero exit status if a stage fails. No replay helpers, case-specific
+guesses, or changes to the operating specification are applied.
+
+The prescribed-COP model now defaults to an unfixed guess of 3. Its local
+initialisation succeeds and the temporary COP fix is released. The current
+attempt then stops at `sghp.power_model`: its electrical-power input has no
+default or unused-information guess. The local problem has one remaining
+structural degree of freedom, so there is no eligible value for a temporary fix.
+This is a local initialisation limitation, not a new degree of freedom in the
+full plant. The procedure stops before attempting the parent or closed recycles.
+The diagnostics preserve the unresolved paths and all original specifications.
 
 ## Evidence and remaining differences
 

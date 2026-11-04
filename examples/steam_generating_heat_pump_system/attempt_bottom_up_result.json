@@ -1,0 +1,61 @@
+{
+  "implementation": "aggregate_aggregate",
+  "specification": "attempt_specification.json",
+  "information": "attempt_information.json",
+  "success": false,
+  "stages": [
+    {
+      "model_path": "sghp.cop_model",
+      "status": "initialized",
+      "initial_deficiency": 1,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "sghp.cop_model.parameters.cop",
+          "index": 0.0,
+          "value": 3.0,
+          "unit": "dimensionless",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": null,
+      "max_constraint_violation": 0.0,
+      "error": null
+    },
+    {
+      "model_path": "sghp.power_model",
+      "status": "underconstrained",
+      "initial_deficiency": 1,
+      "remaining_deficiency": 1,
+      "temporary_fixes": [],
+      "unresolved_variables": [
+        "fs.root.relationship.models.sghp.relationship.models.power_model.structs.parameters.electrical_power[0.0]",
+        "fs.root.relationship.models.sghp.relationship.models.power_model.structs.performance.electrical_power[0.0]"
+      ],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.sghp.relationship.models.power_model.structs.parameters.electrical_power[0.0]",
+        "fs.root.relationship.models.sghp.relationship.models.power_model.structs.performance.electrical_power[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": null,
+      "max_constraint_violation": null,
+      "error": "No eligible boundary input guess closes the remaining freedom"
+    }
+  ],
+  "starting_value_record_ids": [
+    "config_phnix_sink_inlet_flow",
+    "config_warm_water_splitter_parameters_fraction"
+  ],
+  "failed_model": "sghp.power_model"
+}

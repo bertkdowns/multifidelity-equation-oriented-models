@@ -145,6 +145,7 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     model.fs.root = Block()
     dependencies: dict[int, set[int]] = {}
     registry = {}
+    initialization_order = []
 
     def depends_on(expression_variables, target, graph):
         pending = list(expression_variables)
@@ -207,6 +208,12 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
         relationship_id = occurrence.relationship_id
         path = resolved.path
         block, variables, domains = context
+        inputs = {
+            occurrence.prefix + name: variable
+            for name, variable in variables.items()
+            if resolved.definition.structs[name.split('.')[0]].direction == 'input'
+        }
+        initialization_order.append((occurrence.prefix.rstrip('.') or model_id, block, inputs))
         active = block.relationship
         if relationship.definition.external is not None:
             return variables
@@ -313,4 +320,5 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     # Retain the same occurrence-path lookup for later specification application.
     # Components stay live as discretization adds entries to indexed variables.
     model._model_language_variables = registry
+    model._model_language_initialization_order = initialization_order
     return model

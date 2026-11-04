@@ -5,6 +5,14 @@ This directory collects research aims and exploratory directions. See
 for adaptive initialization, selective refinement, and measurement-aware
 hierarchical heat-pump models.
 
+The [literature review](literature-review.md) connects these directions to
+goal-oriented model adaptation, data-supported thermal models, structural
+analysis and initialization, with annotated sources and proposed applications.
+
+The [knowledge-base and model-execution literature review](knowledge-base-model-execution-literature-review.md)
+examines semantic historian queries, executable digital twins, model-based database
+views, live updates, and forecasting, with a prioritised reading list.
+
 The emerging unifying question is: **given an engineering question, available
 measurements, and a hierarchy of representations, what is the simplest model
 that supports a sufficiently reliable answer?** Initialization work should

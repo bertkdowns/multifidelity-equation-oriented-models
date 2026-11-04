@@ -9,12 +9,13 @@ introduce the internal detail.
 There is some work to do before that. We need sensible starting values, and a
 way to initialise individual models and their parents. This note proposes a
 bottom-up procedure using the model tree and Dulmage–Mendelsohn (DM) analysis.
-It is a research proposal; the recursive procedure is not implemented yet.
+The bounded steady-state procedure is implemented by `initialize_model()`.
+Its broader use and aggregate-first extension remain research questions.
 
 The starting-value groundwork is now available: variable declarations accept an
 optional `default`, unused information can seed free variables, and custom
-providers can register an optional explicit initialisation callback. These do
-not yet implement the recursive DM procedure or aggregate-first transfer.
+providers can register an optional explicit initialisation callback. The recursive
+procedure builds on these pieces; aggregate-first transfer is not implemented.
 
 ## Starting values come first
 
@@ -75,7 +76,7 @@ restore that callback's starting values if it fails. A callback must report a
 failed local solve rather than silently presenting it as successful.
 
 This keeps symbolic construction separate from numerical initialisation and
-allows the proposed recursive procedure to use package-specific expertise at
+allows the recursive procedure to use package-specific expertise at
 its leaves. It does not require every model to supply custom code.
 
 ## Proposed bottom-up procedure
@@ -173,6 +174,13 @@ At the root, release any remaining temporary fixes and solve the original full
 system. Local initialisation success is not evidence that this final solve will
 succeed. In particular, tightly coupled recycles may need more than a single
 bottom-up pass.
+
+The implementation fixes only inputs on the current occurrence's own boundary,
+never arbitrary internal variables. It reports missing guesses on derived
+unknowns but allows the solver to find them; a temporary boundary fix always
+requires an existing finite, in-bounds value. It stops at the first failed stage,
+restores that stage's values, and retains earlier successful child values.
+The root must already be structurally determined under the operating specification.
 
 Record which variables were temporarily fixed, their values and units, the
 structural deficiency before and after each accepted fix, and local solver

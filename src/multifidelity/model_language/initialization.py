@@ -74,7 +74,8 @@ def initialize_custom_models(model):
     specifications are transferred in native units first. Free public values
     are refreshed from native results afterwards. Callback fixes and constraint
     activation changes are restored; failure also restores starting values.
-    This is a provider hook runner, not the proposed recursive DM algorithm.
+    This is a provider hook runner; initialize_model orchestrates recursive DM
+    initialisation and parent solves separately.
     """
     from pyomo.environ import Block, Constraint, Var, units
 
@@ -85,7 +86,7 @@ def initialize_custom_models(model):
                 to_units=units.get_units(target)))
 
     completed = []
-    for active in model.component_data_objects(Block, descend_into=True):
+    for active in [model, *model.component_data_objects(Block, descend_into=True)]:
         metadata = getattr(active, '_model_language_initialization', None)
         if metadata is None or metadata[0] is None:
             continue
