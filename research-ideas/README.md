@@ -18,6 +18,12 @@ initialization algorithms are deferred. See the
 [experiment outline](algorithms-and-hierarchies.md#first-planned-experiment-predicting-electrical-consumption)
 for candidate models, evaluation principles, and remaining design choices.
 
+The [initialisation proposal](initialisation.md) records the concrete work
+motivated by the steam-generating heat-pump solve: valid starting values,
+bottom-up local solves with DM-guided temporary input fixes, and subsequently
+aggregate-first initialisation of more detailed representations. It separates
+these proposed experiments from the existing specification-selection work.
+
 The [information-directed specification and selection plan](information-directed-specification.md)
 separates two testable problems: choosing specifications for an already selected
 implementation using trust-ranked information and DM structure, and choosing

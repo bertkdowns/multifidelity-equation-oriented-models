@@ -1,0 +1,23 @@
+{
+  "implementation": "aggregate_aggregate",
+  "conditions_SI": {
+    "source_tank.parameters.heat_duty": 0,
+    "steam_outlet.pressure": 100000,
+    "warm_water_mixer.outlet.pressure": 200000,
+    "warm_makeup_valve.outlet.pressure": 200000,
+    "makeup_state.state.flow": 0.015552777777777778
+  },
+  "structurally_complete": true,
+  "remaining_deficiency": 0,
+  "degrees_of_freedom": 0,
+  "initialization": "none; no starting values assigned",
+  "solver_status": "error",
+  "termination_condition": "internalSolverError",
+  "iterations": 0,
+  "diagnostic": "Error evaluating source_pump fluid_work: cannot compute 0/0. The equation divides by its outlet-state density, whose unset public variable starts at zero in the solver.",
+  "released_reference_record_ids": [
+    "config_warm_water_splitter_parameters_fraction"
+  ],
+  "steam_flow": "left free as a prediction; steady mass conservation requires equality with the specified 55.99 kg/h makeup flow",
+  "note": "Initial evaluation failure does not establish that the operating point is infeasible."
+}

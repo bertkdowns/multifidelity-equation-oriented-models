@@ -164,6 +164,27 @@ calculated by Helmholtz, rather than copied from the captured outlet records.
 The replay is sequential and does not close the surrounding plant recycles.
 COP is calibrated at this point; agreement is not independent prediction validation.
 
+## Complete-system solve attempt without initialization
+
+`attempt_information.json` and `attempt_specification.json` capture the requested
+aggregate/aggregate operating point: source tank duty zero, steam export 1 bar
+absolute, warm loop and warm makeup 2 bar absolute, and makeup 55.99 kg/h.
+Steam flow remains a prediction constrained by the steady mass balances. The
+captured splitter fraction is released because it becomes dependent on this
+specification. Other applicable reference specifications are retained.
+
+```bash
+.venv/bin/python examples/steam_generating_heat_pump_system/attempt_solve.py
+```
+
+This assigns no numerical guesses. The model is structurally complete with zero
+degrees of freedom, but IPOPT fails at its initial equation evaluation before any
+iterations. The diagnostic identifies `source_pump.fluid_work`: its division by
+the unset outlet-state density evaluates as 0/0. `attempt_result.json` records the
+outcome. This is a starting-point evaluation failure, not a demonstrated
+infeasibility of the requested operating conditions. Add `--diagnostic` to stop
+on the first invalid evaluation with the symbolic constraint name.
+
 ## Evidence and remaining differences
 
 - `ahuora_reference.json` retains current stored values, units, display text,
