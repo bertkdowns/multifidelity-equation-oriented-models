@@ -202,14 +202,33 @@ and invokes `initialize_model()`. It writes `attempt_bottom_up_result.json` and
 returns a nonzero exit status if a stage fails. No replay helpers, case-specific
 guesses, or changes to the operating specification are applied.
 
-The prescribed-COP model now defaults to an unfixed guess of 3. Its local
-initialisation succeeds and the temporary COP fix is released. The current
-attempt then stops at `sghp.power_model`: its electrical-power input has no
-default or unused-information guess. The local problem has one remaining
-structural degree of freedom, so there is no eligible value for a temporary fix.
-This is a local initialisation limitation, not a new degree of freedom in the
-full plant. The procedure stops before attempting the parent or closed recycles.
-The diagnostics preserve the unresolved paths and all original specifications.
+The prescribed-COP model defaults to an unfixed guess of 3 and the prescribed-power
+model to 1000 W (1 kW). The thermal-conditioner model defaults to 1 kg/s,
+100 kPa, 10000 J/kg and zero heat duty. These leaves initialise successfully
+and their temporary fixes are released.
+
+Before numerical input ranking, the attempt failed at `sghp.source_inlet_state`
+after temporarily fixing enthalpy and leaving pressure to reconcile temperature.
+The scaled null-space selection implemented in `0eb5090` resolves that failure:
+it fixes flow and pressure and leaves enthalpy free. The source state initialises
+at 200 kPa and 77 degrees C with enthalpy 322523.13 J/kg. The hot and warm inlet
+states also initialise, making nine successful stages before reaching `sghp`.
+These are local initialisation results, not a converged plant solution.
+
+The current stop is the SGHP parent, with eight remaining local structural
+degrees of freedom. Its own inlet structs still have unset free values even
+though the connected child state blocks have been initialised, so the algorithm
+has no eligible guessed boundary input to fix. The parent is not sent to IPOPT.
+
+The saved report includes an additional structural inspection on a clone. Copying
+child state guesses to the parent inlets permits five independent boundary fixes,
+but leaves three freedoms. Fixing the descendant COP, electrical-power and
+warm-water heat-duty inputs closes those remaining freedoms. Those extra fixes
+were diagnostic only; they were not applied to the operating model or enabled
+as automatic parent-stage candidates. The current own-boundary rule therefore
+needs an explicit model-interface or eligibility decision for this composite,
+in addition to connection-based guess propagation. The report retains all
+per-stage rank/score diagnostics and successfully initialised water states.
 
 ## Evidence and remaining differences
 

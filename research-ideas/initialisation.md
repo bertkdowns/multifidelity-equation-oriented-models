@@ -160,6 +160,16 @@ If the remaining freedom cannot be closed through eligible inputs, report it
 explicitly rather than fixing internal variables or outputs. Investigate the
 model interface, provider initialiser or local solve boundary instead.
 
+The scaled SGHP retry demonstrates this distinction. Its child property states
+initialise, but the aggregate SGHP parent has eight local freedoms. On a diagnostic
+clone, its own inlet variables can supply only five independent closures after
+copying the child state guesses. Three additional closures correspond to the
+descendant COP, electrical-power and warm-water heat-duty inputs. Decide whether
+the composite should expose these as parent inputs or whether descendant public
+inputs should be eligible at parent stages. Neither is implemented automatically;
+this is separate from introducing arbitrary internal-variable fixes. Propagating
+guesses through connections is also needed to populate the parent inlet structs.
+
 Similarly, an overconstrained system cannot be repaired by fixing more inputs.
 It needs a separate diagnostic. A zero overall degrees-of-freedom count is not
 enough: underconstrained and overconstrained parts can coexist.
