@@ -305,3 +305,46 @@ This support constructs scalar symbolic models and repeats them over time when
 requested by the public interface. Numerical Python function evaluation,
 initialization, automatic solving, and native spatially indexed provider
 interfaces are outside its scope.
+
+## Optional initialisation callback
+
+Register numerical initialisation separately from symbolic construction:
+
+```python
+from multifidelity.model_language import (
+    apply_specification, apply_starting_values, initialize_custom_models,
+)
+
+
+def initialize_density(block, config):
+    if not block.density.fixed:
+        block.density.set_value(config.get("density_kg_m3", 997))
+
+
+library.register_provider(
+    "example.liquid_density", build_density, initializer=initialize_density,
+)
+# After build_model(), and after discretization if series information is used:
+apply_specification(model, specification, information)
+apply_starting_values(model, information, specification)
+initialize_custom_models(model)
+```
+
+Callbacks receive the existing native provider block and a fresh copy of its
+construction configuration. They can calculate guesses or call a native package
+initialiser. They are never invoked during construction or specification.
+Callbacks that invoke a solver must check its outcome and raise on failure.
+
+The runner transfers public input guesses to native variables with unit conversion
+and temporarily fixes native counterparts of fixed public quantities, including
+fixed outputs. After a callback, it copies available native values back to free
+public variables. It restores the original variable fixity, fixed values, and
+constraint activation statuses; a failed callback also restores that slice's
+starting values. Previously completed slices retain their results. Callback
+exceptions propagate to the caller. Callbacks must not add/remove components,
+change bounds, alter model parameters, or activate/deactivate whole blocks.
+
+Time-indexed providers run once per existing time slice, including slices created
+by discretization. Metadata follows model cloning. Providers without callbacks
+are left untouched. The runner does not choose temporary free-input fixes or
+solve JSON parents: recursive DM initialisation remains a separate next step.

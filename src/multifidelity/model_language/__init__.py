@@ -11,6 +11,7 @@ from .specification import (
 )
 from .selection import SpecificationSelection, select_specification
 from .variables import get_variable
+from .initialization import apply_starting_values, initialize_custom_models
 from .standard import register_standard_providers
 
 
@@ -33,6 +34,8 @@ __all__ = [
     "InformationType",
     "SpecificationDocument",
     "apply_specification",
+    "apply_starting_values",
+    "initialize_custom_models",
     "SpecificationSelection",
     "select_specification",
     "ModelView",

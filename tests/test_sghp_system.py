@@ -46,8 +46,9 @@ def test_independent_choices_preserve_plant_connections(sghp, phnix):
                 assert {id(v) for v in identify_variables(equation.body)} == {
                     id(source[t]), id(target[t]),
                 }
-    assert all(v.value is None and not v.fixed
+    assert all(not v.fixed
                for family in model._model_language_variables.values() for v in family.values())
+    assert get_variable(model, 'source_pump.outlet_state.properties.density')[0].value > 0
     for path in ['sghp.hot_outlet.enthalpy', 'sghp.warm_outlet.enthalpy',
                  'sghp.source_outlet.enthalpy', 'phnix.sink_outlet.enthalpy',
                  'performance.electrical_power', 'steam_outlet.flow']:

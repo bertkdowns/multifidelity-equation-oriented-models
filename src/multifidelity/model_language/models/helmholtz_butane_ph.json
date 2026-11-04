@@ -9,13 +9,15 @@
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 500000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 400000
         }
       }
     },
@@ -26,67 +28,78 @@
           "unit": "kg/m**3",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 20
         },
         "heat_capacity": {
           "unit": "J/kg/K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 1700
         },
         "temperature": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 300
         },
         "entropy": {
           "unit": "J/kg/K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 1000
         },
         "vapor_fraction": {
           "unit": "dimensionless",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 0
         },
         "temperature_bubble": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 300
         },
         "temperature_dew": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 300
         },
         "enthalpy_liquid_sat": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 200000
         },
         "enthalpy_vapor_sat": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 600000
         },
         "enthalpy_liquid": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 200000
         },
         "enthalpy_vapor": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 600000
         }
       }
     }

@@ -18,6 +18,12 @@ def build_density(block, config):
     return {"properties.density": block.density}
 
 
+def initialize_density(block, config):
+    """Seed the existing native equation without fixing its output."""
+    if not block.density.fixed:
+        block.density.set_value(config.get("density_kg_m3", 997))
+
+
 def build_pump(block, config):
     # Native pressure and power units differ from the public interface.
     block.flow = Var(units=units.kg / units.s)
@@ -40,7 +46,8 @@ def build_pump(block, config):
 
 def make_library():
     library = Library(HERE / "models")
-    library.register_provider("example.liquid_density", build_density)
+    library.register_provider("example.liquid_density", build_density,
+                              initializer=initialize_density)
     library.register_provider("example.pump", build_pump)
     return library
 

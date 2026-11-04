@@ -11,6 +11,11 @@ way to initialise individual models and their parents. This note proposes a
 bottom-up procedure using the model tree and Dulmage–Mendelsohn (DM) analysis.
 It is a research proposal; the recursive procedure is not implemented yet.
 
+The starting-value groundwork is now available: variable declarations accept an
+optional `default`, unused information can seed free variables, and custom
+providers can register an optional explicit initialisation callback. These do
+not yet implement the recursive DM procedure or aggregate-first transfer.
+
 ## Starting values come first
 
 Every numerical variable needs a usable starting value before evaluating its
@@ -27,9 +32,13 @@ The public density variable had no starting value even though the native
 property package had its own internal defaults. We need to initialise the
 public variables as well as the variables inside the provider.
 
-Starting values could come from property-package defaults, declared model
-defaults, available operating information, or a previous solution. The package
-and model should provide physically reasonable defaults where information is
+Starting values come from defaults on individual struct variable declarations,
+then from applicable information records not used to specify the model. There
+is no separate initial-guesses document. Information guesses override defaults;
+the highest trust rank wins between alternative records, with ID breaking ties.
+Fixed operating specifications are preserved, and held-out records can be
+explicitly excluded. A previous solution could also supply values later.
+The package and model should provide physically reasonable defaults where information is
 missing. Units alone cannot determine a useful value: liquid-water density and
 refrigerant-vapour density are quite different despite having the same units.
 
@@ -42,6 +51,32 @@ Keep three concepts separate:
 
 These are steady-state starting guesses. Dynamic initial conditions are a
 separate modelling question.
+
+For example, a struct variable can declare
+`{"unit": "Pa", "default": 200000, "dimensions": ["time"]}`. The default
+broadcasts over the variable's indices without fixing any of them. Unused
+information then supplies more specific guesses, with the same unit conversion
+and grid-shape checks used for operating information. Information reserved as
+held-out evidence should be excluded from this step.
+
+## Initialising custom models
+
+A custom Python provider builds its symbolic equations as before. It can also
+register an optional numerical initialisation callback, invoked explicitly after
+construction and specification. The callback can calculate internal guesses or
+delegate to an existing native initialiser. Providers without a callback remain
+available for a future generic DM procedure.
+
+Before invoking the callback, transfer public input guesses into native units
+and temporarily hold native counterparts of fixed public quantities. Afterwards,
+copy native results back to free public variables so that guesses on both sides
+of the interface agree. Restore temporary fixity and constraint activation, and
+restore that callback's starting values if it fails. A callback must report a
+failed local solve rather than silently presenting it as successful.
+
+This keeps symbolic construction separate from numerical initialisation and
+allows the proposed recursive procedure to use package-specific expertise at
+its leaves. It does not require every model to supply custom code.
 
 ## Proposed bottom-up procedure
 

@@ -19,8 +19,10 @@ inputs = required_inputs("mapped_propane_compressor", selection, library=library
 Registration only associates names with functions. Providers load their native
 packages or catalogue when selected for construction. Inspection and required-input
 discovery work without registration or compiled thermodynamic functions.
-No provider initializes or solves the model. Public variables start free and
-without values; wrapped packages may supply their own internal initial guesses.
+No provider solves the model during construction. Public variables start free,
+with guesses where defaults are declared; wrapped packages may supply their own
+internal guesses. Optional registered initialisation callbacks run only when
+explicitly requested through `initialize_custom_models()`.
 
 All bundled public operating fields are time-indexed, including property and
 map outputs. The default steady build has one point, so access values with

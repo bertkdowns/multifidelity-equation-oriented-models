@@ -3,9 +3,9 @@
 This is a first construction-only implementation of the model language discussed
 for recursive multifidelity modelling. It builds a selected equation hierarchy
 inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constraints.
-The builder does not solve or set initial guesses. Specification documents can
+The builder does not solve; declared defaults supply unfixed starting guesses. Specification documents can
 be applied separately to fix values from an information document.
-Construction leaves all public variables free and without values. Operating
+Construction leaves all public variables free, with values only where defaults are declared. Operating
 specifications and initial conditions are both applied through `apply_specification()`.
 Here "build" means creating Python modelling objects, not numerical initialization.
 
@@ -173,11 +173,36 @@ A model contains `id`, optional `description`, `structs`, and `relationships`:
 
 Variable declarations support `unit` (default `dimensionless`), `value_type`
 (currently only `real`) and `bounds: {"min": ..., "max": ...}`. Bounds are numerical
-values in the declared unit. All variables start free and without values during construction.
+values in the declared unit. An optional finite `default` supplies a starting
+guess in that same unit, within the bounds. It broadcasts over all index entries,
+including entries added during discretization. Omitted defaults leave values unset.
+All variables start free during construction.
 Variables may declare ordered named `dimensions`; see indexed models below.
-Input/output describes struct direction, not fixed/free solver status. No default
-values, automatic input fixation, or permanent input/output role on variables is
-introduced.
+Input/output describes struct direction, not fixed/free solver status. A default
+does not specify a model or fix an input.
+
+For example: `{"unit": "Pa", "default": 200000, "dimensions": ["time"]}`.
+Defaults in the bundled state/property models are illustrative guesses, not
+validated operating points or mutually consistent thermodynamic states.
+
+After applying a specification, call
+`apply_starting_values(model, information, specification)` to seed free public
+variables from unused information records. The highest trust rank wins, with ID
+as the deterministic tie-breaker. Values are converted to the variable's unit;
+constants broadcast and series must match the current grid. Applicable guesses
+are validated before any values change. Fixed entries are preserved, selected
+specification/initial-condition records are excluded, and paths absent from the
+selected implementation are ignored. Use `excluded_record_ids` for held-out
+measurements or other records that must not influence initialisation. A control
+setpoint used this way is only a guess, not evidence that the setpoint was achieved.
+The function returns the IDs used and never fixes variables. Information guesses
+override declaration defaults; no separate initial-guesses document is needed.
+The existing specification `initial_values` list still means fixed dynamic
+initial conditions, not solver guesses.
+
+Custom providers may register an optional initialisation callback; see
+[custom initialisation](custom-models.md#optional-initialisation-callback).
+Neither building a model nor applying specifications invokes these callbacks.
 
 Constraints have `lhs` and `rhs` expression strings and always mean equality.
 Each constraint also requires a `determines` variable reference.
@@ -957,7 +982,7 @@ actual property equations.
   examples/model_language/water_state_constant_properties.json
 ```
 
-Like other model builds, this creates free variables without values or solving.
+Like other model builds, this creates free variables with optional defaults and does not solve.
 A caller must eventually specify both the state and the coefficients. For
 example, an illustrative coefficient set is `T_ref = 298.15 K`,
 `P_ref = 101325 Pa`, `h_ref = 104920.1198085 J/kg`, `cp = 4180 J/(kg K)`,
@@ -1399,7 +1424,7 @@ or prerequisites for the initial bounded experiments.
 - **External Pyomo and machine-learning models:** Scalar symbolic providers can
   be repeated over time through external relationships; see the
   [how-to guide](custom-models.md). Native spatially indexed provider interfaces
-  and model-specific initialization remain future work.
+  remain future work. Optional model-specific initialisation callbacks are supported.
 - **Parameter estimation:** How does estimation interact with our implementation
   selection and instance-specification methods, including information records,
   uncertainty and quantities of interest? What should be fixed, estimated or
@@ -1409,7 +1434,7 @@ or prerequisites for the initial bounded experiments.
 
 - Continuous spatial domains and derivatives; automatic backend discretization
   configuration (time dynamics can use Pyomo's existing transformations).
-- Default values, general fixed/free instance documents and initial guesses.
+- General fixed/free instance documents and automatic starting-value propagation.
 - Numerical recovery and extensions beyond the initial DM specification selector.
 - Detailed thermodynamics, component mixtures, shared material data, configurable
   equipment property dependencies, validated detailed equations and calibration.

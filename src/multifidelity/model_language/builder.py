@@ -51,6 +51,10 @@ def _build_external_slice(active, external, variables, library, path, dependenci
             )
         for output, inputs in external.dependencies.items():
             dependencies[id(variables[output])] = {id(variables[name]) for name in inputs}
+        active._model_language_initialization = (
+            library.get_initializer(external.provider), deepcopy(external.config),
+            dict(variables), dict(mapping), set(external.dependencies),
+        )
     except Exception as error:
         raise ValueError(f"{path}: provider {external.provider!r}: {error}") from error
 
@@ -122,7 +126,8 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     implementation is an ImplementationDocument, dict or JSON file path. Every selected relationship must
     specify exactly its declared submodels, recursively. Recursive definitions
     are permitted only when the supplied selection terminates. All values and
-    fixations, including initial conditions, are applied separately.
+    fixations, including initial conditions, are applied separately. Declared
+    defaults supply unfixed starting guesses during construction.
     """
     library = library or Library()
     root = library.resolve(model_id)
@@ -178,7 +183,8 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                 sets = [domains[name] for name in variable.dimensions]
                 if len({id(s) for s in sets}) != len(sets):
                     raise ValueError(f"{path}: variable dimensions must bind to distinct domains")
-                var = Var(*sets, bounds=(variable.bounds.min, variable.bounds.max), units=unit)
+                var = Var(*sets, bounds=(variable.bounds.min, variable.bounds.max),
+                          units=unit, initialize=variable.default)
                 struct_block.add_component(variable_id, var)
                 variables[f"{struct_id}.{variable_id}"] = var
                 registry[occurrence.prefix + f"{struct_id}.{variable_id}"] = var

@@ -188,7 +188,7 @@ def test_standard_documents_build_with_only_declared_operating_inputs(name, inpu
     assert degrees_of_freedom(model) == inputs
     assert len(required_inputs(name, choose(name), library=library)) == inputs
     public = [v for v in model.component_data_objects(Var) if ".structs." in v.name]
-    assert all(not v.fixed and v.value is None for v in public)
+    assert all(not v.fixed for v in public)
 
 
 def _evaluate_explicit_equations(model):

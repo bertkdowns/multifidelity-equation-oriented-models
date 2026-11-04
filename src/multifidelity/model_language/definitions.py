@@ -14,6 +14,7 @@ from pydantic import (
     ConfigDict,
     Field,
     JsonValue,
+    FiniteFloat,
     model_validator,
 )
 
@@ -54,17 +55,23 @@ class Domain(Definition):
 
 
 class Variable(Definition):
-    """Quantity metadata; values and fixation belong to future instance types."""
+    """Quantity metadata and an optional unfixed guess in the declared unit."""
 
     unit: str = "dimensionless"
     value_type: Literal["real"] = "real"
     bounds: Bounds = Field(default_factory=Bounds)
     dimensions: list[Name] = Field(default_factory=list)
+    default: FiniteFloat | None = None
 
     @model_validator(mode="after")
     def distinct_dimensions(self):
         if len(set(self.dimensions)) != len(self.dimensions):
             raise ValueError("Variable dimensions must be distinct")
+        if self.default is not None and (
+            (self.bounds.min is not None and self.default < self.bounds.min)
+            or (self.bounds.max is not None and self.default > self.bounds.max)
+        ):
+            raise ValueError("Variable default must be within bounds")
         return self
 
 

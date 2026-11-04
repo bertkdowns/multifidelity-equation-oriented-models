@@ -91,7 +91,7 @@ def test_every_bundled_relationship_builds_without_solver():
             )
             assert_units_consistent(model)
             assert all((not v.fixed for v in model.component_data_objects(Var)))
-            assert all((v.value is None for v in model.component_data_objects(Var)))
+            # Reusable defaults are guesses; construction still fixes nothing.
 
 
 @pytest.mark.parametrize("relationship", ["aggregate", "cycle"])

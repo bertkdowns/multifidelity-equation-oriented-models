@@ -79,19 +79,22 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 100000
         }
       }
     },
@@ -102,43 +105,50 @@
           "unit": "kg/m**3",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 1000
         },
         "heat_capacity": {
           "unit": "J/kg/K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 4200
         },
         "temperature": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 300
         },
         "entropy": {
           "unit": "J/kg/K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 1000
         },
         "vapor_fraction": {
           "unit": "dimensionless",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 0
         },
         "temperature_bubble": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 373.15
         },
         "temperature_dew": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 373.15
         }
       }
     }

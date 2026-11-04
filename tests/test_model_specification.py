@@ -385,6 +385,6 @@ def test_builder_no_longer_accepts_initial_values_and_leaves_all_values_free():
     with pytest.raises(TypeError, match="initial_values"):
         build_model("tank_flowsheet", "examples/model_language/tank_mixed.json", initial_values=[])
     model = dynamic_tank()
-    assert all(not v.fixed and v.value is None
+    assert all(not v.fixed
                for component in model._model_language_variables.values()
                for v in component.values())

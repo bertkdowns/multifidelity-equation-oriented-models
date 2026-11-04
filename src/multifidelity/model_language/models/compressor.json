@@ -79,19 +79,22 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 100000
         }
       }
     },
@@ -102,19 +105,22 @@
           "unit": "kg/s",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 100000
         }
       }
     },
@@ -128,7 +134,8 @@
           },
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 100000
         },
         "efficiency": {
           "unit": "dimensionless",
@@ -138,7 +145,8 @@
           },
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 0.8
         }
       }
     },

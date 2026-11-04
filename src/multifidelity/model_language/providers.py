@@ -22,3 +22,13 @@ class Provider(Protocol):
     def __call__(
         self, block: "BlockData", config: dict[str, JsonValue]
     ) -> Mapping[str, "VarData"]: ...
+
+
+class Initializer(Protocol):
+    """Seed or solve an existing native block after specification.
+
+    Temporary fixes and constraint activation are restored by the framework.
+    Do not change topology, components, bounds, or model parameters.
+    """
+
+    def __call__(self, block: "BlockData", config: dict[str, JsonValue]) -> None: ...

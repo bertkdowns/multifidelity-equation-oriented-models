@@ -34,6 +34,7 @@ model identities: references use the `id` declared inside a model document.
 | Specification document | Chosen information-record IDs in `specifications` (whole families) and `initial_values` (first time slice). Records own paths and values; context and diagnostics are separate. | `SpecificationDocument` with two arrays of ID strings; `apply_specification()` |
 | Specification plan | The decisions contained in a specification document; not a separate document type. | Same conceptual artifact as the specification document |
 | Initial condition | A fixed value or profile at the first time point, selected through `initial_values`; distinct from an unfixed solver initial guess. | Applied by `apply_specification()` |
+| Starting guess | An unfixed numerical value from a variable declaration's optional `default`, unused applicable information, or an initialisation callback. | `Variable.default`, `apply_starting_values()`, `initialize_custom_models()` |
 | Numerical instance | Live numerical equation system for an implementation with its specifications applied. Construction alone may leave it unspecified. | Pyomo `ConcreteModel` with IDAES `FlowsheetBlock`; no instance-document class |
 | Solve result | Outputs, solver status and provenance from one solve attempt, distinct from structural specification status. | No model-language result type yet |
 

@@ -13,13 +13,15 @@
           "bounds": {
             "min": 611.213,
             "max": 22064000
-          }
+          },
+          "default": 200000
         },
         "temperature": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 300
         }
       }
     },
@@ -36,10 +38,12 @@
           "unit": "J/kg"
         },
         "heat_capacity": {
-          "unit": "J/kg/K"
+          "unit": "J/kg/K",
+          "default": 4200
         },
         "density": {
-          "unit": "kg/m**3"
+          "unit": "kg/m**3",
+          "default": 1000
         },
         "viscosity": {
           "unit": "Pa*s"
@@ -59,19 +63,22 @@
           "unit": "J/kg",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 100000
         },
         "density": {
           "unit": "kg/m**3",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 1000
         },
         "heat_capacity": {
           "unit": "J/kg/K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 4200
         },
         "viscosity": {
           "unit": "Pa*s",
@@ -83,25 +90,29 @@
           "unit": "J/kg/K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 1000
         },
         "vapor_fraction": {
           "unit": "dimensionless",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 0
         },
         "temperature_bubble": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 373.15
         },
         "temperature_dew": {
           "unit": "K",
           "dimensions": [
             "time"
-          ]
+          ],
+          "default": 373.15
         }
       }
     }
