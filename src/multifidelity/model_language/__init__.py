@@ -14,6 +14,7 @@ from .variables import get_variable
 from .initialization import apply_starting_values, initialize_custom_models
 from .hierarchical_initialization import initialize_model, InitializationResult, InitializationStage
 from .scaling import apply_scaling, ScalingReport
+from .reconciliation import relax_specifications, SpecificationRelaxation
 from .standard import register_standard_providers
 
 
@@ -43,6 +44,8 @@ __all__ = [
     "InitializationStage",
     "apply_scaling",
     "ScalingReport",
+    "relax_specifications",
+    "SpecificationRelaxation",
     "SpecificationSelection",
     "select_specification",
     "ModelView",

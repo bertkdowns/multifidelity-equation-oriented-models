@@ -1,0 +1,32 @@
+{
+  "initialized_component_stages": 62,
+  "initial_rank_diagnostic": {
+    "rows": 957,
+    "columns": 957,
+    "numerical_rank": 954,
+    "expected_rank": 957,
+    "nullity": 3,
+    "relative_rank_tolerance": 1e-10,
+    "absolute_rank_threshold": 2.6730426142211104e-10,
+    "largest_singular_value": 2.67304261422111,
+    "smallest_singular_value": 2.102524713306656e-16,
+    "zero_rows": [],
+    "candidates": []
+  },
+  "initial_max_scaled_constraint_violation": 25.750000000000004,
+  "operating_specifications_changed": false,
+  "solver_status": "error",
+  "termination_condition": "internalSolverError",
+  "solver_message": "Ipopt 3.13.2\\x3a Restoration Phase Failed.",
+  "solution_loaded": false,
+  "success": false,
+  "retained_max_scaled_constraint_violation": 25.750000000000004,
+  "retained_invalid_variables": [],
+  "solver_log": "attempt_rank_deficient_solve_log.txt",
+  "solver_log_summary": {
+    "iterations": 216,
+    "final_scaled_constraint_violation": 1.9035471160212503e-08,
+    "final_unscaled_constraint_violation": 973207.9755856066,
+    "scaling_warning": "Scaling factors are invalid - setting them all to 1."
+  }
+}

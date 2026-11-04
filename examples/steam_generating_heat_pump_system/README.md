@@ -253,6 +253,16 @@ mass balances; this local diagnostic does not establish three separate physical
 causes or whole-plant infeasibility. The report records the attempt and local states,
 not a converged plant solution. Guess propagation remains deferred.
 
+An explicit follow-up experiment, `attempt_rank_deficient_solve.py`, passes the
+same initialized plant to IPOPT despite the root rank check. The normal initializer
+is unchanged. IPOPT ran 216 iterations and exited with restoration failure; no
+solution was returned for loading. Its final scaled constraint violation was
+1.90e-8, but the unscaled violation was 9.73e5, and the log repeatedly reported
+invalid scaling factors. This attempt does not establish feasibility or whether
+the rank deficiency is only local. The result JSON and solver log are saved beside
+the script. Residuals labelled `retained` describe the unchanged pre-solve values
+when no solver solution is available.
+
 ## Evidence and remaining differences
 
 - `ahuora_reference.json` retains current stored values, units, display text,
@@ -283,3 +293,47 @@ observation is sign-adjusted for comparison; it is no longer an exchanger input.
 inventory, relief devices and control dynamics remain omitted or lumped.
 Using actual refrigerant properties improves the thermodynamics; it does not
 make the complete selected cycle a numerically validated plant model.
+
+## Scaling and specification diagnostics
+
+Run `inspect_scaling.py` to audit exported factors and inspect the raw AMPL primal
+vector after the failed root solve. This vector is diagnostic evidence, not an
+accepted solution. The saved `scaling_inspection_result.json` shows that all
+exported factors are finite and positive. Variable factors range from 1e-5 to
+1000. The vapor-mixture enthalpy equation has an automatic factor of
+3.693e-42: differentiating its flow-weighted enthalpy near an empty stream
+produces enormous derivatives, so reciprocal Jacobian row normalization almost
+erases that equation. At the failed iterate its residual is 973207.98 J/kg;
+the next largest numerical residual is only 2.42e-5 W in total power. Residuals
+with different units should not be compared as a physical norm.
+
+The warning itself comes from IPOPT's MC19 symmetric linear-system scaling,
+which is separate from user NLP scaling. In the installed version's
+[MC19 interface](https://raw.githubusercontent.com/coin-or/Ipopt/releases/3.13.2/src/Algorithm/LinearSolvers/IpMc19TSymScalingMethod.cpp),
+the warning is triggered by a nonfinite sum of computed factors or a maximum
+factor above 1e40. It does not identify a particular model variable. A controlled
+retry with only `linear_system_scaling=none` removed the warning but retained the
+same large enthalpy residual and restoration failure. No general scaling policy
+has been changed by these experiments.
+
+`diagnose_specifications.py` uses the reusable `relax_specifications` method to
+soften all 31 selected information-table fixes on an independent clone. Physical
+equations and bounds stay hard. The saved default attempt reached its CPU limit;
+its makeup-flow adjustment is provisional and does not identify a bad record.
+Run with `--vapor-enthalpy-scale 1e-5` for the controlled experiment replacing only
+the problematic equation scale. That relaxation reaches IPOPT's acceptable
+level. The largest weighted deviations are PHNIX sink inlet temperature
+(75.3837 to 76.1925 degrees C) and SGHP source inlet temperature (77 to 76.1912
+degrees C). All record weights are 1, with deviations normalized using the
+variable scales. These are joint reconciliation changes under those weights,
+not proof that either measurement is wrong. See the result JSON for residuals
+and operating values before interpreting this as a physical operating state.
+
+The acceptable-level relaxation is **not a physically credible operating point**:
+source circulation is 5.879e7 kg/s, SGHP COP is -8837.62 and electrical power is
+-6.44 W. The current model bounds admit these values. Steam production is about
+55.993 kg/h, but that does not validate the rest of the state. The largest raw
+energy-balance residuals are 0.00390625 W; even small equation residuals and a
+solver optimality flag do not enforce physical limits that were never declared.
+Meaningful operating bounds and an empty-stream scaling policy need to be
+settled before treating the slack ranking as a diagnosis of conflicting data.

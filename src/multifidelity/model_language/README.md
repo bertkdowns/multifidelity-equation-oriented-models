@@ -1648,3 +1648,31 @@ thermal and pressure evolution. Paths under the
 concrete example begin `pipe.contents.*`. Steady accumulation is zero; with
 nonzero flow the outlet enthalpy equals the inlet. A zero-flow steady inventory
 needs an additional thermal specification.
+
+### Diagnosing conflicting specifications
+
+`relax_specifications` constructs an independent optimization model from an
+already specified model. It replaces each selected information-table fixation
+with a signed, dimensionless slack and minimizes
+`sum(weight * (scale * (value - target))**2)`. Scales multiply values in the
+variable's native units; an absent scale is 1. Optional positive weights are
+keyed by information-record id. Larger weights resist movement more strongly.
+
+```python
+from multifidelity.model_language import relax_specifications
+
+relaxed = relax_specifications(model, specification, information,
+                               weights={"measured_flow": 10})
+result = solver.solve(relaxed.model)
+changes = relaxed.deviations()
+```
+
+The original model and information records are unchanged. On the diagnostic
+clone, other fixed variables, bounds and physical equations remain hard; existing
+objectives are deactivated. The report includes target, adjusted value, signed
+physical deviation, scale, normalized deviation and weighted penalty. Entries
+are ranked by penalty. Check solver termination and physical equation residuals
+before interpreting the ranking. It describes joint changes under the chosen
+weights, rather than identifying a uniquely incorrect measurement. All selected
+records are softened, including assumptions and equipment parameters; select a
+subset if some specifications must remain hard.
