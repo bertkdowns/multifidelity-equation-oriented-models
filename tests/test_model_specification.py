@@ -77,11 +77,12 @@ def test_application_converts_and_fixes_without_changing_information():
 ])
 def test_invalid_context_does_not_change_model(path, record_id, changes, error):
     model = valve()
+    variables = [v for component in model._model_language_variables.values()
+                 for v in component.values()]
+    before = [(v.value, v.fixed) for v in variables]
     with pytest.raises(ValueError, match=error):
         apply_specification(model, document(record_id), information(path, **changes))
-    assert all(v.value is None and not v.fixed
-               for component in model._model_language_variables.values()
-               for v in component.values())
+    assert [(v.value, v.fixed) for v in variables] == before
 
 
 def test_all_entries_validate_before_any_values_change():
@@ -101,10 +102,11 @@ def test_all_entries_validate_before_any_values_change():
 def test_bounds_and_existing_fixations_are_rejected_without_overwriting():
     model = valve()
     pressure = get_variable(model, "inlet.pressure")[0]
+    pressure.set_value(123)
     pressure.setub(150000)
     with pytest.raises(ValueError, match="outside variable bounds"):
         apply_specification(model, document(), information())
-    assert pressure.value is None and not pressure.fixed
+    assert pressure.value == 123 and not pressure.fixed
     pressure.setub(None)
     pressure.fix(100000)
     with pytest.raises(ValueError, match="already fixed"):
@@ -217,6 +219,7 @@ def test_unexpected_fix_failure_rolls_back_prior_writes(monkeypatch):
                         domain_values={"time": [0, 10]})
     pressure = model.fs.root.structs.inlet.pressure
     pressure[0].set_value(10)
+    pressure[10].set_value(20)
     original_fix = type(pressure[0]).fix
 
     def fail_second(variable, *args, **kwargs):
@@ -228,7 +231,7 @@ def test_unexpected_fix_failure_rolls_back_prior_writes(monkeypatch):
     with pytest.raises(RuntimeError, match="backend failure"):
         apply_specification(model, document(), information())
     assert pressure[0].value == 10 and not pressure[0].fixed
-    assert pressure[10].value is None and not pressure[10].fixed
+    assert pressure[10].value == 20 and not pressure[10].fixed
 
 
 def test_different_records_for_same_variable_are_rejected_atomically():

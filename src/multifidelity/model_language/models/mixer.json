@@ -10,21 +10,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -36,21 +39,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -62,21 +68,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 2
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     }

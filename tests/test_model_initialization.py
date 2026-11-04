@@ -18,6 +18,7 @@ def record(id, path, value, unit='kPa', trust_rank=5):
 def test_defaults_broadcast_and_survive_discretization():
     library = Library()
     library.models['valve'].structs['inlet'].variables['pressure'].default = 200000
+    library.models['valve'].structs['outlet'].variables['pressure'].default = None
     model = build_model('valve', {'relationship': 'isenthalpic'}, library=library,
                         mode='dynamic', domain_values={'time': [0, 1]})
     TransformationFactory('dae.finite_difference').apply_to(model, wrt=model.fs.time, nfe=4)
@@ -53,13 +54,14 @@ def test_information_rank_units_exclusions_and_fixed_specifications():
 
 def test_information_validation_is_atomic():
     model = build_model('valve', {'relationship': 'isenthalpic'})
+    get_variable(model, 'inlet.pressure')[0].set_value(123)
     info = InformationDocument([
         record('good', 'inlet.pressure', 200),
         record('bad', 'outlet.pressure', 1, unit='kg'),
     ])
     with pytest.raises(ValueError):
         apply_starting_values(model, info)
-    assert get_variable(model, 'inlet.pressure')[0].value is None
+    assert get_variable(model, 'inlet.pressure')[0].value == 123
 
 
 def custom(callback):

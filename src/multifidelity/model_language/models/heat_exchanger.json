@@ -10,21 +10,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 400000
         }
       }
     },
@@ -36,21 +39,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 350000
         }
       }
     },
@@ -62,21 +68,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -88,21 +97,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 150000
         }
       }
     },
@@ -111,7 +123,8 @@
       "variables": {
         "conductance": {
           "unit": "W/K",
-          "scale": 0.001
+          "scale": 0.001,
+          "default": 1000
         }
       }
     },
@@ -123,7 +136,8 @@
           "dimensions": [
             "time"
           ],
-          "scale": 0.0001
+          "scale": 0.0001,
+          "default": 50000
         }
       }
     }

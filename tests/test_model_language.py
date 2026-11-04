@@ -228,8 +228,9 @@ def test_reused_definition_has_distinct_occurrences_and_connection_equations(tmp
         parts.subcooler.structs.hot_inlet.flow[0],
     )
     assert a is not b
+    previous = b.value
     a.set_value(3)
-    assert b.value is None
+    assert b.value == previous
     equation = model.relationship.connections.link_2.flow[0]
     parts.condenser.structs.hot_outlet.flow[0].set_value(3)
     b.set_value(2)

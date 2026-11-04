@@ -18,7 +18,8 @@
           "bounds": {
             "min": 1e-08
           },
-          "scale": 0.1
+          "scale": 0.1,
+          "default": 10
         },
         "cold": {
           "unit": "K",
@@ -28,7 +29,8 @@
           "bounds": {
             "min": 1e-08
           },
-          "scale": 0.1
+          "scale": 0.1,
+          "default": 10
         }
       }
     },
@@ -40,7 +42,8 @@
           "dimensions": [
             "time"
           ],
-          "scale": 0.1
+          "scale": 0.1,
+          "default": 10
         }
       }
     }

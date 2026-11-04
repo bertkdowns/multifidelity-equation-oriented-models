@@ -238,12 +238,20 @@ and operating specifications still take precedence.
 With this change, all SGHP child stages and the SGHP parent initialise successfully.
 The local SGHP closure uses its five independent inlet choices and the descendant
 COP, power and warm-water-duty inputs; all temporary fixes are released afterwards.
-The complete attempt then reaches the PHNIX aggregate parent after its child
-states initialise. It stops during Jacobian evaluation because
-`phnix.performance.electrical_power` is unset in the product defining heating
-duty; other PHNIX stream/performance guesses are also missing. The current report
-records this failure, scores and local states. It is not a converged whole-plant
-solution. Guess propagation remains deferred.
+The aggregate heat-pump model now also declares stream guesses of 1 kg/s,
+200 kPa and 100 kJ/kg, with COP 3, electrical power 1 kW, heating duty 3 kW
+and cooling duty 2 kW. The remaining loop equipment has reusable stream,
+phase-routing and performance guesses; exchanger guesses give positive terminal
+temperature differences. These guesses are unfixed and do not replace operating
+specifications.
+
+All 62 component stages now initialise. The final whole-plant stage has no missing
+starting values, but its scaled Jacobian has numerical rank 954 against expected
+structural rank 957. The root solver is therefore not called. Inspection of the
+three near-zero singular directions involves flash-mixture equations and closed-loop
+mass balances; this local diagnostic does not establish three separate physical
+causes or whole-plant infeasibility. The report records the attempt and local states,
+not a converged plant solution. Guess propagation remains deferred.
 
 ## Evidence and remaining differences
 

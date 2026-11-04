@@ -15,21 +15,24 @@
           "dimensions": [
             "time"
           ],
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -44,21 +47,24 @@
           "bounds": {
             "min": 0
           },
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 100000
         }
       }
     },
@@ -73,21 +79,24 @@
           "bounds": {
             "min": 0
           },
-          "scale": 1
+          "scale": 1,
+          "default": 0
         },
         "pressure": {
           "unit": "Pa",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 200000
         },
         "enthalpy": {
           "unit": "J/kg",
           "dimensions": [
             "time"
           ],
-          "scale": 1e-05
+          "scale": 1e-05,
+          "default": 2706000
         }
       }
     },
@@ -103,7 +112,8 @@
             "min": 0,
             "max": 1
           },
-          "scale": 1
+          "scale": 1,
+          "default": 1
         },
         "vapor_to_liquid": {
           "unit": "dimensionless",
@@ -114,7 +124,8 @@
             "min": 0,
             "max": 1
           },
-          "scale": 1
+          "scale": 1,
+          "default": 0
         }
       }
     },
@@ -126,7 +137,8 @@
           "dimensions": [
             "time"
           ],
-          "scale": 0.0033333333333333335
+          "scale": 0.0033333333333333335,
+          "default": 300
         },
         "vapor_fraction": {
           "unit": "dimensionless",
@@ -137,7 +149,8 @@
             "min": 0,
             "max": 1
           },
-          "scale": 1
+          "scale": 1,
+          "default": 0
         }
       }
     },
@@ -149,7 +162,8 @@
           "dimensions": [
             "time"
           ],
-          "scale": 0.0033333333333333335
+          "scale": 0.0033333333333333335,
+          "default": 393.15
         },
         "vapor_fraction": {
           "unit": "dimensionless",
@@ -160,7 +174,8 @@
             "min": 0,
             "max": 1
           },
-          "scale": 1
+          "scale": 1,
+          "default": 1
         }
       }
     }
