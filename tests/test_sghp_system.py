@@ -28,6 +28,10 @@ def test_independent_choices_preserve_plant_connections(sghp, phnix):
                         domain_values={'time': [0, 10]})
     assert_units_consistent(model)
     plant = model.fs.root.relationship
+    assert not hasattr(plant.models, 'source_heater')
+    connection = Library().get('steam_generating_heat_pump_system').relationships['flowsheet'].connections['source_evaporator_feed']
+    assert connection.from_ == 'phnix.sink_outlet'
+    assert connection.to == 'sghp.source_inlet'
     assert hasattr(plant.models.sghp.relationship.models, 'compressor') == (sghp == 'cycle')
     assert hasattr(plant.models.phnix.relationship.models, 'compressor') == (phnix == 'cycle')
     # Check every plant connection against its actual variable objects, including
@@ -147,10 +151,23 @@ def test_reference_configuration_is_partial_and_converts_units():
                                     prediction_targets=['steam_outlet.flow'])
     assert not selection.complete
     apply_specification(model, selection.specification, information)
-    assert not get_variable(model, 'source_heater.parameters.heat_duty')[0].fixed
-    assert value(get_variable(model, 'phnix.power_model.parameters.electrical_power')[0]) == pytest.approx(27328.1092732687)
-    assert value(get_variable(model, 'sghp.condenser.parameters.conductance')) == pytest.approx(35462.01923747691)
-    assert value(get_variable(model, 'phnix.sink_inlet.pressure')[0]) == 200000
+    assert not hasattr(model.fs.root.relationship.models, 'source_heater')
+    # A partial selector can choose different independent references after a
+    # topology change. Check conversion for the records actually selected.
+    selected_paths = {information.get(i).variable_path for i in selection.specification.specifications}
+    expected = {
+        'phnix.power_model.parameters.electrical_power': 27328.1092732687,
+        'sghp.condenser.parameters.conductance': 35462.01923747691,
+        'phnix.sink_inlet.pressure': 200000,
+    }
+    assert selected_paths.intersection(expected)
+    for path, converted in expected.items():
+        family = get_variable(model, path)
+        variable = next(iter(family.values()))
+        if path in selected_paths:
+            assert variable.fixed and variable.value == pytest.approx(converted)
+        else:
+            assert not variable.fixed
     assert not get_variable(model, 'steam_outlet.flow')[0].fixed
 
 

@@ -2,201 +2,27 @@
   "initialization_stop": "flash_tank",
   "initialization_status": "solver_failed",
   "root_rank": {
-    "rows": 957,
-    "columns": 957,
-    "numerical_rank": 956,
-    "expected_rank": 957,
-    "nullity": 1,
+    "rows": 951,
+    "columns": 950,
+    "numerical_rank": 950,
+    "expected_rank": 950,
+    "nullity": 0,
     "relative_rank_tolerance": 1e-10,
-    "absolute_rank_threshold": 2.673633289478021e-10,
-    "largest_singular_value": 2.673633289478021,
-    "smallest_singular_value": 1.2607742318433753e-15,
+    "absolute_rank_threshold": 2.673494571706691e-10,
+    "largest_singular_value": 2.6734945717066907,
+    "smallest_singular_value": 2.3596185933853975e-05,
     "zero_rows": [],
     "candidates": []
   },
-  "termination": "infeasible",
-  "message": "Ipopt 3.13.2\\x3a Converged to a locally infeasible point. Problem may be infeasible.",
-  "solution_returned": true,
-  "operating_values": {
-    "flash_tank.liquid_properties.vapor_fraction": {
-      "0.0": {
-        "value": 0.01,
-        "unit": "dimensionless",
-        "fixed": true
-      }
-    },
-    "flash_tank.vapor_properties.vapor_fraction": {
-      "0.0": {
-        "value": 0.99,
-        "unit": "dimensionless",
-        "fixed": true
-      }
-    },
-    "flash_tank.parameters.liquid_to_liquid": {
-      "0.0": {
-        "value": 0.9998090114236781,
-        "unit": "dimensionless",
-        "fixed": false
-      }
-    },
-    "flash_tank.parameters.vapor_to_liquid": {
-      "0.0": {
-        "value": 0.04563997123897231,
-        "unit": "dimensionless",
-        "fixed": false
-      }
-    },
-    "steam_outlet.flow": {
-      "0.0": {
-        "value": 0.015552777783669251,
-        "unit": "kg/s",
-        "fixed": false
-      }
-    },
-    "sghp.source_inlet.flow": {
-      "0.0": {
-        "value": 7.470665647078558,
-        "unit": "kg/s",
-        "fixed": false
-      }
-    },
-    "sghp.performance.cop": {
-      "0.0": {
-        "value": -320.35700008426994,
-        "unit": "dimensionless",
-        "fixed": false
-      }
-    },
-    "sghp.performance.electrical_power": {
-      "0.0": {
-        "value": -157.70332787754606,
-        "unit": "W",
-        "fixed": false
-      }
-    }
+  "termination": "other",
+  "message": "Too few degrees of freedom (rethrown)!",
+  "solution_returned": false,
+  "topology": "PHNIX sink outlet directly connected to SGHP source inlet; no inline electric heater",
+  "linear_dependency_inspection": {
+    "rows": 685,
+    "rank": 684,
+    "dependent_row": "fs.root.relationship.connections.source_evaporator_feed.flow[0.0]",
+    "method": "Pivoted QR of normalized linear equality coefficients"
   },
-  "largest_raw_residuals": [
-    {
-      "name": "fs.root.relationship.models.flash_tank.relationship.models.liquid_state.relationship.slices[0.0].provider.vapor_fraction_equation",
-      "violation": 0.005797438448290936,
-      "unit": "dimensionless",
-      "scaled_violation": 0.005797438448290936
-    },
-    {
-      "name": "fs.root.relationship.models.flash_tank.relationship.models.liquid_state.relationship.slices[0.0].bindings[8]",
-      "violation": 0.0018792162848415561,
-      "unit": "dimensionless",
-      "scaled_violation": 0.0018792162848415561
-    },
-    {
-      "name": "fs.root.relationship.models.flash_tank.relationship.constraints.liquid_vapor_fraction[0.0]",
-      "violation": 0.0014197664041785026,
-      "unit": "dimensionless",
-      "scaled_violation": 0.0014197664041785026
-    },
-    {
-      "name": "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
-      "violation": 3.9348378777503967e-07,
-      "unit": "J/kg",
-      "scaled_violation": 3.934837877750397e-12
-    },
-    {
-      "name": "fs.root.relationship.models.hot_water_mixer.relationship.constraints.energy_balance[0.0]",
-      "violation": 4.109460860490799e-08,
-      "unit": "J/s",
-      "scaled_violation": 2.0547304302453996e-13
-    },
-    {
-      "name": "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
-      "violation": 1.9121216610074043e-08,
-      "unit": "J/kg",
-      "scaled_violation": 1.9121216610074044e-13
-    },
-    {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
-      "violation": 1.57160684466362e-08,
-      "unit": "J/kg",
-      "scaled_violation": 1.57160684466362e-13
-    },
-    {
-      "name": "fs.root.relationship.models.source_pump.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
-      "violation": 1.3620592653751373e-08,
-      "unit": "J/kg",
-      "scaled_violation": 1.362059265375137e-13
-    },
-    {
-      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
-      "violation": 1.2689270079135895e-08,
-      "unit": "J/kg",
-      "scaled_violation": 1.2689270079135895e-13
-    },
-    {
-      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
-      "violation": 1.2689270079135895e-08,
-      "unit": "J/kg",
-      "scaled_violation": 1.2689270079135893e-13
-    }
-  ],
-  "largest_scaled_residuals": [
-    {
-      "name": "fs.root.relationship.models.flash_tank.relationship.models.liquid_state.relationship.slices[0.0].provider.vapor_fraction_equation",
-      "violation": 0.005797438448290936,
-      "unit": "dimensionless",
-      "scaled_violation": 0.005797438448290936
-    },
-    {
-      "name": "fs.root.relationship.models.flash_tank.relationship.models.liquid_state.relationship.slices[0.0].bindings[8]",
-      "violation": 0.0018792162848415561,
-      "unit": "dimensionless",
-      "scaled_violation": 0.0018792162848415561
-    },
-    {
-      "name": "fs.root.relationship.models.flash_tank.relationship.constraints.liquid_vapor_fraction[0.0]",
-      "violation": 0.0014197664041785026,
-      "unit": "dimensionless",
-      "scaled_violation": 0.0014197664041785026
-    },
-    {
-      "name": "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
-      "violation": 3.9348378777503967e-07,
-      "unit": "J/kg",
-      "scaled_violation": 3.934837877750397e-12
-    },
-    {
-      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_equation",
-      "violation": 4.925482244289014e-10,
-      "unit": "K",
-      "scaled_violation": 1.641827414763005e-12
-    },
-    {
-      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].bindings[6]",
-      "violation": 4.920366336591542e-10,
-      "unit": "K",
-      "scaled_violation": 1.6401221121971807e-12
-    },
-    {
-      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.constraints.temperature[0.0]",
-      "violation": 4.920366336591542e-10,
-      "unit": "K",
-      "scaled_violation": 1.6401221121971807e-12
-    },
-    {
-      "name": "fs.root.relationship.models.hot_water_mixer.relationship.constraints.mass_balance[0.0]",
-      "violation": 5.587752482938413e-13,
-      "unit": "kg/s",
-      "scaled_violation": 5.587752482938413e-13
-    },
-    {
-      "name": "fs.root.relationship.models.hot_water_pump.relationship.constraints.mass_balance[0.0]",
-      "violation": 5.585532036889163e-13,
-      "unit": "kg/s",
-      "scaled_violation": 5.585532036889163e-13
-    },
-    {
-      "name": "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity_equation",
-      "violation": 3.4560798667371273e-10,
-      "unit": "J/K/kg",
-      "scaled_violation": 3.4560798667371273e-13
-    }
-  ]
+  "dependency_detector_retry": "Installed IPOPT executable rejects dependency_detector and dependency_detection_with_rhs as unknown keywords"
 }

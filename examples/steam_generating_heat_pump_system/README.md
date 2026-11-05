@@ -36,7 +36,7 @@ For the existing CLI, add provider registration explicitly:
 
 | Circuit | Main path |
 | --- | --- |
-| Source water | SGHP evaporator → source valve → source pump → holdup tank → PHNIX sink side → electric heater → SGHP evaporator |
+| Source water | SGHP evaporator → source valve → source pump → holdup tank → PHNIX sink side → SGHP evaporator |
 | Warm water | Makeup mixer → pipe pressure loss → warm-water pump → SGHP subcooler → splitter → cooling exchanger → makeup mixer |
 | Hot water | Flash liquid → hot-water pump → mixer with warm makeup through its own valve → SGHP condenser → flash valve → flash tank |
 | Steam | Flash vapor → steam valve → exported steam |
@@ -284,9 +284,9 @@ is 0.8257525 kg/s while the independent condenser inlet is 0.8304639 kg/s.
 Makeup is about 55.9892 kg/h versus 72.9501 kg/h steam. A consistent complete
 steady operating specification is still needed to close that mismatch.
 
-The reference has no inline source electric heater or holdup tank; its `Heater1`
-is a separate refrigerant state calculation, so its values are not copied into
-those local P&ID elements. Exchangers use supplied conductance with LMTD
+The reference has no holdup tank; its `Heater1` is a separate refrigerant state
+calculation. The local source tank remains, while the previously included inline
+electric heater has been removed to match the real plant. Exchangers use supplied conductance with LMTD
 calculated from the four property-package temperatures. The captured IHX hot/cold
 names are opposite the local convention, so the stored temperature-difference
 observation is sign-adjusted for comparison; it is no longer an exchanger input. Bypasses, detailed refrigerant
@@ -358,3 +358,21 @@ with the largest residuals in the flash liquid state's vapor-fraction equation
 The failed iterate also retains negative SGHP COP and electrical power; it is
 not an operating solution. The current bottom-up and whole-plant reports are
 saved as `attempt_bottom_up_result.json` and `attempt_outlet_quality_result.json`.
+
+## Current topology: no electric source heater
+
+The inline source heater has been removed from the shared plant definition and
+all four fidelity selections, including the nested plant example. PHNIX sink
+outlet connects directly to SGHP source inlet. Total electrical power is the sum
+of the two heat pumps and the circulation pumps. The source tank remains with
+its specified zero heat duty.
+
+The preceding heater-containing numerical results are historical snapshots.
+The current `attempt_outlet_quality_result.json` records the no-heater retry:
+951 equality rows, 950 free variables and numerical column rank 950. IPOPT stops
+before iterating with too few degrees of freedom. A separate linear-row QR
+inspection finds 685 linear rows of rank 684; the redundant row can be represented
+by `source_evaporator_feed.flow`. This is the duplicated continuity relation around
+the source recycle. A trial using IPOPT dependency detection was rejected because
+the installed executable does not recognize `dependency_detector` or
+`dependency_detection_with_rhs`. No physical balance was disabled in the model.

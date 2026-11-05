@@ -158,12 +158,6 @@
             }
           }
         },
-        "source_heater": {
-          "model": "thermal_conditioner",
-          "domain_bindings": {
-            "time": "time"
-          }
-        },
         "source_tank": {
           "model": "thermal_conditioner",
           "domain_bindings": {
@@ -340,7 +334,7 @@
             "t": "time"
           },
           "lhs": "performance.electrical_power[t]",
-          "rhs": "performance.sghp_power[t] + performance.phnix_power[t] + performance.pump_power[t] + source_heater.parameters.heat_duty[t]",
+          "rhs": "performance.sghp_power[t] + performance.phnix_power[t] + performance.pump_power[t]",
           "determines": "performance.electrical_power[t]"
         }
       },
@@ -401,10 +395,6 @@
           "from": "steam_valve.outlet",
           "to": "steam_outlet"
         },
-        "source_heater_feed": {
-          "from": "phnix.sink_outlet",
-          "to": "source_heater.inlet"
-        },
         "source_pump_feed": {
           "from": "source_valve.outlet",
           "to": "source_pump.inlet"
@@ -422,7 +412,7 @@
           "to": "source_valve.inlet"
         },
         "source_evaporator_feed": {
-          "from": "source_heater.outlet",
+          "from": "phnix.sink_outlet",
           "to": "sghp.source_inlet"
         },
         "phnix_source_feed": {

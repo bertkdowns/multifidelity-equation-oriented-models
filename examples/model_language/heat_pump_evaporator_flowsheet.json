@@ -263,9 +263,6 @@
             }
           }
         },
-        "source_heater": {
-          "relationship": "energy_balance"
-        },
         "source_tank": {
           "relationship": "energy_balance"
         },
