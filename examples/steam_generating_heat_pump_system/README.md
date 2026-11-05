@@ -376,3 +376,40 @@ by `source_evaporator_feed.flow`. This is the duplicated continuity relation aro
 the source recycle. A trial using IPOPT dependency detection was rejected because
 the installed executable does not recognize `dependency_detector` or
 `dependency_detection_with_rhs`. No physical balance was disabled in the model.
+
+## Current successful solve: explicit mass recycle definition
+
+The source connection now passes through `source_mass_recycle`, an instance of
+`mass_recycle_definition`. It copies pressure and enthalpy and obtains outlet
+flow from its separate `flow_definition.flow` input. The ordinary inlet flow is
+unused within the block; the other source-loop mass balances still enforce
+continuity. The separate flow input is left free. All four plant fidelity
+selections and the nested plant example include the block. No electric heater
+or solve-time equation removal is involved.
+
+The operating attempt now fixes SGHP COP to 5.2881995212, taken as an assumption
+from `replay_calibrated_cop` in the earlier unit replay. It releases the captured
+hot-water inlet temperature, retaining that record as a starting guess. The new
+flash outlet compositions determine different return/mixing states, so fixing
+that old inlet temperature as well was inappropriate for this demonstration.
+The original captured `information.json` remains unchanged; active choices and
+guesses are in `attempt_information.json` and `attempt_specification.json`.
+Additional phase-mixture flow/enthalpy guesses make the flash child stages
+consistent with two-phase outlet specifications during local initialization.
+
+The standard `attempt_bottom_up.py` run now succeeds through all 63 stages.
+The root Jacobian has 957 rows, 957 columns and numerical rank 957. Its complete
+model maximum scaled constraint violation is 2.324e-10. Source circulation is
+8.06372 kg/s, steam export is 55.99 kg/h, SGHP electrical power is about 12.7564 kW,
+and its calculated hot-water inlet temperature is 128.57984 degrees C.
+The existing local definition checks remain enabled: they validate coverage and
+dependencies, while global independence is established by the structural and
+numerical analyses. Earlier failure snapshots above describe superseded
+configurations.
+
+The current calibrated-COP assumption also predicts a two-phase warm-water
+outlet: the cooling exchanger hot inlet is 120.23252 degrees C with vapor
+fraction 0.336265. The equations are satisfied, but this is not a validated
+real-plant operating point. A liquid-only warm loop would require further
+operating-specification choices; no extra phase or temperature constraint has
+been silently imposed here.

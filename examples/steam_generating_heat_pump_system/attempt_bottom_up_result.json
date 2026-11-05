@@ -2,54 +2,24 @@
   "implementation": "aggregate_aggregate",
   "specification": "attempt_specification.json",
   "information": "attempt_information.json",
-  "success": false,
+  "success": true,
   "stages": [
     {
       "model_path": "sghp.cop_model",
       "status": "initialized",
-      "initial_deficiency": 1,
+      "initial_deficiency": 0,
       "remaining_deficiency": 0,
-      "temporary_fixes": [
-        {
-          "variable_path": "sghp.cop_model.parameters.cop",
-          "index": 0.0,
-          "value": 3.0,
-          "unit": "dimensionless",
-          "trust_rank": null,
-          "deficiency_before": 1,
-          "deficiency_after": 0,
-          "null_space_score": 0.4999999999999999
-        }
-      ],
+      "temporary_fixes": [],
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [],
       "invalid_starting_values": [],
       "invalid_result_values": [],
       "callbacks": [],
-      "solver_termination": null,
+      "solver_termination": "optimal",
       "max_constraint_violation": 0.0,
       "max_scaled_constraint_violation": 0.0,
       "numerical_selections": [
-        {
-          "rows": 1,
-          "columns": 2,
-          "numerical_rank": 1,
-          "expected_rank": 1,
-          "nullity": 1,
-          "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 1.4142135623730953e-10,
-          "largest_singular_value": 1.4142135623730951,
-          "smallest_singular_value": 1.4142135623730951,
-          "zero_rows": [],
-          "candidates": [
-            {
-              "variable_path": "sghp.cop_model.parameters.cop",
-              "index": 0.0,
-              "score": 0.4999999999999999
-            }
-          ]
-        },
         {
           "rows": 1,
           "columns": 1,
@@ -618,7 +588,7 @@
     {
       "model_path": "sghp.hot_inlet_state",
       "status": "initialized",
-      "initial_deficiency": 2,
+      "initial_deficiency": 3,
       "remaining_deficiency": 0,
       "temporary_fixes": [
         {
@@ -627,9 +597,9 @@
           "value": 1.0,
           "unit": "kg/s",
           "trust_rank": null,
-          "deficiency_before": 2,
-          "deficiency_after": 1,
-          "null_space_score": 1.0000000000000004
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 1.0000000000000002
         },
         {
           "variable_path": "sghp.hot_inlet_state.state.pressure",
@@ -637,9 +607,19 @@
           "value": 200000.0,
           "unit": "Pa",
           "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.21794568680747775
+        },
+        {
+          "variable_path": "sghp.hot_inlet_state.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
           "deficiency_before": 1,
           "deficiency_after": 0,
-          "null_space_score": 0.21609297585429954
+          "null_space_score": 0.1589521220111776
         }
       ],
       "unresolved_variables": [],
@@ -649,9 +629,38 @@
       "invalid_result_values": [],
       "callbacks": [],
       "solver_termination": "optimal",
-      "max_constraint_violation": 4.132743924856186e-09,
-      "max_scaled_constraint_violation": 4.132743924856186e-14,
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123555e-14,
       "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 39,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.033343841961203e-10,
+          "largest_singular_value": 2.033343841961203,
+          "smallest_singular_value": 0.4450418679126285,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "sghp.hot_inlet_state.state.flow",
+              "index": 0.0,
+              "score": 1.0000000000000002
+            },
+            {
+              "variable_path": "sghp.hot_inlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "sghp.hot_inlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1603471483121747
+            }
+          ]
+        },
         {
           "rows": 36,
           "columns": 38,
@@ -659,25 +668,20 @@
           "expected_rank": 36,
           "nullity": 2,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.033320344095353e-10,
-          "largest_singular_value": 2.033320344095353,
-          "smallest_singular_value": 0.018444981894271822,
+          "absolute_rank_threshold": 2.0333438419612042e-10,
+          "largest_singular_value": 2.033343841961204,
+          "smallest_singular_value": 0.4450418679126284,
           "zero_rows": [],
           "candidates": [
             {
-              "variable_path": "sghp.hot_inlet_state.state.flow",
-              "index": 0.0,
-              "score": 1.0000000000000004
-            },
-            {
               "variable_path": "sghp.hot_inlet_state.state.pressure",
               "index": 0.0,
-              "score": 0.21609297585429907
+              "score": 0.21794568680747775
             },
             {
               "variable_path": "sghp.hot_inlet_state.state.enthalpy",
               "index": 0.0,
-              "score": 1.8664960469121175e-07
+              "score": 0.160347148312175
             }
           ]
         },
@@ -688,20 +692,15 @@
           "expected_rank": 36,
           "nullity": 1,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.033320344095354e-10,
-          "largest_singular_value": 2.033320344095354,
-          "smallest_singular_value": 0.018444981894271812,
+          "absolute_rank_threshold": 2.0325378086018166e-10,
+          "largest_singular_value": 2.0325378086018167,
+          "smallest_singular_value": 0.36729382377798975,
           "zero_rows": [],
           "candidates": [
             {
-              "variable_path": "sghp.hot_inlet_state.state.pressure",
-              "index": 0.0,
-              "score": 0.21609297585429954
-            },
-            {
               "variable_path": "sghp.hot_inlet_state.state.enthalpy",
               "index": 0.0,
-              "score": 1.8664960469474049e-07
+              "score": 0.1589521220111776
             }
           ]
         },
@@ -712,9 +711,9 @@
           "expected_rank": 36,
           "nullity": 0,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.0325138153772265e-10,
-          "largest_singular_value": 2.0325138153772264,
-          "smallest_singular_value": 0.018366013346750462,
+          "absolute_rank_threshold": 2.022185672319327e-10,
+          "largest_singular_value": 2.0221856723193268,
+          "smallest_singular_value": 0.29377629322653054,
           "zero_rows": [],
           "candidates": []
         }
@@ -942,7 +941,7 @@
           "trust_rank": null,
           "deficiency_before": 8,
           "deficiency_after": 7,
-          "null_space_score": 0.375282599829612
+          "null_space_score": 0.3753317159607091
         },
         {
           "variable_path": "sghp.source_inlet.flow",
@@ -952,17 +951,7 @@
           "trust_rank": null,
           "deficiency_before": 7,
           "deficiency_after": 6,
-          "null_space_score": 0.3333333333333333
-        },
-        {
-          "variable_path": "sghp.cop_model.parameters.cop",
-          "index": 0.0,
-          "value": 3.0,
-          "unit": "dimensionless",
-          "trust_rank": null,
-          "deficiency_before": 6,
-          "deficiency_after": 5,
-          "null_space_score": 0.33284371003746677
+          "null_space_score": 0.33333333333333326
         },
         {
           "variable_path": "sghp.warm_inlet.flow",
@@ -970,9 +959,19 @@
           "value": 1.0,
           "unit": "kg/s",
           "trust_rank": null,
+          "deficiency_before": 6,
+          "deficiency_after": 5,
+          "null_space_score": 0.20000000000000015
+        },
+        {
+          "variable_path": "sghp.source_inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
           "deficiency_before": 5,
           "deficiency_after": 4,
-          "null_space_score": 0.2
+          "null_space_score": 0.16416158043868828
         },
         {
           "variable_path": "sghp.hot_inlet.pressure",
@@ -982,17 +981,17 @@
           "trust_rank": null,
           "deficiency_before": 4,
           "deficiency_after": 3,
-          "null_space_score": 0.16527978742077837
+          "null_space_score": 0.1515883096621408
         },
         {
-          "variable_path": "sghp.source_inlet.pressure",
+          "variable_path": "sghp.hot_inlet.enthalpy",
           "index": 0.0,
-          "value": 200000.0,
-          "unit": "Pa",
+          "value": 100000.0,
+          "unit": "J/kg",
           "trust_rank": null,
           "deficiency_before": 3,
           "deficiency_after": 2,
-          "null_space_score": 0.16416158043867973
+          "null_space_score": 0.12533836944893012
         },
         {
           "variable_path": "sghp.warm_inlet.pressure",
@@ -1002,7 +1001,7 @@
           "trust_rank": null,
           "deficiency_before": 2,
           "deficiency_after": 1,
-          "null_space_score": 0.12280406529960894
+          "null_space_score": 0.12280406529960901
         },
         {
           "variable_path": "sghp.power_model.parameters.electrical_power",
@@ -1012,7 +1011,7 @@
           "trust_rank": null,
           "deficiency_before": 1,
           "deficiency_after": 0,
-          "null_space_score": 0.0397930760047752
+          "null_space_score": 0.03979307600477521
         }
       ],
       "unresolved_variables": [],
@@ -1032,25 +1031,20 @@
           "expected_rank": 140,
           "nullity": 8,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.4347780122475483e-10,
-          "largest_singular_value": 2.4347780122475484,
-          "smallest_singular_value": 0.014711676547441278,
+          "absolute_rank_threshold": 2.434778011953354e-10,
+          "largest_singular_value": 2.4347780119533535,
+          "smallest_singular_value": 0.014711683833361534,
           "zero_rows": [],
           "candidates": [
             {
               "variable_path": "sghp.warm_water_heater.parameters.heat_duty",
               "index": 0.0,
-              "score": 0.375282599829612
+              "score": 0.3753317159607091
             },
             {
               "variable_path": "sghp.source_inlet.flow",
               "index": 0.0,
-              "score": 0.3333333333333336
-            },
-            {
-              "variable_path": "sghp.cop_model.parameters.cop",
-              "index": 0.0,
-              "score": 0.33284435502164395
+              "score": 0.333333333333333
             },
             {
               "variable_path": "sghp.warm_inlet.flow",
@@ -1058,39 +1052,39 @@
               "score": 0.20000000000000012
             },
             {
-              "variable_path": "sghp.hot_inlet.pressure",
-              "index": 0.0,
-              "score": 0.16527978743504687
-            },
-            {
               "variable_path": "sghp.source_inlet.pressure",
               "index": 0.0,
-              "score": 0.16416158044254292
+              "score": 0.16416158044247173
             },
             {
-              "variable_path": "sghp.warm_inlet.pressure",
+              "variable_path": "sghp.hot_inlet.pressure",
               "index": 0.0,
-              "score": 0.12280406545967291
-            },
-            {
-              "variable_path": "sghp.power_model.parameters.electrical_power",
-              "index": 0.0,
-              "score": 0.04558662393845072
-            },
-            {
-              "variable_path": "sghp.source_inlet.enthalpy",
-              "index": 0.0,
-              "score": 1.0571328834635283e-07
-            },
-            {
-              "variable_path": "sghp.warm_inlet.enthalpy",
-              "index": 0.0,
-              "score": 8.682841490333623e-08
+              "score": 0.15158840610752342
             },
             {
               "variable_path": "sghp.hot_inlet.enthalpy",
               "index": 0.0,
-              "score": 8.187014129109079e-08
+              "score": 0.12595839917136575
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406545969358
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.04525598328844867
+            },
+            {
+              "variable_path": "sghp.source_inlet.enthalpy",
+              "index": 0.0,
+              "score": 1.057132883462826e-07
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.682841490268609e-08
             }
           ]
         },
@@ -1101,60 +1095,55 @@
           "expected_rank": 140,
           "nullity": 7,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.434773663247553e-10,
-          "largest_singular_value": 2.434773663247553,
+          "absolute_rank_threshold": 2.4347736629573456e-10,
+          "largest_singular_value": 2.4347736629573453,
           "smallest_singular_value": 0.014700326483605383,
           "zero_rows": [],
           "candidates": [
             {
               "variable_path": "sghp.source_inlet.flow",
               "index": 0.0,
-              "score": 0.3333333333333333
-            },
-            {
-              "variable_path": "sghp.cop_model.parameters.cop",
-              "index": 0.0,
-              "score": 0.33284371003746677
+              "score": 0.33333333333333326
             },
             {
               "variable_path": "sghp.warm_inlet.flow",
               "index": 0.0,
-              "score": 0.20000000000000026
-            },
-            {
-              "variable_path": "sghp.hot_inlet.pressure",
-              "index": 0.0,
-              "score": 0.1652797874207788
+              "score": 0.2
             },
             {
               "variable_path": "sghp.source_inlet.pressure",
               "index": 0.0,
-              "score": 0.16416158043875434
+              "score": 0.1641615804386882
             },
             {
-              "variable_path": "sghp.warm_inlet.pressure",
+              "variable_path": "sghp.hot_inlet.pressure",
               "index": 0.0,
-              "score": 0.12280406529960894
-            },
-            {
-              "variable_path": "sghp.power_model.parameters.electrical_power",
-              "index": 0.0,
-              "score": 0.04013462039489841
-            },
-            {
-              "variable_path": "sghp.source_inlet.enthalpy",
-              "index": 0.0,
-              "score": 1.0571328834372749e-07
-            },
-            {
-              "variable_path": "sghp.warm_inlet.enthalpy",
-              "index": 0.0,
-              "score": 8.6828414790075e-08
+              "score": 0.15158830966214087
             },
             {
               "variable_path": "sghp.hot_inlet.enthalpy",
               "index": 0.0,
-              "score": 8.18701412838671e-08
+              "score": 0.12594167211999152
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.122804065299609
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.03980545452378663
+            },
+            {
+              "variable_path": "sghp.source_inlet.enthalpy",
+              "index": 0.0,
+              "score": 1.0571328834327154e-07
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.682841479074014e-08
             }
           ]
         },
@@ -1165,55 +1154,50 @@
           "expected_rank": 140,
           "nullity": 6,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.2362501503318605e-10,
-          "largest_singular_value": 2.2362501503318604,
-          "smallest_singular_value": 0.014700326483605409,
+          "absolute_rank_threshold": 2.2362498491298512e-10,
+          "largest_singular_value": 2.2362498491298513,
+          "smallest_singular_value": 0.014700326483605456,
           "zero_rows": [],
           "candidates": [
             {
-              "variable_path": "sghp.cop_model.parameters.cop",
-              "index": 0.0,
-              "score": 0.33284371003746677
-            },
-            {
               "variable_path": "sghp.warm_inlet.flow",
               "index": 0.0,
-              "score": 0.2000000000000002
-            },
-            {
-              "variable_path": "sghp.hot_inlet.pressure",
-              "index": 0.0,
-              "score": 0.16527978742077906
+              "score": 0.20000000000000015
             },
             {
               "variable_path": "sghp.source_inlet.pressure",
               "index": 0.0,
-              "score": 0.1641615804387541
+              "score": 0.16416158043868825
             },
             {
-              "variable_path": "sghp.warm_inlet.pressure",
+              "variable_path": "sghp.hot_inlet.pressure",
               "index": 0.0,
-              "score": 0.12280406529960886
-            },
-            {
-              "variable_path": "sghp.power_model.parameters.electrical_power",
-              "index": 0.0,
-              "score": 0.04013462039489849
-            },
-            {
-              "variable_path": "sghp.source_inlet.enthalpy",
-              "index": 0.0,
-              "score": 1.0571328834323972e-07
-            },
-            {
-              "variable_path": "sghp.warm_inlet.enthalpy",
-              "index": 0.0,
-              "score": 8.682841478978205e-08
+              "score": 0.15158830966214068
             },
             {
               "variable_path": "sghp.hot_inlet.enthalpy",
               "index": 0.0,
-              "score": 8.187014128390846e-08
+              "score": 0.12594167211999147
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406529960884
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.039805454523786636
+            },
+            {
+              "variable_path": "sghp.source_inlet.enthalpy",
+              "index": 0.0,
+              "score": 1.0571328834411779e-07
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.682841479005629e-08
             }
           ]
         },
@@ -1224,50 +1208,45 @@
           "expected_rank": 140,
           "nullity": 5,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.23624975744823e-10,
-          "largest_singular_value": 2.23624975744823,
-          "smallest_singular_value": 0.014700326483605424,
+          "absolute_rank_threshold": 2.2362498491298494e-10,
+          "largest_singular_value": 2.2362498491298495,
+          "smallest_singular_value": 0.014700326482473977,
           "zero_rows": [],
           "candidates": [
             {
-              "variable_path": "sghp.warm_inlet.flow",
+              "variable_path": "sghp.source_inlet.pressure",
               "index": 0.0,
-              "score": 0.2
+              "score": 0.16416158043868828
             },
             {
               "variable_path": "sghp.hot_inlet.pressure",
               "index": 0.0,
-              "score": 0.1652797874207784
-            },
-            {
-              "variable_path": "sghp.source_inlet.pressure",
-              "index": 0.0,
-              "score": 0.16416158043867973
-            },
-            {
-              "variable_path": "sghp.warm_inlet.pressure",
-              "index": 0.0,
-              "score": 0.12280406529960891
-            },
-            {
-              "variable_path": "sghp.power_model.parameters.electrical_power",
-              "index": 0.0,
-              "score": 0.03979307601951781
-            },
-            {
-              "variable_path": "sghp.source_inlet.enthalpy",
-              "index": 0.0,
-              "score": 1.0571328834314076e-07
-            },
-            {
-              "variable_path": "sghp.warm_inlet.enthalpy",
-              "index": 0.0,
-              "score": 8.682841479085283e-08
+              "score": 0.15158830966214087
             },
             {
               "variable_path": "sghp.hot_inlet.enthalpy",
               "index": 0.0,
-              "score": 8.187014128528092e-08
+              "score": 0.12594167211999138
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406529960902
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.039805454523786664
+            },
+            {
+              "variable_path": "sghp.source_inlet.enthalpy",
+              "index": 0.0,
+              "score": 1.0571328834251483e-07
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.682841479031941e-08
             }
           ]
         },
@@ -1278,45 +1257,35 @@
           "expected_rank": 140,
           "nullity": 4,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.23624975744823e-10,
-          "largest_singular_value": 2.23624975744823,
-          "smallest_singular_value": 0.014700326482473847,
+          "absolute_rank_threshold": 2.236249849118186e-10,
+          "largest_singular_value": 2.236249849118186,
+          "smallest_singular_value": 0.01470032648247374,
           "zero_rows": [],
           "candidates": [
             {
               "variable_path": "sghp.hot_inlet.pressure",
               "index": 0.0,
-              "score": 0.16527978742077837
-            },
-            {
-              "variable_path": "sghp.source_inlet.pressure",
-              "index": 0.0,
-              "score": 0.16416158043867954
-            },
-            {
-              "variable_path": "sghp.warm_inlet.pressure",
-              "index": 0.0,
-              "score": 0.12280406529960905
-            },
-            {
-              "variable_path": "sghp.power_model.parameters.electrical_power",
-              "index": 0.0,
-              "score": 0.039793076019517884
-            },
-            {
-              "variable_path": "sghp.source_inlet.enthalpy",
-              "index": 0.0,
-              "score": 1.0571328834322167e-07
-            },
-            {
-              "variable_path": "sghp.warm_inlet.enthalpy",
-              "index": 0.0,
-              "score": 8.682841479019826e-08
+              "score": 0.1515883096621408
             },
             {
               "variable_path": "sghp.hot_inlet.enthalpy",
               "index": 0.0,
-              "score": 8.187014128450275e-08
+              "score": 0.12594167211998486
+            },
+            {
+              "variable_path": "sghp.warm_inlet.pressure",
+              "index": 0.0,
+              "score": 0.12280406529960897
+            },
+            {
+              "variable_path": "sghp.power_model.parameters.electrical_power",
+              "index": 0.0,
+              "score": 0.039805454517086634
+            },
+            {
+              "variable_path": "sghp.warm_inlet.enthalpy",
+              "index": 0.0,
+              "score": 8.682841479091091e-08
             }
           ]
         },
@@ -1327,35 +1296,30 @@
           "expected_rank": 140,
           "nullity": 3,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.2362497574472666e-10,
-          "largest_singular_value": 2.2362497574472666,
-          "smallest_singular_value": 0.01470032648247394,
+          "absolute_rank_threshold": 2.2362498490810042e-10,
+          "largest_singular_value": 2.236249849081004,
+          "smallest_singular_value": 0.01470032648247387,
           "zero_rows": [],
           "candidates": [
             {
-              "variable_path": "sghp.source_inlet.pressure",
+              "variable_path": "sghp.hot_inlet.enthalpy",
               "index": 0.0,
-              "score": 0.16416158043867973
+              "score": 0.12533836944893012
             },
             {
               "variable_path": "sghp.warm_inlet.pressure",
               "index": 0.0,
-              "score": 0.12280406529960883
+              "score": 0.12280406529960892
             },
             {
               "variable_path": "sghp.power_model.parameters.electrical_power",
               "index": 0.0,
-              "score": 0.039793076011471
-            },
-            {
-              "variable_path": "sghp.source_inlet.enthalpy",
-              "index": 0.0,
-              "score": 1.0571328834418932e-07
+              "score": 0.03980539521987857
             },
             {
               "variable_path": "sghp.warm_inlet.enthalpy",
               "index": 0.0,
-              "score": 8.68284147902449e-08
+              "score": 8.682841479140817e-08
             }
           ]
         },
@@ -1366,25 +1330,25 @@
           "expected_rank": 140,
           "nullity": 2,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.2362497574356e-10,
-          "largest_singular_value": 2.2362497574356,
-          "smallest_singular_value": 0.014700326482473852,
+          "absolute_rank_threshold": 2.2361577943524757e-10,
+          "largest_singular_value": 2.2361577943524757,
+          "smallest_singular_value": 0.014700326482473904,
           "zero_rows": [],
           "candidates": [
             {
               "variable_path": "sghp.warm_inlet.pressure",
               "index": 0.0,
-              "score": 0.12280406529960894
+              "score": 0.12280406529960901
             },
             {
               "variable_path": "sghp.power_model.parameters.electrical_power",
               "index": 0.0,
-              "score": 0.03979307600477524
+              "score": 0.039793076004775246
             },
             {
               "variable_path": "sghp.warm_inlet.enthalpy",
               "index": 0.0,
-              "score": 8.682841478981303e-08
+              "score": 8.682841479017754e-08
             }
           ]
         },
@@ -1395,15 +1359,15 @@
           "expected_rank": 140,
           "nullity": 1,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.2362497574356e-10,
-          "largest_singular_value": 2.2362497574356,
-          "smallest_singular_value": 0.014695784017349457,
+          "absolute_rank_threshold": 2.2361577943524713e-10,
+          "largest_singular_value": 2.2361577943524713,
+          "smallest_singular_value": 0.014695784017349499,
           "zero_rows": [],
           "candidates": [
             {
               "variable_path": "sghp.power_model.parameters.electrical_power",
               "index": 0.0,
-              "score": 0.0397930760047752
+              "score": 0.03979307600477521
             }
           ]
         },
@@ -1414,9 +1378,9 @@
           "expected_rank": 140,
           "nullity": 0,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.2334024085134456e-10,
-          "largest_singular_value": 2.2334024085134456,
-          "smallest_singular_value": 0.01469578401734934,
+          "absolute_rank_threshold": 2.2333062556411584e-10,
+          "largest_singular_value": 2.2333062556411583,
+          "smallest_singular_value": 0.014695784017349391,
           "zero_rows": [],
           "candidates": []
         }
@@ -2574,186 +2538,6 @@
           "absolute_rank_threshold": 2.158740014889614e-10,
           "largest_singular_value": 2.158740014889614,
           "smallest_singular_value": 0.0018686426778141974,
-          "zero_rows": [],
-          "candidates": []
-        }
-      ],
-      "fallback_variable_scales": [],
-      "error": null
-    },
-    {
-      "model_path": "source_heater",
-      "status": "initialized",
-      "initial_deficiency": 4,
-      "remaining_deficiency": 0,
-      "temporary_fixes": [
-        {
-          "variable_path": "source_heater.parameters.heat_duty",
-          "index": 0.0,
-          "value": 0.0,
-          "unit": "W",
-          "trust_rank": null,
-          "deficiency_before": 4,
-          "deficiency_after": 3,
-          "null_space_score": 0.9950248756218905
-        },
-        {
-          "variable_path": "source_heater.inlet.enthalpy",
-          "index": 0.0,
-          "value": 10000.0,
-          "unit": "J/kg",
-          "trust_rank": null,
-          "deficiency_before": 3,
-          "deficiency_after": 2,
-          "null_space_score": 0.5000000000000001
-        },
-        {
-          "variable_path": "source_heater.inlet.flow",
-          "index": 0.0,
-          "value": 1.0,
-          "unit": "kg/s",
-          "trust_rank": null,
-          "deficiency_before": 2,
-          "deficiency_after": 1,
-          "null_space_score": 0.4999999999999999
-        },
-        {
-          "variable_path": "source_heater.inlet.pressure",
-          "index": 0.0,
-          "value": 100000.0,
-          "unit": "Pa",
-          "trust_rank": null,
-          "deficiency_before": 1,
-          "deficiency_after": 0,
-          "null_space_score": 0.4999999999999999
-        }
-      ],
-      "unresolved_variables": [],
-      "overconstrained_constraints": [],
-      "missing_starting_values": [],
-      "invalid_starting_values": [],
-      "invalid_result_values": [],
-      "callbacks": [],
-      "solver_termination": null,
-      "max_constraint_violation": 0.0,
-      "max_scaled_constraint_violation": 0.0,
-      "numerical_selections": [
-        {
-          "rows": 3,
-          "columns": 7,
-          "numerical_rank": 3,
-          "expected_rank": 3,
-          "nullity": 4,
-          "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 1.4884763052199775e-10,
-          "largest_singular_value": 1.4884763052199774,
-          "smallest_singular_value": 1.347010871819038,
-          "zero_rows": [],
-          "candidates": [
-            {
-              "variable_path": "source_heater.parameters.heat_duty",
-              "index": 0.0,
-              "score": 0.9950248756218905
-            },
-            {
-              "variable_path": "source_heater.inlet.enthalpy",
-              "index": 0.0,
-              "score": 0.5024875621890547
-            },
-            {
-              "variable_path": "source_heater.inlet.flow",
-              "index": 0.0,
-              "score": 0.4999999999999999
-            },
-            {
-              "variable_path": "source_heater.inlet.pressure",
-              "index": 0.0,
-              "score": 0.5000000000000001
-            }
-          ]
-        },
-        {
-          "rows": 3,
-          "columns": 6,
-          "numerical_rank": 3,
-          "expected_rank": 3,
-          "nullity": 3,
-          "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 1.4866909039692845e-10,
-          "largest_singular_value": 1.4866909039692844,
-          "smallest_singular_value": 1.3452695477319747,
-          "zero_rows": [],
-          "candidates": [
-            {
-              "variable_path": "source_heater.inlet.enthalpy",
-              "index": 0.0,
-              "score": 0.5000000000000001
-            },
-            {
-              "variable_path": "source_heater.inlet.flow",
-              "index": 0.0,
-              "score": 0.4999999999999999
-            },
-            {
-              "variable_path": "source_heater.inlet.pressure",
-              "index": 0.0,
-              "score": 0.5000000000000001
-            }
-          ]
-        },
-        {
-          "rows": 3,
-          "columns": 5,
-          "numerical_rank": 3,
-          "expected_rank": 3,
-          "nullity": 2,
-          "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 1.428021269062884e-10,
-          "largest_singular_value": 1.428021269062884,
-          "smallest_singular_value": 0.9903308816269591,
-          "zero_rows": [],
-          "candidates": [
-            {
-              "variable_path": "source_heater.inlet.flow",
-              "index": 0.0,
-              "score": 0.4999999999999999
-            },
-            {
-              "variable_path": "source_heater.inlet.pressure",
-              "index": 0.0,
-              "score": 0.5000000000000001
-            }
-          ]
-        },
-        {
-          "rows": 3,
-          "columns": 4,
-          "numerical_rank": 3,
-          "expected_rank": 3,
-          "nullity": 1,
-          "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 1.414213562373095e-10,
-          "largest_singular_value": 1.414213562373095,
-          "smallest_singular_value": 0.9512492197250392,
-          "zero_rows": [],
-          "candidates": [
-            {
-              "variable_path": "source_heater.inlet.pressure",
-              "index": 0.0,
-              "score": 0.4999999999999999
-            }
-          ]
-        },
-        {
-          "rows": 3,
-          "columns": 3,
-          "numerical_rank": 3,
-          "expected_rank": 3,
-          "nullity": 0,
-          "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 1.0512492197250394e-10,
-          "largest_singular_value": 1.0512492197250394,
-          "smallest_singular_value": 0.9512492197250391,
           "zero_rows": [],
           "candidates": []
         }
@@ -5585,9 +5369,9 @@
         {
           "variable_path": "flash_tank.liquid_mixture.phases.liquid_enthalpy",
           "index": 0.0,
-          "value": 100000.0,
+          "value": 504700.0,
           "unit": "J/kg",
-          "trust_rank": null,
+          "trust_rank": 1,
           "deficiency_before": 4,
           "deficiency_after": 3,
           "null_space_score": 0.41666666666666696
@@ -5595,9 +5379,9 @@
         {
           "variable_path": "flash_tank.liquid_mixture.phases.vapor_enthalpy",
           "index": 0.0,
-          "value": 2706000.0,
+          "value": 2706230.0,
           "unit": "J/kg",
-          "trust_rank": null,
+          "trust_rank": 1,
           "deficiency_before": 3,
           "deficiency_after": 2,
           "null_space_score": 0.39999999999999986
@@ -5605,9 +5389,9 @@
         {
           "variable_path": "flash_tank.liquid_mixture.phases.liquid_flow",
           "index": 0.0,
-          "value": 1.0,
+          "value": 0.8990816326530612,
           "unit": "kg/s",
-          "trust_rank": null,
+          "trust_rank": 1,
           "deficiency_before": 2,
           "deficiency_after": 1,
           "null_space_score": 0.3333333333333333
@@ -5615,9 +5399,9 @@
         {
           "variable_path": "flash_tank.liquid_mixture.phases.vapor_flow",
           "index": 0.0,
-          "value": 0.0,
+          "value": 0.009081632653061224,
           "unit": "kg/s",
-          "trust_rank": null,
+          "trust_rank": 1,
           "deficiency_before": 1,
           "deficiency_after": 0,
           "null_space_score": 0.25
@@ -5630,8 +5414,8 @@
       "invalid_result_values": [],
       "callbacks": [],
       "solver_termination": "optimal",
-      "max_constraint_violation": 5.121415597386658e-06,
-      "max_scaled_constraint_violation": 5.1214155973866584e-11,
+      "max_constraint_violation": 0.0,
+      "max_scaled_constraint_violation": 0.0,
       "numerical_selections": [
         {
           "rows": 9,
@@ -5814,9 +5598,9 @@
         {
           "variable_path": "flash_tank.vapor_mixture.phases.liquid_enthalpy",
           "index": 0.0,
-          "value": 100000.0,
+          "value": 504700.0,
           "unit": "J/kg",
-          "trust_rank": null,
+          "trust_rank": 1,
           "deficiency_before": 4,
           "deficiency_after": 3,
           "null_space_score": 0.41666666666666696
@@ -5824,9 +5608,9 @@
         {
           "variable_path": "flash_tank.vapor_mixture.phases.vapor_enthalpy",
           "index": 0.0,
-          "value": 2706000.0,
+          "value": 2706230.0,
           "unit": "J/kg",
-          "trust_rank": null,
+          "trust_rank": 1,
           "deficiency_before": 3,
           "deficiency_after": 2,
           "null_space_score": 0.39999999999999986
@@ -5834,9 +5618,9 @@
         {
           "variable_path": "flash_tank.vapor_mixture.phases.liquid_flow",
           "index": 0.0,
-          "value": 1.0,
+          "value": 0.0009183673469387765,
           "unit": "kg/s",
-          "trust_rank": null,
+          "trust_rank": 1,
           "deficiency_before": 2,
           "deficiency_after": 1,
           "null_space_score": 0.3333333333333333
@@ -5844,9 +5628,9 @@
         {
           "variable_path": "flash_tank.vapor_mixture.phases.vapor_flow",
           "index": 0.0,
-          "value": 0.0,
+          "value": 0.0909183673469388,
           "unit": "kg/s",
-          "trust_rank": null,
+          "trust_rank": 1,
           "deficiency_before": 1,
           "deficiency_after": 0,
           "null_space_score": 0.25
@@ -5859,8 +5643,8 @@
       "invalid_result_values": [],
       "callbacks": [],
       "solver_termination": "optimal",
-      "max_constraint_violation": 5.121415597386658e-06,
-      "max_scaled_constraint_violation": 5.1214155973866584e-11,
+      "max_constraint_violation": 4.656612873077393e-10,
+      "max_scaled_constraint_violation": 4.656612873077393e-15,
       "numerical_selections": [
         {
           "rows": 9,
@@ -6026,7 +5810,7 @@
     },
     {
       "model_path": "flash_tank",
-      "status": "solver_failed",
+      "status": "initialized",
       "initial_deficiency": 2,
       "remaining_deficiency": 0,
       "temporary_fixes": [
@@ -6038,17 +5822,17 @@
           "trust_rank": 1,
           "deficiency_before": 2,
           "deficiency_after": 1,
-          "null_space_score": 0.25447375976252573
+          "null_space_score": 0.315696723209347
         },
         {
-          "variable_path": "flash_tank.parameters.liquid_to_liquid",
+          "variable_path": "flash_tank.inlet.flow",
           "index": 0.0,
-          "value": 0.9989795918367347,
-          "unit": "dimensionless",
-          "trust_rank": 1,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
           "deficiency_before": 1,
           "deficiency_after": 0,
-          "null_space_score": 0.10988943448802198
+          "null_space_score": 0.1948177053726581
         }
       ],
       "unresolved_variables": [],
@@ -6057,9 +5841,9 @@
       "invalid_starting_values": [],
       "invalid_result_values": [],
       "callbacks": [],
-      "solver_termination": "infeasible",
-      "max_constraint_violation": 0.8276643003337085,
-      "max_scaled_constraint_violation": 3.175995012792436e-07,
+      "solver_termination": "optimal",
+      "max_constraint_violation": 5.9194862842559814e-06,
+      "max_scaled_constraint_violation": 2.4942538419734614e-13,
       "numerical_selections": [
         {
           "rows": 125,
@@ -6068,30 +5852,30 @@
           "expected_rank": 125,
           "nullity": 2,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.2770701619984559e-10,
-          "largest_singular_value": 2.2770701619984557,
-          "smallest_singular_value": 0.0102482694943867,
+          "absolute_rank_threshold": 2.2751737426782377e-10,
+          "largest_singular_value": 2.2751737426782377,
+          "smallest_singular_value": 0.010995311479753874,
           "zero_rows": [],
           "candidates": [
             {
               "variable_path": "flash_tank.inlet.enthalpy",
               "index": 0.0,
-              "score": 0.25447375976252573
-            },
-            {
-              "variable_path": "flash_tank.parameters.liquid_to_liquid",
-              "index": 0.0,
-              "score": 0.12267699200637533
+              "score": 0.315696723209347
             },
             {
               "variable_path": "flash_tank.inlet.flow",
               "index": 0.0,
-              "score": 0.05250759645059183
+              "score": 0.19523978612440307
             },
             {
               "variable_path": "flash_tank.parameters.vapor_to_liquid",
               "index": 0.0,
-              "score": 9.926943417067624e-30
+              "score": 0.0006647606028531928
+            },
+            {
+              "variable_path": "flash_tank.parameters.liquid_to_liquid",
+              "index": 0.0,
+              "score": 1.0131301665213246e-07
             }
           ]
         },
@@ -6102,25 +5886,25 @@
           "expected_rank": 125,
           "nullity": 1,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.2770701375533843e-10,
-          "largest_singular_value": 2.2770701375533844,
-          "smallest_singular_value": 0.009987298788329792,
+          "absolute_rank_threshold": 2.2751737177219714e-10,
+          "largest_singular_value": 2.2751737177219713,
+          "smallest_singular_value": 0.01099498859149444,
           "zero_rows": [],
           "candidates": [
             {
-              "variable_path": "flash_tank.parameters.liquid_to_liquid",
+              "variable_path": "flash_tank.inlet.flow",
               "index": 0.0,
-              "score": 0.10988943448802198
+              "score": 0.1948177053726581
             },
             {
               "variable_path": "flash_tank.parameters.vapor_to_liquid",
               "index": 0.0,
-              "score": 2.2829522170935578e-30
+              "score": 1.919653506505254e-12
             },
             {
-              "variable_path": "flash_tank.inlet.flow",
+              "variable_path": "flash_tank.parameters.liquid_to_liquid",
               "index": 0.0,
-              "score": 4.9611382439647676e-30
+              "score": 2.925653048076315e-16
             }
           ]
         },
@@ -6131,9 +5915,2247 @@
           "expected_rank": 125,
           "nullity": 0,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.2120421400187347e-10,
-          "largest_singular_value": 2.2120421400187347,
-          "smallest_singular_value": 0.009288416216722365,
+          "absolute_rank_threshold": 2.2272500807068078e-10,
+          "largest_singular_value": 2.2272500807068076,
+          "smallest_singular_value": 0.010993135363595011,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "steam_valve",
+      "status": "initialized",
+      "initial_deficiency": 4,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "steam_valve.inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 4,
+          "deficiency_after": 3,
+          "null_space_score": 0.6666666666666669
+        },
+        {
+          "variable_path": "steam_valve.inlet.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 0.5000000000000001
+        },
+        {
+          "variable_path": "steam_valve.inlet.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.4999999999999999
+        },
+        {
+          "variable_path": "steam_valve.parameters.pressure_drop",
+          "index": 0.0,
+          "value": 0.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.4999999999999999
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": null,
+      "max_constraint_violation": 0.0,
+      "max_scaled_constraint_violation": 0.0,
+      "numerical_selections": [
+        {
+          "rows": 3,
+          "columns": 7,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 4,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.7320508075688768e-10,
+          "largest_singular_value": 1.7320508075688767,
+          "smallest_singular_value": 1.414213562373095,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "steam_valve.inlet.pressure",
+              "index": 0.0,
+              "score": 0.6666666666666669
+            },
+            {
+              "variable_path": "steam_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.6666666666666666
+            },
+            {
+              "variable_path": "steam_valve.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.5000000000000002
+            },
+            {
+              "variable_path": "steam_valve.inlet.flow",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 6,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.4142135623730953e-10,
+          "largest_singular_value": 1.4142135623730951,
+          "smallest_singular_value": 1.414213562373095,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "steam_valve.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.5000000000000001
+            },
+            {
+              "variable_path": "steam_valve.inlet.flow",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            },
+            {
+              "variable_path": "steam_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.5
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 5,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.4142135623730953e-10,
+          "largest_singular_value": 1.4142135623730951,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "steam_valve.inlet.flow",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            },
+            {
+              "variable_path": "steam_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 4,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.414213562373095e-10,
+          "largest_singular_value": 1.414213562373095,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "steam_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 3,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1e-10,
+          "largest_singular_value": 1.0,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "source_pump.outlet_state.fluid",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "source_pump.outlet_state.fluid.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.20658473190466148
+        },
+        {
+          "variable_path": "source_pump.outlet_state.fluid.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.09677841850733314
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.source_pump.relationship.models.outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123553e-14,
+      "numerical_selections": [
+        {
+          "rows": 27,
+          "columns": 29,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.099741969032214e-10,
+          "largest_singular_value": 2.099741969032214,
+          "smallest_singular_value": 0.5071960786066415,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_pump.outlet_state.fluid.state.pressure",
+              "index": 0.0,
+              "score": 0.20658473190466148
+            },
+            {
+              "variable_path": "source_pump.outlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09912351305072828
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 28,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0970672755857986e-10,
+          "largest_singular_value": 2.0970672755857986,
+          "smallest_singular_value": 0.3806556792156157,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_pump.outlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09677841850733314
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 27,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0491286044470547e-10,
+          "largest_singular_value": 2.0491286044470547,
+          "smallest_singular_value": 0.26368383878118645,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "source_pump.outlet_state",
+      "status": "initialized",
+      "initial_deficiency": 3,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "source_pump.outlet_state.state.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 1.0000000000000002
+        },
+        {
+          "variable_path": "source_pump.outlet_state.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.21794568680747775
+        },
+        {
+          "variable_path": "source_pump.outlet_state.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.1589521220111776
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123555e-14,
+      "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 39,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.033343841961203e-10,
+          "largest_singular_value": 2.033343841961203,
+          "smallest_singular_value": 0.4450418679126285,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_pump.outlet_state.state.flow",
+              "index": 0.0,
+              "score": 1.0000000000000002
+            },
+            {
+              "variable_path": "source_pump.outlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "source_pump.outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1603471483121747
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 38,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0333438419612042e-10,
+          "largest_singular_value": 2.033343841961204,
+          "smallest_singular_value": 0.4450418679126284,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_pump.outlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "source_pump.outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.160347148312175
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 37,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0325378086018166e-10,
+          "largest_singular_value": 2.0325378086018167,
+          "smallest_singular_value": 0.36729382377798975,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_pump.outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1589521220111776
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 36,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.022185672319327e-10,
+          "largest_singular_value": 2.0221856723193268,
+          "smallest_singular_value": 0.29377629322653054,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "source_pump",
+      "status": "initialized",
+      "initial_deficiency": 3,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "source_pump.inlet.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 0.33333327063412194
+        },
+        {
+          "variable_path": "source_pump.inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.1515607872688288
+        },
+        {
+          "variable_path": "source_pump.inlet.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.12060969620454354
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 7.697963155806065e-09,
+      "max_scaled_constraint_violation": 2.8558133635669947e-13,
+      "numerical_selections": [
+        {
+          "rows": 44,
+          "columns": 47,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.4342646868282153e-10,
+          "largest_singular_value": 2.434264686828215,
+          "smallest_singular_value": 0.3992939422519856,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_pump.inlet.flow",
+              "index": 0.0,
+              "score": 0.33333327063412194
+            },
+            {
+              "variable_path": "source_pump.inlet.pressure",
+              "index": 0.0,
+              "score": 0.15156078726891625
+            },
+            {
+              "variable_path": "source_pump.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.12116823545434313
+            }
+          ]
+        },
+        {
+          "rows": 44,
+          "columns": 46,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.1287995647942597e-10,
+          "largest_singular_value": 2.1287995647942597,
+          "smallest_singular_value": 0.39495919517193756,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_pump.inlet.pressure",
+              "index": 0.0,
+              "score": 0.1515607872688288
+            },
+            {
+              "variable_path": "source_pump.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.12116823465557697
+            }
+          ]
+        },
+        {
+          "rows": 44,
+          "columns": 45,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.1287991417282833e-10,
+          "largest_singular_value": 2.128799141728283,
+          "smallest_singular_value": 0.2535161836161068,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_pump.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.12060969620454354
+            }
+          ]
+        },
+        {
+          "rows": 44,
+          "columns": 44,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0538913849773635e-10,
+          "largest_singular_value": 2.0538913849773635,
+          "smallest_singular_value": 0.18125390475788292,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "warm_water_pump.outlet_state.fluid",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "warm_water_pump.outlet_state.fluid.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.20658473190466148
+        },
+        {
+          "variable_path": "warm_water_pump.outlet_state.fluid.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.09677841850733314
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.warm_water_pump.relationship.models.outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123553e-14,
+      "numerical_selections": [
+        {
+          "rows": 27,
+          "columns": 29,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.099741969032214e-10,
+          "largest_singular_value": 2.099741969032214,
+          "smallest_singular_value": 0.5071960786066415,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_pump.outlet_state.fluid.state.pressure",
+              "index": 0.0,
+              "score": 0.20658473190466148
+            },
+            {
+              "variable_path": "warm_water_pump.outlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09912351305072828
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 28,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0970672755857986e-10,
+          "largest_singular_value": 2.0970672755857986,
+          "smallest_singular_value": 0.3806556792156157,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_pump.outlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09677841850733314
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 27,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0491286044470547e-10,
+          "largest_singular_value": 2.0491286044470547,
+          "smallest_singular_value": 0.26368383878118645,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "warm_water_pump.outlet_state",
+      "status": "initialized",
+      "initial_deficiency": 3,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "warm_water_pump.outlet_state.state.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 1.0000000000000002
+        },
+        {
+          "variable_path": "warm_water_pump.outlet_state.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.21794568680747775
+        },
+        {
+          "variable_path": "warm_water_pump.outlet_state.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.1589521220111776
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123555e-14,
+      "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 39,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.033343841961203e-10,
+          "largest_singular_value": 2.033343841961203,
+          "smallest_singular_value": 0.4450418679126285,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_pump.outlet_state.state.flow",
+              "index": 0.0,
+              "score": 1.0000000000000002
+            },
+            {
+              "variable_path": "warm_water_pump.outlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "warm_water_pump.outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1603471483121747
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 38,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0333438419612042e-10,
+          "largest_singular_value": 2.033343841961204,
+          "smallest_singular_value": 0.4450418679126284,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_pump.outlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "warm_water_pump.outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.160347148312175
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 37,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0325378086018166e-10,
+          "largest_singular_value": 2.0325378086018167,
+          "smallest_singular_value": 0.36729382377798975,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_pump.outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1589521220111776
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 36,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.022185672319327e-10,
+          "largest_singular_value": 2.0221856723193268,
+          "smallest_singular_value": 0.29377629322653054,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "warm_water_pump",
+      "status": "initialized",
+      "initial_deficiency": 3,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "warm_water_pump.inlet.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 0.3333332104428976
+        },
+        {
+          "variable_path": "warm_water_pump.inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.1515607872878372
+        },
+        {
+          "variable_path": "warm_water_pump.inlet.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.12060966842908907
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 4.3888576328754425e-08,
+      "max_scaled_constraint_violation": 5.084075382910669e-13,
+      "numerical_selections": [
+        {
+          "rows": 44,
+          "columns": 47,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.434264234961258e-10,
+          "largest_singular_value": 2.4342642349612578,
+          "smallest_singular_value": 0.39929422685459554,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_pump.inlet.flow",
+              "index": 0.0,
+              "score": 0.3333332104428976
+            },
+            {
+              "variable_path": "warm_water_pump.inlet.pressure",
+              "index": 0.0,
+              "score": 0.1515607872880086
+            },
+            {
+              "variable_path": "warm_water_pump.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.1211682083531262
+            }
+          ]
+        },
+        {
+          "rows": 44,
+          "columns": 46,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.128798570567173e-10,
+          "largest_singular_value": 2.128798570567173,
+          "smallest_singular_value": 0.3949606347186766,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_pump.inlet.pressure",
+              "index": 0.0,
+              "score": 0.1515607872878372
+            },
+            {
+              "variable_path": "warm_water_pump.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.12116820678753396
+            }
+          ]
+        },
+        {
+          "rows": 44,
+          "columns": 45,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.1287981474779087e-10,
+          "largest_singular_value": 2.1287981474779087,
+          "smallest_singular_value": 0.25351618541953375,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_pump.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.12060966842908907
+            }
+          ]
+        },
+        {
+          "rows": 44,
+          "columns": 44,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0538911593724866e-10,
+          "largest_singular_value": 2.0538911593724865,
+          "smallest_singular_value": 0.18125493115284066,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "hot_water_pump.outlet_state.fluid",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "hot_water_pump.outlet_state.fluid.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.20658473190466148
+        },
+        {
+          "variable_path": "hot_water_pump.outlet_state.fluid.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.09677841850733314
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.hot_water_pump.relationship.models.outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123553e-14,
+      "numerical_selections": [
+        {
+          "rows": 27,
+          "columns": 29,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.099741969032214e-10,
+          "largest_singular_value": 2.099741969032214,
+          "smallest_singular_value": 0.5071960786066415,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "hot_water_pump.outlet_state.fluid.state.pressure",
+              "index": 0.0,
+              "score": 0.20658473190466148
+            },
+            {
+              "variable_path": "hot_water_pump.outlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09912351305072828
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 28,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0970672755857986e-10,
+          "largest_singular_value": 2.0970672755857986,
+          "smallest_singular_value": 0.3806556792156157,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "hot_water_pump.outlet_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09677841850733314
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 27,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0491286044470547e-10,
+          "largest_singular_value": 2.0491286044470547,
+          "smallest_singular_value": 0.26368383878118645,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "hot_water_pump.outlet_state",
+      "status": "initialized",
+      "initial_deficiency": 3,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "hot_water_pump.outlet_state.state.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 1.0000000000000002
+        },
+        {
+          "variable_path": "hot_water_pump.outlet_state.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.21794568680747775
+        },
+        {
+          "variable_path": "hot_water_pump.outlet_state.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.1589521220111776
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123555e-14,
+      "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 39,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.033343841961203e-10,
+          "largest_singular_value": 2.033343841961203,
+          "smallest_singular_value": 0.4450418679126285,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "hot_water_pump.outlet_state.state.flow",
+              "index": 0.0,
+              "score": 1.0000000000000002
+            },
+            {
+              "variable_path": "hot_water_pump.outlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "hot_water_pump.outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1603471483121747
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 38,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0333438419612042e-10,
+          "largest_singular_value": 2.033343841961204,
+          "smallest_singular_value": 0.4450418679126284,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "hot_water_pump.outlet_state.state.pressure",
+              "index": 0.0,
+              "score": 0.21794568680747775
+            },
+            {
+              "variable_path": "hot_water_pump.outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.160347148312175
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 37,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0325378086018166e-10,
+          "largest_singular_value": 2.0325378086018167,
+          "smallest_singular_value": 0.36729382377798975,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "hot_water_pump.outlet_state.state.enthalpy",
+              "index": 0.0,
+              "score": 0.1589521220111776
+            }
+          ]
+        },
+        {
+          "rows": 36,
+          "columns": 36,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.022185672319327e-10,
+          "largest_singular_value": 2.0221856723193268,
+          "smallest_singular_value": 0.29377629322653054,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "hot_water_pump",
+      "status": "initialized",
+      "initial_deficiency": 3,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "hot_water_pump.inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 0.4999495256865315
+        },
+        {
+          "variable_path": "hot_water_pump.inlet.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.33331089804031294
+        },
+        {
+          "variable_path": "hot_water_pump.inlet.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.12060851566017462
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 1.2936652638018131e-08,
+      "max_scaled_constraint_violation": 3.537934389896691e-13,
+      "numerical_selections": [
+        {
+          "rows": 44,
+          "columns": 47,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.434326763961167e-10,
+          "largest_singular_value": 2.4343267639611668,
+          "smallest_singular_value": 0.30002297829031954,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "hot_water_pump.inlet.pressure",
+              "index": 0.0,
+              "score": 0.4999495256865315
+            },
+            {
+              "variable_path": "hot_water_pump.parameters.pressure_rise",
+              "index": 0.0,
+              "score": 0.499949525686531
+            },
+            {
+              "variable_path": "hot_water_pump.inlet.flow",
+              "index": 0.0,
+              "score": 0.333310900305125
+            },
+            {
+              "variable_path": "hot_water_pump.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.1206091635752003
+            }
+          ]
+        },
+        {
+          "rows": 44,
+          "columns": 46,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.434326763960366e-10,
+          "largest_singular_value": 2.4343267639603656,
+          "smallest_singular_value": 0.3000229772481616,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "hot_water_pump.inlet.flow",
+              "index": 0.0,
+              "score": 0.33331089804031294
+            },
+            {
+              "variable_path": "hot_water_pump.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.12060877485234976
+            }
+          ]
+        },
+        {
+          "rows": 44,
+          "columns": 45,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.1288903318242213e-10,
+          "largest_singular_value": 2.128890331824221,
+          "smallest_singular_value": 0.30000784955527077,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "hot_water_pump.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.12060851566017462
+            }
+          ]
+        },
+        {
+          "rows": 44,
+          "columns": 44,
+          "numerical_rank": 44,
+          "expected_rank": 44,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0536629150154258e-10,
+          "largest_singular_value": 2.0536629150154257,
+          "smallest_singular_value": 0.1818570001151614,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "warm_water_valve",
+      "status": "initialized",
+      "initial_deficiency": 4,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "warm_water_valve.inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 4,
+          "deficiency_after": 3,
+          "null_space_score": 0.6666666666666669
+        },
+        {
+          "variable_path": "warm_water_valve.inlet.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 0.5000000000000001
+        },
+        {
+          "variable_path": "warm_water_valve.inlet.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.4999999999999999
+        },
+        {
+          "variable_path": "warm_water_valve.parameters.pressure_drop",
+          "index": 0.0,
+          "value": 0.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.4999999999999999
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": null,
+      "max_constraint_violation": 0.0,
+      "max_scaled_constraint_violation": 0.0,
+      "numerical_selections": [
+        {
+          "rows": 3,
+          "columns": 7,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 4,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.7320508075688768e-10,
+          "largest_singular_value": 1.7320508075688767,
+          "smallest_singular_value": 1.414213562373095,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_valve.inlet.pressure",
+              "index": 0.0,
+              "score": 0.6666666666666669
+            },
+            {
+              "variable_path": "warm_water_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.6666666666666666
+            },
+            {
+              "variable_path": "warm_water_valve.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.5000000000000002
+            },
+            {
+              "variable_path": "warm_water_valve.inlet.flow",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 6,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.4142135623730953e-10,
+          "largest_singular_value": 1.4142135623730951,
+          "smallest_singular_value": 1.414213562373095,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_valve.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.5000000000000001
+            },
+            {
+              "variable_path": "warm_water_valve.inlet.flow",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            },
+            {
+              "variable_path": "warm_water_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.5
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 5,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.4142135623730953e-10,
+          "largest_singular_value": 1.4142135623730951,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_valve.inlet.flow",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            },
+            {
+              "variable_path": "warm_water_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 4,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.414213562373095e-10,
+          "largest_singular_value": 1.414213562373095,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_water_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 3,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1e-10,
+          "largest_singular_value": 1.0,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "warm_makeup_valve",
+      "status": "initialized",
+      "initial_deficiency": 3,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "warm_makeup_valve.inlet.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 0.5
+        },
+        {
+          "variable_path": "warm_makeup_valve.inlet.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.4999999999999999
+        },
+        {
+          "variable_path": "warm_makeup_valve.inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.5000000000000001
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": null,
+      "max_constraint_violation": 0.0,
+      "max_scaled_constraint_violation": 0.0,
+      "numerical_selections": [
+        {
+          "rows": 3,
+          "columns": 6,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.4142135623730953e-10,
+          "largest_singular_value": 1.4142135623730951,
+          "smallest_singular_value": 1.414213562373095,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_makeup_valve.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.5
+            },
+            {
+              "variable_path": "warm_makeup_valve.inlet.flow",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            },
+            {
+              "variable_path": "warm_makeup_valve.inlet.pressure",
+              "index": 0.0,
+              "score": 0.4999999999999998
+            },
+            {
+              "variable_path": "warm_makeup_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.5000000000000001
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 5,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.4142135623730953e-10,
+          "largest_singular_value": 1.4142135623730951,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_makeup_valve.inlet.flow",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            },
+            {
+              "variable_path": "warm_makeup_valve.inlet.pressure",
+              "index": 0.0,
+              "score": 0.5
+            },
+            {
+              "variable_path": "warm_makeup_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.5
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 4,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.414213562373095e-10,
+          "largest_singular_value": 1.414213562373095,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "warm_makeup_valve.inlet.pressure",
+              "index": 0.0,
+              "score": 0.5000000000000001
+            },
+            {
+              "variable_path": "warm_makeup_valve.parameters.pressure_drop",
+              "index": 0.0,
+              "score": 0.4999999999999999
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 3,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1e-10,
+          "largest_singular_value": 1.0,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "makeup_state.fluid",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "makeup_state.fluid.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.20658473190466148
+        },
+        {
+          "variable_path": "makeup_state.fluid.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.09677841850733314
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.makeup_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123553e-14,
+      "numerical_selections": [
+        {
+          "rows": 27,
+          "columns": 29,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.099741969032214e-10,
+          "largest_singular_value": 2.099741969032214,
+          "smallest_singular_value": 0.5071960786066415,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "makeup_state.fluid.state.pressure",
+              "index": 0.0,
+              "score": 0.20658473190466148
+            },
+            {
+              "variable_path": "makeup_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09912351305072828
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 28,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0970672755857986e-10,
+          "largest_singular_value": 2.0970672755857986,
+          "smallest_singular_value": 0.3806556792156157,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "makeup_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09677841850733314
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 27,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0491286044470547e-10,
+          "largest_singular_value": 2.0491286044470547,
+          "smallest_singular_value": 0.26368383878118645,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "makeup_state",
+      "status": "initialized",
+      "initial_deficiency": 0,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 2.329761628061533e-08,
+      "max_scaled_constraint_violation": 2.329761628061533e-13,
+      "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 36,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0325138153772265e-10,
+          "largest_singular_value": 2.0325138153772264,
+          "smallest_singular_value": 0.018366013346750462,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix_source_state.fluid",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "phnix_source_state.fluid.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.20658473190466148
+        },
+        {
+          "variable_path": "phnix_source_state.fluid.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.09677841850733314
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123553e-14,
+      "numerical_selections": [
+        {
+          "rows": 27,
+          "columns": 29,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.099741969032214e-10,
+          "largest_singular_value": 2.099741969032214,
+          "smallest_singular_value": 0.5071960786066415,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix_source_state.fluid.state.pressure",
+              "index": 0.0,
+              "score": 0.20658473190466148
+            },
+            {
+              "variable_path": "phnix_source_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09912351305072828
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 28,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0970672755857986e-10,
+          "largest_singular_value": 2.0970672755857986,
+          "smallest_singular_value": 0.3806556792156157,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "phnix_source_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09677841850733314
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 27,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0491286044470547e-10,
+          "largest_singular_value": 2.0491286044470547,
+          "smallest_singular_value": 0.26368383878118645,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "phnix_source_state",
+      "status": "initialized",
+      "initial_deficiency": 0,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 1.862645149230957e-08,
+      "max_scaled_constraint_violation": 1.862645149230957e-13,
+      "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 36,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0325138153772265e-10,
+          "largest_singular_value": 2.0325138153772264,
+          "smallest_singular_value": 0.018366013346750462,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "cooling_water_state.fluid",
+      "status": "initialized",
+      "initial_deficiency": 2,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "cooling_water_state.fluid.state.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.20658473190466148
+        },
+        {
+          "variable_path": "cooling_water_state.fluid.state.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.09677841850733314
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [
+        "fs.root.relationship.models.cooling_water_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+      ],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 9.502400644123554e-09,
+      "max_scaled_constraint_violation": 9.502400644123553e-14,
+      "numerical_selections": [
+        {
+          "rows": 27,
+          "columns": 29,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.099741969032214e-10,
+          "largest_singular_value": 2.099741969032214,
+          "smallest_singular_value": 0.5071960786066415,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "cooling_water_state.fluid.state.pressure",
+              "index": 0.0,
+              "score": 0.20658473190466148
+            },
+            {
+              "variable_path": "cooling_water_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09912351305072828
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 28,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0970672755857986e-10,
+          "largest_singular_value": 2.0970672755857986,
+          "smallest_singular_value": 0.3806556792156157,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "cooling_water_state.fluid.state.enthalpy",
+              "index": 0.0,
+              "score": 0.09677841850733314
+            }
+          ]
+        },
+        {
+          "rows": 27,
+          "columns": 27,
+          "numerical_rank": 27,
+          "expected_rank": 27,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0491286044470547e-10,
+          "largest_singular_value": 2.0491286044470547,
+          "smallest_singular_value": 0.26368383878118645,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "cooling_water_state",
+      "status": "initialized",
+      "initial_deficiency": 0,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 1.4581019058823586e-08,
+      "max_scaled_constraint_violation": 3.692548489198089e-13,
+      "numerical_selections": [
+        {
+          "rows": 36,
+          "columns": 36,
+          "numerical_rank": 36,
+          "expected_rank": 36,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.0325138153772265e-10,
+          "largest_singular_value": 2.0325138153772264,
+          "smallest_singular_value": 0.018366013346750462,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "source_mass_recycle",
+      "status": "initialized",
+      "initial_deficiency": 4,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [
+        {
+          "variable_path": "source_mass_recycle.inlet.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 4,
+          "deficiency_after": 3,
+          "null_space_score": 0.9999999999999998
+        },
+        {
+          "variable_path": "source_mass_recycle.flow_definition.flow",
+          "index": 0.0,
+          "value": 1.0,
+          "unit": "kg/s",
+          "trust_rank": null,
+          "deficiency_before": 3,
+          "deficiency_after": 2,
+          "null_space_score": 0.49999999999999994
+        },
+        {
+          "variable_path": "source_mass_recycle.inlet.enthalpy",
+          "index": 0.0,
+          "value": 100000.0,
+          "unit": "J/kg",
+          "trust_rank": null,
+          "deficiency_before": 2,
+          "deficiency_after": 1,
+          "null_space_score": 0.4999999999999998
+        },
+        {
+          "variable_path": "source_mass_recycle.inlet.pressure",
+          "index": 0.0,
+          "value": 200000.0,
+          "unit": "Pa",
+          "trust_rank": null,
+          "deficiency_before": 1,
+          "deficiency_after": 0,
+          "null_space_score": 0.5000000000000001
+        }
+      ],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": null,
+      "max_constraint_violation": 0.0,
+      "max_scaled_constraint_violation": 0.0,
+      "numerical_selections": [
+        {
+          "rows": 3,
+          "columns": 7,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 4,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.4142135623730953e-10,
+          "largest_singular_value": 1.4142135623730951,
+          "smallest_singular_value": 1.414213562373095,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_mass_recycle.inlet.flow",
+              "index": 0.0,
+              "score": 0.9999999999999998
+            },
+            {
+              "variable_path": "source_mass_recycle.flow_definition.flow",
+              "index": 0.0,
+              "score": 0.5
+            },
+            {
+              "variable_path": "source_mass_recycle.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.5000000000000001
+            },
+            {
+              "variable_path": "source_mass_recycle.inlet.pressure",
+              "index": 0.0,
+              "score": 0.5000000000000001
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 6,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 3,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.4142135623730953e-10,
+          "largest_singular_value": 1.4142135623730951,
+          "smallest_singular_value": 1.414213562373095,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_mass_recycle.flow_definition.flow",
+              "index": 0.0,
+              "score": 0.49999999999999994
+            },
+            {
+              "variable_path": "source_mass_recycle.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.4999999999999998
+            },
+            {
+              "variable_path": "source_mass_recycle.inlet.pressure",
+              "index": 0.0,
+              "score": 0.49999999999999983
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 5,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 2,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.414213562373095e-10,
+          "largest_singular_value": 1.414213562373095,
+          "smallest_singular_value": 1.0,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_mass_recycle.inlet.enthalpy",
+              "index": 0.0,
+              "score": 0.4999999999999998
+            },
+            {
+              "variable_path": "source_mass_recycle.inlet.pressure",
+              "index": 0.0,
+              "score": 0.5
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 4,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 1,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1.414213562373095e-10,
+          "largest_singular_value": 1.414213562373095,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": [
+            {
+              "variable_path": "source_mass_recycle.inlet.pressure",
+              "index": 0.0,
+              "score": 0.5000000000000001
+            }
+          ]
+        },
+        {
+          "rows": 3,
+          "columns": 3,
+          "numerical_rank": 3,
+          "expected_rank": 3,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 1e-10,
+          "largest_singular_value": 1.0,
+          "smallest_singular_value": 0.9999999999999999,
+          "zero_rows": [],
+          "candidates": []
+        }
+      ],
+      "fallback_variable_scales": [],
+      "error": null
+    },
+    {
+      "model_path": "steam_generating_heat_pump_system",
+      "status": "initialized",
+      "initial_deficiency": 0,
+      "remaining_deficiency": 0,
+      "temporary_fixes": [],
+      "unresolved_variables": [],
+      "overconstrained_constraints": [],
+      "missing_starting_values": [],
+      "invalid_starting_values": [],
+      "invalid_result_values": [],
+      "callbacks": [],
+      "solver_termination": "optimal",
+      "max_constraint_violation": 2.3235101252794266e-05,
+      "max_scaled_constraint_violation": 2.3235101252794267e-10,
+      "numerical_selections": [
+        {
+          "rows": 957,
+          "columns": 957,
+          "numerical_rank": 957,
+          "expected_rank": 957,
+          "nullity": 0,
+          "relative_rank_tolerance": 1e-10,
+          "absolute_rank_threshold": 2.6729265220911107e-10,
+          "largest_singular_value": 2.6729265220911107,
+          "smallest_singular_value": 4.901626304367495e-05,
           "zero_rows": [],
           "candidates": []
         }
@@ -6143,6 +8165,7 @@
     }
   ],
   "starting_value_record_ids": [
+    "config_sghp_hot_inlet_state_temperature",
     "config_phnix_sink_inlet_flow",
     "config_warm_water_splitter_parameters_fraction",
     "guess_flash_inlet_enthalpy",
@@ -6152,9 +8175,17 @@
     "guess_flash_vapor_to_liquid",
     "guess_flash_inlet_state_state_enthalpy",
     "guess_flash_liquid_state_state_enthalpy",
-    "guess_flash_vapor_state_state_enthalpy"
+    "guess_flash_vapor_state_state_enthalpy",
+    "guess_flash_liquid_mixture_liquid_flow",
+    "guess_flash_liquid_mixture_vapor_flow",
+    "guess_flash_liquid_mixture_liquid_enthalpy",
+    "guess_flash_liquid_mixture_vapor_enthalpy",
+    "guess_flash_vapor_mixture_liquid_flow",
+    "guess_flash_vapor_mixture_vapor_flow",
+    "guess_flash_vapor_mixture_liquid_enthalpy",
+    "guess_flash_vapor_mixture_vapor_enthalpy"
   ],
-  "failed_model": "flash_tank",
+  "failed_model": null,
   "scaling_callbacks": [
     "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
     "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
@@ -6178,27 +8209,28 @@
     "fs.root.relationship.models.cooling_water_state.relationship.models.fluid.relationship.slices[0.0]"
   ],
   "fallback_variable_scales": [],
+  "full_model_max_scaled_violation": 2.3235101252794267e-10,
   "initialized_water_states": {
     "sghp.source_inlet_state": {
-      "state.flow": 1.0,
-      "state.pressure": 199999.99999999997,
-      "state.enthalpy": 322523.13194238837,
+      "state.flow": 8.063717875184173,
+      "state.pressure": 200000.00000000003,
+      "state.enthalpy": 322523.1319423952,
       "properties.temperature": 350.15000000040436,
-      "properties.density": 973.6848591832857
+      "properties.density": 973.6848591832859
     },
     "sghp.hot_inlet_state": {
       "state.flow": 0.830463850734013,
-      "state.pressure": 199999.99999999997,
-      "state.enthalpy": 501977.6918467131,
-      "properties.temperature": 392.72659727435075,
-      "properties.density": 943.4567010624371
+      "state.pressure": 400000.00000000006,
+      "state.enthalpy": 540380.3574875974,
+      "properties.temperature": 401.72983726878533,
+      "properties.density": 936.1161154773276
     },
     "sghp.warm_inlet_state": {
-      "state.flow": 1.0,
-      "state.pressure": 199999.99999999997,
-      "state.enthalpy": 249156.14694138497,
+      "state.flow": 0.04543724877235561,
+      "state.pressure": 200000.00000000003,
+      "state.enthalpy": 249156.14694139038,
       "properties.temperature": 332.63462987445513,
-      "properties.density": 983.5056239998037
+      "properties.density": 983.5056239998007
     }
   },
   "initialized_water_states_units": {

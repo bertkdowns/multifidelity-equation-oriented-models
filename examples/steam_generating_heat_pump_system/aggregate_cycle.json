@@ -412,6 +412,9 @@
           "relationship": "helmholtz"
         }
       }
+    },
+    "source_mass_recycle": {
+      "relationship": "define"
     }
   }
 }

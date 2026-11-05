@@ -1,0 +1,114 @@
+{
+  "id": "mass_recycle_definition",
+  "description": "Mass-flow definition point for a closed recycle. Passes inlet pressure and enthalpy through and defines outlet flow from a separate input. The standard inlet flow is intentionally unused; remaining recycle balances must enforce continuity.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "default": 1,
+          "scale": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "default": 200000,
+          "scale": 1e-05
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "default": 100000,
+          "scale": 1e-05
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "default": 1,
+          "scale": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "default": 200000,
+          "scale": 1e-05
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "default": 100000,
+          "scale": 1e-05
+        }
+      }
+    },
+    "flow_definition": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "default": 1,
+          "scale": 1
+        }
+      }
+    }
+  },
+  "relationships": {
+    "define": {
+      "models": {},
+      "constraints": {
+        "flow": {
+          "lhs": "outlet.flow[t]",
+          "rhs": "flow_definition.flow[t]",
+          "determines": "outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "pressure": {
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "enthalpy": {
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {}
+    }
+  }
+}

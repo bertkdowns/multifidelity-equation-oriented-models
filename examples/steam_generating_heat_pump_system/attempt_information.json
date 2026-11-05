@@ -412,5 +412,86 @@
     "value": 0.09081632653061225,
     "unit": "dimensionless",
     "trust_rank": 1
+  },
+  {
+    "id": "attempt_sghp_calibrated_cop",
+    "tag": "replay_calibrated_cop",
+    "information_type": "assumption",
+    "variable_path": "sghp.cop_model.parameters.cop",
+    "value": 5.288199521202138,
+    "unit": "dimensionless",
+    "trust_rank": 2
+  },
+  {
+    "id": "guess_flash_liquid_mixture_liquid_flow",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.liquid_mixture.phases.liquid_flow",
+    "value": 0.8990816326530612,
+    "unit": "kg/s",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_liquid_mixture_vapor_flow",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.liquid_mixture.phases.vapor_flow",
+    "value": 0.009081632653061224,
+    "unit": "kg/s",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_liquid_mixture_liquid_enthalpy",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.liquid_mixture.phases.liquid_enthalpy",
+    "value": 504700,
+    "unit": "J/kg",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_liquid_mixture_vapor_enthalpy",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.liquid_mixture.phases.vapor_enthalpy",
+    "value": 2706230,
+    "unit": "J/kg",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_vapor_mixture_liquid_flow",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.vapor_mixture.phases.liquid_flow",
+    "value": 0.0009183673469387765,
+    "unit": "kg/s",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_vapor_mixture_vapor_flow",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.vapor_mixture.phases.vapor_flow",
+    "value": 0.0909183673469388,
+    "unit": "kg/s",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_vapor_mixture_liquid_enthalpy",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.vapor_mixture.phases.liquid_enthalpy",
+    "value": 504700,
+    "unit": "J/kg",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_vapor_mixture_vapor_enthalpy",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.vapor_mixture.phases.vapor_enthalpy",
+    "value": 2706230,
+    "unit": "J/kg",
+    "trust_rank": 1
   }
 ]

@@ -23,7 +23,7 @@
     "config_phnix_source_inlet_pressure",
     "config_phnix_source_inlet_state_temperature",
     "config_sghp_hot_inlet_flow",
-    "config_sghp_hot_inlet_state_temperature",
+    "attempt_sghp_calibrated_cop",
     "config_sghp_source_inlet_state_temperature",
     "config_sghp_warm_inlet_state_temperature",
     "config_source_pump_parameters_efficiency",

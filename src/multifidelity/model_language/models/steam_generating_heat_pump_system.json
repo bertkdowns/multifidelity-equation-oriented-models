@@ -302,6 +302,12 @@
               "model": "helmholtz_water_ph"
             }
           }
+        },
+        "source_mass_recycle": {
+          "model": "mass_recycle_definition",
+          "domain_bindings": {
+            "time": "time"
+          }
         }
       },
       "constraints": {
@@ -412,7 +418,7 @@
           "to": "source_valve.inlet"
         },
         "source_evaporator_feed": {
-          "from": "phnix.sink_outlet",
+          "from": "source_mass_recycle.outlet",
           "to": "sghp.source_inlet"
         },
         "phnix_source_feed": {
@@ -438,6 +444,10 @@
         "hot_makeup_pressure_loss": {
           "from": "warm_makeup_valve.outlet",
           "to": "hot_water_mixer.makeup"
+        },
+        "source_mass_recycle_feed": {
+          "from": "phnix.sink_outlet",
+          "to": "source_mass_recycle.inlet"
         }
       }
     }

@@ -1676,3 +1676,18 @@ before interpreting the ranking. It describes joint changes under the chosen
 weights, rather than identifying a uniquely incorrect measurement. All selected
 records are softened, including assumptions and equipment parameters; select a
 subset if some specifications must remain hard.
+
+### Defining circulation in a mass recycle
+
+Definition coverage does not guarantee global equation independence. For a
+closed loop of components that conserve flow, the final continuity equation can
+repeat the others even though every equation has a distinct `determines` target.
+
+The bundled `mass_recycle_definition` model provides a definition point with
+standard inlet/outlet stream structs and an additional `flow_definition.flow`
+input. Pressure and enthalpy pass through; outlet flow comes from that separate
+input, while the standard inlet flow is unused internally. The rest of the loop
+still enforces continuity. This keeps ordinary connections and output-definition
+validation without requiring a solver to remove dependent equations. The SGHP
+plant uses it between the PHNIX sink outlet and SGHP source inlet, leaving the
+separate flow input free so the loop energy balances determine circulation.

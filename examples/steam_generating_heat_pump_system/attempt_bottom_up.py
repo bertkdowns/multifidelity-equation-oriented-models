@@ -25,6 +25,7 @@ if __name__ == '__main__':
         specification=SpecificationDocument.load_json(HERE / 'attempt_specification.json'),
         solver=get_solver('ipopt', options={
             'max_iter': 500, 'tol': 1e-8, 'max_cpu_time': 60,
+            'linear_system_scaling': 'none',
         }),
     )
     report = {
@@ -33,8 +34,10 @@ if __name__ == '__main__':
         'information': 'attempt_information.json',
         **asdict(result),
     }
-    # These are successful local initialisation states, not a converged plant
-    # solution. Failed-parent rollback retains the earlier child results.
+    from multifidelity.model_language.hierarchical_initialization import _constraint_violation
+    report['full_model_max_scaled_violation'] = _constraint_violation(model, scaled=True)
+    # On root success these are plant solution states; on failure they retain
+    # successful child initialization values after parent rollback.
     initialized = {stage.model_path for stage in result.stages if stage.status == 'initialized'}
     report['initialized_water_states'] = {}
     for prefix in ['sghp.source_inlet_state', 'sghp.hot_inlet_state', 'sghp.warm_inlet_state']:

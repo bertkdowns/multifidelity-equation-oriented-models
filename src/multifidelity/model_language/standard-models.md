@@ -272,3 +272,23 @@ A PH property model can also serve as a temperature-specification block: link it
 state pressure/enthalpy to a stream, select an information record for
 `properties.temperature`, and leave enthalpy free. The provider remains symbolic
 inside the solve. See the [SGHP demonstration](../../../examples/steam_generating_heat_pump_system/README.md).
+
+## Mass recycle definition
+
+`mass_recycle_definition`, relationship `define`, has standard time-indexed
+`inlet` and `outlet` structs containing flow, pressure and enthalpy, plus an input
+struct `flow_definition` containing only flow:
+
+```text
+outlet.pressure = inlet.pressure
+outlet.enthalpy = inlet.enthalpy
+outlet.flow = flow_definition.flow
+```
+
+`inlet.flow` is intentionally unused inside the block. This provides an explicit
+flow definition point within a closed mass-conserving recycle, avoiding a
+redundant continuity equation around the loop. The remaining loop balances imply
+equal inlet and outlet flows at the solution. `flow_definition.flow` may be
+specified, or left free for the rest of the system to determine. All outputs
+retain exactly one defining equation, so the normal definition validation applies.
+The block has reusable defaults and scales and requires no native provider.

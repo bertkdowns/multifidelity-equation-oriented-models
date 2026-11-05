@@ -30,7 +30,10 @@ def test_independent_choices_preserve_plant_connections(sghp, phnix):
     plant = model.fs.root.relationship
     assert not hasattr(plant.models, 'source_heater')
     connection = Library().get('steam_generating_heat_pump_system').relationships['flowsheet'].connections['source_evaporator_feed']
-    assert connection.from_ == 'phnix.sink_outlet'
+    assert connection.from_ == 'source_mass_recycle.outlet'
+    recycle_feed = Library().get('steam_generating_heat_pump_system').relationships['flowsheet'].connections['source_mass_recycle_feed']
+    assert recycle_feed.from_ == 'phnix.sink_outlet'
+    assert recycle_feed.to == 'source_mass_recycle.inlet'
     assert connection.to == 'sghp.source_inlet'
     assert hasattr(plant.models.sghp.relationship.models, 'compressor') == (sghp == 'cycle')
     assert hasattr(plant.models.phnix.relationship.models, 'compressor') == (phnix == 'cycle')
