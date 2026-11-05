@@ -70,3 +70,31 @@ listed; paths found in another alternative remain available when browsing it.
 Loading validates record structure, unique IDs, finite scalar/rectangular numeric
 values and metadata. It does not validate physical applicability, convert units,
 check series against a solver grid, or apply `specification.json` selections.
+
+### Choosing an implementation
+
+Open **Implementation** (or **Choose implementation** in the sidebar) to choose
+relationships recursively for the selected root. The live summary groups remaining
+input families by model occurrence and struct, excluding child inputs supplied by
+parent equations or struct connections. Partially supplied structs list only their
+remaining fields. Derivative initial-state families are listed separately.
+
+Changing a relationship replaces that occurrence's subtree with default choices
+for its newly selected children; siblings are preserved. Expand nested models to
+change deeper choices. **View diagram** opens that occurrence using its selected
+relationship. In the sidebar preview selector, the implementation choice is bold
+and marked `(implementation)`. Other relationships can be previewed without editing
+the implementation; **View selected implementation** returns to the chosen tree.
+
+Upload/drop an existing implementation against the matching root, or download the
+current choices as JSON. Documents contain `relationship` and recursive `submodels`
+only (the root model ID is deliberately not embedded, matching the Python API).
+Malformed or incompatible uploads leave current choices unchanged. Incomplete
+choices, unresolved generics and declaration coverage errors block export.
+Implementation choices are retained per root for the current session; use download
+to keep them across reloads. Layouts and information overlays remain separate.
+
+Input summaries follow the backend's declaration-coverage rules, including external
+providers' public interfaces. They do not compile equation expressions, establish
+unit/generic compatibility or prove mathematical solvability. Final builds still
+perform the backend's complete validation.

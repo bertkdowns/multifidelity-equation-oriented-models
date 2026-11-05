@@ -3,10 +3,12 @@ import { createRoot } from 'react-dom/client';
 import { ReactFlow, Handle, Position, Background, Controls, MiniMap, SelectionMode, useUpdateNodeInternals, applyNodeChanges } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './style.css';
-import { makeGraph, variableLabel } from './graph.js';
+import { makeGraph, variableLabel, resolveReference } from './graph.js';
 import { layoutKey, restorePositions, savePositions } from './layout-storage.js';
 import { parseInformation, indexInformation, informationPreview, findVariable } from './information.js';
 import { routeDetailedEdges } from './edge-routing.js';
+import ImplementationPanel from './ImplementationPanel.jsx';
+import { defaultImplementation, analyzeImplementation } from './implementation.js';
 
 const documents = import.meta.glob('../../src/multifidelity/model_language/models/*.json', { eager: true, import: 'default' });
 const library = Object.fromEntries(Object.values(documents).map(model => [model.id, model]));
@@ -125,17 +127,43 @@ function App() {
   const [choices, setChoices] = useState({});
   const [view, setView] = useState('detailed');
   const path = trail.map(item => item.alias).join('/');
-  const relationship = choices[path] ?? Object.keys(current.definition.relationships)[0];
+  const [mode, setMode] = useState('diagram');
+  const [implementations, setImplementations] = useState({});
+  const rootId = trail[0].definition.id;
+  const defaultDocument = useMemo(() => defaultImplementation(trail[0], library), [trail[0]]);
+  const implementation = implementations[rootId] ?? defaultDocument;
+  const implementationAnalysis = useMemo(() => analyzeImplementation(trail[0], implementation, library), [trail[0], implementation]);
+  let selectedImplementation = implementation;
+  for (let index = 0; index < trail.length - 1; index++) {
+    const ancestorPath = trail.slice(0, index + 1).map(item => item.alias).join('/');
+    if ((choices[ancestorPath] ?? selectedImplementation?.relationship) !== selectedImplementation?.relationship) { selectedImplementation = undefined; break; }
+    selectedImplementation = selectedImplementation?.submodels?.[trail[index + 1].alias];
+  }
+  const relationship = choices[path] ?? selectedImplementation?.relationship ?? Object.keys(current.definition.relationships)[0];
   const graph = useMemo(() => makeGraph(current, relationship, library, view), [current, relationship, view]);
   const [selection, setSelection] = useState(null);
   const [informationFiles, setInformationFiles] = useState({});
-  const rootId = trail[0].definition.id;
   const informationFile = informationFiles[rootId];
   const informationIndex = useMemo(() => indexInformation(informationFile?.records ?? []), [informationFile]);
   const unmatched = useMemo(() => [...informationIndex.keys()].filter(path => !findVariable(trail[0], path, library)), [informationIndex, trail[0]]);
   const informationContext = { index: informationIndex, prefix: trail.slice(1).map(item => item.alias).join('.'), inspect: setSelection };
   function setInformation(file) { setInformationFiles(previous => ({ ...previous, [rootId]: file })); setSelection(null); }
   function explore(data) { setTrail([...trail, { ...data.child, alias: data.title }]); setSelection(null); }
+  function updateImplementation(document) {
+    setImplementations(previous => ({ ...previous, [rootId]: document }));
+    setChoices({}); setSelection(null); setTrail([trail[0]]);
+  }
+  function inspectImplementation(aliases) {
+    const next = [trail[0]];
+    let selected = implementation;
+    for (const alias of aliases) {
+      const parent = next.at(-1);
+      const reference = parent.definition.relationships[selected.relationship].models[alias];
+      next.push({ ...resolveReference(reference, parent.bindings ?? {}, library), alias });
+      selected = selected.submodels[alias];
+    }
+    setTrail(next); setChoices({}); setSelection(null); setMode('diagram');
+  }
   function openRoot(id) { setTrail([{ definition: library[id], bindings: {}, alias: id }]); setSelection(null); }
   return <InformationContext.Provider value={informationContext}><main>
     <aside><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Model explorer</h1><p>Follow the equations.<br/>Explore every level.</p>
@@ -143,7 +171,9 @@ function App() {
       <InformationUpload key={rootId} file={informationFile} root={rootId} onLoad={setInformation} onClear={() => setInformation(null)}/>
       {unmatched.length > 0 && <details className="unmatched"><summary>{unmatched.length} unmatched variable paths</summary><p>These paths were not found in the available model definitions.</p>{unmatched.map(path => <div key={path}>{path}</div>)}</details>}
       {informationFile && <p>Records in other relationships appear when you explore those models. No values are propagated along connections.</p>}
-      <label>Relationship<select value={relationship ?? ''} onChange={event => { setChoices({ ...choices, [path]: event.target.value }); setSelection(null); }}>{Object.keys(current.definition.relationships).map(name => <option key={name}>{name}</option>)}</select></label>
+      <button className="implementation-open" onClick={() => setMode('implementation')}>Choose implementation</button>
+      <label>Preview relationship<select style={{ fontWeight: relationship === selectedImplementation?.relationship ? 700 : 400 }} value={relationship ?? ''} onChange={event => { setChoices({ ...choices, [path]: event.target.value }); setSelection(null); }}>{Object.keys(current.definition.relationships).map(name => <option key={name} value={name} style={{ fontWeight: name === selectedImplementation?.relationship ? 700 : 400 }}>{name}{name === selectedImplementation?.relationship ? ' (implementation)' : ''}</option>)}</select></label>
+      {relationship !== selectedImplementation?.relationship && <button className="implementation-open" onClick={() => inspectImplementation([])}>View selected implementation</button>}
       <p className="description">{current.definition.description}</p>
       {Object.keys(current.definition.domains ?? {}).length > 0 && <div className="domain-info"><b>Index domains</b>{Object.entries(current.definition.domains).map(([name, domain]) => <div key={name}>{name} · {domain.kind}{current.domainBindings?.[name] && ` → parent.${current.domainBindings[name]}`}</div>)}<p>Indexed variables and equations are shown as families, without expanding time points or domain members.</p></div>}
       <div className="legend"><span>● Input struct</span><span>● Model</span><span>● Constraint</span><span>● Output struct</span></div>
@@ -157,14 +187,15 @@ function App() {
       </div>}
       <footer>Read-only · JSON definitions<br/>{Object.keys(library).length} models in library</footer>
     </aside>
-    <div className="workspace"><nav aria-label="Model breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
+    <div className="workspace"><div className="workspace-tabs" role="group" aria-label="Workspace mode"><button aria-pressed={mode === 'diagram'} onClick={() => setMode('diagram')}>Diagram</button><button aria-pressed={mode === 'implementation'} onClick={() => setMode('implementation')}>Implementation</button></div><nav aria-label="Model breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
+      {mode === 'implementation' ? <ImplementationPanel key={rootId} context={trail[0]} document={implementation} analysis={implementationAnalysis} library={library} onChange={updateImplementation} onInspect={inspectImplementation}/> : <>
       <div className="canvas-title"><div><small>RELATIONSHIP</small><h2>{relationship ?? 'No relationships'}</h2></div><div className="view-toggle" role="group" aria-label="Diagram view">{['summary', 'detailed'].map(mode => <button key={mode} aria-pressed={view === mode} onClick={() => setView(mode)}>{mode === 'summary' ? 'Summary' : 'Detailed'}</button>)}</div><span>{graph.nodes.length} nodes · {graph.edges.length} links</span></div>
       <div className="canvas"><SavedLayoutFlow key={`${path}:${relationship}:${view}`} graph={graph} storageKey={layoutKey(current.definition.id, relationship, view)} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
         selectionOnDrag selectionMode={SelectionMode.Partial} panOnDrag={[1, 2]} multiSelectionKeyCode={['Control', 'Meta']}
         onNodeClick={(event, node) => { if (event.ctrlKey || event.metaKey || event.shiftKey) return; if (view === 'detailed' && node.data.child && !node.data.child.unresolved) explore(node.data); else setSelection(node.data); }}
         onEdgeClick={(_, edge) => setSelection({ title: edge.label, connection: { from: (edge.data.sourcePort ?? edge.sourceHandle)?.replace(/:out$/, ''), to: (edge.data.targetPort ?? edge.targetHandle)?.replace(/:in$/, ''), kind: edge.data.kind } })}>
         <Background color="#d8dee5" gap={22}/><Controls/><MiniMap pannable zoomable nodeColor={node => ({ model: '#608ce6', constraint: '#ac8fd2', input: '#53b5ac', output: '#e4ae62' })[node.data.kind]}/>
-      </SavedLayoutFlow></div>
+      </SavedLayoutFlow></div></>}
     </div>
   </main></InformationContext.Provider>;
 }
