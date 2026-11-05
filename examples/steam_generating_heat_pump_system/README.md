@@ -337,3 +337,24 @@ energy-balance residuals are 0.00390625 W; even small equation residuals and a
 solver optimality flag do not enforce physical limits that were never declared.
 Meaningful operating bounds and an empty-stream scaling policy need to be
 settled before treating the slack ranking as a diagnosis of conflicting data.
+
+## Current attempt: prescribed flash outlet compositions
+
+The current `attempt_information.json` and `attempt_specification.json` replace
+phase-recovery specifications with outlet vapor fractions: 0.01 in the liquid
+outlet and 0.99 in the vapor outlet. These specify compositions, not recovery
+percentages or total outlet flow fractions. The two phase-routing variables are
+free. Captured reference information and the earlier diagnostic snapshots above
+retain their original settings.
+
+Unused information records provide two-phase enthalpy and routing guesses; they
+are not fixed operating specifications. The local flash Jacobian is full rank
+after closure, but its solve fails with the initializer's temporary inlet-enthalpy
+and liquid-routing fixes. `attempt_outlet_quality.py` therefore also tries the
+complete plant without those temporary fixes. The initial root numerical rank
+improves from 954/957 to 956/957. IPOPT converges to a locally infeasible point,
+with the largest residuals in the flash liquid state's vapor-fraction equation
+(0.005797) and its binding (0.001879). This is not proof of global infeasibility.
+The failed iterate also retains negative SGHP COP and electrical power; it is
+not an operating solution. The current bottom-up and whole-plant reports are
+saved as `attempt_bottom_up_result.json` and `attempt_outlet_quality_result.json`.

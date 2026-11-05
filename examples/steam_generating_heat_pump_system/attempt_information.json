@@ -279,20 +279,20 @@
     "trust_rank": 8
   },
   {
-    "id": "config_flash_liquid_to_liquid",
-    "tag": "ahuora.phase_routing.liquid_to_liquid",
-    "information_type": "equipment_specification",
-    "variable_path": "flash_tank.parameters.liquid_to_liquid",
-    "value": 1,
+    "id": "attempt_flash_liquid_outlet_quality",
+    "tag": "user_assumption.attempt_flash_liquid_outlet_quality",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.liquid_properties.vapor_fraction",
+    "value": 0.01,
     "unit": "dimensionless",
     "trust_rank": 8
   },
   {
-    "id": "config_flash_vapor_to_liquid",
-    "tag": "ahuora.phase_routing.vapor_to_liquid",
-    "information_type": "equipment_specification",
-    "variable_path": "flash_tank.parameters.vapor_to_liquid",
-    "value": 0,
+    "id": "attempt_flash_vapor_outlet_quality",
+    "tag": "user_assumption.attempt_flash_vapor_outlet_quality",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.vapor_properties.vapor_fraction",
+    "value": 0.99,
     "unit": "dimensionless",
     "trust_rank": 8
   },
@@ -340,5 +340,77 @@
     "value": 55.99,
     "unit": "kg/h",
     "trust_rank": 10
+  },
+  {
+    "id": "guess_flash_inlet_enthalpy",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.inlet.enthalpy",
+    "value": 724850,
+    "unit": "J/kg",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_liquid_enthalpy",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.liquid.enthalpy",
+    "value": 526720,
+    "unit": "J/kg",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_vapor_enthalpy",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.vapor.enthalpy",
+    "value": 2684220,
+    "unit": "J/kg",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_inlet_state_state_enthalpy",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.inlet_state.state.enthalpy",
+    "value": 724850,
+    "unit": "J/kg",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_liquid_state_state_enthalpy",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.liquid_state.state.enthalpy",
+    "value": 526720,
+    "unit": "J/kg",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_vapor_state_state_enthalpy",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.vapor_state.state.enthalpy",
+    "value": 2684220,
+    "unit": "J/kg",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_liquid_to_liquid",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.parameters.liquid_to_liquid",
+    "value": 0.9989795918367347,
+    "unit": "dimensionless",
+    "trust_rank": 1
+  },
+  {
+    "id": "guess_flash_vapor_to_liquid",
+    "tag": "initial_guess.flash_outlet_compositions",
+    "information_type": "assumption",
+    "variable_path": "flash_tank.parameters.vapor_to_liquid",
+    "value": 0.09081632653061225,
+    "unit": "dimensionless",
+    "trust_rank": 1
   }
 ]
