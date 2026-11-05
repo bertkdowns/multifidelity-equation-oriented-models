@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ReactFlow, Handle, Position, Background, Controls, MiniMap, SelectionMode, useUpdateNodeInternals, applyNodeChanges } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -166,8 +166,21 @@ function App() {
     setTrail(next); setChoices({}); setSelection(null); setMode('diagram');
   }
   function openRoot(id) { setTrail([{ definition: library[id], bindings: {}, alias: id }]); setSelection(null); }
+  const sidebarRef = useRef(null);
+  const focusSelection = mode === 'diagram' && view === 'summary' && !!selection;
+  useEffect(() => {
+    if (focusSelection) sidebarRef.current?.scrollTo({ top: 0 });
+  }, [focusSelection, selection]);
+  const selectionDetails = selection && <div className="details"><div className="selection-heading"><h3>{selection.title}</h3><button aria-label="Close selected item details" title="Close details" onClick={() => setSelection(null)}>×</button></div>
+        {selection.child && !selection.child.unresolved && <button className="explore-button" onClick={() => explore(selection)}>Explore model →</button>}
+        {Object.keys(selection.domainBindings ?? {}).length > 0 && <pre>Domain bindings: {JSON.stringify(selection.domainBindings, null, 2)}</pre>}
+        {selection.variable ? <VariableInformation variable={selection.variable}/> : selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div key={name} title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><InformationValue name={name} variable={variable} localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div>)}</section>)}
+      </div>;
   return <InformationContext.Provider value={informationContext}><main>
-    <aside><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Model explorer</h1>
+    <aside ref={sidebarRef}><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Model explorer</h1>
+      {focusSelection && selectionDetails}
+      <details className={`sidebar-controls ${focusSelection ? 'collapsed-controls' : 'expanded-controls'}`} open={!focusSelection}>
+        <summary>Model controls &amp; help</summary>
       <label>Model library<select value={trail[0].definition.id} onChange={event => openRoot(event.target.value)}>{Object.keys(library).sort().map(id => <option key={id}>{id}</option>)}</select></label>
       <button className="implementation-open" onClick={() => setMode('information')}>Choose information</button>
       {informationFile && <p className="information-file-status">{informationFile.name} · {informationFile.records.length} records</p>}
@@ -182,11 +195,8 @@ function App() {
       <p>Teal lines connect whole structs. Purple lines show equation references, pointing toward the variable declared by <code>determines</code>.</p>
       <p>Drag on empty space to box-select nodes, then drag a selected node to move the group. Pan with the middle or right mouse button. Ctrl/Cmd-click adds to the selection.</p>
       {graph.warnings.length > 0 && <div className="warnings">{graph.warnings.map(message => <p key={message}>{message}</p>)}</div>}
-      {selection && <div className="details"><h3>{selection.title}</h3>
-        {selection.child && !selection.child.unresolved && <button className="explore-button" onClick={() => explore(selection)}>Explore model →</button>}
-        {Object.keys(selection.domainBindings ?? {}).length > 0 && <pre>Domain bindings: {JSON.stringify(selection.domainBindings, null, 2)}</pre>}
-        {selection.variable ? <VariableInformation variable={selection.variable}/> : selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div key={name} title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><InformationValue name={name} variable={variable} localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div>)}</section>)}
-      </div>}
+      </details>
+      {!focusSelection && selectionDetails}
       <footer>Read-only · JSON definitions<br/>{Object.keys(library).length} models in library</footer>
     </aside>
     <div className="workspace"><div className="workspace-tabs" role="group" aria-label="Workspace mode"><button aria-pressed={mode === 'diagram'} onClick={() => setMode('diagram')}>Diagram</button><button aria-pressed={mode === 'implementation'} onClick={() => setMode('implementation')}>Implementation</button><button aria-pressed={mode === 'information'} onClick={() => setMode('information')}>Information</button></div><nav aria-label="Model breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
@@ -194,6 +204,7 @@ function App() {
       <div className="canvas-title"><div><small>RELATIONSHIP</small><h2>{relationship ?? 'No relationships'}</h2></div><div className="view-toggle" role="group" aria-label="Diagram view">{['summary', 'detailed'].map(mode => <button key={mode} aria-pressed={view === mode} onClick={() => setView(mode)}>{mode === 'summary' ? 'Summary' : 'Detailed'}</button>)}</div><span>{graph.nodes.length} nodes · {graph.edges.length} links</span></div>
       <div className="canvas"><SavedLayoutFlow key={`${path}:${relationship}:${view}`} graph={graph} storageKey={layoutKey(current.definition.id, relationship, view)} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
         selectionOnDrag selectionMode={SelectionMode.Partial} panOnDrag={[1, 2]} multiSelectionKeyCode={['Control', 'Meta']}
+        onPaneClick={() => setSelection(null)}
         onNodeClick={(event, node) => { if (event.ctrlKey || event.metaKey || event.shiftKey) return; if (view === 'detailed' && node.data.child && !node.data.child.unresolved) explore(node.data); else setSelection(node.data); }}
         onEdgeClick={(_, edge) => setSelection({ title: edge.label, connection: { from: (edge.data.sourcePort ?? edge.sourceHandle)?.replace(/:out$/, ''), to: (edge.data.targetPort ?? edge.targetHandle)?.replace(/:in$/, ''), kind: edge.data.kind } })}>
         <Background color="#d8dee5" gap={22}/><Controls/><MiniMap pannable zoomable nodeColor={node => ({ model: '#608ce6', constraint: '#ac8fd2', input: '#53b5ac', output: '#e4ae62' })[node.data.kind]}/>
