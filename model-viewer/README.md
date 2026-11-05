@@ -118,3 +118,31 @@ document atomically and immediately update diagram previews. No units are conver
 no values propagated and no solver specifications applied. Download the information
 JSON to save the updated document. Changes remain in session memory and do not
 modify the uploaded source file.
+
+### Results snapshots
+
+The **Results** tab accepts the version 1 `ResultsDocument` JSON format exported
+by Python. Drop a file or choose it; its model ID selects the root. Results are
+kept separately for each root and from information documents. Replace,
+Clear and Download controls manage the snapshot without modifying the source
+file. Invalid uploads leave the current snapshot intact.
+
+The tab shows run identity/time, the saved implementation, solve status and
+termination, and a searchable table of every public variable family. Each value
+has units, explicit index coordinates and export-time fixed/free state. Indexed
+families expand to their full entries; unavailable values show `unset` or
+`nonfinite`. A failed/not-solved snapshot is labelled as unconverged. Solver
+status does not establish physical applicability of an operating point.
+
+If the saved implementation differs from the current choice, the tab offers
+**Use saved implementation**. Diagram previews stay hidden until the selections
+match, and are also hidden when previewing another relationship. Matching diagram
+rows show the saved value and units in blue, independently of information
+previews. Clicking a result opens its coordinate/value/fixity details. Solve
+status is available in the tooltip and Results tab rather than repeated on each
+row. No values are propagated or units converted.
+
+Use `examples/steam_generating_heat_pump_system/results.json` for a complete
+SGHP snapshot. Older `attempt_*_result.json` files are diagnostic reports rather
+than this upload format. Current-library path checks identify unmatched paths;
+they do not prove that model definitions are identical to those used for the run.

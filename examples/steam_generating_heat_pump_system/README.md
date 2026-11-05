@@ -430,3 +430,12 @@ aggregate hot-side duty is therefore -0.67039 kW. COP 4 alone does not select th
 intended heating operation. Fixing measured SGHP electrical power as well, while
 releasing PHNIX power, is a possible next operating-specification choice. Those
 additional changes have not been applied in this trial.
+
+## Viewing the saved numerical solution
+
+`attempt_bottom_up.py` now also exports `results.json` using the reusable
+`ResultsDocument` format. It contains all 671 public variable families with
+values, units, coordinates and fixed/free state, the chosen implementation,
+specification IDs and explicit solve status. Upload it in the viewer's
+**Results** tab. The other result JSON files in this folder remain diagnostic
+reports and do not use the upload format.

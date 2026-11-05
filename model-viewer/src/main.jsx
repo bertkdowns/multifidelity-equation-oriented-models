@@ -9,11 +9,22 @@ import { parseInformation, indexInformation, informationPreview, findVariable } 
 import { routeDetailedEdges } from './edge-routing.js';
 import ImplementationPanel from './ImplementationPanel.jsx';
 import InformationPanel from './InformationPanel.jsx';
+import ResultsPanel, {ResultValues} from './ResultsPanel.jsx';
+import {indexResults, resultPreview, sameImplementation} from './results.js';
 import { defaultImplementation, analyzeImplementation } from './implementation.js';
 
 const documents = import.meta.glob('../../src/multifidelity/model_language/models/*.json', { eager: true, import: 'default' });
 const library = Object.fromEntries(Object.values(documents).map(model => [model.id, model]));
 const modelIcons = new Set(Object.keys(import.meta.glob('../public/model-icons/*.svg')).map(path => path.split('/').at(-1).replace(/\.svg$/, '')));
+
+const ResultsContext = createContext({index:new Map(),prefix:'',inspect:()=>{},status:'not_solved'});
+function ResultsValue({name,localPath}) {
+  const {index,prefix,inspect,status}=useContext(ResultsContext);
+  const variable=index.get([prefix,localPath].filter(Boolean).join('.'));
+  return variable ? <button className="result-value nodrag nopan" title={`Saved snapshot · ${status}`} onClick={event=>{event.stopPropagation();inspect({title:name,result:{variable,status}});}}>
+    {resultPreview(variable)} <code>{variable.unit}</code>
+  </button> : null;
+}
 
 const InformationContext = createContext({ index: new Map(), prefix: '', inspect: () => {} });
 function InformationValue({ name, variable, localPath }) {
@@ -21,9 +32,9 @@ function InformationValue({ name, variable, localPath }) {
   const path = [prefix, localPath].filter(Boolean).join('.');
   const records = index.get(path) ?? [];
   const record = records[0];
-  return record ? <button className="information-value nodrag nopan" title="Information preview — click for sources and alternatives" onClick={event => { event.stopPropagation(); inspect({ title: name, variable: { path, metadata: variable, records } }); }}>
+  return <>{record ? <button className="information-value nodrag nopan" title="Information preview — click for sources and alternatives" onClick={event => { event.stopPropagation(); inspect({ title: name, variable: { path, metadata: variable, records } }); }}>
     {informationPreview(record)} <code>{record.unit}</code>{records.length > 1 && <small> +{records.length - 1}</small>}
-  </button> : <code>{variable.unit ?? 'dimensionless'}</code>;
+  </button> : <code>{variable.unit ?? 'dimensionless'}</code>}<ResultsValue name={name} localPath={localPath}/></>;
 }
 function InformationUpload({ file, root, onLoad, onClear }) {
   const [error, setError] = useState('');
@@ -145,6 +156,17 @@ function App() {
   const [selection, setSelection] = useState(null);
   const [informationFiles, setInformationFiles] = useState({});
   const informationFile = informationFiles[rootId];
+  const [resultFiles,setResultFiles]=useState({});
+  const resultFile=resultFiles[rootId];
+  const resultIndex=useMemo(()=>indexResults(resultFile?.document),[resultFile]);
+  const showResults=resultFile && sameImplementation(implementation,resultFile.document.implementation) && selectedImplementation?.relationship===relationship && !implementationAnalysis.errors.length;
+  const resultsContext={index:showResults ? resultIndex : new Map(),prefix:trail.slice(1).map(item=>item.alias).join('.'),inspect:setSelection,status:resultFile?.document.solve.status};
+  function loadResults(file) {
+    setResultFiles(previous=>({...previous,[file.document.model_id]:file}));
+    if (file.document.model_id!==rootId) openRoot(file.document.model_id);
+    setSelection(null);
+  }
+
   const informationIndex = useMemo(() => indexInformation(informationFile?.records ?? []), [informationFile]);
   const unmatched = useMemo(() => [...informationIndex.keys()].filter(path => !findVariable(trail[0], path, library)), [informationIndex, trail[0]]);
   const informationContext = { index: informationIndex, prefix: trail.slice(1).map(item => item.alias).join('.'), inspect: setSelection };
@@ -174,9 +196,9 @@ function App() {
   const selectionDetails = selection && <div className="details"><div className="selection-heading"><h3>{selection.title}</h3><button aria-label="Close selected item details" title="Close details" onClick={() => setSelection(null)}>×</button></div>
         {selection.child && !selection.child.unresolved && <button className="explore-button" onClick={() => explore(selection)}>Explore model →</button>}
         {Object.keys(selection.domainBindings ?? {}).length > 0 && <pre>Domain bindings: {JSON.stringify(selection.domainBindings, null, 2)}</pre>}
-        {selection.variable ? <VariableInformation variable={selection.variable}/> : selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div key={name} title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><InformationValue name={name} variable={variable} localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div>)}</section>)}
+        {selection.result ? <><p>Saved snapshot · {selection.result.status}</p><ResultValues variable={selection.result.variable}/></> : selection.variable ? <VariableInformation variable={selection.variable}/> : selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div key={name} title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><InformationValue name={name} variable={variable} localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div>)}</section>)}
       </div>;
-  return <InformationContext.Provider value={informationContext}><main>
+  return <InformationContext.Provider value={informationContext}><ResultsContext.Provider value={resultsContext}><main>
     <aside ref={sidebarRef}><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Model explorer</h1>
       {focusSelection && selectionDetails}
       <details className={`sidebar-controls ${focusSelection ? 'collapsed-controls' : 'expanded-controls'}`} open={!focusSelection}>
@@ -199,8 +221,8 @@ function App() {
       {!focusSelection && selectionDetails}
       <footer>Read-only · JSON definitions<br/>{Object.keys(library).length} models in library</footer>
     </aside>
-    <div className="workspace"><div className="workspace-tabs" role="group" aria-label="Workspace mode"><button aria-pressed={mode === 'diagram'} onClick={() => setMode('diagram')}>Diagram</button><button aria-pressed={mode === 'implementation'} onClick={() => setMode('implementation')}>Implementation</button><button aria-pressed={mode === 'information'} onClick={() => setMode('information')}>Information</button></div><nav aria-label="Model breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
-      {mode === 'information' ? <InformationPanel key={rootId} root={trail[0]} file={informationFile} analysis={implementationAnalysis} library={library} onChange={setInformation} uploadControl={<InformationUpload key={rootId} file={informationFile} root={rootId} onLoad={setInformation} onClear={() => setInformation(null)}/>}/> : mode === 'implementation' ? <ImplementationPanel key={rootId} context={trail[0]} document={implementation} analysis={implementationAnalysis} library={library} onChange={updateImplementation} onInspect={inspectImplementation}/> : <>
+    <div className="workspace"><div className="workspace-tabs" role="group" aria-label="Workspace mode"><button aria-pressed={mode === 'diagram'} onClick={() => setMode('diagram')}>Diagram</button><button aria-pressed={mode === 'implementation'} onClick={() => setMode('implementation')}>Implementation</button><button aria-pressed={mode === 'information'} onClick={() => setMode('information')}>Information</button><button aria-pressed={mode === 'results'} onClick={() => setMode('results')}>Results</button></div><nav aria-label="Model breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
+      {mode === 'results' ? <ResultsPanel key={rootId} root={trail[0]} file={resultFile} implementation={implementation} library={library} onChange={loadResults} onClear={()=>setResultFiles(previous=>({...previous,[rootId]:null}))} onUseImplementation={updateImplementation}/> : mode === 'information' ? <InformationPanel key={rootId} root={trail[0]} file={informationFile} analysis={implementationAnalysis} library={library} onChange={setInformation} uploadControl={<InformationUpload key={rootId} file={informationFile} root={rootId} onLoad={setInformation} onClear={() => setInformation(null)}/>}/> : mode === 'implementation' ? <ImplementationPanel key={rootId} context={trail[0]} document={implementation} analysis={implementationAnalysis} library={library} onChange={updateImplementation} onInspect={inspectImplementation}/> : <>
       <div className="canvas-title"><div><small>RELATIONSHIP</small><h2>{relationship ?? 'No relationships'}</h2></div><div className="view-toggle" role="group" aria-label="Diagram view">{['summary', 'detailed'].map(mode => <button key={mode} aria-pressed={view === mode} onClick={() => setView(mode)}>{mode === 'summary' ? 'Summary' : 'Detailed'}</button>)}</div><span>{graph.nodes.length} nodes · {graph.edges.length} links</span></div>
       <div className="canvas"><SavedLayoutFlow key={`${path}:${relationship}:${view}`} graph={graph} storageKey={layoutKey(current.definition.id, relationship, view)} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
         selectionOnDrag selectionMode={SelectionMode.Partial} panOnDrag={[1, 2]} multiSelectionKeyCode={['Control', 'Meta']}
@@ -210,6 +232,6 @@ function App() {
         <Background color="#d8dee5" gap={22}/><Controls/><MiniMap pannable zoomable nodeColor={node => ({ model: '#608ce6', constraint: '#ac8fd2', input: '#53b5ac', output: '#e4ae62' })[node.data.kind]}/>
       </SavedLayoutFlow></div></>}
     </div>
-  </main></InformationContext.Provider>;
+  </main></ResultsContext.Provider></InformationContext.Provider>;
 }
 createRoot(document.getElementById('root')).render(<App/>);

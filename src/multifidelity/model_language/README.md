@@ -1691,3 +1691,40 @@ still enforces continuity. This keeps ordinary connections and output-definition
 validation without requiring a solver to remove dependent equations. The SGHP
 plant uses it between the PHNIX sink outlet and SGHP source inlet, leaving the
 separate flow input free so the loop energy balances determine circulation.
+
+### Exporting numerical results
+
+`export_results` takes a snapshot of all declared public variables, including
+nested model occurrences, after values have been loaded into a built model:
+
+```python
+from multifidelity.model_language import export_results, ResultsDocument
+
+snapshot = export_results(
+    model, status="optimal", solver="ipopt", termination_condition="optimal",
+    specification=specification,
+)
+snapshot.write_json("results.json")
+loaded = ResultsDocument.load_json("results.json")
+```
+
+Export does not solve, change values/fixity, infer convergence or validate
+physical applicability. Status is explicit and defaults to `not_solved`.
+Use `failed` for an unsuccessful attempt; retained values may then be guesses or
+partial initialization states. Internal native-provider variables are excluded.
+
+The version 1 document includes a run ID, timezone-aware creation timestamp,
+root model ID, full implementation choice tree, steady/dynamic mode, time unit,
+solve metadata, optional specification IDs, and variable families keyed by
+root-relative occurrence path. Each family records its numerical unit, declared
+dimension order, and entries with explicit index coordinates, value and fixed/free
+state. Scalars use an empty coordinate list; discretized variables include the
+actual post-discretization grid. Unset and nonfinite values use JSON `null` with
+an explicit `issue` marker. Units are not converted for display. The document is
+separate from information records, which describe observations and assumptions.
+
+Upload this file in the model viewer's **Results** tab to inspect values and,
+when implementations match, show saved values on diagram rows. The SGHP
+`attempt_bottom_up.py` example now writes `results.json` alongside its diagnostic
+report. Model identity and implementation are recorded, but the document does
+not embed or fingerprint the library's equation definitions.

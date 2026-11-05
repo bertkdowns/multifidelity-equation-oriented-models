@@ -133,6 +133,12 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     fixations, including initial conditions, are applied separately. Declared
     defaults supply unfixed starting guesses during construction.
     """
+    from .implementation import ImplementationDocument
+    from pathlib import Path
+    if isinstance(implementation, (str, Path)):
+        implementation = ImplementationDocument.load_json(implementation)
+    elif not isinstance(implementation, ImplementationDocument):
+        implementation = ImplementationDocument.model_validate(implementation)
     library = library or Library()
     root = library.resolve(model_id)
     build_domains = BuildDomains(root, domain_values, mode)
@@ -192,6 +198,7 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                           units=unit, initialize=variable.default)
                 struct_block.add_component(variable_id, var)
                 var._model_language_scale = variable.scale
+                var._model_language_dimensions = tuple(variable.dimensions)
                 if variable.scale is not None:
                     from idaes.core.util.scaling import set_scaling_factor
                     set_scaling_factor(var, variable.scale)
@@ -340,6 +347,8 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     assert_units_consistent(model)
     # Retain the same occurrence-path lookup for later specification application.
     # Components stay live as discretization adds entries to indexed variables.
+    model._model_language_model_id = model_id
+    model._model_language_implementation = implementation.model_copy(deep=True)
     model._model_language_variables = registry
     model._model_language_initialization_order = initialization_order
     return model

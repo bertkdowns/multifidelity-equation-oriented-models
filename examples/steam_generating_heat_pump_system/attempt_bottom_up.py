@@ -10,7 +10,7 @@ from pathlib import Path
 
 from idaes.core.solvers import get_solver
 from multifidelity.model_language import (
-    InformationDocument, SpecificationDocument, get_variable, initialize_model,
+    InformationDocument, SpecificationDocument, get_variable, initialize_model, export_results,
 )
 from attempt_solve import build_attempt
 
@@ -28,6 +28,12 @@ if __name__ == '__main__':
             'linear_system_scaling': 'none',
         }),
     )
+    export_results(
+        model, status='optimal' if result.success else 'failed', solver='ipopt',
+        termination_condition=result.stages[-1].solver_termination,
+        message=result.stages[-1].error,
+        specification=HERE / 'attempt_specification.json',
+    ).write_json(HERE / 'results.json')
     report = {
         'implementation': 'aggregate_aggregate',
         'specification': 'attempt_specification.json',

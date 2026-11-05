@@ -15,6 +15,7 @@ from .initialization import apply_starting_values, initialize_custom_models
 from .hierarchical_initialization import initialize_model, InitializationResult, InitializationStage
 from .scaling import apply_scaling, ScalingReport
 from .reconciliation import relax_specifications, SpecificationRelaxation
+from .results import ResultsDocument, export_results
 from .standard import register_standard_providers
 
 
@@ -52,6 +53,8 @@ __all__ = [
     "RelationshipView",
     "build_model",
     "get_variable",
+    "ResultsDocument",
+    "export_results",
     "required_inputs",
     "required_initial_values",
     "print_required_inputs",
