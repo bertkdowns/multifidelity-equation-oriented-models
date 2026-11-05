@@ -54,9 +54,9 @@ this browser and site origin. Summary rotations and flips are saved alongside po
 
 Open **Information** (or **Choose information** in the sidebar) and drop an
 information-record JSON array onto its upload area, or choose a `.json` file.
-The file attaches to the selected root definition for this session, with paths
-relative to that root. Switching roots keeps each root's file separate; reloading
-clears uploaded information. Replace/Clear controls manage the active overlay.
+The file attaches to the selected root definition, with paths relative to that
+root. Switching roots keeps each root's file separate. Uploaded information and
+new records are saved in browser local storage and restored after reloading. Replace/Clear controls manage the active overlay.
 
 Detailed variable rows show the highest-trust record's preview in its original
 unit, with a count of alternatives. Clicking opens all candidate records, their
@@ -92,8 +92,8 @@ current choices as JSON. Documents contain `relationship` and recursive `submode
 only (the root model ID is deliberately not embedded, matching the Python API).
 Malformed or incompatible uploads leave current choices unchanged. Incomplete
 choices, unresolved generics and declaration coverage errors block export.
-Implementation choices are retained per root for the current session; use download
-to keep them across reloads. Layouts and information overlays remain separate.
+Implementation choices are saved per root in browser local storage and restored
+across reloads; download keeps a portable copy. Layouts and information overlays remain separate.
 
 Input summaries follow the backend's declaration-coverage rules, including external
 providers' public interfaces. They do not compile equation expressions, establish
@@ -116,14 +116,14 @@ a recognized path initially suggests its declared unit, which can be overridden.
 Unknown paths are allowed and marked unmatched. Additions validate the complete
 document atomically and immediately update diagram previews. No units are converted,
 no values propagated and no solver specifications applied. Download the information
-JSON to save the updated document. Changes remain in session memory and do not
-modify the uploaded source file.
+JSON to save the updated document. Changes are saved in browser local storage and do not modify the uploaded source
+file.
 
 ### Results snapshots
 
 The **Results** tab accepts the version 1 `ResultsDocument` JSON format exported
 by Python. Drop a file or choose it; its model ID selects the root. Results are
-kept separately for each root and from information documents. Replace,
+saved per root in browser local storage, separately from information documents. Replace,
 Clear and Download controls manage the snapshot without modifying the source
 file. Invalid uploads leave the current snapshot intact.
 
@@ -146,3 +146,12 @@ Use `examples/steam_generating_heat_pump_system/results.json` for a complete
 SGHP snapshot. Older `attempt_*_result.json` files are diagnostic reports rather
 than this upload format. Current-library path checks identify unmatched paths;
 they do not prove that model definitions are identical to those used for the run.
+
+
+Implementation, information and results documents persist separately by root model,
+including uploaded filenames and information additions. Reloading also reopens the
+last root model. Clearing information or results removes its stored copy. Storage
+is local to this browser and site origin; download JSON for portable backups.
+Invalid stored documents are skipped with a message, and full or disabled storage
+reports that the current document could not be saved. Incomplete implementation
+drafts can be restored and completed in the editor.

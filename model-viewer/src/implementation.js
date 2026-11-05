@@ -20,14 +20,14 @@ export function defaultImplementation(context, library, relationshipName, ancest
   })) };
 }
 
-export function parseImplementation(text) {
+export function parseImplementation(text, { allowIncomplete = false } = {}) {
   const document = JSON.parse(text);
   let count = 0;
   function check(selection, path, depth) {
     if (++count > 1500 || depth > 50) throw Error('Implementation exceeds 1500 model occurrences or 50 levels.');
     if (!isObject(selection) || Object.keys(selection).some(key => !['relationship', 'submodels'].includes(key)))
       throw Error(`${path}: expected relationship and optional submodels only. Select the root model separately.`);
-    if (typeof selection.relationship !== 'string' || !selection.relationship) throw Error(`${path}: missing relationship.`);
+    if (typeof selection.relationship !== 'string' || (!allowIncomplete && !selection.relationship)) throw Error(`${path}: missing relationship.`);
     if (selection.submodels !== undefined && !isObject(selection.submodels)) throw Error(`${path}: submodels must be an object.`);
     return { relationship: selection.relationship, submodels: Object.fromEntries(Object.entries(selection.submodels ?? {}).map(([alias, child]) => [alias, check(child, `${path}.${alias}`, depth + 1)])) };
   }

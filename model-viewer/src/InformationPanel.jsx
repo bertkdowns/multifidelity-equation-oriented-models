@@ -72,6 +72,6 @@ export default function InformationPanel({ root, file, analysis, library, onChan
         <button type="submit">Add record</button>
       </form>
     </section></div>
-    <p>Changes stay in this session. Download the JSON to keep them; the original file is never modified.</p>
+    <p>Changes are saved in this browser across refreshes. Download the JSON for a portable copy; the original file is never modified.</p>
   </section>;
 }

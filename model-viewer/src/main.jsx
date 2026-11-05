@@ -11,6 +11,8 @@ import ImplementationPanel from './ImplementationPanel.jsx';
 import InformationPanel from './InformationPanel.jsx';
 import ResultsPanel, {ResultValues} from './ResultsPanel.jsx';
 import {indexResults, resultPreview, sameImplementation} from './results.js';
+import { useStoredDocuments } from './use-stored-documents.js';
+import { loadActiveModel, saveActiveModel } from './document-storage.js';
 import { defaultImplementation, analyzeImplementation } from './implementation.js';
 
 const documents = import.meta.glob('../../src/multifidelity/model_language/models/*.json', { eager: true, import: 'default' });
@@ -134,14 +136,18 @@ function SavedLayoutFlow({ graph, storageKey, children, ...props }) {
   return <ReactFlow {...props} nodes={nodes.map(node => ({ ...node, data: { ...node.data, setOrientation } }))} onNodesChange={onNodesChange} edges={edges}>{children}</ReactFlow>;
 }
 function App() {
-  const [trail, setTrail] = useState([{ definition: library.steam_generating_heat_pump_system, bindings: {}, alias: 'steam_generating_heat_pump_system' }]);
+  const [trail, setTrail] = useState(() => {
+    const root = loadActiveModel(library, 'steam_generating_heat_pump_system');
+    return [{ definition: library[root], bindings: {}, alias: root }];
+  });
   const current = trail.at(-1);
   const [choices, setChoices] = useState({});
   const [view, setView] = useState('detailed');
   const path = trail.map(item => item.alias).join('/');
   const [mode, setMode] = useState('diagram');
-  const [implementations, setImplementations] = useState({});
+  const [implementations, setImplementations, implementationStorageErrors] = useStoredDocuments('implementation');
   const rootId = trail[0].definition.id;
+  useEffect(() => saveActiveModel(rootId), [rootId]);
   const defaultDocument = useMemo(() => defaultImplementation(trail[0], library), [trail[0]]);
   const implementation = implementations[rootId] ?? defaultDocument;
   const implementationAnalysis = useMemo(() => analyzeImplementation(trail[0], implementation, library), [trail[0], implementation]);
@@ -154,9 +160,9 @@ function App() {
   const relationship = choices[path] ?? selectedImplementation?.relationship ?? Object.keys(current.definition.relationships)[0];
   const graph = useMemo(() => makeGraph(current, relationship, library, view), [current, relationship, view]);
   const [selection, setSelection] = useState(null);
-  const [informationFiles, setInformationFiles] = useState({});
+  const [informationFiles, setInformationFiles, informationStorageErrors] = useStoredDocuments('information');
   const informationFile = informationFiles[rootId];
-  const [resultFiles,setResultFiles]=useState({});
+  const [resultFiles,setResultFiles,resultStorageErrors]=useStoredDocuments('results');
   const resultFile=resultFiles[rootId];
   const resultIndex=useMemo(()=>indexResults(resultFile?.document),[resultFile]);
   const showResults=resultFile && sameImplementation(implementation,resultFile.document.implementation) && selectedImplementation?.relationship===relationship && !implementationAnalysis.errors.length;
@@ -200,6 +206,7 @@ function App() {
       </div>;
   return <InformationContext.Provider value={informationContext}><ResultsContext.Provider value={resultsContext}><main>
     <aside ref={sidebarRef}><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Model explorer</h1>
+      {[...implementationStorageErrors, ...informationStorageErrors, ...resultStorageErrors].map(message => <p key={message} className="upload-error" role="status">{message}</p>)}
       {focusSelection && selectionDetails}
       <details className={`sidebar-controls ${focusSelection ? 'collapsed-controls' : 'expanded-controls'}`} open={!focusSelection}>
         <summary>Model controls &amp; help</summary>
