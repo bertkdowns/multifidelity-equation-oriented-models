@@ -52,7 +52,8 @@ this browser and site origin. Summary rotations and flips are saved alongside po
 
 ### Information overlays
 
-Drop an information-record JSON array onto the sidebar or choose a `.json` file.
+Open **Information** (or **Choose information** in the sidebar) and drop an
+information-record JSON array onto its upload area, or choose a `.json` file.
 The file attaches to the selected root definition for this session, with paths
 relative to that root. Switching roots keeps each root's file separate; reloading
 clears uploaded information. Replace/Clear controls manage the active overlay.
@@ -98,3 +99,22 @@ Input summaries follow the backend's declaration-coverage rules, including exter
 providers' public interfaces. They do not compile equation expressions, establish
 unit/generic compatibility or prove mathematical solvability. Final builds still
 perform the backend's complete validation.
+
+### Information table and new records
+
+The **Information** tab uses the same per-root document as the diagram overlay.
+Upload a document in that tab, filter the table by path/ID/tag/source/
+unit, and expand series rows to inspect full arrays. Every candidate remains a
+separate row; the Preview badge follows trust rank and ID ordering. Path status
+indicates whether a variable is in the chosen implementation, another available
+relationship, or unmatched.
+
+Use **Add information record** to add a unique ID, tag, root-relative variable
+path, source type, constant or JSON numeric array, unit, optional uncertainty and
+trust rank. Variable-path suggestions come from the selected implementation;
+a recognized path initially suggests its declared unit, which can be overridden.
+Unknown paths are allowed and marked unmatched. Additions validate the complete
+document atomically and immediately update diagram previews. No units are converted,
+no values propagated and no solver specifications applied. Download the information
+JSON to save the updated document. Changes remain in session memory and do not
+modify the uploaded source file.

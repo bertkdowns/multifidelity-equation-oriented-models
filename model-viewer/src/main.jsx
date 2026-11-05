@@ -8,6 +8,7 @@ import { layoutKey, restorePositions, savePositions } from './layout-storage.js'
 import { parseInformation, indexInformation, informationPreview, findVariable } from './information.js';
 import { routeDetailedEdges } from './edge-routing.js';
 import ImplementationPanel from './ImplementationPanel.jsx';
+import InformationPanel from './InformationPanel.jsx';
 import { defaultImplementation, analyzeImplementation } from './implementation.js';
 
 const documents = import.meta.glob('../../src/multifidelity/model_language/models/*.json', { eager: true, import: 'default' });
@@ -166,9 +167,10 @@ function App() {
   }
   function openRoot(id) { setTrail([{ definition: library[id], bindings: {}, alias: id }]); setSelection(null); }
   return <InformationContext.Provider value={informationContext}><main>
-    <aside><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Model explorer</h1><p>Follow the equations.<br/>Explore every level.</p>
+    <aside><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Model explorer</h1>
       <label>Model library<select value={trail[0].definition.id} onChange={event => openRoot(event.target.value)}>{Object.keys(library).sort().map(id => <option key={id}>{id}</option>)}</select></label>
-      <InformationUpload key={rootId} file={informationFile} root={rootId} onLoad={setInformation} onClear={() => setInformation(null)}/>
+      <button className="implementation-open" onClick={() => setMode('information')}>Choose information</button>
+      {informationFile && <p className="information-file-status">{informationFile.name} · {informationFile.records.length} records</p>}
       {unmatched.length > 0 && <details className="unmatched"><summary>{unmatched.length} unmatched variable paths</summary><p>These paths were not found in the available model definitions.</p>{unmatched.map(path => <div key={path}>{path}</div>)}</details>}
       {informationFile && <p>Records in other relationships appear when you explore those models. No values are propagated along connections.</p>}
       <button className="implementation-open" onClick={() => setMode('implementation')}>Choose implementation</button>
@@ -187,8 +189,8 @@ function App() {
       </div>}
       <footer>Read-only · JSON definitions<br/>{Object.keys(library).length} models in library</footer>
     </aside>
-    <div className="workspace"><div className="workspace-tabs" role="group" aria-label="Workspace mode"><button aria-pressed={mode === 'diagram'} onClick={() => setMode('diagram')}>Diagram</button><button aria-pressed={mode === 'implementation'} onClick={() => setMode('implementation')}>Implementation</button></div><nav aria-label="Model breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
-      {mode === 'implementation' ? <ImplementationPanel key={rootId} context={trail[0]} document={implementation} analysis={implementationAnalysis} library={library} onChange={updateImplementation} onInspect={inspectImplementation}/> : <>
+    <div className="workspace"><div className="workspace-tabs" role="group" aria-label="Workspace mode"><button aria-pressed={mode === 'diagram'} onClick={() => setMode('diagram')}>Diagram</button><button aria-pressed={mode === 'implementation'} onClick={() => setMode('implementation')}>Implementation</button><button aria-pressed={mode === 'information'} onClick={() => setMode('information')}>Information</button></div><nav aria-label="Model breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
+      {mode === 'information' ? <InformationPanel key={rootId} root={trail[0]} file={informationFile} analysis={implementationAnalysis} library={library} onChange={setInformation} uploadControl={<InformationUpload key={rootId} file={informationFile} root={rootId} onLoad={setInformation} onClear={() => setInformation(null)}/>}/> : mode === 'implementation' ? <ImplementationPanel key={rootId} context={trail[0]} document={implementation} analysis={implementationAnalysis} library={library} onChange={updateImplementation} onInspect={inspectImplementation}/> : <>
       <div className="canvas-title"><div><small>RELATIONSHIP</small><h2>{relationship ?? 'No relationships'}</h2></div><div className="view-toggle" role="group" aria-label="Diagram view">{['summary', 'detailed'].map(mode => <button key={mode} aria-pressed={view === mode} onClick={() => setView(mode)}>{mode === 'summary' ? 'Summary' : 'Detailed'}</button>)}</div><span>{graph.nodes.length} nodes · {graph.edges.length} links</span></div>
       <div className="canvas"><SavedLayoutFlow key={`${path}:${relationship}:${view}`} graph={graph} storageKey={layoutKey(current.definition.id, relationship, view)} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
         selectionOnDrag selectionMode={SelectionMode.Partial} panOnDrag={[1, 2]} multiSelectionKeyCode={['Control', 'Meta']}

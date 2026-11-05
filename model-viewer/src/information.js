@@ -1,6 +1,7 @@
 import { resolveReference } from './graph.js';
 
 const types = new Set(['sensor_reading', 'control_setpoint', 'equipment_specification', 'parameter', 'assumption']);
+export const informationTypes = [...types];
 const fields = new Set(['id', 'tag', 'information_type', 'variable_path', 'type', 'value', 'unit', 'standard_deviation', 'trust_rank']);
 export function valueShape(value) {
   if (typeof value === 'number' && Number.isFinite(value)) return [];
@@ -49,6 +50,22 @@ export function informationPreview(record) {
     return shape.length === 1 ? `Series · ${shape[0]} samples` : `Array · ${shape.join(' × ')}`;
   }
   return Number(record.value.toPrecision(6)).toString();
+}
+
+export function appendInformation(records, draft) {
+  let value;
+  try { value = JSON.parse(draft.value); }
+  catch { throw Error('Value must be a JSON number or numeric array, for example 12.5 or [1, 2, 3].'); }
+  if (draft.standard_deviation.trim() && !Number.isFinite(Number(draft.standard_deviation)))
+    throw Error('Standard deviation must be a finite nonnegative number.');
+  const record = {
+    id: draft.id.trim(), tag: draft.tag.trim(), variable_path: draft.variable_path.trim(),
+    information_type: draft.information_type, type: draft.type, value,
+    unit: draft.unit.trim(), trust_rank: Number(draft.trust_rank),
+    ...(draft.standard_deviation.trim() ? { standard_deviation: Number(draft.standard_deviation) } : {}),
+  };
+  // Validate the complete replacement before publishing, including unique IDs.
+  return parseInformation(JSON.stringify([...records, record]));
 }
 
 // Resolve only the finite authored path, trying alternatives without expanding
