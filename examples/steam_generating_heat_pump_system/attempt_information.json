@@ -414,13 +414,13 @@
     "trust_rank": 1
   },
   {
-    "id": "attempt_sghp_calibrated_cop",
-    "tag": "replay_calibrated_cop",
+    "id": "attempt_sghp_operating_cop",
+    "tag": "user_assumption.sghp_operating_cop",
     "information_type": "assumption",
     "variable_path": "sghp.cop_model.parameters.cop",
-    "value": 5.288199521202138,
+    "value": 4,
     "unit": "dimensionless",
-    "trust_rank": 2
+    "trust_rank": 8
   },
   {
     "id": "guess_flash_liquid_mixture_liquid_flow",

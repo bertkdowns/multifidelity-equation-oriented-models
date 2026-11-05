@@ -413,3 +413,20 @@ fraction 0.336265. The equations are satisfied, but this is not a validated
 real-plant operating point. A liquid-only warm loop would require further
 operating-specification choices; no extra phase or temperature constraint has
 been silently imposed here.
+
+## Current COP 4 trial
+
+The active operating attempt now uses the user's estimated SGHP COP of 4 via
+`attempt_sghp_operating_cop`, replacing the earlier calibrated-COP assumption.
+All other fixed operating values are unchanged. The full plant still solves at
+rank 957/957 and steam export 55.99 kg/h. Source circulation remains 8.06372 kg/s.
+SGHP electrical power increases to 18.23406 kW because PHNIX supplies a fixed
+source-loop duty: `P = Q_source / (COP - 1)`.
+
+This trial finds an unsuitable warm-loop operating state: the cooling exchanger
+hot inlet is 124.84802 degrees C and entirely vapor. SGHP warm-water duty is
+73.60663 kW, whereas total heating duty is 72.93624 kW; the unconstrained
+aggregate hot-side duty is therefore -0.67039 kW. COP 4 alone does not select the
+intended heating operation. Fixing measured SGHP electrical power as well, while
+releasing PHNIX power, is a possible next operating-specification choice. Those
+additional changes have not been applied in this trial.

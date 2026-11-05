@@ -8,9 +8,9 @@
     "expected_rank": 957,
     "nullity": 0,
     "relative_rank_tolerance": 1e-10,
-    "absolute_rank_threshold": 2.472201085426521e-10,
-    "largest_singular_value": 2.4722010854265206,
-    "smallest_singular_value": 7.741086298625815e-06,
+    "absolute_rank_threshold": 2.4572024771468105e-10,
+    "largest_singular_value": 2.45720247714681,
+    "smallest_singular_value": 6.578701740919664e-05,
     "zero_rows": [],
     "candidates": []
   },
@@ -35,91 +35,91 @@
     },
     "flash_tank.parameters.liquid_to_liquid": {
       "0.0": {
-        "value": 0.9998072569009036,
+        "value": 0.999807256900855,
         "unit": "dimensionless",
         "fixed": false
       }
     },
     "flash_tank.parameters.vapor_to_liquid": {
       "0.0": {
-        "value": 0.3460879081439915,
+        "value": 0.34608790815521545,
         "unit": "dimensionless",
         "fixed": false
       }
     },
     "steam_outlet.flow": {
       "0.0": {
-        "value": 0.015552777778573057,
+        "value": 0.015552777777777771,
         "unit": "kg/s",
         "fixed": false
       }
     },
     "sghp.source_inlet.flow": {
       "0.0": {
-        "value": 8.063717875184173,
+        "value": 8.063717875184484,
         "unit": "kg/s",
         "fixed": false
       }
     },
     "source_mass_recycle.inlet.flow": {
       "0.0": {
-        "value": 8.06371787518419,
+        "value": 8.063717875184484,
         "unit": "kg/s",
         "fixed": false
       }
     },
     "source_mass_recycle.outlet.flow": {
       "0.0": {
-        "value": 8.063717875184173,
+        "value": 8.063717875184484,
         "unit": "kg/s",
         "fixed": false
       }
     },
     "source_mass_recycle.flow_definition.flow": {
       "0.0": {
-        "value": 8.063717875184173,
+        "value": 8.063717875184484,
         "unit": "kg/s",
         "fixed": false
       }
     },
     "sghp.performance.cop": {
       "0.0": {
-        "value": 5.288199521202138,
+        "value": 4.0,
         "unit": "dimensionless",
         "fixed": false
       }
     },
     "sghp.performance.electrical_power": {
       "0.0": {
-        "value": 12756.445074469502,
+        "value": 18234.06055355583,
         "unit": "W",
         "fixed": false
       }
     },
     "sghp.hot_inlet_state.properties.temperature": {
       "0.0": {
-        "value": 401.72983726878533,
+        "value": 408.19056261733823,
         "unit": "K",
         "fixed": false
       }
     },
     "sghp.performance.warm_water_duty": {
       "0.0": {
-        "value": 45248.459834757414,
+        "value": 73606.628050309,
         "unit": "W",
         "fixed": false
       }
     },
     "cooling_exchanger.hot_inlet_state.properties.temperature": {
       "0.0": {
-        "value": 393.38252035842027,
+        "value": 397.9980196486713,
         "unit": "K",
         "fixed": false
       }
     },
     "cooling_exchanger.hot_inlet_state.properties.vapor_fraction": {
       "0.0": {
-        "value": 0.3362653164867247,
+        "value": 1.0,
         "unit": "dimensionless",
         "fixed": false
       }
@@ -127,126 +127,126 @@
   },
   "largest_raw_residuals": [
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
-      "violation": 2.3235101252794266e-05,
-      "unit": "J/kg",
-      "scaled_violation": 2.3235101252794267e-10
-    },
-    {
       "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
-      "violation": 1.6824807971715927e-05,
+      "violation": 6.764242425560951e-05,
       "unit": "J/kg",
-      "scaled_violation": 1.6824807971715928e-10
+      "scaled_violation": 6.764242425560952e-10
     },
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
-      "violation": 3.5921111702919006e-06,
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 3.758841194212437e-05,
       "unit": "J/kg",
-      "scaled_violation": 3.5921111702919006e-11
+      "scaled_violation": 1.900019496805235e-10
     },
     {
-      "name": "fs.root.relationship.models.flash_tank.relationship.models.vapor_mixture.relationship.slices[0.0].provider.enthalpy_equation",
-      "violation": 9.359791874885559e-08,
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 1.9385945051908493e-05,
       "unit": "J/kg",
-      "scaled_violation": 6.679055240609265e-16
+      "scaled_violation": 1.9385945051908494e-10
     },
     {
-      "name": "fs.root.relationship.models.flash_tank.relationship.models.liquid_mixture.relationship.slices[0.0].provider.enthalpy_equation",
-      "violation": 5.029141902923584e-08,
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 3.659806679934263e-08,
       "unit": "J/kg",
-      "scaled_violation": 1.8803772394167442e-14
+      "scaled_violation": 3.6598066799342636e-13
     },
     {
-      "name": "fs.root.relationship.models.hot_water_pump.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
-      "violation": 3.3527612686157227e-08,
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.2631062418222427e-08,
       "unit": "J/kg",
-      "scaled_violation": 3.352761268615723e-13
+      "scaled_violation": 1.2631062418222425e-13
     },
     {
-      "name": "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
-      "violation": 1.3766111806035042e-08,
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.229636836796999e-08,
       "unit": "J/kg",
-      "scaled_violation": 1.3766111806035044e-13
+      "scaled_violation": 1.2296368367969989e-13
     },
     {
-      "name": "fs.root.relationship.models.source_pump.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
-      "violation": 1.1874362826347351e-08,
+      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.229636836796999e-08,
       "unit": "J/kg",
-      "scaled_violation": 1.1874362826347352e-13
+      "scaled_violation": 1.2296368367969989e-13
     },
     {
-      "name": "fs.root.relationship.models.cooling_water_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
-      "violation": 1.1263182386755943e-08,
+      "name": "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 8.789356797933578e-09,
       "unit": "J/kg",
-      "scaled_violation": 1.1263182386755944e-13
+      "scaled_violation": 8.789356797933579e-14
     },
     {
-      "name": "fs.root.relationship.models.phnix.relationship.constraints.sink_heat_balance[0.0]",
-      "violation": 1.0710209608078003e-08,
-      "unit": "J/s",
-      "scaled_violation": 1.3281974610047184e-14
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 5.587935447692871e-09,
+      "unit": "J/kg",
+      "scaled_violation": 5.587935447692872e-14
+    },
+    {
+      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 5.587935447692871e-09,
+      "unit": "J/kg",
+      "scaled_violation": 5.587935447692872e-14
     }
   ],
   "largest_scaled_residuals": [
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
-      "violation": 2.3235101252794266e-05,
-      "unit": "J/kg",
-      "scaled_violation": 2.3235101252794267e-10
-    },
-    {
       "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
-      "violation": 1.6824807971715927e-05,
+      "violation": 6.764242425560951e-05,
       "unit": "J/kg",
-      "scaled_violation": 1.6824807971715928e-10
+      "scaled_violation": 6.764242425560952e-10
     },
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
-      "violation": 3.5921111702919006e-06,
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 1.9385945051908493e-05,
       "unit": "J/kg",
-      "scaled_violation": 3.5921111702919006e-11
+      "scaled_violation": 1.9385945051908494e-10
     },
     {
-      "name": "fs.root.relationship.models.hot_water_pump.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
-      "violation": 3.3527612686157227e-08,
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 3.758841194212437e-05,
       "unit": "J/kg",
-      "scaled_violation": 3.352761268615723e-13
+      "scaled_violation": 1.900019496805235e-10
     },
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity_equation",
-      "violation": 3.119566827081144e-10,
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.viscosity_equation",
+      "violation": 1.4345702360404888e-14,
+      "unit": "Pa*s",
+      "scaled_violation": 1.4345702360404888e-11
+    },
+    {
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 3.659806679934263e-08,
+      "unit": "J/kg",
+      "scaled_violation": 3.6598066799342636e-13
+    },
+    {
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity_equation",
+      "violation": 2.964952727779746e-10,
       "unit": "J/K/kg",
-      "scaled_violation": 3.119566827081144e-13
+      "scaled_violation": 2.964952727779746e-13
     },
     {
-      "name": "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity_equation",
-      "violation": 2.15550244320184e-10,
+      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity_equation",
+      "violation": 2.964952727779746e-10,
       "unit": "J/K/kg",
-      "scaled_violation": 2.15550244320184e-13
+      "scaled_violation": 2.964952727779746e-13
     },
     {
-      "name": "fs.root.relationship.models.source_pump.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity_equation",
-      "violation": 1.4551915228366852e-10,
-      "unit": "J/K/kg",
-      "scaled_violation": 1.4551915228366852e-13
-    },
-    {
-      "name": "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
-      "violation": 1.3766111806035042e-08,
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.2631062418222427e-08,
       "unit": "J/kg",
-      "scaled_violation": 1.3766111806035044e-13
+      "scaled_violation": 1.2631062418222425e-13
     },
     {
-      "name": "fs.root.relationship.models.makeup_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity_equation",
-      "violation": 1.227817847393453e-10,
-      "unit": "J/K/kg",
-      "scaled_violation": 1.2278178473934532e-13
-    },
-    {
-      "name": "fs.root.relationship.models.source_pump.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
-      "violation": 1.1874362826347351e-08,
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.229636836796999e-08,
       "unit": "J/kg",
-      "scaled_violation": 1.1874362826347352e-13
+      "scaled_violation": 1.2296368367969989e-13
+    },
+    {
+      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.229636836796999e-08,
+      "unit": "J/kg",
+      "scaled_violation": 1.2296368367969989e-13
     }
   ]
 }

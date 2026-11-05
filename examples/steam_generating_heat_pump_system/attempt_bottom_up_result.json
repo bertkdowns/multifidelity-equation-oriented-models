@@ -8143,8 +8143,8 @@
       "invalid_result_values": [],
       "callbacks": [],
       "solver_termination": "optimal",
-      "max_constraint_violation": 2.3235101252794266e-05,
-      "max_scaled_constraint_violation": 2.3235101252794267e-10,
+      "max_constraint_violation": 6.764242425560951e-05,
+      "max_scaled_constraint_violation": 6.764242425560952e-10,
       "numerical_selections": [
         {
           "rows": 957,
@@ -8153,9 +8153,9 @@
           "expected_rank": 957,
           "nullity": 0,
           "relative_rank_tolerance": 1e-10,
-          "absolute_rank_threshold": 2.6729265220911107e-10,
-          "largest_singular_value": 2.6729265220911107,
-          "smallest_singular_value": 4.901626304367495e-05,
+          "absolute_rank_threshold": 2.6729267195672207e-10,
+          "largest_singular_value": 2.6729267195672204,
+          "smallest_singular_value": 5.082154595227364e-05,
           "zero_rows": [],
           "candidates": []
         }
@@ -8209,28 +8209,28 @@
     "fs.root.relationship.models.cooling_water_state.relationship.models.fluid.relationship.slices[0.0]"
   ],
   "fallback_variable_scales": [],
-  "full_model_max_scaled_violation": 2.3235101252794267e-10,
+  "full_model_max_scaled_violation": 6.764242425560952e-10,
   "initialized_water_states": {
     "sghp.source_inlet_state": {
-      "state.flow": 8.063717875184173,
-      "state.pressure": 200000.00000000003,
-      "state.enthalpy": 322523.1319423952,
+      "state.flow": 8.063717875184484,
+      "state.pressure": 199999.99999999997,
+      "state.enthalpy": 322523.1319423966,
       "properties.temperature": 350.15000000040436,
-      "properties.density": 973.6848591832859
+      "properties.density": 973.6848591832861
     },
     "sghp.hot_inlet_state": {
       "state.flow": 0.830463850734013,
-      "state.pressure": 400000.00000000006,
-      "state.enthalpy": 540380.3574875974,
-      "properties.temperature": 401.72983726878533,
-      "properties.density": 936.1161154773276
+      "state.pressure": 399999.99999999994,
+      "state.enthalpy": 567931.8911447325,
+      "properties.temperature": 408.19056261733823,
+      "properties.density": 930.557060614551
     },
     "sghp.warm_inlet_state": {
-      "state.flow": 0.04543724877235561,
-      "state.pressure": 200000.00000000003,
-      "state.enthalpy": 249156.14694139038,
+      "state.flow": 0.02983648755168939,
+      "state.pressure": 199999.99999999997,
+      "state.enthalpy": 249156.14694139163,
       "properties.temperature": 332.63462987445513,
-      "properties.density": 983.5056239998007
+      "properties.density": 983.5056239998021
     }
   },
   "initialized_water_states_units": {
