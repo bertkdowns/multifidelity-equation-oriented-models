@@ -57,3 +57,11 @@ export function sameImplementation(a,b) {
 export const indexResults = document => new Map((document?.variables ?? []).map(v=>[v.variable_path,v]));
 export const resultNumber = entry => entry.value === null ? `Unavailable (${entry.issue})` : Number(entry.value.toPrecision(8)).toString();
 export const resultPreview = variable => variable.entries.length === 1 ? resultNumber(variable.entries[0]) : `${variable.entries.length} indexed values`;
+// Preserve existing order within fixed, mixed, and free groups.
+export function fixedFirst(items) {
+  const rank = item => {
+    const entries = item.entries ?? [item];
+    return entries.every(entry => entry.fixed) ? 0 : entries.some(entry => entry.fixed) ? 1 : 2;
+  };
+  return [...items].sort((a, b) => rank(a) - rank(b));
+}

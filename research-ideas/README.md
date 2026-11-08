@@ -41,10 +41,11 @@ specification-replacement studies.
 
 The [canonical-variable replacement investigation](canonical-variable-replacement.md)
 examines `pyomo-replace`, treats unsupplied inputs as a candidate default
-specification basis, and proposes checked exchanges for measured quantities.
-It distinguishes declaration coverage, structural independence and numerical
-invertibility, and explains the changes needed in specification selection,
-hierarchical initialisation and fidelity comparisons.
+specification interface, and proposes explicit, physically explainable pairs:
+temperature instead of enthalpy, for example. Every fixation must either target
+an unsupplied input or name the input it replaces. The note describes how to
+store and enforce this rule in specification documents, selection and
+hierarchical initialisation; Jacobian studies are secondary future work.
 
 This is an academic research project investigating multi-fidelity process
 models. Its purpose is to explore algorithms and demonstrate research ideas,

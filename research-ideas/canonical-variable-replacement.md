@@ -1,20 +1,38 @@
 # Canonical variables and specification replacement
 
-Research proposal, investigated 6 November 2026. This note connects
-[pyomo-replace](https://github.com/bertkdowns/pyomo-replace) to the current
-[information-directed specification study](information-directed-specification.md)
-and [initialisation proposal](initialisation.md). The recommendations below are
-proposed changes, not implemented features or demonstrated improvements.
+Research proposal, investigated 6 November 2026 and revised 9 November 2026.
+This note connects [pyomo-replace](https://github.com/bertkdowns/pyomo-replace)
+to the current [specification study](information-directed-specification.md) and
+[initialisation proposal](initialisation.md). The implementation below is proposed;
+the existing specification API does not yet enforce it.
 
-## What replacement means
+## Purpose and core rule
 
-The useful idea is to give each selected implementation an explicit **default
-specification basis**: variables normally fixed to close the model. A replacement
-releases one of those default specifications and fixes another variable instead.
-The physical equations remain unchanged. Replacement does not equate the two
-variables, substitute one symbol for another, or replace an equipment model.
-The two variables can have different physical dimensions: outlet enthalpy can
-replace heater duty because the energy balance relates them.
+The main advantage is a physically understandable explanation of how a model is
+specified: **we fix temperature instead of enthalpy at this point**, or **we fix
+compressor outlet pressure instead of compressor work**. The model records which
+normal input is now calculated, rather than leaving that choice implicit in a
+list of fixed measurements. Numerical conditioning is a separate concern and is
+not the motivation or a prerequisite for this implementation.
+
+The core rule is:
+
+> Whenever a variable is fixed, it must either be an input not defined by a
+> constraint or connection in the selected model, or explicitly name such an
+> input whose specification it replaces.
+
+Call these undefined inputs **canonical inputs**. A replacement occupies one
+canonical input's specification slot: the replacement variable is fixed and the
+canonical input remains free to be calculated. It is not necessary to fix the
+canonical input first, or even have a measurement for it. The pairing describes
+what we choose to specify, not a required sequence of numerical mutations.
+
+Physical equations remain unchanged. In particular, replacement does not alias
+variables, substitute expressions, reverse connections or alter `determines`.
+The replacement and canonical input can have different units. Temperature data
+specifies temperature in its own unit; enthalpy becomes an unknown.
+
+## Relation to pyomo-replace
 
 The source inspected is pyomo-replace commit
 [`026d9d51594fa6d72fcd8fce732dd7569eb98828`](https://github.com/bertkdowns/pyomo-replace/tree/026d9d51594fa6d72fcd8fce732dd7569eb98828).
@@ -50,192 +68,237 @@ restoration of internal/external replacement states. They do not establish
 convergence or mathematical validity for arbitrary replacement pairs. The README's
 TODO to add tests is stale relative to the inspected source.
 
-## Mapping the idea to this repository
+## Discover canonical inputs for the selected model
 
-The user's proposed seed is sensible: input families with no selected defining
-relationship or incoming connection are the **candidate canonical variables**.
-This is close to [`required_inputs()`](../src/multifidelity/model_language/requirements.py),
-which traverses selected occurrences and returns input fields absent from their
-supplied set. It already preserves paths and dimensions without constructing a
-numerical model. But its documented contract is declaration coverage, not
-solvability. Keep that distinction: initially call this a default specification
-*proposal*, validate it against the built equation system, and report missing,
-redundant or unused candidates explicitly.
+Use [`required_inputs()`](../src/multifidelity/model_language/requirements.py)
+as the starting point. It already walks selected occurrences and returns inputs
+that are not supplied by their containing relationship's constraints, connections
+or derivatives. Include equipment parameters and operational inputs, not just
+stream state variables. Canonical status follows the selected implementation and
+scope; it is not a permanent property of a variable declaration.
 
-A canonical is relative to the selected implementation and solve boundary. A
-child's input can be canonical for its isolated initialisation while being
-supplied by another unit in the full flowsheet. A different fidelity may add a
-relationship, remove a dependency, or introduce a parameter and therefore change
-the appropriate basis. Do not make canonical status an immutable property of a
-physical quantity or confuse it with a dynamic state variable.
+For a full flowsheet, a connected child input is not canonical merely because
+its struct says `input`. If `compressor.inlet.enthalpy` is supplied by an upstream
+connection, a temperature measurement at that inlet must name an unsupplied input
+elsewhere in the selected model that it replaces. The explanation should show
+both paths, even if they lie in different units. The connection stays active.
 
-[`builder.py`](../src/multifidelity/model_language/builder.py) builds authored
-equations and separate, unit-converted connection equalities; connections are not
-variable aliases. Its `determines` dependency bookkeeping validates the forward
-model-authoring contract. Keep those directions intact when a solve fixes an
-output and calculates an input: inverse specification should not require rewriting
-`determines`, reversing a connection, or declaring a second definition. Dependency
-reachability can suggest a plausible exchange but does not establish independent
-closure.
+[`_validation.py`](../src/multifidelity/model_language/_validation.py) and the
+selected traversal already provide the declaration-level determination metadata.
+Reuse that metadata rather than infer canonical status from current Pyomo fixity.
+Keep the existing direction and duplicate-definition checks. A dependency path
+can help suggest a replacement, but the user or model author supplies the physical
+choice initially; there is no need to introduce automatic pair discovery first.
 
-The current [`SpecificationDocument`](../src/multifidelity/model_language/specification.py)
-records information-record IDs to fix, plus dynamic initial-value IDs. Application
-validates values, units and bounds before fixing; it rejects already-fixed entries.
-It has no paired release operation. Prefer producing a new final record-ID
-document and applying it once to a clean rebuilt model, with exchange history
-kept as separate audit data, rather than calling `apply_specification()` twice
-on an already specified model. The current
-[`select_specification()`](../src/multifidelity/model_language/selection.py) instead
-starts from free variables and greedily accepts trust-ranked family fixes that
-reduce structural deficiency. These are complementary workflows:
+An input that is unused still appears in this declaration-level list. Report it
+as unused rather than presenting its replacement as a meaningful physical choice.
+The rule makes specification choices explicit; it does not repair missing or
+redundant physical equations, including recycle continuity problems.
 
-1. Use the existing selector to discover a closure when no trusted default basis
-   is available, and as an independent experimental baseline.
-2. Offer a canonical-first plan when a validated default closure exists. Attach
-   evidence to retained canonical specifications, then consider exchanges that
-   admit better information or satisfy the engineering question.
-3. Represent the resulting fixed set as a portable specification document, with
-   an explicit optional exchange trace explaining which default specification
-   was released, which information record replaced it, and why it was accepted.
+## Store the replacement in the specification document
 
-Do not silently fix canonicals on ordinary `build_model()`. That would change the
-current free-model/explicit-specification contract and obstruct the selector's
-trials. Generate and validate the default plan separately; derive its numerical
-fixed state only when applying that plan. Missing information must remain missing:
-registration alone is no justification for fixing an arbitrary default value.
+The replacement relationship must be required, portable specification data. It
+cannot be merely an optional audit trace: otherwise a saved list of fixed
+measurements loses the physical explanation and cannot enforce the rule on reload.
+Keep values and units in the information document; the chosen replacement belongs
+to the specification document because it depends on how we use that information.
 
-## Necessary checks beyond one-for-one bookkeeping
+A small extension to the current record-ID format is a `replacements` mapping
+from selected information-record ID to canonical input path:
 
-Let the active equality system be `F(x) = 0`, with a canonical set `C`. After
-fixing `C`, the remaining Jacobian columns must form a nonsingular square system
-locally. Replacing `c` with `z` proposes `C' = (C - {c}) union {z}`. Equal counts
-preserve a degree-of-freedom count; they do not prove that `C'` determines a
-solution.
+```json
+{
+  "specifications": ["inlet_pressure", "measured_temperature"],
+  "replacements": {
+    "measured_temperature": "state.enthalpy"
+  },
+  "initial_values": []
+}
+```
 
-For example, `x + y = 1` and `2*x + 2*y = 2` have the same counts and incidence
-pattern as two independent equations, but their Jacobian is rank deficient.
-Conversely, a structurally legitimate exchange through `z = x*x` fails local
-invertibility at `x = 0` and has branch ambiguity elsewhere. A real solve can also
-fail because of bounds, phase restrictions or inconsistent information.
+In this illustrative model, the `inlet_pressure` record targets canonical input
+`state.pressure`; `measured_temperature` targets `properties.temperature`. The
+result reads: **specify pressure directly; specify temperature instead of
+enthalpy**. No enthalpy record or enthalpy default value is required.
 
-The inspected pyomo-replace `validate()` uses an IDAES degree-of-freedom count;
-its replacement check rejects unmatched constraints but does not explicitly
-reject unmatched variables, compare indexed-family cardinalities, or evaluate
-numerical rank. Its external-replacement bookkeeping test even uses two isolated
-variables without a linking equation. This is evidence for a useful state-management
-pattern, not proof that its API guarantees valid closure for every input.
+Proposed semantics:
 
-Here, every proposed complete plan or exchange should therefore:
+- A selected record with no replacement entry must target a canonical input.
+- A record targeting any other variable must have an explicit replacement entry.
+  This includes input fields already supplied by constraints or connections.
+- Each replacement key must name a selected record; its value must name a
+  canonical input in the selected implementation and scope.
+- A canonical slot can be used once: either directly or by one replacement.
+  Reject two replacements for it, or a direct fixation together with its replacement.
+  Also reject duplicate fixed targets and self-replacement.
+- A replacement always names the original canonical input. Do not create chains
+  of replacements through other outputs. Changing temperature to another measured
+  quantity updates the occupant of the same canonical slot.
+- Initially exchange whole families with matching index domains and scope. Do not
+  silently exchange a scalar for a trajectory or a full trajectory for an initial
+  slice. More general group exchanges can be added when an example requires them.
 
-1. Resolve stable public paths to concrete entries and validate the active
-   implementation, domain/index coverage and information eligibility. A time
-   trajectory and an initial-time slice are different specification scopes.
-2. On a trial model, release and fix the whole intended sets atomically, including
-   converted replacement values. Check the full resulting free-variable universe,
-   including isolated variables, and reject both under- and overdetermination.
-   Test coupled exchanges jointly; individually permissible pairs can conflict.
-3. Assess the scaled equality Jacobian at a valid operating-point guess. Record
-   rank and conditioning separately from structural acceptance and check
-   numerical solve/feasibility separately again. A local rank check is not a
-   global uniqueness guarantee. When a valid evaluation point is unavailable,
-   report numerical validity as unchecked; structural planning must not invent
-   operating values or claim numerical acceptance.
-4. Preserve values, statuses and original evidence when rejecting or undoing a
-   plan. Store a released canonical's value as a guess, not a still-active
-   measurement constraint. Avoid assuming exchanged variables have compatible
-   units; each record must match the variable it actually specifies.
+An omitted `replacements` mapping defaults to empty. Existing documents selecting
+only canonical inputs remain valid. Existing documents fixing outputs or supplied
+inputs need explicit pair annotations; accepting them without annotations would
+break the proposed rule. A migration report should list those records and request
+an input choice, rather than silently guess a physical explanation.
 
+This changes the earlier proposal: the final fixed set alone is insufficient.
+An optional audit can still record selection decisions and rejected alternatives,
+but the chosen replacement pairs are part of the specification itself.
+
+## Apply and maintain the specification
+
+Extend [`SpecificationDocument` and `apply_specification()`](../src/multifidelity/model_language/specification.py)
+with the mapping above. A small shared helper should resolve the canonical slot
+for each requested fixation and be used by both manual application and automatic
+selection.
+
+1. Resolve the selected implementation, canonical inputs, record paths and pairs.
+   Build a slot table containing canonical input, fixed variable, record ID and
+   whether this is direct specification or replacement.
+2. Validate slot ownership and index scope, then perform the existing value,
+   unit, bounds and record-eligibility checks before changing any variable.
+3. Fix only the chosen targets. A canonical input occupied by a replacement must
+   remain free; its current value may remain as a solver guess. Canonical inputs
+   with no specification remain free and are reported as unspecified.
+4. Retain the slot table on the numerical instance, using stable paths so it can
+   be reconstructed after cloning or rebuilding. Explain each fixed target as
+   either a direct input or an explicit replacement.
+
+Ordinary `build_model()` should continue to build a free model. Discovering a
+canonical input does not fix it, and a declared default remains a starting guess.
+Partial specification documents remain useful; the invariant applies to each
+fixation without requiring all slots to be occupied.
+
+For a first implementation, apply the final document once to a clean model,
+retaining the existing rejection of already-fixed targets. If interactive
+replacement is needed later, replace the current occupant atomically: release
+its fixation, fix the new target, and update the slot table together. Restore
+values, fixity and slot ownership on failure. Releasing an occupant leaves its
+canonical slot unspecified; it must not automatically fix a guessed canonical
+value as a new operating specification.
+
+Inspect pre-existing public fixations at entry: they need corresponding direct
+input or replacement provenance. Unknown output fixations should be reported,
+rather than treated as unexplained mandatory context. Public APIs and examples
+should use the managed application path. Raw Pyomo `.fix()` remains technically
+possible, so a fixation audit at initialization/solve entry should detect a bypass
+and identify the missing input or replacement declaration.
+
+## Explain the physical choices accurately
+
+For a pressure/enthalpy state, the natural example is:
+
+| Canonical input | Fixed quantity | Explanation |
+| --- | --- | --- |
+| `state.pressure` | `state.pressure` | Specify pressure directly. |
+| `state.enthalpy` | `properties.temperature` | Specify temperature instead of enthalpy; calculate enthalpy using the property equations. |
+
+For a compressor whose formulation takes work as an undefined input, fixing
+outlet pressure can explicitly replace that work input. The pressure, efficiency
+and energy equations then determine the work required.
+
+The current [`compressor.json`](../src/multifidelity/model_language/models/compressor.json)
+has a different forward contract: `parameters.pressure_rise` is an input and
+`performance.work` is an output. With this definition, the corresponding pair is
+**outlet pressure instead of pressure rise**. Specifying work would itself replace
+an input, such as pressure rise. To support the exact explanation **outlet
+pressure instead of work**, provide a work-input formulation with the appropriate
+`determines` declarations; do not label the current work output a canonical input.
+The physical equations can often stay the same while the authored forward
+contract differs.
+
+These examples show why the pair is model-specific information. A list containing
+only a temperature or pressure record cannot express which input is to be
+calculated, especially when several inputs could be released.
+
+## Update automatic specification selection
+
+The current [`select_specification()`](../src/multifidelity/model_language/selection.py)
+can choose any structurally admissible fixed variable without recording what it
+replaces. Update the proposed main workflow so it returns both chosen record IDs
+and their replacement mappings. Every selected fixation must satisfy the core
+rule, including those chosen automatically.
+
+Start with manually supplied or model-authored candidate pairs. Direct canonical
+records need no annotation. For other records, consider only explicitly nominated
+canonical slots. Trust rank can order records, and the existing DM trials can
+still check structural admissibility, but they cannot supply a physical explanation
+by themselves. When several slots are possible, expose the choice rather than
+use an arbitrary unmatched variable as its explanation.
+
+The existing unrestricted selector can remain an experimental comparison. Its
+output must acquire explicit pairs before it is applied through the proposed
+specification API. High trust does not waive pairing, achieved-setpoint assumptions
+or prediction-target exclusions. A power measurement reserved for evaluation
+must not be used to specify power via a replacement.
+
+The main result should be a readable slot report: **what is fixed, what input it
+replaces, where both quantities belong, and which information record supplies
+the value**. An unoccupied slot reports missing specification; a replacement
+reports a deliberate inverse calculation. These are more useful explanations
+than presenting only unmatched-variable names.
+
+## Initialisation, providers and fidelity changes
+
+The same rule should govern temporary initialisation fixes, with a separate
+lifetime and solve scope. The existing
 [`hierarchical_initialization.py`](../src/multifidelity/model_language/hierarchical_initialization.py)
-already recomputes DM and uses the scaled Jacobian/nullspace input ranking for
-*temporary local boundary closures*, rejecting numerical rank deficiency. Reuse
-that numerical analysis where appropriate; permanent specification exchange is a
-new use of it, not the introduction of Jacobian analysis to the project. Keep
-rank tolerance, scaling and operating point in the experiment record.
+already restricts temporary closures to exposed input candidates. Within an
+isolated child solve, a boundary input can be canonical because the parent's
+connection equation is outside that solve. Record that local scope and release
+the temporary fixation before the parent solve. Any future temporary fixation of
+an output must name the local canonical input it replaces.
 
-## A concrete heat-pump example
+Operating specifications and temporary closures must use coordinated slot
+ownership. In particular, a permanently specified temperature replacing enthalpy
+must prevent an initializer from also fixing that enthalpy in the same active
+problem. Existing DM and numerical checks may remain, but slot provenance is
+what explains the intended calculation. Restoring canonical closure for a staged
+solve must be an explicit temporary suspension of the replacement, followed by
+restoration of the final specification.
 
-Suppose an exposed water state has canonical pressure `p` and specific enthalpy
-`h`; a property relationship computes temperature `T`. With valid pressure
-information and a more useful temperature measurement, replace the `h`
-specification with the `T` record. Retain the property equation, keep pressure
-specified, release enthalpy, and solve for it. If the relationship is written as
-`T = T(p, h)`, local exchange requires nonzero sensitivity to `h` with pressure
-held fixed. Near or within phase-change regions, temperature may be a poor or
-nonunique substitute for enthalpy. Validate the selected property formulation and
-operating domain instead of assuming every state coordinate exchange works.
+Custom providers must preserve this explanation when transferring public fixes
+to native variables. A native counterpart inherits the same specification and
+scope; it does not consume a second canonical slot. Native callbacks must restore
+temporary fixity afterwards. Additional provider-owned fixed numerical inputs
+must be accounted for in its interface or configuration, rather than allowing
+unexplained output fixations to bypass the public rule.
 
-At equipment level, specified compressor outlet pressure can replace a pressure
-rise specification, or measured heat-pump power can replace an operational degree
-of freedom if the coupled equations support that inverse problem. Reserve power
-as a prediction target when evaluating power prediction; its measurement must
-not become an exchange merely because it has high trust. Exchanging a setpoint
-also requires the existing achieved-setpoint assumption.
+After a fidelity change, rediscover canonical inputs and resolve the pairs
+against the new implementation. Retain physically meaningful stable paths where
+possible; report pairs whose target or canonical input no longer exists or has
+become defined. Do not silently repoint a replacement to some other free input.
 
-## How current research approaches should change
+Dynamic initial conditions require a separate explicit scope. The present
+`initial_values` convention can fix state/rate outputs, so it does not automatically
+satisfy the new rule. Before extending enforcement to dynamics, define canonical
+initial-condition slots from the dynamic formulation and pair alternative initial
+quantities with those slots. An initial condition is not a whole-trajectory input.
+The first implementation should cover steady operating specifications and local
+steady initialisation, with this dynamic extension recorded as unresolved rather
+than silently exempting initial fixes.
 
-**Specification research:** add a canonical-first exchange policy beside the
-current free-start greedy policy. Compare them at the same fixed implementation,
-with identical eligible information, target exclusions, initialisation and solver
-settings. A path-based pair is an explanatory choice, not a unique physical
-causal assignment; several canonical releases may admit the same measurement.
-Use trust rank to prioritize information, with structural and numerical checks
-for admissibility. A canonical-first greedy policy can retain weak default
-records that prevent a better joint choice; do not assume local trust-improving
-exchanges find the same or best closure as the from-free selector. Assess joint
-independence before interpreting trust gains.
-The existing proposal's future Jacobian replacement study becomes a concrete
-basis-exchange experiment rather than an informal fix/unfix heuristic.
+## Implementation priority
 
-**Initialisation research:** separate the desired final specification plan from
-local temporary canonical closure. Try canonical closure with retained guesses,
-then internal exchanges, then coupled external exchanges. Use the current
-hierarchical initialiser as the baseline and preserve its structural/numerical
-checks. Record cases where the default basis is itself poor. Do not assume a
-second solve helps or invent an initialization advantage from easier examples.
+1. Expose canonical input discovery and implement the slot table and replacement
+   mapping in specification parsing/application.
+2. Add a fixation audit and a human-readable explanation for direct and replacement
+   specifications. Update examples that currently fix outputs without pairs.
+3. Make selection and local initialisation preserve the same slot ownership,
+   while retaining their existing policies for choosing admissible fixes.
+4. Demonstrate temperature instead of enthalpy and compressor outlet pressure
+   instead of its selected formulation's input, including save/reload of the pairs.
 
-**Fidelity selection:** recompute or revalidate the default and final bases after
-each selected relationship changes. Carry information by stable physical paths;
-retain valid canonical guesses and exchange intent only when the new formulation
-supports them. Report invalidated exchanges and missing information. A change of
-fidelity and a change of specification are separate decisions and must remain
-separately attributable in experiments.
+Tests should concentrate on this contract: accept a direct unsupplied input,
+require a pair for an output or supplied input, reject duplicate slot ownership,
+retain equations, and show the canonical input remains free under replacement.
+Check that invalid documents leave fixity unchanged and that initialization
+restores the final specification after temporary closures.
 
-**Recycle and definition handling:** replacement cannot remove a redundant
-continuity equation or repair a structurally deficient physical formulation.
-The current [mass-recycle definition test](../tests/test_mass_recycle_definition.py)
-explicitly routes flow through a separate definition and leaves standard inlet
-flow unused. First decide which independent equations and variables the physical
-representation needs; then discover/validate a basis including unused variables.
-Do not reinterpret that workaround as ordinary canonical exchange or hide an
-unused variable by excluding it from the incidence graph.
-
-**Dynamics:** defer general automatic exchange across trajectories, initial
-conditions and derivative specifications until a dedicated DAE experiment.
-[`required_initial_values()`](../src/multifidelity/model_language/requirements.py)
-is an authoring convention, not an independence proof. Start the proposed
-exchange experiment in steady state, consistent with the current hierarchical
-initialiser's scope.
-
-## Smallest useful experiment and implementation sequence
-
-First implement a pure default-basis report over a selected implementation, with
-its structural validation against the built model and clear unused-input
-reporting. Next add an explicit paired exchange proposal on a clone and a
-portable trace; preserve existing specification documents and evidence separation.
-Only then compare automatic exchange selection with the current greedy selector.
-Keep the initial prototype small rather than importing pyomo-replace's
-flowsheet-mutation and IDAES-wrapper architecture wholesale.
-
-Use an algebraic heater example to verify retained equations and paired fix/free
-states, an invalid disconnected exchange, a structurally square but numerically
-singular example, and indexed-family mismatch. Then use a heat-pump case with
-fixed fidelity and alternative measured pressure/temperature/power records.
-Report canonical coverage, accepted/rejected exchanges and reasons, structural
-status, scaled rank/conditioning, solver convergence, prediction error on held-out
-records, and elapsed effort. Compare final fixed sets as well as the exchange
-trace: different exchange explanations can describe the same valid closure.
-
-The research question is whether a validated, documented default basis makes
-inverse specification more understandable and improves useful closure or
-initialisation outcomes, while retaining the current measurement-driven
-flexibility. This remains to be measured.
+Jacobian rank/conditioning studies can remain a later diagnostic experiment.
+The existing structural diagnostics and solver outcomes still describe whether
+a particular case works; they do not need to become a new validation framework
+before implementing physically explainable variable replacement.

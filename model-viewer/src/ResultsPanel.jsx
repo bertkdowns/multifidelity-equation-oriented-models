@@ -1,10 +1,10 @@
 import React, {useEffect,useMemo,useState} from 'react';
 import {analyzeImplementation} from './implementation.js';
 import {findVariable} from './information.js';
-import {parseResults,resultNumber,resultPreview,sameImplementation} from './results.js';
+import {parseResults,resultNumber,resultPreview,sameImplementation,fixedFirst} from './results.js';
 
 export function ResultValues({variable}) {
-  return <div className="result-values"><p><code>{variable.variable_path}</code> · {variable.unit}</p><table className="information-table"><thead><tr><th>Coordinates {variable.dimensions.length ? `(${variable.dimensions.join(', ')})` : '(scalar)'}</th><th>Value</th><th>State at export</th></tr></thead><tbody>{variable.entries.map(entry=><tr key={JSON.stringify(entry.index)}><td>{JSON.stringify(entry.index)}</td><td>{resultNumber(entry)}</td><td>{entry.fixed ? 'Fixed' : 'Free'}</td></tr>)}</tbody></table></div>;
+  return <div className="result-values"><p><code>{variable.variable_path}</code> · {variable.unit}</p><table className="information-table"><thead><tr><th>Coordinates {variable.dimensions.length ? `(${variable.dimensions.join(', ')})` : '(scalar)'}</th><th>Value</th><th>State at export</th></tr></thead><tbody>{fixedFirst(variable.entries).map(entry=><tr key={JSON.stringify(entry.index)}><td>{JSON.stringify(entry.index)}</td><td>{resultNumber(entry)}</td><td>{entry.fixed ? 'Fixed' : 'Free'}</td></tr>)}</tbody></table></div>;
 }
 export default function ResultsPanel({root,file,implementation,library,onChange,onClear,onUseImplementation}) {
   const [error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[url,setUrl]=useState('');
@@ -30,7 +30,7 @@ export default function ResultsPanel({root,file,implementation,library,onChange,
     } catch (e) {setError(e.message);} finally {setLoading(false);}
   }
   const query=search.toLowerCase().trim();
-  const rows=(doc?.variables ?? []).filter(v=>`${v.variable_path} ${v.unit}`.toLowerCase().includes(query));
+  const rows=fixedFirst((doc?.variables ?? []).filter(v=>`${v.variable_path} ${v.unit}`.toLowerCase().includes(query)));
   return <section className="results-panel information-panel"><header className="implementation-header"><div><h2>Results{doc ? ` · ${doc.model_id}` : ''}</h2><p>Saved numerical snapshots, separate from information records and specifications.</p></div>{doc && <a className="implementation-download" href={url || undefined} download={`${doc.model_id}_results.json`}>Download results JSON</a>}</header>
     <section className="information-upload" onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();load(e.dataTransfer.files[0]);}}><b>Upload results</b><p>Drop a results JSON file here. Its model ID selects the root model; your information file is kept separately.</p><label className="file-picker">{loading ? 'Loading…' : doc ? 'Replace results file' : 'Choose results file'}<input type="file" accept=".json,application/json" disabled={loading} onChange={e=>{load(e.target.files[0]);e.target.value='';}}/></label>{doc && <><p>{file.name}</p><button onClick={()=>{onClear();setError('');}}>Clear results</button></>}{error && <p className="upload-error" role="alert">{error}</p>}</section>
     {doc ? <><div className={`results-run status-${doc.solve.status}`}><strong>Solve status: {doc.solve.status}</strong><span>{doc.solve.termination_condition ?? 'Termination not recorded'}</span><span>{doc.solve.solver ?? 'Solver not recorded'} · {doc.mode} · time unit: {doc.time_unit}</span><span>Run {doc.run_id} · {doc.created_at}</span>{doc.solve.message && <p>{doc.solve.message}</p>}{!['optimal','feasible'].includes(doc.solve.status) && <p>This snapshot is not a converged solution.</p>}</div>

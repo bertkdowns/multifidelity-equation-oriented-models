@@ -10,14 +10,15 @@ recorded in the [model-language README](../src/multifidelity/model_language/READ
 Terminology follows the [model-language glossary](../src/multifidelity/model_language/terminology.md).
 A specification plan is the content of a specification document, not another type.
 
-The [canonical-variable replacement investigation](canonical-variable-replacement.md)
-adds an alternative experiment: establish a checked default basis from unsupplied
-inputs, then exchange its specifications for more trusted available quantities.
-This is a proposal alongside the implemented DM-from-free selection baseline.
-An unsupplied input list is only a candidate basis, and replacement changes
-fixations rather than variable identity or physical equations. The investigation
-also distinguishes structural exchanges from numerical recovery of a complete
-specification, and records the additional checks required for each.
+The [canonical-variable replacement proposal](canonical-variable-replacement.md)
+adds a physical explanation requirement to the intended specification workflow:
+every fixed variable must be an unsupplied input, or explicitly name the
+unsupplied input it replaces. Chosen pairs belong in the specification document,
+so a saved plan explains, for example, temperature instead of enthalpy. The current
+DM selector does not yet record or enforce these pairs. Its main workflow must
+be extended accordingly; the unrestricted selector remains a comparison baseline.
+Replacement keeps the physical equations intact. Jacobian-based recovery remains
+a separate future study, rather than a prerequisite for this proposal.
 
 ## Two independently testable research problems
 

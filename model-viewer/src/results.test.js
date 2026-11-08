@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {parseResults,indexResults,resultNumber,resultPreview,sameImplementation} from './results.js';
+import {parseResults,indexResults,resultNumber,resultPreview,sameImplementation,fixedFirst} from './results.js';
 const fixture=()=>({schema_version:1,run_id:'run-1',created_at:'2026-11-05T00:00:00Z',model_id:'valve',implementation:{relationship:'isenthalpic',submodels:{}},mode:'steady',time_unit:'s',solve:{status:'optimal',termination_condition:'optimal'},variables:[{variable_path:'inlet.pressure',unit:'Pa',dimensions:['time'],entries:[{index:[0],value:200000,fixed:true,issue:null}]}]});
 
 test('actual Python SGHP export loads with occurrence paths and fixed/free values',()=>{
@@ -37,4 +37,17 @@ test('failed snapshots stay failed and implementation comparison ignores object 
   assert.ok(sameImplementation({relationship:'r',submodels:{a:{relationship:'x'},b:{relationship:'y'}}},{relationship:'r',submodels:{b:{relationship:'y',submodels:{}},a:{relationship:'x'}}}));
   assert.ok(!sameImplementation({relationship:'r'},{relationship:'x'}));
   assert.ok(!sameImplementation({relationship:'r'},{relationship:'r',submodels:{a:{relationship:'x'}}}));
+});
+
+
+test('tables show fixed then mixed then free, preserving order within groups and the saved snapshot', () => {
+  const free={id:'free',entries:[{fixed:false}]};
+  const fixedA={id:'a',entries:[{fixed:true}]};
+  const fixedB={id:'b',entries:[{fixed:true},{fixed:true}]};
+  const mixed={id:'mixed',entries:[{fixed:false},{fixed:true}]};
+  const original=[free,fixedA,mixed,fixedB];
+  assert.deepEqual(fixedFirst(original).map(item=>item.id),['a','b','mixed','free']);
+  assert.deepEqual(original,[free,fixedA,mixed,fixedB]);
+  assert.deepEqual(fixedFirst(mixed.entries).map(entry=>entry.fixed),[true,false]);
+  assert.deepEqual(mixed.entries.map(entry=>entry.fixed),[false,true]);
 });
