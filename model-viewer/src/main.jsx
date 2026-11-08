@@ -31,12 +31,14 @@ function ResultsValue({name,localPath}) {
 const InformationContext = createContext({ index: new Map(), prefix: '', inspect: () => {} });
 function InformationValue({ name, variable, localPath }) {
   const { index, prefix, inspect } = useContext(InformationContext);
+  const results = useContext(ResultsContext);
+  const hasResult = results.index.has([results.prefix, localPath].filter(Boolean).join('.'));
   const path = [prefix, localPath].filter(Boolean).join('.');
   const records = index.get(path) ?? [];
   const record = records[0];
   return <>{record ? <button className="information-value nodrag nopan" title="Information preview — click for sources and alternatives" onClick={event => { event.stopPropagation(); inspect({ title: name, variable: { path, metadata: variable, records } }); }}>
     {informationPreview(record)} <code>{record.unit}</code>{records.length > 1 && <small> +{records.length - 1}</small>}
-  </button> : <code>{variable.unit ?? 'dimensionless'}</code>}<ResultsValue name={name} localPath={localPath}/></>;
+  </button> : !hasResult && <code>{variable.unit ?? 'dimensionless'}</code>}<ResultsValue name={name} localPath={localPath}/></>;
 }
 function InformationUpload({ file, root, onLoad, onClear }) {
   const [error, setError] = useState('');
@@ -234,6 +236,8 @@ function App() {
       <div className="canvas"><SavedLayoutFlow key={`${path}:${relationship}:${view}`} graph={graph} storageKey={layoutKey(current.definition.id, relationship, view)} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
         selectionOnDrag selectionMode={SelectionMode.Partial} panOnDrag={[1, 2]} multiSelectionKeyCode={['Control', 'Meta']}
         onPaneClick={() => setSelection(null)}
+        zoomOnDoubleClick={false}
+        onNodeDoubleClick={(_, node) => { if (view === 'summary' && node.data.child && !node.data.child.unresolved) explore(node.data); }}
         onNodeClick={(event, node) => { if (event.ctrlKey || event.metaKey || event.shiftKey) return; if (view === 'detailed' && node.data.child && !node.data.child.unresolved) explore(node.data); else setSelection(node.data); }}
         onEdgeClick={(_, edge) => setSelection({ title: edge.label, connection: { from: (edge.data.sourcePort ?? edge.sourceHandle)?.replace(/:out$/, ''), to: (edge.data.targetPort ?? edge.targetHandle)?.replace(/:in$/, ''), kind: edge.data.kind } })}>
         <Background color="#d8dee5" gap={22}/><Controls/><MiniMap pannable zoomable nodeColor={node => ({ model: '#608ce6', constraint: '#ac8fd2', input: '#53b5ac', output: '#e4ae62' })[node.data.kind]}/>

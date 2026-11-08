@@ -439,3 +439,152 @@ values, units, coordinates and fixed/free state, the chosen implementation,
 specification IDs and explicit solve status. Upload it in the viewer's
 **Results** tab. The other result JSON files in this folder remain diagnostic
 reports and do not use the upload format.
+
+## Detailed SGHP cycle trial before the refrigerant recycle cut
+
+Run `.venv/bin/python examples/steam_generating_heat_pump_system/attempt_cycle.py`
+to try `cycle_aggregate.json` with the current shared plant specifications.
+The aggregate-only fixed COP is removed; four captured exchanger conductances
+and compressor efficiency 0.75 are fixed instead. COP is a cycle prediction.
+The resulting plant has zero structural degrees of freedom.
+
+The trial did not converge: 53 child stages initialized, then the SGHP stage
+reported numerical rank 926 for 927 equations (935 free variables before its
+eight temporary input fixes). A direct IPOPT attempt bypassing that rank check
+reached 1000 iterations without convergence; its largest retained constraint
+violation was approximately 1.09e7. These values are failed iterates, not an
+operating solution. The closed refrigerant continuity loop is a candidate
+source of exact redundancy and needs investigation before comparison.
+
+`cycle_attempt_specification.json`, `cycle_attempt_result.json`, and
+`cycle_results.json` preserve the trial separately from the successful aggregate
+case. The results snapshot is explicitly marked failed.
+
+## Refrigerant mass recycle cut and retry
+
+The SGHP cycle now routes `ihx.cold_outlet` through
+`refrigerant_mass_recycle` before the compressor inlet. This uses the same
+`mass_recycle_definition` as the source loop: pressure and enthalpy pass through;
+a separate free flow input defines the downstream flow. Remaining component
+balances enforce continuity around the recycle without the duplicate row.
+Both SGHP cycle selections and the nested plant example include the block.
+
+The cut exposes one additional structural degree of freedom. For the saved
+retry, `attempt_cycle.py` freezes the captured compressor pressure rise at
+2011.6863921285753 kPa as an explicit trial operating assumption (reference
+property value 630426); it is not a live measurement.
+`cycle_attempt_information.json` contains this record alongside the shared
+operating information. The resulting complete plant again has zero structural
+degrees of freedom. COP and compressor power remain predictions.
+
+The mass-continuity rank deficiency is removed: the unclosed SGHP Jacobian has
+933 independent rows. However, local initialization still fails after choosing
+temporary boundary fixes: it fixes expansion-valve pressure drop last, although
+that drop is already tied to the specified compressor pressure rise around the
+closed pressure loop. The closed local Jacobian is rank 932 of 933. This is an
+input-closure limitation; it does not establish a redundant equation in the
+complete specified plant. All 54 preceding child stages initialize.
+
+A direct whole-plant IPOPT retry also fails, reaching 1000 iterations with a
+maximum retained constraint violation of approximately 1.09e7. No converged
+cycle operating point or meaningful COP comparison is available. The trial
+report and failed results snapshot are saved separately from the successful
+aggregate case.
+
+## Cycle specification-relaxation diagnosis
+
+`diagnose_cycle_specifications.py` uses the reusable `relax_specifications`
+method with variable scales and equal record weights. Run the successful
+diagnostic with:
+
+```sh
+OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/diagnose_cycle_specifications.py --coherent-guesses
+```
+
+Default guesses and captured-butane guesses alone both reached iteration limits,
+so their slack rankings are explicitly marked unusable. The coherent diagnostic
+uses the successful aggregate `results.json` for shared public starting values,
+captured butane PH states, and direct evaluation of native property definitions.
+These are diagnostic starting values, not a new library initialization procedure
+or additional fixed specifications. Existing aggregate results and operating
+information are unchanged.
+
+The coherent relaxed optimization converges with maximum scaled violation
+3.76e-10 and maximum raw violation 3.76e-5 J/kg. No negative public flows,
+electrical powers or conductances, or efficiencies outside (0,1], were found.
+The dominant change is makeup flow 55.99 -> 70.2251 kg/h, accounting for 99.19%
+of the sum of weighted squared scaled deviations. The predicted SGHP COP is
+4.59859 and power 15.2001 kW. Other adjustments are small (for example, source
+inlet temperature +0.0416 K and liquid-outlet vapor fraction 0.01 -> 0.00975784).
+This ranking depends on the declared variable scales; it does not identify a
+unique erroneous measurement.
+
+Two controlled verification solves follow the relaxed solve:
+
+- Restore every original selected specification except makeup flow: IPOPT
+  converges at **70.3421766 kg/h steam/makeup**, COP **4.5839006**, maximum scaled
+  violation 9.22e-10. Only makeup flow differs from its selected target.
+- Restore makeup flow to **55.99 kg/h** as well: IPOPT reports local infeasibility.
+  Its largest scaled residual is a condenser water-side mass balance of
+  0.003759 kg/s; this is a failed iterate, not a valid steam operating point.
+
+The evidence therefore points to a conflict between the imposed 55.99 kg/h
+makeup/steam rate and the other fixed heat-input/equipment conditions on this
+solution branch. It does not establish global mathematical infeasibility or
+prove that the user-supplied flow is wrong. Changing heat input rather than the
+steam target is another reconciliation option, not tested or applied here.
+
+`cycle_specification_relaxation_coherent_result.json` contains the converged
+ranking and equation residuals; its companion `_results.json` can be uploaded
+in the viewer as a relaxed diagnostic snapshot. `cycle_relaxation_verification.json`
+contains both controlled checks. The fixed operating case remains unchanged.
+
+## Fixed SGHP electrical power instead of makeup flow
+
+The current `attempt_cycle.py` replaces `attempt_makeup_mass_flow` with the
+SGHP electrical-power specification. Makeup flow is free and the 55.99 kg/h
+information record remains a starting guess. The initial power trial used the captured
+12.755835603752978 kW (`reference_sghp_performance_electrical_power`). The working
+default is now 15.20 kW; an explicit `--power-kw` argument overrides it.
+Both PHNIX power and the previously captured compressor pressure rise remain
+fixed. The model has zero structural degrees of freedom.
+
+At 12.7558356 kW, bottom-up initialization fails at the SGHP and a direct solve
+using the converged relaxed snapshot as starting values reports local
+infeasibility. Its largest residual is a source-outlet enthalpy connection of
+323.20 J/kg (scaled 0.003232). The returned values are failed iterates.
+That initial trial was explicitly marked failed.
+
+`check_cycle_power.py` performs a separate control at **15.2000544283 kW**,
+keeping all other selected specifications exact and leaving makeup flow free.
+It converges with maximum scaled violation **6.26e-13**, steam/makeup
+**70.34350427 kg/h**, and COP **4.59881485**. DM analysis finds no unmatched or
+under/overconstrained sets. `cycle_power_control_result.json` and
+`cycle_power_control_results.json` save that control check. The user subsequently selected 15.20 kW for the working demonstration.
+
+The preceding flow-target diagnostic remains reproducible using preserved
+`cycle_flow_target_information.json` and `cycle_flow_target_specification.json`.
+The example-only `saved_state_guesses.py` shares snapshot guesses and native
+property evaluation between these attempts; it changes no model equations or
+fixity and is not a new library initialization algorithm.
+
+## Current working cycle demonstration: 15.20 kW
+
+The user selected fixed SGHP electrical power of **15.20 kW**, replacing the
+fixed 55.99 kg/h makeup flow. `attempt_cycle.py` now defaults to that value,
+represented by the explicit `attempt_sghp_operating_power` assumption in
+`cycle_attempt_information.json` and `cycle_attempt_specification.json`.
+
+The direct solve converges using the previously converged relaxed snapshot as
+a starting guess: **70.3435064 kg/h** steam and makeup, COP **4.59882774**, source
+heat extraction **54.7021817 kW**, hot-water duty **44.3033767 kW**, and warm-water
+duty **25.5988049 kW**. Maximum scaled violation is **6.27e-13**.
+`cycle_results.json` is now an optimal snapshot for this fixed-power case, not
+a relaxed-specification diagnostic. Bottom-up initialization still fails at
+the SGHP, so the example retains its documented saved-state fallback.
+
+At the lower 12.7558356 kW power, the same source duty would require COP
+1 + 54.7021817/12.7558356 = **5.2884044**. The failed solve left a source-side
+enthalpy connection residual, not a zero-steam result. This is evidence of a
+conflict among the retained heat-input, compressor and exchanger conditions on
+the attempted branch; it is not proof of a universal minimum compressor power.

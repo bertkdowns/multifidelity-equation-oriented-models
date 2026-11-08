@@ -214,6 +214,9 @@
               "relationship": "helmholtz"
             }
           }
+        },
+        "refrigerant_mass_recycle": {
+          "relationship": "define"
         }
       }
     },

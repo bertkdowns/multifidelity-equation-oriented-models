@@ -37,6 +37,21 @@ def test_independent_choices_preserve_plant_connections(sghp, phnix):
     assert connection.to == 'sghp.source_inlet'
     assert hasattr(plant.models.sghp.relationship.models, 'compressor') == (sghp == 'cycle')
     assert hasattr(plant.models.phnix.relationship.models, 'compressor') == (phnix == 'cycle')
+    if sghp == 'cycle':
+        cycle = Library().get('steam_generating_heat_pump_unit').relationships['cycle']
+        assert cycle.connections['link_22'].to == 'refrigerant_mass_recycle.inlet'
+        feed = cycle.connections['refrigerant_compressor_feed']
+        assert feed.from_ == 'refrigerant_mass_recycle.outlet'
+        assert feed.to == 'compressor.inlet'
+        recycle = plant.models.sghp.relationship.models.refrigerant_mass_recycle
+        # The cut preserves pressure/enthalpy while a separate free input defines
+        # refrigerant flow; it must not reintroduce the closed continuity row.
+        flow = recycle.relationship.constraints.flow[0]
+        assert {id(v) for v in identify_variables(flow.body)} == {
+            id(recycle.structs.outlet.flow[0]),
+            id(recycle.structs.flow_definition.flow[0]),
+        }
+        assert not recycle.structs.flow_definition.flow[0].fixed
     # Check every plant connection against its actual variable objects, including
     # the three recycles, all three SGHP water circuits, and steam export.
     definition = Library().get('steam_generating_heat_pump_system')

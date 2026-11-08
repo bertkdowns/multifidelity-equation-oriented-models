@@ -10,6 +10,15 @@ recorded in the [model-language README](../src/multifidelity/model_language/READ
 Terminology follows the [model-language glossary](../src/multifidelity/model_language/terminology.md).
 A specification plan is the content of a specification document, not another type.
 
+The [canonical-variable replacement investigation](canonical-variable-replacement.md)
+adds an alternative experiment: establish a checked default basis from unsupplied
+inputs, then exchange its specifications for more trusted available quantities.
+This is a proposal alongside the implemented DM-from-free selection baseline.
+An unsupplied input list is only a candidate basis, and replacement changes
+fixations rather than variable identity or physical equations. The investigation
+also distinguishes structural exchanges from numerical recovery of a complete
+specification, and records the additional checks required for each.
+
 ## Two independently testable research problems
 
 1. **Specification at a fixed implementation:** Given selected relationships,

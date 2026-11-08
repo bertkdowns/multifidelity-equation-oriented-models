@@ -39,6 +39,13 @@ fidelity using a fixed specification policy. It records independent experiment
 outlines, auditable specification documents, and future noisy-data and Jacobian-based
 specification-replacement studies.
 
+The [canonical-variable replacement investigation](canonical-variable-replacement.md)
+examines `pyomo-replace`, treats unsupplied inputs as a candidate default
+specification basis, and proposes checked exchanges for measured quantities.
+It distinguishes declaration coverage, structural independence and numerical
+invertibility, and explains the changes needed in specification selection,
+hierarchical initialisation and fidelity comparisons.
+
 This is an academic research project investigating multi-fidelity process
 models. Its purpose is to explore algorithms and demonstrate research ideas,
 with clear, understandable implementations.

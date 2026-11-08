@@ -518,6 +518,12 @@
               "model": "helmholtz_water_ph"
             }
           }
+        },
+        "refrigerant_mass_recycle": {
+          "model": "mass_recycle_definition",
+          "domain_bindings": {
+            "time": "time"
+          }
         }
       },
       "constraints": {
@@ -593,7 +599,7 @@
         },
         "link_22": {
           "from": "ihx.cold_outlet",
-          "to": "compressor.inlet"
+          "to": "refrigerant_mass_recycle.inlet"
         },
         "link_23": {
           "from": "ihx.hot_outlet",
@@ -634,6 +640,10 @@
         "warm_inlet_state": {
           "from": "warm_inlet",
           "to": "warm_inlet_state.state"
+        },
+        "refrigerant_compressor_feed": {
+          "from": "refrigerant_mass_recycle.outlet",
+          "to": "compressor.inlet"
         }
       }
     }
