@@ -1,0 +1,27 @@
+{
+  "step": {
+    "max_step_mass_error_kg": 9.423017921506016e-15,
+    "max_step_energy_error_J": 9.66247171163559e-09,
+    "inventory_energy_change_J": 2623550.842715878,
+    "integrated_net_energy_J": 2623550.8427158664,
+    "total_energy_error_J": 1.1641532182693481e-08
+  },
+  "refined": {
+    "max_step_mass_error_kg": 2.5819624216438797e-14,
+    "max_step_energy_error_J": 1.4842953532934189e-08,
+    "inventory_energy_change_J": 2623548.0262464583,
+    "integrated_net_energy_J": 2623548.026246438,
+    "total_energy_error_J": 2.0489096641540527e-08
+  },
+  "no_step": {
+    "max_step_mass_error_kg": 9.423017921506016e-15,
+    "max_step_energy_error_J": 1.0040821507573128e-08,
+    "inventory_energy_change_J": -1.4901161193847656e-07,
+    "integrated_net_energy_J": -1.6065314412117004e-07,
+    "total_energy_error_J": 1.1641532182693481e-08
+  },
+  "no_step_max_temperature_drift_K": 2.5011104298755527e-12,
+  "maximum_coincident_temperature_difference_K": 6.884376318794239e-06,
+  "source_temperature_rise_K": 6.416477038219227,
+  "verified": true
+}

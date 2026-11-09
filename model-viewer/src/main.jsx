@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ReactFlow, Handle, Position, Background, Controls, MiniMap, SelectionMode, useUpdateNodeInternals, applyNodeChanges } from '@xyflow/react';
+import { ReactFlow, Panel, Handle, Position, Background, Controls, MiniMap, SelectionMode, useUpdateNodeInternals, applyNodeChanges } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './style.css';
+import { diagramColors, arrowTypes, loadArrowVisibility, saveArrowVisibility, visibleEdges } from './diagram-theme.js';
 import { makeGraph, variableLabel, resolveReference } from './graph.js';
+import { displayedValues, replacementPairs } from './replacement-display.js';
 import { layoutKey, restorePositions, savePositions } from './layout-storage.js';
 import { parseInformation, indexInformation, informationPreview, findVariable } from './information.js';
-import { routeDetailedEdges } from './edge-routing.js';
+import { routeDetailedEdges, summaryPortGeometry } from './edge-routing.js';
 import ImplementationPanel from './ImplementationPanel.jsx';
 import InformationPanel from './InformationPanel.jsx';
 import WorkspaceControls from './WorkspaceControls.jsx';
@@ -18,11 +20,13 @@ import { useStoredDocuments } from './use-stored-documents.js';
 import { loadActiveModel, saveActiveModel } from './document-storage.js';
 import { defaultImplementation, analyzeImplementation } from './implementation.js';
 
+for (const [name, color] of Object.entries(diagramColors)) document.documentElement.style.setProperty(`--diagram-${name}`, color);
+
 const documents = import.meta.glob('../../src/multifidelity/model_language/models/*.json', { eager: true, import: 'default' });
 const library = Object.fromEntries(Object.values(documents).map(model => [model.id, model]));
 const modelIcons = new Set(Object.keys(import.meta.glob('../public/model-icons/*.svg')).map(path => path.split('/').at(-1).replace(/\.svg$/, '')));
 
-const ResultsContext = createContext({index:new Map(),prefix:'',inspect:()=>{},status:'not_solved'});
+const ResultsContext = createContext({index:new Map(),prefix:'',inspect:()=>{},status:'not_solved',specifiedIds:new Set()});
 function ResultsValue({name,localPath}) {
   const {index,prefix,inspect,status}=useContext(ResultsContext);
   const variable=index.get([prefix,localPath].filter(Boolean).join('.'));
@@ -44,13 +48,13 @@ const InformationContext = createContext({ index: new Map(), prefix: '', inspect
 function InformationValue({ name, variable, localPath }) {
   const { index, prefix, inspect } = useContext(InformationContext);
   const results = useContext(ResultsContext);
-  const hasResult = results.index.has([results.prefix, localPath].filter(Boolean).join('.'));
+  const savedResult = results.index.get([results.prefix, localPath].filter(Boolean).join('.'));
   const path = [prefix, localPath].filter(Boolean).join('.');
   const records = index.get(path) ?? [];
-  const record = records[0];
-  return <>{record ? <button className="information-value nodrag nopan" title="Information preview — click for sources and alternatives" onClick={event => { event.stopPropagation(); inspect({ title: name, variable: { path, metadata: variable, records } }); }}>
+  const {record, result} = displayedValues(records, savedResult, results.specifiedIds);
+  return <>{record ? <button className="information-value nodrag nopan" title="Information preview — click for sources and alternatives" onClick={event => { event.stopPropagation(); inspect({ title: name, variable: { path, metadata: variable, records, selectedRecordId: results.specifiedIds?.has(record.id) ? record.id : null } }); }}>
     {informationPreview(record)} <code>{record.unit}</code>{records.length > 1 && <small> +{records.length - 1}</small>}
-  </button> : !hasResult && <code>{variable.unit ?? 'dimensionless'}</code>}<ResultsValue name={name} localPath={localPath}/></>;
+  </button> : !result && <code>{variable.unit ?? 'dimensionless'}</code>}{result && <ResultsValue name={name} localPath={localPath}/>}</>;
 }
 function InformationUpload({ file, root, onLoad, onClear }) {
   const [error, setError] = useState('');
@@ -75,8 +79,8 @@ function InformationUpload({ file, root, onLoad, onClear }) {
 function VariableInformation({ variable }) {
   return <div className="variable-information"><code>{variable.path}</code><p>Model unit: {variable.metadata.unit ?? 'dimensionless'}</p>
     {variable.metadata.dimensions?.length > 0 && <p>Dimensions: {variable.metadata.dimensions.join(', ')}</p>}
-    <p>Records ordered by trust rank then ID. The first record is the display preview.</p>
-    {variable.records.map((record, index) => <details key={record.id} open={index === 0}><summary>{informationPreview(record)} {record.unit} · trust {record.trust_rank}</summary><p>{record.information_type} · {record.tag}</p><p>Standard deviation: {record.standard_deviation == null ? 'unknown' : `${record.standard_deviation} ${record.unit}`}</p><pre>{JSON.stringify(record, null, 2)}</pre></details>)}
+    <p>Records ordered by trust rank then ID. {variable.selectedRecordId ? `The specification selects ${variable.selectedRecordId}.` : 'The first record is the display preview.'}</p>
+    {variable.records.map((record, index) => <details key={record.id} open={variable.selectedRecordId ? record.id === variable.selectedRecordId : index === 0}><summary>{informationPreview(record)} {record.unit} · trust {record.trust_rank}</summary><p>{record.information_type} · {record.tag}</p><p>Standard deviation: {record.standard_deviation == null ? 'unknown' : `${record.standard_deviation} ${record.unit}`}</p><pre>{JSON.stringify(record, null, 2)}</pre></details>)}
   </div>;
 }
 function Port({ id }) {
@@ -93,7 +97,7 @@ function Entity({ id, data, selected }) {
   useEffect(() => {
     const frame = requestAnimationFrame(() => updateNodeInternals(id));
     return () => cancelAnimationFrame(frame);
-  }, [id, structsCollapsed, collapsedRows, data.summary, flipped, rotation, updateNodeInternals]);
+  }, [id, structsCollapsed, collapsedRows, data.summary, data.replacementPorts, data.summaryPorts, flipped, rotation, updateNodeInternals]);
   const hiddenPorts = row => <><Port id={row.name}/>{Object.keys(row.variables).map(name => <Port key={name} id={`${row.name}.${name}`}/>)}</>;
   return <article className={`entity ${data.kind} ${data.summary ? 'summary' : ''} ${selected ? 'selected' : ''}`}>
     {data.summary && data.kind === 'model' && selected && <button className="flip-model nodrag nopan" title="Flip connection sides" aria-label="Flip connection sides" aria-pressed={flipped} onClick={event => { event.stopPropagation(); setFlipped(value => !value); }}>⇄</button>}
@@ -106,21 +110,15 @@ function Entity({ id, data, selected }) {
       </div>
     </header>
     {data.summary && data.summaryPorts.map(port => {
-      const sides = [Position.Right, Position.Bottom, Position.Left, Position.Top];
-      const base = (port.type === 'source') !== (data.kind === 'model' && flipped) ? 0 : 2;
-      const side = sides[(base + (data.kind === 'model' ? rotation : 0)) % 4];
-      const horizontal = side === Position.Top || side === Position.Bottom;
-      // Rotate the attachment coordinate as well as its side. Clockwise rotation
-      // maps (x, y) to (1 - y, x), so quarter/half turns reverse this coordinate.
-      const reverse = data.kind === 'model' && (rotation === 1 || rotation === 2);
-      const offset = reverse ? `${100 - parseFloat(port.top)}%` : port.top;
-      return <Handle key={port.id} id={port.id} type={port.type} position={side} style={horizontal ? { left: offset } : { top: offset }} isConnectable={false}/>;
+      const {side, style} = summaryPortGeometry(port, {kind: data.kind, flipped, rotation});
+      return <Handle key={port.id} id={port.id} type={port.type} position={side} className={port.replacement ? 'replacement-handle' : ''} style={style} isConnectable={false}/>;
     })}
+    {!data.summary && data.replacementPorts?.map((port, index) => <div key={port} className="replacement-port" style={{top: `${100 * (index + 1) / (data.replacementPorts.length + 1)}%`}} title={port.slice('replacement:'.length)}><Port id={port}/></div>)}
     {!data.summary && data.kind === 'model' && data.rows.length > 0 && <div className="struct-list-toggle">
       <button className="nodrag nopan" aria-expanded={!structsCollapsed} onClick={event => { event.stopPropagation(); setStructsCollapsed(!structsCollapsed); }}>{structsCollapsed ? '▸' : '▾'} Structs <span>{data.rows.length}</span></button>
       {structsCollapsed && data.rows.map(row => <React.Fragment key={row.name}>{hiddenPorts(row)}</React.Fragment>)}
     </div>}
-    {data.equation ? !data.summary && <div className="equation"><Port id="equation"/><code>{data.equation.lhs} = {data.equation.rhs}</code><small>Determines {data.equation.determines}</small>{Object.keys(data.equation.for_each ?? {}).length > 0 && <small>For each {Object.entries(data.equation.for_each).map(([index, domain]) => `${index} ∈ ${domain}`).join(', ')}</small>}</div> : !data.summary && !structsCollapsed && data.rows.map(row => <section key={row.name}>
+    {data.equation ? !data.summary && <div className="equation"><Port id="equation"/><code>{data.equation.lhs} = {data.equation.rhs}</code><small>Determines {data.equation.determines}</small>{Object.keys(data.equation.for_each ?? {}).length > 0 && <small>For each {Object.entries(data.equation.for_each).map(([index, domain]) => `${index} ∈ ${domain}`).join(', ')}</small>}</div> : !data.summary && !structsCollapsed && data.rows.map(row => <section key={row.name} data-direction={row.direction}>
       <div className="struct">
         {collapsedRows[row.name] ? hiddenPorts(row) : <Port id={row.name}/>}
         <button className="nodrag nopan" aria-expanded={!collapsedRows[row.name]} onClick={event => { event.stopPropagation(); setCollapsedRows(previous => ({ ...previous, [row.name]: !previous[row.name] })); }}>{collapsedRows[row.name] ? '▸' : '▾'} {row.name} <span>({Object.keys(row.variables).length})</span></button><small>{row.direction}</small>
@@ -130,7 +128,7 @@ function Entity({ id, data, selected }) {
   </article>;
 }
 const nodeTypes = { entity: Entity };
-function SavedLayoutFlow({ graph, storageKey, children, ...props }) {
+function SavedLayoutFlow({ graph, storageKey, arrowVisibility, children, ...props }) {
   const [nodes, setNodes] = useState(() => restorePositions(graph.nodes, storageKey));
   function setOrientation(id, orientation) {
     setNodes(previous => {
@@ -147,7 +145,7 @@ function SavedLayoutFlow({ graph, storageKey, children, ...props }) {
     });
   }
   const edges = useMemo(() => routeDetailedEdges(nodes, graph.edges), [nodes, graph.edges]);
-  return <ReactFlow {...props} nodes={nodes.map(node => ({ ...node, data: { ...node.data, setOrientation } }))} onNodesChange={onNodesChange} edges={edges}>{children}</ReactFlow>;
+  return <ReactFlow {...props} nodes={nodes.map(node => ({ ...node, data: { ...node.data, setOrientation } }))} onNodesChange={onNodesChange} edges={visibleEdges(edges, arrowVisibility)}>{children}</ReactFlow>;
 }
 function App() {
   const [trail, setTrail] = useState(() => {
@@ -157,6 +155,8 @@ function App() {
   const current = trail.at(-1);
   const [choices, setChoices] = useState({});
   const [view, setView] = useState('detailed');
+  const [arrowVisibility, setArrowVisibility] = useState(loadArrowVisibility);
+  useEffect(() => saveArrowVisibility(arrowVisibility), [arrowVisibility]);
   const path = trail.map(item => item.alias).join('/');
   const [mode, setMode] = useState('diagram');
   const [implementations, setImplementations, implementationStorageErrors] = useStoredDocuments('implementation');
@@ -172,7 +172,6 @@ function App() {
     selectedImplementation = selectedImplementation?.submodels?.[trail[index + 1].alias];
   }
   const relationship = choices[path] ?? selectedImplementation?.relationship ?? Object.keys(current.definition.relationships)[0];
-  const graph = useMemo(() => makeGraph(current, relationship, library, view), [current, relationship, view]);
   const [selection, setSelection] = useState(null);
   const [informationFiles, setInformationFiles, informationStorageErrors] = useStoredDocuments('information');
   const informationFile = informationFiles[rootId];
@@ -181,7 +180,17 @@ function App() {
   const timeDomains = useMemo(() => timeDomainsByOccurrence(implementationAnalysis), [implementationAnalysis]);
   const resultIndex=useMemo(()=>indexResults(resultFile?.document),[resultFile]);
   const showResults=resultFile && sameImplementation(implementation,resultFile.document.implementation) && selectedImplementation?.relationship===relationship && !implementationAnalysis.errors.length;
-  const resultsContext={index:showResults ? resultIndex : new Map(),prefix:trail.slice(1).map(item=>item.alias).join('.'),inspect:setSelection,status:resultFile?.document.solve.status,mode:resultFile?.document.mode,timeUnit:resultFile?.document.time_unit,timeDomains};
+  const prefix = trail.slice(1).map(item=>item.alias).join('.');
+  const specifiedIds = useMemo(() => new Set(showResults ? [
+    ...(resultFile.document.specification?.specifications ?? []),
+    ...(resultFile.document.specification?.initial_values ?? []),
+  ] : []), [showResults, resultFile]);
+  const replacements = useMemo(() => replacementPairs(showResults ? resultFile.document.specification : null, informationFile?.records ?? []), [showResults, resultFile, informationFile]);
+  const graph = useMemo(() => {
+    const graph = makeGraph(current, relationship, library, view, replacements.pairs, prefix);
+    return {...graph, warnings: [...graph.warnings, ...replacements.warnings]};
+  }, [current, relationship, view, replacements, prefix]);
+  const resultsContext={index:showResults ? resultIndex : new Map(),prefix,inspect:setSelection,status:resultFile?.document.solve.status,specifiedIds,mode:resultFile?.document.mode,timeUnit:resultFile?.document.time_unit,timeDomains};
   function openWorkspace(workspace, filename) {
     const root = workspace.results.model_id;
     setImplementations(previous => ({ ...previous, [root]: workspace.implementation }));
@@ -226,7 +235,7 @@ function App() {
         {selection.child && !selection.child.unresolved && <button className="explore-button" onClick={() => explore(selection)}>Explore model →</button>}
         {Object.keys(selection.domainBindings ?? {}).length > 0 && <pre>Domain bindings: {JSON.stringify(selection.domainBindings, null, 2)}</pre>}
         {showResults && resultFile.document.mode === 'dynamic' && selection.rows?.length > 0 && <p>Saved dynamic snapshot · {resultFile.document.solve.status} · time in {resultFile.document.time_unit}</p>}
-        {selection.result ? <><p>Saved snapshot · {selection.result.status}</p><ResultValues variable={selection.result.variable} mode={resultFile?.document.mode} timeDimension={timeDimensionForVariable(selection.result.variable, timeDomains)} timeUnit={resultFile?.document.time_unit}/></> : selection.variable ? <VariableInformation variable={selection.variable}/> : selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div className="sidebar-variable" key={name}><div className="sidebar-variable-heading" title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><InformationValue name={name} variable={variable} localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div><VariableTrajectory localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div>)}</section>)}
+        {selection.result ? <><p>Saved snapshot · {selection.result.status}</p><ResultValues variable={selection.result.variable} mode={resultFile?.document.mode} timeDimension={timeDimensionForVariable(selection.result.variable, timeDomains)} timeUnit={resultFile?.document.time_unit}/></> : selection.variable ? <VariableInformation variable={selection.variable}/> : selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" data-direction={row.direction} key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div className="sidebar-variable" key={name}><div className="sidebar-variable-heading" title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><InformationValue name={name} variable={variable} localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div><VariableTrajectory localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div>)}</section>)}
       </div>;
   return <InformationContext.Provider value={informationContext}><ResultsContext.Provider value={resultsContext}><main>
     <aside ref={sidebarRef}><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Model explorer</h1>
@@ -246,7 +255,7 @@ function App() {
       <p className="description">{current.definition.description}</p>
       {Object.keys(current.definition.domains ?? {}).length > 0 && <div className="domain-info"><b>Index domains</b>{Object.entries(current.definition.domains).map(([name, domain]) => <div key={name}>{name} · {domain.kind}{current.domainBindings?.[name] && ` → parent.${current.domainBindings[name]}`}</div>)}<p>Indexed variables and equations are shown as families, without expanding time points or domain members.</p></div>}
       <div className="legend"><span>● Input struct</span><span>● Model</span><span>● Constraint</span><span>● Output struct</span></div>
-      <p>Teal lines connect whole structs. Purple lines show equation references, pointing toward the variable declared by <code>determines</code>.</p>
+      <p>Blue lines connect whole structs. Purple lines show equation references, pointing toward the variable declared by <code>determines</code>. Dotted orange feedback arrows trace saved replacements, from the fixed variable toward the input it replaces.</p>
       <p>Drag on empty space to box-select nodes, then drag a selected node to move the group. Pan with the middle or right mouse button. Ctrl/Cmd-click adds to the selection.</p>
       {graph.warnings.length > 0 && <div className="warnings">{graph.warnings.map(message => <p key={message}>{message}</p>)}</div>}
       </details>
@@ -254,16 +263,17 @@ function App() {
       <footer>Read-only · JSON definitions<br/>{Object.keys(library).length} models in library</footer>
     </aside>
     <div className="workspace"><div className="workspace-tabs" role="group" aria-label="Workspace mode"><button aria-pressed={mode === 'diagram'} onClick={() => setMode('diagram')}>Diagram</button><button aria-pressed={mode === 'implementation'} onClick={() => setMode('implementation')}>Implementation</button><button aria-pressed={mode === 'information'} onClick={() => setMode('information')}>Information</button><button aria-pressed={mode === 'results'} onClick={() => setMode('results')}>Results</button></div><nav aria-label="Model breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
-      {mode === 'results' ? <ResultsPanel key={rootId} root={trail[0]} file={resultFile} implementation={implementation} library={library} onChange={loadResults} onClear={()=>setResultFiles(previous=>({...previous,[rootId]:null}))} onUseImplementation={updateImplementation}/> : mode === 'information' ? <InformationPanel key={rootId} root={trail[0]} file={informationFile} analysis={implementationAnalysis} library={library} onChange={setInformation} uploadControl={<InformationUpload key={rootId} file={informationFile} root={rootId} onLoad={setInformation} onClear={() => setInformation(null)}/>}/> : mode === 'implementation' ? <ImplementationPanel key={rootId} context={trail[0]} document={implementation} analysis={implementationAnalysis} library={library} onChange={updateImplementation} onInspect={inspectImplementation}/> : <>
-      <div className="canvas-title"><div><small>RELATIONSHIP</small><h2>{relationship ?? 'No relationships'}</h2></div><div className="view-toggle" role="group" aria-label="Diagram view">{['summary', 'detailed'].map(mode => <button key={mode} aria-pressed={view === mode} onClick={() => setView(mode)}>{mode === 'summary' ? 'Summary' : 'Detailed'}</button>)}</div><span>{graph.nodes.length} nodes · {graph.edges.length} links</span></div>
-      <div className="canvas"><SavedLayoutFlow key={`${path}:${relationship}:${view}`} graph={graph} storageKey={layoutKey(current.definition.id, relationship, view)} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
+      {mode === 'results' ? <ResultsPanel key={rootId} root={trail[0]} file={resultFile} implementation={implementation} library={library} information={informationFile?.records} onChange={loadResults} onClear={()=>setResultFiles(previous=>({...previous,[rootId]:null}))} onUseImplementation={updateImplementation}/> : mode === 'information' ? <InformationPanel key={rootId} root={trail[0]} file={informationFile} analysis={implementationAnalysis} library={library} onChange={setInformation} uploadControl={<InformationUpload key={rootId} file={informationFile} root={rootId} onLoad={setInformation} onClear={() => setInformation(null)}/>}/> : mode === 'implementation' ? <ImplementationPanel key={rootId} context={trail[0]} document={implementation} analysis={implementationAnalysis} library={library} onChange={updateImplementation} onInspect={inspectImplementation}/> : <>
+      <div className="canvas-title"><div><small>RELATIONSHIP</small><h2>{relationship ?? 'No relationships'}</h2></div><div className="view-toggle" role="group" aria-label="Diagram view">{['summary', 'detailed'].map(mode => <button key={mode} aria-pressed={view === mode} onClick={() => setView(mode)}>{mode === 'summary' ? 'Summary' : 'Detailed'}</button>)}</div><span>{graph.nodes.length} nodes · {visibleEdges(graph.edges, arrowVisibility).filter(edge => !edge.hidden).length} / {graph.edges.length} links</span></div>
+      <div className="canvas"><SavedLayoutFlow key={`${path}:${relationship}:${view}:${JSON.stringify(replacements.pairs)}`} graph={graph} arrowVisibility={arrowVisibility} storageKey={layoutKey(current.definition.id, relationship, view)} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
         selectionOnDrag selectionMode={SelectionMode.Partial} panOnDrag={[1, 2]} multiSelectionKeyCode={['Control', 'Meta']}
         onPaneClick={() => setSelection(null)}
         zoomOnDoubleClick={false}
         onNodeDoubleClick={(_, node) => { if (view === 'summary' && node.data.child && !node.data.child.unresolved) explore(node.data); }}
         onNodeClick={(event, node) => { if (event.ctrlKey || event.metaKey || event.shiftKey) return; if (view === 'detailed' && node.data.child && !node.data.child.unresolved) explore(node.data); else setSelection(node.data); }}
-        onEdgeClick={(_, edge) => setSelection({ title: edge.label, connection: { from: (edge.data.sourcePort ?? edge.sourceHandle)?.replace(/:out$/, ''), to: (edge.data.targetPort ?? edge.targetHandle)?.replace(/:in$/, ''), kind: edge.data.kind } })}>
-        <Background color="#d8dee5" gap={22}/><Controls/><MiniMap pannable zoomable nodeColor={node => ({ model: '#608ce6', constraint: '#ac8fd2', input: '#53b5ac', output: '#e4ae62' })[node.data.kind]}/>
+        onEdgeClick={(_, edge) => setSelection({ title: edge.data.kind === 'replacement' ? 'Variable replacement' : edge.label, connection: edge.data.kind === 'replacement' ? { kind: 'replacement', fixed_variable: edge.data.from, replaced_input: edge.data.to, information_record: edge.data.recordId } : { from: (edge.data.sourcePort ?? edge.sourceHandle)?.replace(/:out$/, ''), to: (edge.data.targetPort ?? edge.targetHandle)?.replace(/:in$/, ''), kind: edge.data.kind } })}>
+        <Panel position="top-right" className="arrow-controls nodrag nopan"><fieldset><legend>Show arrows</legend>{Object.entries(arrowTypes).map(([kind, label]) => <label key={kind}><input type="checkbox" checked={arrowVisibility[kind]} onChange={event => setArrowVisibility(previous => ({...previous, [kind]: event.target.checked}))}/><span className={`arrow-swatch ${kind}`} aria-hidden="true"/>{label}</label>)}</fieldset></Panel>
+        <Background color="#d8dee5" gap={22}/><Controls/><MiniMap pannable zoomable nodeColor={node => diagramColors[node.data.kind]}/>
       </SavedLayoutFlow></div></>}
     </div>
   </main></ResultsContext.Provider></InformationContext.Provider>;

@@ -1,0 +1,206 @@
+{
+  "structure": {
+    "degrees_of_freedom": 0,
+    "unmatched_variables": 0,
+    "unmatched_constraints": 0,
+    "underconstrained": 0,
+    "overconstrained": 0
+  },
+  "termination": "optimal",
+  "nfe": 10,
+  "horizon_s": 600,
+  "step_time_s": 120,
+  "step_fraction": 0.0,
+  "initial_volume_m3_per_loop": 0.1,
+  "initial_inventories": {
+    "source_tank": {
+      "pressure": 200000.00000000003,
+      "enthalpy": 315745.0899284575,
+      "flow": 8.06371787519343,
+      "mass": 97.46605182824109,
+      "energy": 30754427.299479686,
+      "level": 0.1
+    },
+    "warm_tank": {
+      "pressure": 199999.99999999997,
+      "enthalpy": 249156.14694139443,
+      "flow": 0.16111560238296335,
+      "mass": 98.3505623999803,
+      "energy": 24484647.177098274,
+      "level": 0.1
+    },
+    "hot_tank": {
+      "pressure": 400000.00000000006,
+      "enthalpy": 524135.1114810247,
+      "flow": 0.830463850734013,
+      "mass": 93.93153267913146,
+      "energy": 49192814.352360085,
+      "level": 0.1
+    }
+  },
+  "max_scaled_violation": 1.7555430531501772e-12,
+  "largest_physical_residuals": [
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 1.755543053150177e-07,
+      "unit": "J/kg",
+      "scaled_violation": 1.7555430531501772e-12
+    },
+    {
+      "name": "fs.root.relationship.models.hot_tank.relationship.models.contents_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 1.755543053150177e-07,
+      "unit": "J/kg",
+      "scaled_violation": 1.7555430531501772e-12
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[60.0].provider.enthalpy_vapor_equation",
+      "violation": 1.1315569281578064e-07,
+      "unit": "J/kg",
+      "scaled_violation": 1.1315569281578065e-12
+    },
+    {
+      "name": "fs.root.relationship.models.hot_tank.relationship.models.contents_state.relationship.models.fluid.relationship.slices[60.0].provider.enthalpy_vapor_equation",
+      "violation": 1.1315569281578064e-07,
+      "unit": "J/kg",
+      "scaled_violation": 1.1315569281578065e-12
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[120.0].provider.enthalpy_vapor_equation",
+      "violation": 7.264316082000732e-08,
+      "unit": "J/kg",
+      "scaled_violation": 7.264316082000733e-13
+    },
+    {
+      "name": "fs.root.relationship.models.hot_tank.relationship.models.contents_state.relationship.models.fluid.relationship.slices[120.0].provider.enthalpy_vapor_equation",
+      "violation": 7.264316082000732e-08,
+      "unit": "J/kg",
+      "scaled_violation": 7.264316082000733e-13
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[180.0].provider.enthalpy_vapor_equation",
+      "violation": 4.470348358154297e-08,
+      "unit": "J/kg",
+      "scaled_violation": 4.4703483581542975e-13
+    },
+    {
+      "name": "fs.root.relationship.models.hot_tank.relationship.models.contents_state.relationship.models.fluid.relationship.slices[180.0].provider.enthalpy_vapor_equation",
+      "violation": 4.423782229423523e-08,
+      "unit": "J/kg",
+      "scaled_violation": 4.4237822294235234e-13
+    },
+    {
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 4.0425220504403114e-08,
+      "unit": "J/kg",
+      "scaled_violation": 4.042522050440312e-13
+    },
+    {
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[60.0].provider.enthalpy_liquid_equation",
+      "violation": 4.0425220504403114e-08,
+      "unit": "J/kg",
+      "scaled_violation": 4.042522050440312e-13
+    }
+  ],
+  "trajectory": [
+    {
+      "time_s": 0.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.63462987445666,
+      "hot_tank.inventory.temperature": 397.9114135439999,
+      "steam_outlet.flow": 0.019539862896113907,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 60.0,
+      "source_tank.inventory.temperature": 348.53367004961177,
+      "warm_tank.inventory.temperature": 332.63462987445666,
+      "hot_tank.inventory.temperature": 397.9114135440001,
+      "steam_outlet.flow": 0.019539862896113928,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 120.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.6346298744566,
+      "hot_tank.inventory.temperature": 397.911413544001,
+      "steam_outlet.flow": 0.019539862896113893,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 180.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.6346298744558,
+      "hot_tank.inventory.temperature": 397.9114135440005,
+      "steam_outlet.flow": 0.019539862896113907,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 240.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.6346298744548,
+      "hot_tank.inventory.temperature": 397.9114135439995,
+      "steam_outlet.flow": 0.019539862896113907,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 300.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.6346298744563,
+      "hot_tank.inventory.temperature": 397.91141354399946,
+      "steam_outlet.flow": 0.019539862896113883,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 360.0,
+      "source_tank.inventory.temperature": 348.5336700496129,
+      "warm_tank.inventory.temperature": 332.6346298744547,
+      "hot_tank.inventory.temperature": 397.9114135439996,
+      "steam_outlet.flow": 0.01953986289611395,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 420.0,
+      "source_tank.inventory.temperature": 348.5336700496129,
+      "warm_tank.inventory.temperature": 332.6346298744546,
+      "hot_tank.inventory.temperature": 397.91141354399963,
+      "steam_outlet.flow": 0.01953986289611385,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 480.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.63462987445416,
+      "hot_tank.inventory.temperature": 397.91141354399923,
+      "steam_outlet.flow": 0.019539862896113907,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 540.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.63462987445456,
+      "hot_tank.inventory.temperature": 397.91141354399974,
+      "steam_outlet.flow": 0.019539862896113914,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 600.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.63462987445456,
+      "hot_tank.inventory.temperature": 397.91141354399997,
+      "steam_outlet.flow": 0.01953986289611388,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    }
+  ],
+  "solved": true
+}

@@ -1,4 +1,6 @@
 import dagre from '@dagrejs/dagre';
+import { diagramColors } from './diagram-theme.js';
+import { summaryPortSide } from './edge-routing.js';
 
 export const variableLabel = (name, variable) => variable.dimensions?.length ? `${name}[${variable.dimensions.join(', ')}]` : name;
 const family = reference => reference.replace(/\[[^\]]*\]/g, '').trim();
@@ -17,7 +19,7 @@ export function resolveReference(reference, bindings, library) {
     .map(([name, argument]) => [name, resolveReference(argument, bindings, library)])) };
 }
 
-export function makeGraph(context, relationshipName, library, view = 'detailed') {
+export function makeGraph(context, relationshipName, library, view = 'detailed', replacements = [], prefix = '') {
   const { definition, bindings = {} } = context;
   const relationship = definition.relationships[relationshipName];
   const nodes = [], edges = [], warnings = [];
@@ -48,7 +50,7 @@ export function makeGraph(context, relationshipName, library, view = 'detailed')
   function link(id, from, to, label, kind) {
     if (!from || !to) { warnings.push(`Cannot resolve ${label}`); return; }
     edges.push({ id, source: from.node, target: to.node, sourceHandle: `${from.handle}:out`, targetHandle: `${to.handle}:in`,
-      label, type: view === 'summary' ? 'smoothstep' : 'default', markerEnd: { type: 'arrowclosed', width: 24, height: 24, color: kind === 'connection' ? '#087f76' : '#8063ae' }, style: { stroke: kind === 'connection' ? '#0f9d92' : '#8b79bc', strokeWidth: 2.2 },
+      label, type: view === 'summary' ? 'smoothstep' : 'default', markerEnd: { type: 'arrowclosed', width: 24, height: 24, color: diagramColors[kind === 'connection' ? 'connection' : 'dependency'] }, style: { stroke: diagramColors[kind === 'connection' ? 'connection' : 'dependency'], strokeWidth: 2.2 },
       data: { kind }, labelStyle: { fontSize: 10 }, labelBgStyle: { fill: '#fff' } });
   }
   const equations = { ...relationship.constraints };
@@ -70,6 +72,40 @@ export function makeGraph(context, relationshipName, library, view = 'detailed')
   }
   for (const [name, connection] of Object.entries(relationship.connections ?? {}))
     link(`connection:${name}`, ports.get(connection.from), ports.get(connection.to), name, 'connection');
+  // Project descendant variables onto their containing visible model. Their
+  // full paths remain on the edge, so drilling down never changes the pair.
+  function replacementPort(path) {
+    if (prefix && !path.startsWith(`${prefix}.`)) return null;
+    const local = prefix ? path.slice(prefix.length + 1) : path;
+    if (ports.has(local)) return ports.get(local);
+    const alias = local.split('.')[0];
+    const node = nodes.find(node => node.id === `model:${alias}`);
+    if (!node || node.data.child?.unresolved || local.split('.').length < 3) return null;
+    const handle = `replacement:${local}`;
+    return { node: node.id, handle };
+  }
+  for (const pair of replacements) {
+    const from = replacementPort(pair.from), to = replacementPort(pair.to);
+    // A cross-boundary pair is visible at its common ancestor, not a made-up
+    // external variable in a child-only diagram.
+    if (!from || !to) continue;
+    for (const endpoint of [from, to]) {
+      if (!endpoint.handle.startsWith('replacement:')) continue;
+      const node = nodes.find(node => node.id === endpoint.node);
+      node.data.replacementPorts ??= [];
+      if (!node.data.replacementPorts.includes(endpoint.handle)) node.data.replacementPorts.push(endpoint.handle);
+    }
+    edges.push({
+      id: `replacement:${pair.recordId}`, source: from.node, target: to.node,
+      sourceHandle: `${from.handle}:out`, targetHandle: `${to.handle}:in`,
+      ariaLabel: `${pair.from} replaces ${pair.to}`, type: 'smoothstep',
+      markerEnd: { type: 'arrow', width: 24, height: 24, color: diagramColors.replacement, strokeWidth: 2 },
+      style: { stroke: diagramColors.replacement, strokeWidth: 2, strokeDasharray: '2 6', strokeLinecap: 'round' },
+      className: 'replacement-edge',
+      data: { kind: 'replacement', ...pair },
+      labelStyle: { fontSize: 10, fill: diagramColors.replacement }, labelBgStyle: { fill: diagramColors.replacementSurface },
+    });
+  }
   if (view === 'summary') {
     for (const node of nodes) {
       node.data.summaryPorts = [];
@@ -89,8 +125,14 @@ export function makeGraph(context, relationshipName, library, view = 'detailed')
           const portId = `summary:${type}:${index}`;
           edge.data[`${type}Port`] = originalHandle;
           edge[handle] = portId;
-          node.data.summaryPorts.push({ id: portId, type, top: `${100 * (index + 1) / (attached.length + 1)}%` });
+          node.data.summaryPorts.push({ id: portId, type, top: `${100 * (index + 1) / (attached.length + 1)}%`, replacement: edge.data.kind === 'replacement', feedback: type === 'target' && edge.data.kind === 'replacement' && edge.source === edge.target });
         });
+      }
+      // Space each face independently: feedback ports must not consume slots
+      // on the process inlet/outlet faces, even when both ends use one unit.
+      for (const side of ['left', 'right', 'top', 'bottom']) {
+        const face = node.data.summaryPorts.filter(port => summaryPortSide(port) === side);
+        face.forEach((port, index) => { port.top = `${100 * (index + 1) / (face.length + 1)}%`; });
       }
     }
   }
@@ -102,7 +144,8 @@ export function makeGraph(context, relationshipName, library, view = 'detailed')
     if (compact) node.data.height = node.data.kind === 'model' ? 170 : 85;
     layout.setNode(node.id, { width: node.data.width, height: node.data.height });
   });
-  edges.forEach(edge => layout.setEdge(edge.source, edge.target, {}, edge.id));
+  // Feedback annotations must not change the underlying process layout.
+  edges.filter(edge => edge.data.kind !== 'replacement').forEach(edge => layout.setEdge(edge.source, edge.target, {}, edge.id));
   dagre.layout(layout);
   nodes.forEach(node => { const pos = layout.node(node.id); node.position = { x: pos.x - node.data.width / 2, y: pos.y - node.data.height / 2 }; });
   if (view === 'summary') {

@@ -137,8 +137,10 @@ status does not establish physical applicability of an operating point.
 If the saved implementation differs from the current choice, the tab offers
 **Use saved implementation**. Diagram previews stay hidden until the selections
 match, and are also hidden when previewing another relationship. Matching diagram
-rows show the saved value and units in blue, independently of information
-previews. Clicking a result opens its coordinate/value/fixity details. Solve
+rows show the saved value and units in blue when no green information value is
+shown. Where both are available, show only the green value, preferring the record
+selected by the saved specification over an unselected alternative. Clicking a
+result opens its coordinate/value/fixity details. Solve
 status is available in the tooltip and Results tab rather than repeated on each
 row. No values are propagated or units converted.
 
@@ -173,6 +175,25 @@ preferences intact. Individual file uploads/downloads remain available in their
 tabs. Python can produce the identical format using `export_workspace` or
 `WorkspaceDocument.from_results`; see the SGHP example's workspace files.
 
+### Replacement feedback arrows
+
+When matching results and information are loaded, saved replacement pairs appear
+as dotted orange arrows with open arrowheads in both diagram views. The arrow runs from the fixed
+variable toward the canonical input it replaces. Descendant variables attach to
+their containing visible model until you drill down; internal pairs form feedback
+loops on that model. In summary view, replacement ports use the top and bottom
+faces, perpendicular to the process inlet/outlet faces; this relationship is
+preserved when a unit is flipped or rotated. Click an arrow to inspect both full paths and the selected
+information-record ID. These annotations do not change the process layout.
+
+The Results table has a **Replaces input** column for fixed variables, using the
+same saved pairs. Direct canonical fixes show **Direct input**; missing metadata
+shows **Not recorded**. Initial conditions remain a separate scope. Load the
+matching information file (or a complete workspace) to resolve specification IDs
+to fixed variable paths. Older snapshots with no saved pairs cannot show arrows
+until replacement metadata is added; the aggregate and cycle example workspaces
+now include that annotation without changing saved numerical values or run IDs.
+
 ### Dynamic trajectories
 
 For a matching dynamic results snapshot (including one opened from a workspace),
@@ -187,3 +208,17 @@ combination. Model domain declarations identify the time axis, including locally
 renamed time domains. No interpolation, solving or unit conversion is performed.
 Expanded variable details in Results include the same chart. The selected-model
 sidebar labels the saved snapshot status; failed snapshots remain failed.
+
+The canvas uses a shared semantic palette: saturated teal for input interfaces,
+neutral slate for models, violet for constraints, and muted blue for outputs.
+In detailed view, input variable rows have teal accents and pale teal backgrounds;
+output rows have muted blue accents and white backgrounds. Struct titles stay neutral. Green value badges identify
+supplied information; muted blue badges identify solved values, independently of
+interface direction. Connections are blue with filled arrowheads, equation
+references are violet with filled arrowheads, and replacements are orange with
+open arrowheads and dotted lines. The legend and minimap share the node palette.
+
+The canvas **Show arrows** controls independently toggle connections, constraint
+dependencies (including `determines` arrows), and replacements. Their settings
+are saved in browser local storage and shared across models and diagram views.
+Hiding arrows preserves node layout, orientations, and port positions.

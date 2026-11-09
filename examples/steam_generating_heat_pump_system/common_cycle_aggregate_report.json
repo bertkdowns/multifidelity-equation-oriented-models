@@ -1,0 +1,143 @@
+{
+  "sghp": "cycle",
+  "phnix": "aggregate",
+  "degrees_of_freedom": 0,
+  "unmatched_variables": 0,
+  "unmatched_constraints": 0,
+  "underconstrained_variables": 0,
+  "overconstrained_constraints": 0,
+  "common_specification_ids": [
+    "attempt_source_tank_adiabatic",
+    "attempt_export_steam_pressure",
+    "attempt_warm_water_pressure",
+    "attempt_warm_makeup_pressure",
+    "config_phnix_sink_inlet_pressure",
+    "config_cooling_exchanger_parameters_conductance",
+    "config_cooling_water_inlet_flow",
+    "config_cooling_water_inlet_pressure",
+    "config_cooling_water_inlet_state_temperature",
+    "attempt_flash_liquid_outlet_quality",
+    "config_flash_tank_inlet_pressure",
+    "attempt_flash_vapor_outlet_quality",
+    "config_hot_water_pump_outlet_pressure",
+    "config_hot_water_pump_parameters_efficiency",
+    "config_makeup_inlet_pressure",
+    "config_makeup_inlet_state_temperature",
+    "config_phnix_cop_model_parameters_cop",
+    "config_phnix_sink_inlet_state_temperature",
+    "config_phnix_source_inlet_flow",
+    "config_phnix_source_inlet_pressure",
+    "config_phnix_source_inlet_state_temperature",
+    "config_sghp_hot_inlet_flow",
+    "config_sghp_source_inlet_state_temperature",
+    "config_sghp_warm_inlet_state_temperature",
+    "config_source_pump_parameters_efficiency",
+    "config_source_pump_parameters_pressure_rise",
+    "config_warm_water_pump_parameters_efficiency",
+    "config_warm_water_pump_parameters_pressure_rise",
+    "config_phnix_power_model_parameters_electrical_power",
+    "common_sghp_power",
+    "common_sghp_warm_duty"
+  ],
+  "equipment_specification_ids": [
+    "config_sghp_condenser_parameters_conductance",
+    "config_sghp_evaporator_parameters_conductance",
+    "config_sghp_subcooler_parameters_conductance",
+    "config_sghp_ihx_parameters_conductance",
+    "config_sghp_compressor_parameters_efficiency"
+  ],
+  "starting_snapshot": "cycle_results.json",
+  "termination": "optimal",
+  "max_scaled_violation": 2.0120816581144922e-11,
+  "largest_physical_residuals": [
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.condenser.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 2.018699888139963e-06,
+      "unit": "J/kg",
+      "scaled_violation": 2.0120816581144922e-11
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.subcooler.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 2.018699888139963e-06,
+      "unit": "J/kg",
+      "scaled_violation": 2.0120816581144922e-11
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.compressor.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.06616789707914e-06,
+      "unit": "J/kg",
+      "scaled_violation": 8.499002943423857e-12
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.condenser.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.06616789707914e-06,
+      "unit": "J/kg",
+      "scaled_violation": 8.499002943423857e-12
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.subcooler.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 5.162437446415424e-07,
+      "unit": "J/kg",
+      "scaled_violation": 5.162437446415425e-12
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.ihx.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 5.162437446415424e-07,
+      "unit": "J/kg",
+      "scaled_violation": 5.162437446415425e-12
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.ihx.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 4.1350722312927246e-07,
+      "unit": "J/kg",
+      "scaled_violation": 4.135072231292725e-12
+    },
+    {
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 3.322202246636152e-08,
+      "unit": "J/kg",
+      "scaled_violation": 3.322202246636152e-13
+    },
+    {
+      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 3.322202246636152e-08,
+      "unit": "J/kg",
+      "scaled_violation": 3.322202246636152e-13
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.subcooler.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 1.909211277961731e-08,
+      "unit": "J/kg",
+      "scaled_violation": 1.9092112779617312e-13
+    }
+  ],
+  "jacobian": {
+    "rows": 1750,
+    "columns": 1750,
+    "numerical_rank": 1750,
+    "expected_rank": 1750,
+    "nullity": 0,
+    "relative_rank_tolerance": 1e-10,
+    "absolute_rank_threshold": 2.6251917668358297e-10,
+    "largest_singular_value": 2.6251917668358296,
+    "smallest_singular_value": 5.363124908115774e-05,
+    "zero_rows": []
+  },
+  "values": {
+    "steam_outlet.flow": 0.019539862896113737,
+    "makeup_state.state.flow": 0.019539862896113702,
+    "sghp.performance.electrical_power": 15200.0,
+    "sghp.performance.cop": 4.598827740833388,
+    "sghp.performance.heating_duty": 69902.1816606675,
+    "sghp.performance.cooling_duty": 54702.18166066753,
+    "sghp.performance.hot_water_duty": 44303.376748036775,
+    "sghp.performance.warm_water_duty": 25598.804912630734,
+    "sghp.source_inlet.flow": 8.063717875189093,
+    "sghp.hot_outlet.enthalpy": 577482.8601023247,
+    "sghp.warm_outlet.enthalpy": 408040.85167520685,
+    "sghp.source_outlet.enthalpy": 315739.3899381036,
+    "cooling_exchanger.hot_inlet_state.properties.vapor_fraction": 0.0,
+    "sghp.compressor.parameters.pressure_rise": 2105694.472580725
+  },
+  "solved": true
+}

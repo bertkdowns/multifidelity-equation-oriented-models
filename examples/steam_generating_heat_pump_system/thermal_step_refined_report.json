@@ -1,0 +1,296 @@
+{
+  "structure": {
+    "degrees_of_freedom": 0,
+    "unmatched_variables": 0,
+    "unmatched_constraints": 0,
+    "underconstrained": 0,
+    "overconstrained": 0
+  },
+  "termination": "optimal",
+  "nfe": 20,
+  "horizon_s": 600,
+  "step_time_s": 120,
+  "step_fraction": 0.1,
+  "initial_volume_m3_per_loop": 0.1,
+  "initial_inventories": {
+    "source_tank": {
+      "pressure": 200000.00000000003,
+      "enthalpy": 315745.0899284575,
+      "flow": 8.06371787519343,
+      "mass": 97.46605182824109,
+      "energy": 30754427.299479686,
+      "level": 0.1
+    },
+    "warm_tank": {
+      "pressure": 199999.99999999997,
+      "enthalpy": 249156.14694139443,
+      "flow": 0.16111560238296335,
+      "mass": 98.3505623999803,
+      "energy": 24484647.177098274,
+      "level": 0.1
+    },
+    "hot_tank": {
+      "pressure": 400000.00000000006,
+      "enthalpy": 524135.1114810247,
+      "flow": 0.830463850734013,
+      "mass": 93.93153267913146,
+      "energy": 49192814.352360085,
+      "level": 0.1
+    }
+  },
+  "max_scaled_violation": 1.7555430531501772e-12,
+  "largest_physical_residuals": [
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 1.755543053150177e-07,
+      "unit": "J/kg",
+      "scaled_violation": 1.7555430531501772e-12
+    },
+    {
+      "name": "fs.root.relationship.models.hot_tank.relationship.models.contents_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 1.755543053150177e-07,
+      "unit": "J/kg",
+      "scaled_violation": 1.7555430531501772e-12
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[30.0].provider.enthalpy_vapor_equation",
+      "violation": 1.387670636177063e-07,
+      "unit": "J/kg",
+      "scaled_violation": 1.3876706361770632e-12
+    },
+    {
+      "name": "fs.root.relationship.models.hot_tank.relationship.models.contents_state.relationship.models.fluid.relationship.slices[30.0].provider.enthalpy_vapor_equation",
+      "violation": 1.387670636177063e-07,
+      "unit": "J/kg",
+      "scaled_violation": 1.3876706361770632e-12
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[60.0].provider.enthalpy_vapor_equation",
+      "violation": 1.0756775736808777e-07,
+      "unit": "J/kg",
+      "scaled_violation": 1.0756775736808777e-12
+    },
+    {
+      "name": "fs.root.relationship.models.hot_tank.relationship.models.contents_state.relationship.models.fluid.relationship.slices[60.0].provider.enthalpy_vapor_equation",
+      "violation": 1.0756775736808777e-07,
+      "unit": "J/kg",
+      "scaled_violation": 1.0756775736808777e-12
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[90.0].provider.enthalpy_vapor_equation",
+      "violation": 8.242204785346985e-08,
+      "unit": "J/kg",
+      "scaled_violation": 8.242204785346985e-13
+    },
+    {
+      "name": "fs.root.relationship.models.hot_tank.relationship.models.contents_state.relationship.models.fluid.relationship.slices[90.0].provider.enthalpy_vapor_equation",
+      "violation": 8.242204785346985e-08,
+      "unit": "J/kg",
+      "scaled_violation": 8.242204785346985e-13
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[120.0].provider.enthalpy_vapor_equation",
+      "violation": 6.51925802230835e-08,
+      "unit": "J/kg",
+      "scaled_violation": 6.519258022308351e-13
+    },
+    {
+      "name": "fs.root.relationship.models.hot_tank.relationship.models.contents_state.relationship.models.fluid.relationship.slices[120.0].provider.enthalpy_vapor_equation",
+      "violation": 6.51925802230835e-08,
+      "unit": "J/kg",
+      "scaled_violation": 6.519258022308351e-13
+    }
+  ],
+  "trajectory": [
+    {
+      "time_s": 0.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.63462987445666,
+      "hot_tank.inventory.temperature": 397.9114135439999,
+      "steam_outlet.flow": 0.019539862896113907,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 30.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.63462987445655,
+      "hot_tank.inventory.temperature": 397.91141354400105,
+      "steam_outlet.flow": 0.019539862896113928,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 60.0,
+      "source_tank.inventory.temperature": 348.53367004961177,
+      "warm_tank.inventory.temperature": 332.6346298744566,
+      "hot_tank.inventory.temperature": 397.911413544,
+      "steam_outlet.flow": 0.01953986289611389,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 90.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.63462987445666,
+      "hot_tank.inventory.temperature": 397.9114135439995,
+      "steam_outlet.flow": 0.019539862896113914,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 120.0,
+      "source_tank.inventory.temperature": 348.53367004961285,
+      "warm_tank.inventory.temperature": 332.63462987445666,
+      "hot_tank.inventory.temperature": 397.9114135440008,
+      "steam_outlet.flow": 0.019539862896113914,
+      "phnix.performance.electrical_power": 27328.109273268703,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 150.0,
+      "source_tank.inventory.temperature": 348.93489755234805,
+      "warm_tank.inventory.temperature": 332.63462987445655,
+      "hot_tank.inventory.temperature": 397.91141354399963,
+      "steam_outlet.flow": 0.01953986289611397,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 180.0,
+      "source_tank.inventory.temperature": 349.33609981809576,
+      "warm_tank.inventory.temperature": 332.6346298744566,
+      "hot_tank.inventory.temperature": 397.91141354399946,
+      "steam_outlet.flow": 0.019539862896113903,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 210.0,
+      "source_tank.inventory.temperature": 349.7372765980827,
+      "warm_tank.inventory.temperature": 332.63462987445564,
+      "hot_tank.inventory.temperature": 397.91141354399974,
+      "steam_outlet.flow": 0.01953986289611395,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 240.0,
+      "source_tank.inventory.temperature": 350.1384276423859,
+      "warm_tank.inventory.temperature": 332.6346298744556,
+      "hot_tank.inventory.temperature": 397.91141354399997,
+      "steam_outlet.flow": 0.019539862896113928,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 270.0,
+      "source_tank.inventory.temperature": 350.5395526999389,
+      "warm_tank.inventory.temperature": 332.6346298744556,
+      "hot_tank.inventory.temperature": 397.91141354399895,
+      "steam_outlet.flow": 0.019539862896113914,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 300.0,
+      "source_tank.inventory.temperature": 350.94065151848247,
+      "warm_tank.inventory.temperature": 332.6346298744564,
+      "hot_tank.inventory.temperature": 397.91141354399997,
+      "steam_outlet.flow": 0.019539862896113907,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 330.0,
+      "source_tank.inventory.temperature": 351.3417238445937,
+      "warm_tank.inventory.temperature": 332.6346298744564,
+      "hot_tank.inventory.temperature": 397.9114135439992,
+      "steam_outlet.flow": 0.019539862896113838,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 360.0,
+      "source_tank.inventory.temperature": 351.7427694236478,
+      "warm_tank.inventory.temperature": 332.6346298744563,
+      "hot_tank.inventory.temperature": 397.9114135439995,
+      "steam_outlet.flow": 0.019539862896113838,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 390.0,
+      "source_tank.inventory.temperature": 352.143787999808,
+      "warm_tank.inventory.temperature": 332.6346298744554,
+      "hot_tank.inventory.temperature": 397.9114135439989,
+      "steam_outlet.flow": 0.01953986289611394,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 420.0,
+      "source_tank.inventory.temperature": 352.54477931602565,
+      "warm_tank.inventory.temperature": 332.6346298744554,
+      "hot_tank.inventory.temperature": 397.91141354399934,
+      "steam_outlet.flow": 0.01953986289611396,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 450.0,
+      "source_tank.inventory.temperature": 352.9457431140145,
+      "warm_tank.inventory.temperature": 332.63462987445445,
+      "hot_tank.inventory.temperature": 397.91141354399963,
+      "steam_outlet.flow": 0.01953986289611387,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 480.0,
+      "source_tank.inventory.temperature": 353.3466791342605,
+      "warm_tank.inventory.temperature": 332.63462987445445,
+      "hot_tank.inventory.temperature": 397.91141354399963,
+      "steam_outlet.flow": 0.019539862896113924,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 510.0,
+      "source_tank.inventory.temperature": 353.74758711598764,
+      "warm_tank.inventory.temperature": 332.634629874454,
+      "hot_tank.inventory.temperature": 397.9114135439992,
+      "steam_outlet.flow": 0.01953986289611394,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 540.0,
+      "source_tank.inventory.temperature": 354.14846679717056,
+      "warm_tank.inventory.temperature": 332.6346298744544,
+      "hot_tank.inventory.temperature": 397.911413544,
+      "steam_outlet.flow": 0.019539862896113872,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 570.0,
+      "source_tank.inventory.temperature": 354.54931791451696,
+      "warm_tank.inventory.temperature": 332.63462987445433,
+      "hot_tank.inventory.temperature": 397.9114135439988,
+      "steam_outlet.flow": 0.019539862896113938,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    },
+    {
+      "time_s": 600.0,
+      "source_tank.inventory.temperature": 354.95014020345576,
+      "warm_tank.inventory.temperature": 332.6346298744559,
+      "hot_tank.inventory.temperature": 397.91141354399804,
+      "steam_outlet.flow": 0.019539862896113896,
+      "phnix.performance.electrical_power": 30060.920200595578,
+      "sghp.performance.cop": 4.598827740833392
+    }
+  ],
+  "solved": true
+}

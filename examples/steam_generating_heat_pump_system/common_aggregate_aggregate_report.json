@@ -1,0 +1,136 @@
+{
+  "sghp": "aggregate",
+  "phnix": "aggregate",
+  "degrees_of_freedom": 0,
+  "unmatched_variables": 0,
+  "unmatched_constraints": 0,
+  "underconstrained_variables": 0,
+  "overconstrained_constraints": 0,
+  "common_specification_ids": [
+    "attempt_source_tank_adiabatic",
+    "attempt_export_steam_pressure",
+    "attempt_warm_water_pressure",
+    "attempt_warm_makeup_pressure",
+    "config_phnix_sink_inlet_pressure",
+    "config_cooling_exchanger_parameters_conductance",
+    "config_cooling_water_inlet_flow",
+    "config_cooling_water_inlet_pressure",
+    "config_cooling_water_inlet_state_temperature",
+    "attempt_flash_liquid_outlet_quality",
+    "config_flash_tank_inlet_pressure",
+    "attempt_flash_vapor_outlet_quality",
+    "config_hot_water_pump_outlet_pressure",
+    "config_hot_water_pump_parameters_efficiency",
+    "config_makeup_inlet_pressure",
+    "config_makeup_inlet_state_temperature",
+    "config_phnix_cop_model_parameters_cop",
+    "config_phnix_sink_inlet_state_temperature",
+    "config_phnix_source_inlet_flow",
+    "config_phnix_source_inlet_pressure",
+    "config_phnix_source_inlet_state_temperature",
+    "config_sghp_hot_inlet_flow",
+    "config_sghp_source_inlet_state_temperature",
+    "config_sghp_warm_inlet_state_temperature",
+    "config_source_pump_parameters_efficiency",
+    "config_source_pump_parameters_pressure_rise",
+    "config_warm_water_pump_parameters_efficiency",
+    "config_warm_water_pump_parameters_pressure_rise",
+    "config_phnix_power_model_parameters_electrical_power",
+    "common_sghp_power",
+    "common_sghp_warm_duty"
+  ],
+  "equipment_specification_ids": [],
+  "starting_snapshot": "cycle_results.json",
+  "termination": "optimal",
+  "max_scaled_violation": 4.754401743412018e-11,
+  "largest_physical_residuals": [
+    {
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 4.754401743412018e-06,
+      "unit": "J/kg",
+      "scaled_violation": 4.754401743412018e-11
+    },
+    {
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 1.6917474567890167e-06,
+      "unit": "J/kg",
+      "scaled_violation": 1.6917474567890168e-11
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 2.92900949716568e-07,
+      "unit": "J/kg",
+      "scaled_violation": 2.92900949716568e-12
+    },
+    {
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "violation": 2.789311110973358e-07,
+      "unit": "J/kg",
+      "scaled_violation": 2.7893111109733584e-12
+    },
+    {
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.6298145055770874e-08,
+      "unit": "J/kg",
+      "scaled_violation": 1.6298145055770876e-13
+    },
+    {
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.4319084584712982e-08,
+      "unit": "J/kg",
+      "scaled_violation": 1.4319084584712982e-13
+    },
+    {
+      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.4319084584712982e-08,
+      "unit": "J/kg",
+      "scaled_violation": 1.4319084584712982e-13
+    },
+    {
+      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.3154931366443634e-08,
+      "unit": "J/kg",
+      "scaled_violation": 1.3154931366443636e-13
+    },
+    {
+      "name": "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 1.2456439435482025e-08,
+      "unit": "J/kg",
+      "scaled_violation": 1.2456439435482025e-13
+    },
+    {
+      "name": "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "violation": 9.371433407068253e-09,
+      "unit": "J/kg",
+      "scaled_violation": 9.371433407068253e-14
+    }
+  ],
+  "jacobian": {
+    "rows": 957,
+    "columns": 957,
+    "numerical_rank": 957,
+    "expected_rank": 957,
+    "nullity": 0,
+    "relative_rank_tolerance": 1e-10,
+    "absolute_rank_threshold": 2.6251672016149456e-10,
+    "largest_singular_value": 2.6251672016149454,
+    "smallest_singular_value": 6.580407099263096e-05,
+    "zero_rows": []
+  },
+  "values": {
+    "steam_outlet.flow": 0.019539862896113924,
+    "makeup_state.state.flow": 0.019539862896113994,
+    "sghp.performance.electrical_power": 15200.0,
+    "sghp.performance.cop": 4.598827740833392,
+    "sghp.performance.heating_duty": 69902.18166066756,
+    "sghp.performance.cooling_duty": 54702.18166066756,
+    "sghp.performance.hot_water_duty": 44303.37674803682,
+    "sghp.performance.warm_water_duty": 25598.804912630734,
+    "sghp.source_inlet.flow": 8.06371787519343,
+    "sghp.hot_outlet.enthalpy": 577482.860102327,
+    "sghp.warm_outlet.enthalpy": 408040.8516752271,
+    "sghp.source_outlet.enthalpy": 315739.3899381005,
+    "cooling_exchanger.hot_inlet_state.properties.vapor_fraction": 0.0
+  },
+  "solved": true
+}

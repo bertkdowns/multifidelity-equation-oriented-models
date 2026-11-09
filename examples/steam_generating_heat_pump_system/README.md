@@ -9,6 +9,16 @@ The current operating reference is
 content revision 13, captured 4 November 2026 NZDT. It replaces the earlier
 flowsheet 2384 reference.
 
+For the current comparison with identical operating specifications, run
+`compare_fidelities.py` and use the `common_*` artifacts described at the end of
+this document. The earlier attempt scripts and reports preserve the sequence of
+operating-specification experiments.
+
+The first dynamic thermal demonstration is also available: run
+`run_thermal_dynamics.py` and open `thermal_step_workspace.json`. It uses three
+initial 100-litre water inventories and a PHNIX power step; see the dynamics
+section below for assumptions and verification.
+
 ## Construct the plant
 
 Run from the repository root:
@@ -621,3 +631,182 @@ cases.
 Workspaces include only choices, information records and a results snapshot. Model
 definitions must already be present in the viewer; layouts and navigation are not
 part of the file. The results snapshot's existing model ID selects the root.
+
+## Aggregate/aggregate comparison at fixed 15.20 kW
+
+Run `OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/compare_aggregate_power.py`.
+This keeps the aggregate PHNIX and all shared operating conditions, releases
+makeup flow, and attempts to fix SGHP power at 15.20 kW. The original operating
+documents and cycle results are not changed.
+
+Unlike the cycle case, the aggregate specification swap is rejected by
+`pair_specification`: no structurally admissible replacement exists. The script
+records that rejection, applies only the admissible partial specification, and
+then manually fixes power solely to diagnose the rejected equation system. These
+are explicitly diagnostic results, not accepted simulation specifications.
+Although simple equation counting gives zero DOF, actual DM analysis finds one
+unmatched variable and one unmatched equation (under/overconstrained parts).
+The scaled Jacobian has rank 956 of 957.
+
+With the existing COP **4**, SGHP source duty is `(4-1)*15.20 = 45.60 kW`.
+The retained PHNIX, source temperatures, adiabatic tank and pump conditions
+require **54.70218 kW**. IPOPT reports local infeasibility. This cannot provide a
+meaningful steam comparison with the cycle case.
+
+Setting aggregate COP to the cycle's **4.5988277408** makes the source and total
+heating duties agree (**54.70218 kW** source, **69.90218 kW** heating). However,
+the same structural deficiency remains: aggregate heat allocation between the
+hot and warm circuits is free. Two different starting guesses reached feasible
+points with steam rates **63.9712** and **56.8878 kg/h**, respectively, despite
+identical selected numerical values. The second also has about 55.35% vapor in
+the warm outlet, so it is not the intended liquid warm-water operating regime.
+Both diagnostic snapshots are labelled `feasible`, not valid optimal simulation
+predictions; the reports have `accepted_specification=false` and `solved=false`.
+This demonstrates why a solver's optimal termination alone is insufficient.
+
+A well-posed fixed-power aggregate comparison needs a heat-allocation condition
+(e.g. warm-water duty or outlet temperature), and should release the aggregate
+COP so the source-loop energy balance determines it under the retained PHNIX
+input. Calibrating both COP and heat allocation from the cycle would check
+energy/water-loop consistency rather than independently validate its performance.
+Choosing that additional operating closure has been left for discussion.
+
+`aggregate_power_comparison.json` contains all three diagnostic attempts,
+with individual information/specification/report/results artifacts under
+`aggregate_power_*`. The saved specification files deliberately contain only
+the admissible partial fixes when the complete pattern is rejected; the extra
+manual power fixation and its rejection are recorded in each report.
+
+## Current common operating specifications for both fidelities
+
+Run from the repository root:
+
+```sh
+OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/compare_fidelities.py
+```
+
+PHNIX remains aggregate in both cases. All shared operating records are
+identical, including SGHP power **15.20 kW**, warm-water duty
+**25.5988049126 kW**, PHNIX power/COP, water inlet temperatures, pressures and
+flows, and flash outlet qualities. The warm duty is an explicit comparison
+assumption frozen from the previous successful cycle case. Makeup/steam flow
+and SGHP COP are free predictions in both cases. Compressor pressure rise is
+also free in the cycle, replacing the previous fixed captured pressure rise
+with the warm-duty condition. Only the detailed cycle additionally uses its
+four captured exchanger conductances and compressor efficiency.
+
+Both specifications pass the normal canonical replacement validation and DM
+checks with no unmatched or under/overconstrained sets. Both are square and
+numerically full rank: **957/957** aggregate and **1750/1750** cycle. Both
+IPOPT solves terminate optimal, with maximum scaled violations **4.75e-11**
+and **2.01e-11**, respectively. No equations are removed and no specifications
+are relaxed. The saved cycle state is used only as a starting guess.
+
+| Quantity | Aggregate SGHP | Cycle SGHP |
+| --- | ---: | ---: |
+| Steam and makeup | 70.3435064 kg/h | 70.3435064 kg/h |
+| SGHP COP | 4.59882774 | 4.59882774 |
+| Total heating | 69.9021817 kW | 69.9021817 kW |
+| Hot-water duty | 44.3033767 kW | 44.3033767 kW |
+| Warm-water duty (specified) | 25.5988049 kW | 25.5988049 kW |
+| Source heat extraction | 54.7021817 kW | 54.7021817 kW |
+| Source circulation | 8.06371788 kg/s | 8.06371788 kg/s |
+
+All reported shared water-side properties agree to numerical tolerance
+(largest absolute reported difference about 2.03e-8 J/kg). Both warm-water
+outlets are liquid. The detailed cycle predicts compressor pressure rise
+**2.10569447 MPa** on this solution branch.
+
+This establishes consistency for a common operating case, rather than
+independent agreement of performance predictions: the source balance and fixed
+electrical power determine aggregate COP, and the specified heat allocation was
+taken from the cycle reference. The detailed cycle still enforces refrigerant
+properties, exchanger laws and compressor physics absent from the aggregate.
+
+`common_operating_information.json` contains the shared information. Each
+`common_aggregate_aggregate_*` / `common_cycle_aggregate_*` group contains its
+accepted specification, report, results snapshot and single-file workspace.
+Load the corresponding `_workspace.json` in the viewer to inspect that case.
+`common_fidelity_comparison.json` records the pairwise differences. Existing
+historical operating files remain available unchanged.
+
+## Aggregate thermal dynamics: PHNIX power step
+
+The user-selected first dynamic demonstration holds both heat-pump COPs and
+electrical powers constant except for the PHNIX input step. It represents
+distributed source-, warm- and hot-water storage as three well-mixed liquid
+inventories, each initially **100 litres**, at prescribed pressures. These
+illustrative inventories are not claims about three additional physical plant
+tanks or measured plant volumes. Flash separation, pumps, heat exchangers and
+heat-pump performance remain algebraic; pressure/flash-vessel dynamics and
+controllers are not included.
+
+```sh
+# 60 s backward-Euler grid, 600 s run, +10% PHNIX power after t=120 s
+OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/run_thermal_dynamics.py
+# Constant-input equilibrium check
+OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/run_thermal_dynamics.py --step-fraction 0 --prefix thermal_no_step
+# 30 s refinement
+OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/run_thermal_dynamics.py --nfe 20 --prefix thermal_step_refined
+# Independently check balances, compare grids, write CSV and figure
+MPLCONFIGDIR=/tmp/multifidelity-matplotlib .venv/bin/python examples/steam_generating_heat_pump_system/verify_thermal_dynamics.py
+```
+
+The separate `steam_generating_heat_pump_system_thermal` definition preserves
+the steady plant example. It replaces the source conditioner with the existing
+PH-stream tank model, inserts warm/hot inventories immediately before the SGHP
+inlets, and removes the source mass-recycle cut: the dynamic tank mass balance
+now closes that loop. All three tanks conserve mass and internal energy using
+Helmholtz water density and `U = m h - P V`. Their initial masses and energies
+come from the converged common aggregate case; only the initial time slice is
+fixed. Area is 1 m², giving an initial level of 0.1 m. Volume/level may change
+with density and mass; 100 litres is the initial water inventory, not a fixed
+volume imposed throughout the transient.
+
+The former source- and warm-loop temperature specifications become initial
+conditions, not temperature controllers. Circulation withdrawals, warm splitter
+fraction and makeup flow are held at their steady values. Tank pressures are
+fixed at source/warm **2 bar absolute**, hot **4 bar absolute**; source and warm
+valve pressure drops retain their steady values. External PHNIX source, makeup
+and cooling-water boundary temperatures retain their original specifications.
+SGHP COP is **4.59882774**, power **15.20 kW**, warm-water duty **25.5988049 kW**;
+PHNIX COP is **2**. Dynamic initial conditions are six mass/energy records; no
+loop temperature is fixed across time.
+
+PHNIX electrical power changes **27.3281 -> 30.0609 kW** at 120 s. With the
+backward-Euler interval convention, the changed input is recorded at the first
+sample strictly after 120 s, representing the interval immediately after the
+step boundary. This avoids accidentally applying the new power over the
+preceding interval.
+
+| Quantity | At 0 s | At 600 s |
+| --- | ---: | ---: |
+| Source inventory temperature | 75.38367°C | 81.80015°C |
+| Warm inventory temperature | 59.48463°C | 59.48463°C |
+| Hot inventory temperature | 124.76141°C | 124.76141°C |
+| Steam | 70.34351 kg/h | 70.34351 kg/h |
+
+The extra PHNIX heat accumulates in the source loop: approximately **2.62355 MJ**
+over the 480 seconds after the step. Fixed SGHP COP and power keep its source
+extraction and heating duties constant, so warm/hot temperatures and steam
+production remain effectively unchanged. This thermal ramp is expected; the
+model has no temperature-dependent performance feedback to establish a new
+source-loop steady state. A detailed cycle or temperature-dependent aggregate
+COP would allow changing source temperature to affect SGHP duty.
+
+All three runs solve with zero DOF, no unmatched or under/overconstrained DM
+sets, and negligible scaled residuals. The no-step temperature drift is below
+**3e-12 K**. Coarse/refined temperatures differ by at most **6.9e-6 K**.
+Independent plant-boundary integrations agree with inventory changes within
+**3e-14 kg** per interval and **3e-8 J** over the run. These checks use makeup/steam
+mass fluxes, PHNIX sink heat, SGHP electrical power, pump power, cooling duty
+and makeup/steam enthalpy fluxes, rather than only rechecking tank equations.
+`tests/test_sghp_thermal_dynamics.py` also verifies initial-only fixity, step
+timing, thermal accumulation and the expected unchanged downstream response.
+
+Open **`thermal_step_workspace.json`** in the viewer for the new model,
+information, selected initial/operating specifications and time-series results.
+`thermal_step.csv` provides a compact trajectory; `thermal_response.png` shows
+the response. `thermal_verification.json` records the no-step, conservation and
+refinement checks. Corresponding `_no_step` and `_refined` artifacts preserve
+the other runs.

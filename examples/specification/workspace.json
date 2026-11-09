@@ -1,0 +1,245 @@
+{
+  "implementation": {
+    "relationship": "isenthalpic",
+    "submodels": {}
+  },
+  "information": [
+    {
+      "id": "inlet_flow",
+      "tag": "FT101",
+      "information_type": "sensor_reading",
+      "variable_path": "inlet.flow",
+      "type": "constant",
+      "value": 2.0,
+      "unit": "kg/s",
+      "standard_deviation": null,
+      "trust_rank": 10
+    },
+    {
+      "id": "pressure_measurement",
+      "tag": "PT101",
+      "information_type": "sensor_reading",
+      "variable_path": "inlet.pressure",
+      "type": "constant",
+      "value": 200.0,
+      "unit": "kPa",
+      "standard_deviation": 0.5,
+      "trust_rank": 10
+    },
+    {
+      "id": "pressure_estimate",
+      "tag": "pressure_fallback",
+      "information_type": "assumption",
+      "variable_path": "inlet.pressure",
+      "type": "constant",
+      "value": 190.0,
+      "unit": "kPa",
+      "standard_deviation": null,
+      "trust_rank": 1
+    },
+    {
+      "id": "inlet_enthalpy",
+      "tag": "feed_enthalpy",
+      "information_type": "parameter",
+      "variable_path": "inlet.enthalpy",
+      "type": "constant",
+      "value": 100.0,
+      "unit": "kJ/kg",
+      "standard_deviation": null,
+      "trust_rank": 8
+    },
+    {
+      "id": "valve_pressure_drop",
+      "tag": "valve_dp",
+      "information_type": "equipment_specification",
+      "variable_path": "parameters.pressure_drop",
+      "type": "constant",
+      "value": 25.0,
+      "unit": "kPa",
+      "standard_deviation": null,
+      "trust_rank": 8
+    },
+    {
+      "id": "outlet_flow_check",
+      "tag": "outlet_flow_check",
+      "information_type": "sensor_reading",
+      "variable_path": "outlet.flow",
+      "type": "constant",
+      "value": 2.1,
+      "unit": "kg/s",
+      "standard_deviation": null,
+      "trust_rank": 6
+    },
+    {
+      "id": "outlet_enthalpy_check",
+      "tag": "outlet_enthalpy_check",
+      "information_type": "sensor_reading",
+      "variable_path": "outlet.enthalpy",
+      "type": "constant",
+      "value": 101.0,
+      "unit": "kJ/kg",
+      "standard_deviation": null,
+      "trust_rank": 6
+    },
+    {
+      "id": "outlet_pressure_check",
+      "tag": "outlet_pressure_check",
+      "information_type": "sensor_reading",
+      "variable_path": "outlet.pressure",
+      "type": "constant",
+      "value": 174.0,
+      "unit": "kPa",
+      "standard_deviation": null,
+      "trust_rank": 6
+    }
+  ],
+  "results": {
+    "schema_version": 1,
+    "run_id": "7bfe3d73-c8c4-4cec-b9f4-dd90e71ff2b6",
+    "created_at": "2026-11-09T03:17:47.242335Z",
+    "model_id": "valve",
+    "implementation": {
+      "relationship": "isenthalpic",
+      "submodels": {}
+    },
+    "mode": "steady",
+    "time_unit": "s",
+    "solve": {
+      "status": "optimal",
+      "termination_condition": "optimal",
+      "solver": "ipopt",
+      "message": null
+    },
+    "specification": {
+      "specifications": [
+        "inlet_flow",
+        "pressure_measurement",
+        "inlet_enthalpy",
+        "valve_pressure_drop"
+      ],
+      "replacements": {},
+      "initial_values": []
+    },
+    "variables": [
+      {
+        "variable_path": "inlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 100000.0,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 2.0,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 200000.0,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "outlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 100000.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "outlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 2.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "outlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 175000.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "parameters.pressure_drop",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 25000.0,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      }
+    ]
+  }
+}
