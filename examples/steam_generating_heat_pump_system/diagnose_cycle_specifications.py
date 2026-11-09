@@ -1,4 +1,5 @@
 """Slack diagnostic for the detailed SGHP plant; failed iterates are not rankings."""
+
 import argparse
 from dataclasses import asdict
 import json
@@ -7,7 +8,7 @@ from idaes.core.solvers import get_solver
 from pyomo.opt import check_optimal_termination
 from multifidelity.model_language import (
     InformationDocument, SpecificationDocument, apply_specification,
-    initialize_model, relax_specifications, get_variable, export_results,
+    initialize_model, relax_specifications, get_variable, export_results, WorkspaceDocument,
     InformationRecord,
 )
 from multifidelity.model_language.scaling import scaled_jacobian, export_scaling
@@ -104,10 +105,12 @@ if __name__ == '__main__':
                          'sghp.compressor.inlet.pressure', 'sghp.compressor.outlet.pressure']}
     report['usable_ranking'] = bool(report['optimal'] and report.get('max_scaled_violation', 1) < 1e-6)
     (HERE / f'{name}_result.json').write_text(json.dumps(report, indent=2) + '\n')
-    export_results(relaxed.model, status='optimal' if report['usable_ranking'] else 'failed',
+    snapshot = export_results(relaxed.model, status='optimal' if report['usable_ranking'] else 'failed',
                    solver='ipopt', termination_condition=report['termination'],
                    message='Specification-relaxation diagnostic: selected specifications are soft.',
-                   specification=specification).write_json(HERE / f'{name}_results.json')
+                   specification=specification)
+    snapshot.write_json(HERE / f'{name}_results.json')
+    WorkspaceDocument.from_results(snapshot, information).write_json(HERE / f'{name}_workspace.json')
     if report['usable_ranking'] and args.coherent_guesses:
         checks = []
         for entry in relaxed.entries:

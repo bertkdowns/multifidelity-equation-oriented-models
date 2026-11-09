@@ -1,4 +1,5 @@
 """Try detailed SGHP / aggregate PHNIX, preserving shared plant specifications."""
+
 import argparse
 import math
 from dataclasses import asdict
@@ -9,7 +10,7 @@ from idaes.core.solvers import get_solver
 from idaes.core.util.model_statistics import degrees_of_freedom
 from multifidelity.model_language import (
     InformationDocument, SpecificationDocument, apply_specification,
-    initialize_model, export_results, pair_specification,
+    initialize_model, export_results, WorkspaceDocument, pair_specification,
 )
 from build import build
 
@@ -96,9 +97,11 @@ if __name__ == '__main__':
                                 and report.get('direct_max_scaled_violation', 1) < 1e-6)
     report['solved'] = bool(solved)
     (HERE / 'cycle_attempt_result.json').write_text(json.dumps(report, indent=2) + '\n')
-    export_results(model, status='optimal' if solved else 'failed',
+    snapshot = export_results(model, status='optimal' if solved else 'failed',
                    solver='ipopt', termination_condition=report.get('direct_solver_termination', result.stages[-1].solver_termination),
                    message=None if solved else result.stages[-1].error, specification=specification,
-                   ).write_json(HERE / 'cycle_results.json')
+                   )
+    snapshot.write_json(HERE / 'cycle_results.json')
+    WorkspaceDocument.from_results(snapshot, information).write_json(HERE / 'cycle_workspace.json')
     print(json.dumps(report, indent=2), flush=True)
     raise SystemExit(0 if solved else 1)

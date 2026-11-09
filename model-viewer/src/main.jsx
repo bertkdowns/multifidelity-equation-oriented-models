@@ -9,6 +9,7 @@ import { parseInformation, indexInformation, informationPreview, findVariable } 
 import { routeDetailedEdges } from './edge-routing.js';
 import ImplementationPanel from './ImplementationPanel.jsx';
 import InformationPanel from './InformationPanel.jsx';
+import WorkspaceControls from './WorkspaceControls.jsx';
 import ResultsPanel, {ResultValues} from './ResultsPanel.jsx';
 import {indexResults, resultPreview, sameImplementation} from './results.js';
 import { useStoredDocuments } from './use-stored-documents.js';
@@ -169,6 +170,14 @@ function App() {
   const resultIndex=useMemo(()=>indexResults(resultFile?.document),[resultFile]);
   const showResults=resultFile && sameImplementation(implementation,resultFile.document.implementation) && selectedImplementation?.relationship===relationship && !implementationAnalysis.errors.length;
   const resultsContext={index:showResults ? resultIndex : new Map(),prefix:trail.slice(1).map(item=>item.alias).join('.'),inspect:setSelection,status:resultFile?.document.solve.status};
+  function openWorkspace(workspace, filename) {
+    const root = workspace.results.model_id;
+    setImplementations(previous => ({ ...previous, [root]: workspace.implementation }));
+    setInformationFiles(previous => ({ ...previous, [root]: { name: `${filename} · information`, records: workspace.information } }));
+    setResultFiles(previous => ({ ...previous, [root]: { name: `${filename} · results`, document: workspace.results } }));
+    setTrail([{ definition: library[root], bindings: {}, alias: root }]);
+    setChoices({}); setSelection(null); setMode('diagram');
+  }
   function loadResults(file) {
     setResultFiles(previous=>({...previous,[file.document.model_id]:file}));
     if (file.document.model_id!==rootId) openRoot(file.document.model_id);
@@ -212,6 +221,7 @@ function App() {
       {focusSelection && selectionDetails}
       <details className={`sidebar-controls ${focusSelection ? 'collapsed-controls' : 'expanded-controls'}`} open={!focusSelection}>
         <summary>Model controls &amp; help</summary>
+      <WorkspaceControls root={rootId} implementation={implementation} information={informationFile?.records} results={resultFile?.document} library={library} onOpen={openWorkspace}/>
       <label>Model library<select value={trail[0].definition.id} onChange={event => openRoot(event.target.value)}>{Object.keys(library).sort().map(id => <option key={id}>{id}</option>)}</select></label>
       <button className="implementation-open" onClick={() => setMode('information')}>Choose information</button>
       {informationFile && <p className="information-file-status">{informationFile.name} · {informationFile.records.length} records</p>}

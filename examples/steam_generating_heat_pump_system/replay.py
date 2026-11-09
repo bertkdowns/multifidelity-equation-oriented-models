@@ -14,7 +14,7 @@ from pyomo.environ import Var, assert_optimal_termination, value
 
 from multifidelity.model_language import (
     InformationDocument, SpecificationDocument, apply_specification,
-    build_model, get_variable, Library, register_standard_providers, pair_specification,
+    build_model, get_variable, Library, register_standard_providers, pair_specification, export_workspace,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -84,7 +84,7 @@ def replay(solver=None):
     return model, result, outputs
 
 
-def replay_flash(sghp_outputs, solver=None, *, phase_fractions=None,
+def replay_flash(sghp_outputs, solver=None, *, workspace_path=None, phase_fractions=None,
                  property_model="helmholtz_water_ph"):
     """Isenthalpic letdown and flash downstream of the solved hot-water outlet.
 
@@ -170,6 +170,10 @@ def replay_flash(sghp_outputs, solver=None, *, phase_fractions=None,
         'steam_flow_kg_h': value(get_variable(model, 'flash_separator.vapor.flow')[0]) * 3600,
         'condensate_flow_kg_s': value(get_variable(model, 'flash_separator.liquid.flow')[0]),
     }
+    if workspace_path is not None:
+        export_workspace(model, information, status='optimal', solver='ipopt',
+                         termination_condition=str(result.solver.termination_condition),
+                         specification=specification).write_json(workspace_path)
     return model, result, outputs
 
 
@@ -177,14 +181,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--with-flash', action='store_true')
     args = parser.parse_args()
-    _, result, outputs = replay()
+    model, result, outputs = replay()
+    export_workspace(model, HERE / 'sghp_replay_information.json', status='optimal', solver='ipopt',
+                     termination_condition=str(result.solver.termination_condition),
+                     specification=HERE / 'sghp_replay_specification.json').write_json(HERE / 'replay_workspace.json')
     report = {
         'purpose': 'calibrated replay with source-pressure override; not predictive validation',
         'termination_condition': str(result.solver.termination_condition),
         'outputs_in_declared_SI_units': outputs,
     }
     if args.with_flash:
-        _, flash_result, flash_outputs = replay_flash(outputs)
+        _, flash_result, flash_outputs = replay_flash(outputs, workspace_path=HERE / 'flash_replay_workspace.json')
         report['flash'] = {
             'termination_condition': str(flash_result.solver.termination_condition),
             **flash_outputs,

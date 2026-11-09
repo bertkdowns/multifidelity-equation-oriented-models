@@ -17,6 +17,7 @@ from .hierarchical_initialization import initialize_model, InitializationResult,
 from .scaling import apply_scaling, ScalingReport
 from .reconciliation import relax_specifications, SpecificationRelaxation
 from .results import ResultsDocument, export_results
+from .workspace import WorkspaceDocument, export_workspace
 from .standard import register_standard_providers
 
 
@@ -60,6 +61,8 @@ __all__ = [
     "get_variable",
     "ResultsDocument",
     "export_results",
+    "WorkspaceDocument",
+    "export_workspace",
     "required_inputs",
     "required_initial_values",
     "print_required_inputs",

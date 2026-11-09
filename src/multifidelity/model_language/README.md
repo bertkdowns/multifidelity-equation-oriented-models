@@ -1781,3 +1781,32 @@ when implementations match, show saved values on diagram rows. The SGHP
 `attempt_bottom_up.py` example now writes `results.json` alongside its diagnostic
 report. Model identity and implementation are recorded, but the document does
 not embed or fingerprint the library's equation definitions.
+
+### Portable viewer workspaces
+
+A `WorkspaceDocument` bundles exactly three fields: `implementation`, `information`
+(the information-record array), and `results` (a complete `ResultsDocument`). It
+contains no separate root-model field, model definitions, layouts, rotations,
+flips, current view or navigation state. The existing `results.model_id` identifies
+the model when opening it in the viewer; that definition must be in the library.
+The implementation must match the implementation already captured in the snapshot.
+
+```python
+from multifidelity.model_language import export_workspace, WorkspaceDocument
+
+# After solving, using the actual information including case-specific overrides:
+export_workspace(
+    model, information,
+    status="optimal", solver="ipopt", specification=specification,
+).write_json("workspace.json")
+
+# Or package an existing snapshot without changing its run ID, timestamp or status:
+WorkspaceDocument.from_results("results.json", "information.json").write_json("workspace.json")
+```
+
+Export never solves or infers convergence. Explicit status has the same meaning as
+`export_results`; defaults remain `not_solved`. Failed/unset values retain their
+snapshot diagnostics. `WorkspaceDocument.load_json()` reads the same portable file.
+Loading a workspace in the viewer replaces the three documents for its model and
+uses the existing local-storage behavior. It leaves diagram layout/orientation
+preferences untouched.

@@ -4,13 +4,14 @@ Run from the repository root:
     .venv/bin/python examples/steam_generating_heat_pump_system/attempt_bottom_up.py
 """
 
+
 from dataclasses import asdict
 import json
 from pathlib import Path
 
 from idaes.core.solvers import get_solver
 from multifidelity.model_language import (
-    InformationDocument, SpecificationDocument, get_variable, initialize_model, export_results,
+    InformationDocument, SpecificationDocument, get_variable, initialize_model, export_results, WorkspaceDocument,
 )
 from attempt_solve import build_attempt
 
@@ -28,12 +29,14 @@ if __name__ == '__main__':
             'linear_system_scaling': 'none',
         }),
     )
-    export_results(
+    snapshot = export_results(
         model, status='optimal' if result.success else 'failed', solver='ipopt',
         termination_condition=result.stages[-1].solver_termination,
         message=result.stages[-1].error,
         specification=HERE / 'attempt_specification.json',
-    ).write_json(HERE / 'results.json')
+    )
+    snapshot.write_json(HERE / 'results.json')
+    WorkspaceDocument.from_results(snapshot, HERE / 'attempt_information.json').write_json(HERE / 'workspace.json')
     report = {
         'implementation': 'aggregate_aggregate',
         'specification': 'attempt_specification.json',

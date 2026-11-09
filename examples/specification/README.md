@@ -52,3 +52,7 @@ it does not prove structural independence or numerical solvability.
 
 See the [model-language glossary](../../src/multifidelity/model_language/terminology.md)
 and [specification API](../../src/multifidelity/model_language/README.md#specification-documents).
+
+A successful `run.py` also writes `workspace.json`, containing the implementation,
+information records and results snapshot. Load it with **Open workspace** in the
+viewer to open the valve case in one step.

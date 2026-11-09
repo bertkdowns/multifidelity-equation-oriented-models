@@ -9,7 +9,7 @@ from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import (
     InformationDocument, apply_specification, build_model, required_inputs,
-    select_specification, Library, register_standard_providers,
+    select_specification, Library, register_standard_providers, export_workspace,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -59,4 +59,8 @@ if __name__ == '__main__':
             'decisions': selection.decisions,
         }
         report['status'] = 'reference configuration partially applied; no numerical solve attempted'
+    workspace = HERE / f'{args.sghp}_{args.phnix}_workspace.json'
+    export_workspace(model, HERE / 'information.json', status='not_solved',
+                     specification=selection.specification if args.apply_reference else None).write_json(workspace)
+    report['workspace'] = str(workspace)
     print(json.dumps(report, indent=2))

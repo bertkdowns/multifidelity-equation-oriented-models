@@ -9,7 +9,7 @@ from pyomo.environ import assert_optimal_termination, value
 
 from multifidelity.model_language import (
     ImplementationDocument, InformationDocument, select_specification,
-    apply_specification, build_model, get_variable,
+    apply_specification, build_model, get_variable, export_workspace,
 )
 
 HERE = Path(__file__).parent
@@ -31,6 +31,9 @@ def run(solver=None):
         raise RuntimeError("IPOPT is required; install/configure the IDAES solver extensions")
     result = solver.solve(model)
     assert_optimal_termination(result)
+    export_workspace(model, information, status="optimal", solver="ipopt",
+                     termination_condition=str(result.solver.termination_condition),
+                     specification=selection.specification).write_json(HERE / "workspace.json")
     t = model.fs.time.first()
     outputs = {
         "flow_kg_per_s": value(get_variable(model, "outlet.flow")[t]),

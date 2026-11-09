@@ -60,3 +60,8 @@ comes from the contents property package rather than a tank parameter. Level is
 calculated from mass divided by current density and area. The example's affine
 water package has density 997 kg/m³ and includes pressure work in PH enthalpy.
 The stored internal-energy relation is U = m h - P V.
+
+Running `run.py` also writes `steady_workspace.json` and `dynamic_workspace.json`
+for **Open workspace** in the viewer. Each contains the selected implementation,
+information records, and the solved snapshot with its actual time grid. Local
+layout/navigation preferences and model definitions are not included.

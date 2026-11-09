@@ -15,7 +15,7 @@ from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import (
     InformationDocument, SpecificationDocument, apply_specification, build_model,
-    get_variable,
+    get_variable, export_workspace,
 )
 
 IMPLEMENTATION = Path(__file__).parents[1] / "model_language/tank_mixed.json"
@@ -122,6 +122,10 @@ def main():
     dynamic = simulate(make_tank(), backend=args.backend,
                        nfe=1 if args.backend == "petsc" else 100)
     for label, model in (("steady", steady), ("dynamic", dynamic)):
+        export_workspace(
+            model, HERE / "information.json", status="optimal", solver=args.backend if label == "dynamic" else "ipopt",
+            specification=HERE / ("specification.json" if label == "dynamic" else "steady_specification.json"),
+        ).write_json(HERE / f"{label}_workspace.json")
         t = model.fs.time.last()
         level = get_variable(model, "tank.inventory.level")[t]
         temperature = get_variable(model, "tank.inventory.temperature")[t]

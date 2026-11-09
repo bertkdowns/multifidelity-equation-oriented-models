@@ -588,3 +588,36 @@ At the lower 12.7558356 kW power, the same source duty would require COP
 enthalpy connection residual, not a zero-steam result. This is evidence of a
 conflict among the retained heat-input, compressor and exchanger conditions on
 the attempted branch; it is not proof of a universal minimum compressor power.
+
+### Open a complete case in the viewer
+
+In the viewer's **Model controls & help**, use **Open workspace** to load one file.
+The checked-in/generated `workspace.json` bundles the aggregate snapshot from
+`results.json` and `attempt_information.json`; `cycle_workspace.json` bundles
+`cycle_results.json` and `cycle_attempt_information.json`. These preserve the
+snapshots' original run identity, solve status and specification metadata.
+
+Regenerate from saved files without solving again:
+
+```bash
+.venv/bin/python examples/steam_generating_heat_pump_system/export_workspace.py
+.venv/bin/python examples/steam_generating_heat_pump_system/export_workspace.py \
+  --results cycle_results.json --information cycle_attempt_information.json \
+  --output cycle_workspace.json
+```
+
+The script accepts any saved results/information pair (relative paths are resolved
+against this directory). Use information from the same case, including overrides.
+
+`attempt_bottom_up.py`, `attempt_cycle.py`, `check_cycle_power.py`, and the cycle
+specification-relaxation diagnostic now write workspace files alongside their
+existing result snapshots. Aggregate power comparisons also export a workspace
+for each case using their actual modified records. `replay.py` writes
+`replay_workspace.json` and, with `--with-flash`, `flash_replay_workspace.json`.
+`build.py` writes `<sghp>_<phnix>_workspace.json` marked **not_solved**, since it only
+constructs a model. These exports do not turn failed or diagnostic runs into solved
+cases.
+
+Workspaces include only choices, information records and a results snapshot. Model
+definitions must already be present in the viewer; layouts and navigation are not
+part of the file. The results snapshot's existing model ID selects the root.

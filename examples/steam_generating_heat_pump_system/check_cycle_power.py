@@ -1,10 +1,11 @@
 """Control: fixed 15.200054 kW compressor power with free makeup flow."""
+
 import json
 from pathlib import Path
 from build import build, HERE
 from saved_state_guesses import seed_snapshot, refresh_properties
 from diagnose_specifications import physical_residuals
-from multifidelity.model_language import InformationDocument, SpecificationDocument, apply_specification, get_variable, export_results
+from multifidelity.model_language import InformationDocument, SpecificationDocument, apply_specification, get_variable, export_results, WorkspaceDocument
 from multifidelity.model_language.scaling import apply_scaling, scaled_jacobian, export_scaling
 from multifidelity.model_language.selection import _partition
 from idaes.core.solvers import get_solver
@@ -26,5 +27,7 @@ if len(sol.solution):
  m.solutions.load_from(sol)
  residuals=physical_residuals(m);r['max_scaled_violation']=float(max(x['scaled_violation'] for x in residuals));r['largest_physical_residuals']=residuals[:5]
  r['values']={p:get_variable(m,p)[0].value for p in ['steam_outlet.flow','makeup_state.state.flow','sghp.performance.electrical_power','sghp.performance.cop','sghp.source_inlet.flow']}
-export_results(m,status='optimal' if r['termination']=='optimal' and r.get('max_scaled_violation',1)<1e-6 else 'failed',solver='ipopt',termination_condition=r['termination'],specification=spec,message='Control trial: SGHP electrical power fixed at 15.200054 kW.').write_json(HERE/'cycle_power_control_results.json')
+snapshot = export_results(m,status='optimal' if r['termination']=='optimal' and r.get('max_scaled_violation',1)<1e-6 else 'failed',solver='ipopt',termination_condition=r['termination'],specification=spec,message='Control trial: SGHP electrical power fixed at 15.200054 kW.')
+snapshot.write_json(HERE/'cycle_power_control_results.json')
+WorkspaceDocument.from_results(snapshot, info).write_json(HERE / 'cycle_power_control_workspace.json')
 (HERE/'cycle_power_control_result.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r,indent=2))

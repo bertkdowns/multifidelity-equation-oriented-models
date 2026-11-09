@@ -155,3 +155,20 @@ is local to this browser and site origin; download JSON for portable backups.
 Invalid stored documents are skipped with a message, and full or disabled storage
 reports that the current document could not be saved. Incomplete implementation
 drafts can be restored and completed in the editor.
+
+### Open/save a workspace
+
+**Open workspace** in the sidebar's model controls accepts one JSON bundle with
+exactly `implementation`, `information`, and `results`. It validates all three
+before applying them, selects the root using the results snapshot's existing
+`model_id`, and replaces the three documents for that root. Invalid or unknown-model
+bundles leave the current case unchanged. The existing local-storage persistence
+then saves each document as usual.
+
+**Save workspace** downloads those three contents in one file, provided the results
+match the selected implementation. Information can be an empty record array. No
+extra model/root field, model definitions, layout positions, rotations, flips,
+current view or navigation state is included. Opening a bundle leaves local diagram
+preferences intact. Individual file uploads/downloads remain available in their
+tabs. Python can produce the identical format using `export_workspace` or
+`WorkspaceDocument.from_results`; see the SGHP example's workspace files.
