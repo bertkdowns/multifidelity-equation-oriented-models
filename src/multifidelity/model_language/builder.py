@@ -6,7 +6,6 @@ from collections.abc import Mapping
 from copy import deepcopy
 
 from idaes.core import FlowsheetBlock
-from pyomo.core.expr.visitor import identify_variables
 from pyomo.core.expr.numvalue import NumericValue
 from pyomo.core.base.var import VarData
 from pyomo.environ import Block, ConcreteModel, Constraint, ConstraintList, Var, units
@@ -29,7 +28,7 @@ _BINARY = {
 }
 
 
-def _build_external_slice(active, external, variables, library, path, dependencies):
+def _build_external_slice(active, external, variables, library, path):
     """Keep provider construction and interface binding out of JSON compilation."""
     active.provider = Block()
     try:
@@ -49,8 +48,6 @@ def _build_external_slice(active, external, variables, library, path, dependenci
             active.bindings.add(
                 public == units.convert(internal, to_units=units.get_units(public))
             )
-        for output, inputs in external.dependencies.items():
-            dependencies[id(variables[output])] = {id(variables[name]) for name in inputs}
         active._model_language_initialization = (
             library.get_initializer(external.provider), deepcopy(external.config),
             dict(variables), dict(mapping), set(external.dependencies),
@@ -63,7 +60,7 @@ def _build_external_slice(active, external, variables, library, path, dependenci
         raise ValueError(f"{path}: provider {external.provider!r}: {error}") from error
 
 
-def _build_external(active, external, variables, library, path, dependencies):
+def _build_external(active, external, variables, library, path):
     """Lift the scalar provider protocol over a shared time domain.
 
     A Block rule constructs new slices when DAE discretization inserts points.
@@ -71,13 +68,13 @@ def _build_external(active, external, variables, library, path, dependencies):
     """
     indexed = [v for v in variables.values() if v.is_indexed()]
     if not indexed:
-        _build_external_slice(active, external, variables, library, path, dependencies)
+        _build_external_slice(active, external, variables, library, path)
         return
     time = indexed[0].index_set()
 
     def rule(block, t):
         public = {name: v[t] if v.is_indexed() else v for name, v in variables.items()}
-        _build_external_slice(block, external, public, library, f"{path}[{t}]", dependencies)
+        _build_external_slice(block, external, public, library, f"{path}[{t}]")
 
     active.slices = Block(time, rule=rule)
 
@@ -153,21 +150,8 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     model.fs = FlowsheetBlock(dynamic=mode == "dynamic", time_set=build_domains.time_points,
                               time_units=time_units)
     model.fs.root = Block()
-    dependencies: dict[int, set[int]] = {}
     registry = {}
     initialization_order = []
-
-    def depends_on(expression_variables, target, graph):
-        pending = list(expression_variables)
-        visited = set()
-        while pending:
-            current = pending.pop()
-            if current == target:
-                return True
-            if current not in visited:
-                visited.add(current)
-                pending.extend(graph.get(current, ()))
-        return False
 
     def enter(occurrence, parent, alias):
         """Create this occurrence's variables before visiting its children."""
@@ -210,17 +194,16 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
         if external is not None:
             _build_external(
                 active, external, variables, library,
-                f"{path}.{occurrence.relationship_id}", dependencies,
+                f"{path}.{occurrence.relationship_id}",
             )
         else:
             active.models = Block()
         return block, variables, domains
 
     def leave(occurrence, context, children):
-        """Compile equations after child interfaces and dependencies exist."""
+        """Compile equations after child interfaces exist."""
         resolved = occurrence.model
         relationship = occurrence.relationship
-        relationship_id = occurrence.relationship_id
         path = resolved.path
         block, variables, domains = context
         inputs = {
@@ -277,12 +260,10 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
             raise ValueError(f"{path}: unknown or inaccessible variable {reference!r}")
 
         # Pure definition checks are shared with required-input discovery.
-        descendant_dependencies = dict(dependencies)
         build_derivatives(active, resolved, relationship, variables, domains,
-                          mode, time_units, dependencies)
+                          mode, time_units)
 
         active.constraints = Block()
-        checks = []
         for name, equation in relationship.constraints.items():
             def rule(b, *index_values, equation=equation, name=name):
                 if not equation.for_each:
@@ -292,11 +273,6 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                 rhs = _expression(equation.rhs, resolve, indices, equation.for_each)
                 if isinstance(lhs == rhs, bool):
                     raise ValueError(f"{path}.{name}: equation must involve variables")
-                target = equation.determines
-                target_var = _expression(target, resolve, indices, equation.for_each)
-                references = {id(v) for v in identify_variables(lhs - rhs)}
-                checks.append((name, target, id(target_var), references))
-                dependencies[id(target_var)] = references - {id(target_var)}
                 return lhs == rhs
 
             active.constraints.add_component(
@@ -323,19 +299,10 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
 
                 def connect(_, *indices, a=a, b=b):
                     av, bv = (a[indices], b[indices]) if a.is_indexed() else (a, b)
-                    dependencies[id(bv)] = {id(av)}
                     return av == units.convert(bv, to_units=units.get_units(av))
 
                 connection_block.add_component(
                     field, Constraint(*(a.index_set().subsets() if a.is_indexed() else ()), rule=connect),
-                )
-        # Only previously validated descendants can justify an indirect target.
-        # Local declarations must not validate one another through invented cycles.
-        for name, target, target_id, references in checks:
-            if not depends_on(references, target_id, descendant_dependencies):
-                raise ValueError(
-                    f"{path}.{relationship_id}: constraint {name} determines "
-                    f"{target!r}, but it does not occur in the equation or its child dependencies"
                 )
         # Export only this model's interface, preserving encapsulation when the
         # containing relationship resolves references to this occurrence.

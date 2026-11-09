@@ -451,6 +451,9 @@ instantaneous algebraic equations inside a dynamic flowsheet. It does not gain
 holdup, delay, or a derivative merely by sharing continuous time. Multiple points
 in steady mode remain independent operating points.
 
+The [PI controller](pi-controller.md) provides ideal tracking and dynamic PI
+relationships using normalized signals.
+
 The library examples, including `pipe` and `tank`, demonstrate time-indexed variables.
 Spatial derivatives and indexed collections of child occurrences remain future
 work.
@@ -978,8 +981,8 @@ choices and complete child selections. It shares target coverage, duplicate
 determination and connection direction/field checks with the backend. It does
 not compile expressions, check equation units, establish mathematical determinacy,
 create solver objects, fix variables, or fill any values. It relies on declared
-`determines` targets; the Pyomo builder additionally verifies direct occurrence
-or a dependency path through validated descendants. An incomplete definition such as the aggregate milk scaffold raises
+`determines` targets. Targets may be implicit and need not occur in their
+equations; users are responsible for mathematical determination and controllability. An incomplete definition such as the aggregate milk scaffold raises
 its missing-output error instead of returning a misleading requirements list.
 Apply operating values separately using the [specification API](#specification-documents).
 

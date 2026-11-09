@@ -362,17 +362,12 @@ def test_connections_share_determination_namespace(kind):
         build_heat_pump(select(library, "heat_pump", "cycle"), library=library)
 
 
-@pytest.mark.parametrize("target", ["inlet.flow", "missing.value", "outlet.pressure"])
-def test_constraint_target_must_be_valid_and_occur_in_equation(target):
+@pytest.mark.parametrize("target", ["inlet.flow", "missing.value"])
+def test_constraint_target_must_be_valid(target):
     library = Library()
     equation = library.models["valve"].relationships["isenthalpic"].constraints["mass_balance"]
     equation.determines = target + "[t]"
-    if target == "outlet.pressure":
-        # Swap targets to retain complete coverage without duplicate targets.
-        library.models["valve"].relationships["isenthalpic"].constraints[
-            "pressure_balance"
-        ].determines = "outlet.flow[t]"
-    with pytest.raises(ValueError, match="invalid target|does not occur"):
+    with pytest.raises(ValueError, match="invalid target"):
         build_model("valve", select(library, "valve"), library=library)
 
 

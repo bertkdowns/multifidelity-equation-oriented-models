@@ -74,8 +74,8 @@ dependencies, as for the constant density above. For the example pump:
 }
 ```
 
-These declarations contribute to the existing structural dependency graph and
-stand in for JSON `determines` declarations. They are the author's contract: the
+These declarations identify provider outputs for determination coverage and
+initialization, and stand in for JSON `determines` declarations. They are the author's contract: the
 framework checks public path names and output coverage, but does not inspect
 provider equations to verify the declarations or prove mathematical determinacy.
 All public inputs remain required unless supplied by the containing JSON model;

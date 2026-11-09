@@ -1,0 +1,59 @@
+{
+  "id": "pi_controller_integral",
+  "description": "PI integral state and scalar tuning for normalized signals. Signed gains select control action; initialize the integral for the desired starting output. No saturation or anti-windup.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "signal": {
+      "direction": "input",
+      "variables": {
+        "error": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "tuning": {
+      "direction": "input",
+      "variables": {
+        "kp": {
+          "unit": "dimensionless"
+        },
+        "ki": {
+          "unit": "1/s"
+        },
+        "bias": {
+          "unit": "dimensionless"
+        }
+      }
+    },
+    "state": {
+      "direction": "output",
+      "variables": {
+        "integral": {
+          "unit": "s",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "integrate": {
+      "derivatives": {
+        "integral": {
+          "state": "state.integral",
+          "rate": "signal.error",
+          "with_respect_to": "time",
+          "determines": "state.integral"
+        }
+      }
+    }
+  }
+}

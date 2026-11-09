@@ -1,0 +1,81 @@
+{
+  "id": "pi_controller",
+  "description": "Normalized, unbounded PI controller. Ideal tracking implicitly determines output through the connected process. Users supply controllable process connections and consistent signal normalization.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "signals": {
+      "direction": "input",
+      "variables": {
+        "setpoint": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "process_variable": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "output": {
+      "direction": "output",
+      "variables": {
+        "value": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "ideal_tracking": {
+      "constraints": {
+        "tracking": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "signals.process_variable[t]",
+          "rhs": "signals.setpoint[t]",
+          "determines": "output.value[t]"
+        }
+      }
+    },
+    "pi": {
+      "models": {
+        "integral": {
+          "model": "pi_controller_integral",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {
+        "error": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "integral.signal.error[t]",
+          "rhs": "signals.setpoint[t] - signals.process_variable[t]",
+          "determines": "integral.signal.error[t]"
+        },
+        "control": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "output.value[t]",
+          "rhs": "integral.tuning.bias + integral.tuning.kp * (signals.setpoint[t] - signals.process_variable[t]) + integral.tuning.ki * integral.state.integral[t]",
+          "determines": "output.value[t]"
+        }
+      }
+    }
+  }
+}

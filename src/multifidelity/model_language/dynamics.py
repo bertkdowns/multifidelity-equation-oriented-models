@@ -7,7 +7,7 @@ from .indexing import derivative_variables
 
 
 def build_derivatives(active, resolved, relationship, variables, domains,
-                      mode, time_unit, dependencies):
+                      mode, time_unit):
     active.derivatives = Block()
     for name, relation in relationship.derivatives.items():
         state_definition, _ = derivative_variables(resolved, relation)
@@ -32,9 +32,6 @@ def build_derivatives(active, resolved, relationship, variables, domains,
                                            to_units=rate_unit)
             else:
                 expression = 0 * rate_unit
-            target = state[indices] if relation.determines == relation.state else rate[indices]
-            source = rate[indices] if relation.determines == relation.state else state[indices]
-            dependencies[id(target)] = {id(source)} if mode == "dynamic" else set()
             return rate[indices] == expression
 
         block.equation = Constraint(

@@ -272,13 +272,13 @@ def test_connections_reject_equal_members_on_different_domains(tmp_path):
                     domain_values={"other": [0]})
 
 
-def test_indexed_target_must_occur_in_its_equation(tmp_path):
+def test_indexed_target_can_be_implicit(tmp_path):
     definition = pipe_definition()
     eq = definition["relationships"]["pass_through"]["constraints"]["flow"]
     eq["lhs"] = "inlet.flow[t]"
     eq["rhs"] = "2 * inlet.flow[t]"
-    with pytest.raises(ValueError, match="does not occur"):
-        build_pipe(tmp_path, definition)
+    model = build_pipe(tmp_path, definition)
+    assert_units_consistent(model)
 
 
 def test_generic_child_keeps_occurrence_domain_bindings(tmp_path):

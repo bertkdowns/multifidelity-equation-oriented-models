@@ -83,7 +83,7 @@ def test_library_operating_interfaces_and_fixed_coefficients():
         assert model.domains['time'].kind == 'time'
         for sid, struct in model.structs.items():
             for field, variable in struct.variables.items():
-                fixed = (name == 'pipe_holdup' and sid in {'parameters', 'geometry'}) or (name in {'water_state', 'water_state_ph', 'tank'}
+                fixed = (name == 'pi_controller_integral' and sid == 'tuning') or (name == 'pipe_holdup' and sid in {'parameters', 'geometry'}) or (name in {'water_state', 'water_state_ph', 'tank'}
                          and sid == 'parameters' and (name != 'tank' or field == 'area')) or (
                              name == 'heat_exchanger' and sid == 'parameters' and field == 'conductance'
                          )
