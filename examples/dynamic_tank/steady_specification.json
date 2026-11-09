@@ -7,5 +7,10 @@
     "tank_level",
     "inlet_pressure",
     "tank_pressure"
-  ]
+  ],
+  "replacements": {
+    "inlet_temperature": "tank.inlet.enthalpy",
+    "tank_level": "tank.withdrawal.flow"
+  },
+  "initial_values": []
 }

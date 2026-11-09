@@ -351,4 +351,8 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
     model._model_language_implementation = implementation.model_copy(deep=True)
     model._model_language_variables = registry
     model._model_language_initialization_order = initialization_order
+    model._model_language_canonical_inputs = tuple(sorted(
+        model.fs.root._model_language_open_initialization_inputs))
+    model._model_language_specification_slots = {}
+    model._model_language_initial_fixations = set()
     return model

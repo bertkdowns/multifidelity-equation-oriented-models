@@ -174,7 +174,12 @@ def test_helmholtz_temperature_specification_leaves_enthalpy_free(solver):
     model = build_model('helmholtz_water_state_block', {'relationship': 'evaluate', 'submodels': {
         'states': {'relationship': 'evaluate', 'submodels': {'fluid': {'relationship': 'helmholtz'}}},
     }}, library=library)
-    get_variable(model, 'states.properties.temperature')[0].fix(350.15)
+    from multifidelity.model_language import InformationDocument, apply_specification
+    information = InformationDocument([dict(
+        id='temperature', tag='temperature', information_type='assumption',
+        variable_path='states.properties.temperature', value=350.15, unit='K', trust_rank=5)])
+    apply_specification(model, {'specifications': ['temperature'],
+                                'replacements': {'temperature': 'states.state.enthalpy'}}, information)
     get_variable(model, 'states.state.flow')[0].fix(1)
     # The water leaf has its own PH guesses; the parent must invert enthalpy at
     # fixed temperature rather than freeze the leaf's 100 kJ/kg guess.

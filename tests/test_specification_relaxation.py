@@ -5,19 +5,28 @@ from idaes.core.solvers import get_solver
 from pyomo.opt import check_optimal_termination
 from multifidelity.model_language import (
     build_model, InformationDocument, InformationRecord, apply_specification,
-    relax_specifications, get_variable,
+    relax_specifications, get_variable, Library, ModelDocument,
 )
 
 
 def setup_problem():
-    model = build_model('valve', {'relationship': 'isenthalpic'})
+    # Two structurally independent specifications can still conflict with a
+    # hard bound. Unlike fixing both ends of a continuity equality, this uses
+    # distinct canonical slots and remains a valid replacement document.
+    library = Library()
+    definition = library.get('valve').model_dump(by_alias=True)
+    definition['structs']['parameters']['variables']['offset'] = {
+        'unit': 'kg/s', 'dimensions': ['time'], 'bounds': {'min': 0, 'max': 0}}
+    definition['relationships']['isenthalpic']['constraints']['mass_balance']['rhs'] = 'inlet.flow[t] + parameters.offset[t]'
+    library.models['valve'] = ModelDocument.model_validate(definition)
+    model = build_model('valve', {'relationship': 'isenthalpic'}, library=library)
     information = InformationDocument([
         InformationRecord(id='in', variable_path='inlet.flow', value=2, unit='kg/s',
                           information_type='sensor_reading', tag='test', trust_rank=1),
         InformationRecord(id='out', variable_path='outlet.flow', value=3, unit='kg/s',
                           information_type='sensor_reading', tag='test', trust_rank=1),
     ])
-    spec = {'specifications': ['in', 'out']}
+    spec = {'specifications': ['in', 'out'], 'replacements': {'out': 'parameters.offset'}}
     apply_specification(model, spec, information)
     for path, val in [('inlet.pressure',200000), ('inlet.enthalpy',100000), ('parameters.pressure_drop',0)]:
         get_variable(model,path)[0].fix(val)
@@ -76,7 +85,8 @@ def test_record_units_convert_and_bounds_are_retained():
     info=InformationDocument([InformationRecord(
         id='pressure',tag='p',trust_rank=1,information_type='sensor_reading',
         variable_path='outlet.pressure',value=200,unit='kPa')])
-    spec={'specifications':['pressure']}
+    get_variable(m, 'parameters.pressure_drop').unfix()
+    spec={'specifications':['pressure'], 'replacements': {'pressure': 'parameters.pressure_drop'}}
     pressure=get_variable(m,'outlet.pressure')[0]
     pressure.setlb(100000)
     apply_specification(m,spec,info)

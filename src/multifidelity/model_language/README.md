@@ -1397,26 +1397,61 @@ not built by `build_model()` raise `ValueError`.
 
 ## Specification documents
 
-A `SpecificationDocument` has two optional arrays of information-record IDs.
-Both default to empty; existing documents with only `specifications` remain valid:
+A `SpecificationDocument` selects information-record IDs and records which
+canonical input each noncanonical operating fixation replaces:
 
 ```json
 {
-  "specifications": ["inlet_flow", "inlet_temperature", "tank_area"],
-  "initial_values": ["starting_level", "starting_energy"]
+  "specifications": ["inlet_pressure", "measured_temperature"],
+  "replacements": {"measured_temperature": "state.enthalpy"},
+  "initial_values": []
 }
 ```
 
-It contains no action, values, source-document references, structural status or
-unused-information records. The model instance and information table are passed
-separately. Each entry is an information-record ID string; the selected
-record supplies its `variable_path`, value and unit. Paths in information records
-are root-relative, such as `inlet.pressure` or `heat_pump.compressor.inlet.pressure`,
-and name variable families without index selectors. `specifications` fixes the
-whole family; `initial_values` fixes only the initial time slice. Duplicate record
-IDs and different records targeting the same variable, including across the two
-lists, are rejected. Declared outputs
-can also be specified.
+The information document supplies paths, values, units, trust and uncertainty.
+In this example, `inlet_pressure` targets `state.pressure` directly, while
+`measured_temperature` targets `properties.temperature`. Fix temperature and leave
+`state.enthalpy` free. The model and its selected implementation supply the
+equations and canonical inputs; none are embedded in this document.
+
+A **canonical input** is a public input not supplied by a selected parent
+constraint, connection or derivative. `canonical_inputs(model)` returns these
+families by root-relative path. Every ordinary fixation must either target one
+of them directly or have an explicit `replacements` entry naming one. Each
+canonical slot can be used once, and each target can be fixed once. Replacement
+keys must be selected operating record IDs; values are canonical variable paths,
+not other record IDs. Paired families must use the same index domains and grid.
+Physical equations, connection directions and `determines` remain unchanged.
+
+All three fields default to empty. Old direct-input documents remain valid;
+output or supplied-input fixations need pairs. Generate them without changing
+the chosen records using:
+
+```python
+from pathlib import Path
+from multifidelity.model_language import pair_specification, specification_slots
+
+specification = pair_specification(model, specification, information)
+# Save or edit specification.replacements before application.
+Path("paired_specification.json").write_text(specification.model_dump_json(indent=2))
+```
+
+`pair_specification()` uses structural maximum matching (the basis of DM),
+then prefers the same model occurrence, shorter hierarchy distance, shorter
+incidence-graph distance and finally canonical path. It reserves direct inputs
+and honours explicit user pairs before inferring others. Recompute from the full
+chosen record set to let later direct fixations reassign earlier automatic pairs.
+No equipment, variable-name, physical-quantity or unit-based pairing rules exist.
+The optional upstream heuristic remains future work. The helper does not fix or
+solve, and canonical reference fixations are virtual graph operations needing no
+numerical values. A complete reference stays complete; an already deficient
+reference may improve but must not worsen under an exchange.
+
+`initial_values` retains its separate dynamic first-time-slice meaning and is not
+interpreted as a whole-family replacement. Operating replacements work on steady
+or finalized dynamic grids; automatic initial-condition pairing is deferred.
+Duplicate record IDs and different records targeting the same family, including
+across the two lists, are rejected. Paths name families without index selectors.
 
 ```python
 from multifidelity.model_language import (
@@ -1436,8 +1471,9 @@ The method also accepts a specification dictionary or JSON file path.
 `InformationDocument`. Numerical models must come from `build_model()`.
 
 Application validates all paths, record references, duplicate targets, array shapes,
-unit conversions, finite converted values, variable bounds and existing fixations
-before fixing any variable. It updates the model in place and returns `None`. A validation error leaves all values and fixation statuses
+unit conversions, finite converted values, variable bounds, existing fixations,
+slot ownership, connectivity and structural exchange admissibility before fixing
+any variable. It updates the model in place and returns `None`. A validation error leaves all values and fixation statuses
 unchanged. Existing fixations are rejected, even if equal; applying a new document
 does not silently replace an earlier specification or an initial condition.
 
@@ -1451,8 +1487,18 @@ Selected central values are fixed even for uncertain records. The source records
 including uncertainty and trust rank, remain unchanged. The API does not rank
 information, determine whether a control setpoint is achieved, protect prediction
 targets, assess structural completeness or solve the model. Partial documents
-are allowed; those decisions belong to the caller or a future selection algorithm.
+are allowed; selection policy belongs to the caller or `select_specification()`.
 Structural diagnostics and solver results remain separate from the document.
+
+`specification_slots(model)` reports applied canonical paths, fixed target paths
+and record IDs. `audit_fixations(model)` rejects unexplained public noncanonical
+fixes, refixed replaced inputs and missing managed target fixations. Selection and
+hierarchical initialisation call this audit at entry. Native implementation
+configuration and first-slice initial conditions have separate scopes. For direct
+calls to an external Pyomo solver, call the audit explicitly if raw `.fix()` calls
+might have bypassed specification application. To change a saved pair, edit the
+document and apply it to a freshly built model; application never silently undoes
+an already applied specification.
 
 The [complete valve example](../../../examples/specification/README.md) loads all
 three documents, fully specifies the model and solves it with IPOPT.
@@ -1585,6 +1631,13 @@ deficiency, unresolved variable names, overconstrained constraint names, and
 per-record decisions including values, units, uncertainty and deficiency changes.
 An initially overconstrained model returns incomplete diagnostics without adding
 fixations. A partial document is returned when evidence is insufficient.
+
+After choosing records, the selector automatically generates replacement pairs
+without changing the selected information set. `decisions` includes `replaces`
+for chosen records; `pairing_error` is `None` when pairing succeeds. If a selected
+set cannot be paired, `complete` is false and `pairing_error` explains why. Do not
+apply an unresolved document. A successfully paired partial document may still
+be applied while its remaining structural deficiency is reported separately.
 
 This is structural selection, not a numerical solvability or uniqueness check.
 It does not solve, reconcile noisy data, inspect inequalities, select dynamic

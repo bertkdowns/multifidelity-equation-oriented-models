@@ -8,6 +8,9 @@
     "inlet_pressure",
     "tank_pressure"
   ],
+  "replacements": {
+    "inlet_temperature": "tank.inlet.enthalpy"
+  },
   "initial_values": [
     "tank_level",
     "starting_energy"

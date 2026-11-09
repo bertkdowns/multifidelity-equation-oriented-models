@@ -9,7 +9,7 @@ from idaes.core.solvers import get_solver
 from idaes.core.util.model_statistics import degrees_of_freedom
 from multifidelity.model_language import (
     InformationDocument, SpecificationDocument, apply_specification,
-    initialize_model, export_results,
+    initialize_model, export_results, pair_specification,
 )
 from build import build
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     ids += ['config_sghp_compressor_parameters_efficiency',
             'reference_sghp_compressor_parameters_pressure_rise',
             power.id]
-    specification = SpecificationDocument(specifications=ids)
+    specification = pair_specification(model, SpecificationDocument(specifications=ids), information)
     (HERE / 'cycle_attempt_specification.json').write_text(specification.model_dump_json(indent=2) + '\n')
     apply_specification(model, specification, information)
     print(f'Degrees of freedom: {degrees_of_freedom(model)}', flush=True)

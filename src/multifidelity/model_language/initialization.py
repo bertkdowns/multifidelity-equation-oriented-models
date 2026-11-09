@@ -78,6 +78,9 @@ def initialize_custom_models(model):
     initialisation and parent solves separately.
     """
     from pyomo.environ import Block, Constraint, Var, units
+    if hasattr(model, '_model_language_variables'):
+        from .replacement import audit_fixations
+        audit_fixations(model)
 
     def transfer(source, target):
         if source.value is not None:

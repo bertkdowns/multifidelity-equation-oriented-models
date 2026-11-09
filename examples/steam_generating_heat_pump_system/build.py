@@ -54,6 +54,8 @@ if __name__ == '__main__':
             'complete': selection.complete,
             'remaining_deficiency': selection.remaining_deficiency,
             'selected_record_ids': list(selection.specification.specifications),
+            'replacements': selection.specification.replacements,
+            'pairing_error': selection.pairing_error,
             'decisions': selection.decisions,
         }
         report['status'] = 'reference configuration partially applied; no numerical solve attempted'

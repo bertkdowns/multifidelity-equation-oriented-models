@@ -13,7 +13,7 @@ For a dynamic run, `simulate()` discretizes the equations, calls `specify_tank()
 to apply all fixations, then sets numerical guesses separately and solves.
 
 The information document holds all operating assumptions and starting values.
-The dynamic specification document selects their IDs in two lists:
+The dynamic specification document selects their IDs and pairs operating replacements:
 
 ```json
 {
@@ -21,6 +21,7 @@ The dynamic specification document selects their IDs in two lists:
     "tank_area", "tank_pressure", "inlet_pressure",
     "inlet_flow", "inlet_temperature", "heat_loss", "withdrawal_flow"
   ],
+  "replacements": {"inlet_temperature": "tank.inlet.enthalpy"},
   "initial_values": ["tank_level", "starting_energy"]
 }
 ```
@@ -33,7 +34,9 @@ validated together before any fixing occurs.
 
 The steady specification document instead fixes the tank level as an ordinary
 operating condition, with no initial values. Withdrawal flow and temperature are
-calculated from the steady balances. The same information record can therefore
+calculated from the steady balances. Its replacement mapping pairs `tank_level`
+with `tank.withdrawal.flow` and `inlet_temperature` with `tank.inlet.enthalpy`.
+The same information record can therefore
 serve different roles in separate specification documents.
 
 The `inflow`, `outflow` and `loss` options in `specify_tank()` override assumptions

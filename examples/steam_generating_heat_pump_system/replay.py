@@ -14,7 +14,7 @@ from pyomo.environ import Var, assert_optimal_termination, value
 
 from multifidelity.model_language import (
     InformationDocument, SpecificationDocument, apply_specification,
-    build_model, get_variable, Library, register_standard_providers,
+    build_model, get_variable, Library, register_standard_providers, pair_specification,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -111,7 +111,7 @@ def replay_flash(sghp_outputs, solver=None, *, phase_fractions=None,
             'value': sghp_outputs[f'hot_outlet.{field}'],
             'unit': 'kg/s' if field == 'flow' else 'J/kg', 'trust_rank': 2,
         })
-    specification = SpecificationDocument(specifications=[r.id for r in information.records])
+    specification = pair_specification(model, {"specifications": [r.id for r in information.records]}, information)
     apply_specification(model, specification, information)
     if degrees_of_freedom(model) != 0:
         raise RuntimeError('The flash replay must have zero degrees of freedom')

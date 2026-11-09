@@ -3,7 +3,8 @@
 from dataclasses import dataclass
 
 from .information import InformationDocument
-from .specification import SpecificationDocument, _prepare, apply_specification
+from .specification import SpecificationDocument, _prepare
+from .replacement import pair_specification, audit_fixations
 from .variables import get_variable
 
 
@@ -18,6 +19,7 @@ class SpecificationSelection:
     unresolved_variables: list[str]
     overconstrained_constraints: list[str]
     decisions: list[dict]
+    pairing_error: str | None = None
 
 
 def _partition(model):
@@ -50,6 +52,7 @@ def select_specification(model, information: InformationDocument, *,
         raise TypeError("information must be an InformationDocument")
     if not hasattr(model, "_model_language_variables"):
         raise ValueError("Model must be constructed by model_language.build_model")
+    audit_fixations(model)
     work = model.clone()
     targets = set(prediction_targets)
     for path in targets:
@@ -88,7 +91,8 @@ def select_specification(model, information: InformationDocument, *,
                 else:
                     previous = [(v, v.value, v.fixed) for v, _ in prepared]
                     try:
-                        apply_specification(work, document, information)
+                        for variable, target in prepared:
+                            variable.fix(target)
                         trial_vp, trial_cp = _partition(work)
                     finally:
                         # Retain only accepted trials below.
@@ -97,7 +101,8 @@ def select_specification(model, information: InformationDocument, *,
                             variable.fixed = fixed
                     if (len(trial_vp.unmatched) < before
                             and not trial_cp.unmatched and not trial_cp.overconstrained):
-                        apply_specification(work, document, information)
+                        for variable, target in prepared:
+                            variable.fix(target)
                         selected.append(record.id)
                         vp, cp = trial_vp, trial_cp
                     else:
@@ -110,9 +115,19 @@ def select_specification(model, information: InformationDocument, *,
             "selected": reason is None, "reason": reason,
             "deficiency_before": before, "deficiency_after": len(vp.unmatched),
         })
+    specification = SpecificationDocument(specifications=selected)
+    pairing_error = None
+    try:
+        specification = pair_specification(model, specification, information)
+    except ValueError as error:
+        pairing_error = str(error)
+    for decision in decisions:
+        if decision['selected']:
+            decision['replaces'] = specification.replacements.get(decision['record_id'])
     return SpecificationSelection(
-        specification=SpecificationDocument(specifications=selected),
-        complete=not vp.unmatched and not cp.unmatched and not cp.overconstrained,
+        specification=specification,
+        pairing_error=pairing_error,
+        complete=not vp.unmatched and not cp.unmatched and not cp.overconstrained and pairing_error is None,
         initial_deficiency=initial, remaining_deficiency=len(vp.unmatched),
         unresolved_variables=[v.name for v in vp.unmatched + vp.underconstrained],
         overconstrained_constraints=[c.name for c in cp.unmatched + cp.overconstrained],

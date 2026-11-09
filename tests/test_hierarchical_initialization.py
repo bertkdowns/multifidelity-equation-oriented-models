@@ -7,8 +7,15 @@ from pyomo.opt import SolverStatus, TerminationCondition
 
 from multifidelity.model_language import (
     InformationDocument, Library, ModelDocument,
-    build_model, get_variable, initialize_model,
+    build_model, get_variable, initialize_model, apply_specification, pair_specification,
 )
+
+
+def specify(model, path, value):
+    info = InformationDocument([dict(id=path, tag=path, variable_path=path, value=value,
+                                    unit='dimensionless', information_type='assumption', trust_rank=5)])
+    spec = pair_specification(model, {'specifications': [path]}, info)
+    apply_specification(model, spec, info)
 
 
 def tiny_library(tmp_path, *, recycle=False):
@@ -160,7 +167,7 @@ def test_dm_recomputed_after_each_fix_and_information_rank_is_used(tmp_path, sol
         'child': {'relationship': 'sum'}}}, library=library)
     get_variable(model, 'feed.x').fix(7)
     get_variable(model, 'feed.y').fix(1)
-    get_variable(model, 'child.outlet.total').fix(10)
+    specify(model, 'child.outlet.total', 10)
     info = InformationDocument([dict(
         id='z_guess', tag='guess', variable_path='child.inlet.z', value=8,
         unit='dimensionless', information_type='assumption', trust_rank=8)])
@@ -169,9 +176,8 @@ def test_dm_recomputed_after_each_fix_and_information_rank_is_used(tmp_path, sol
     stage = result.stages[0]
     assert stage.initial_deficiency == 2
     assert len(stage.temporary_fixes) == 2
-    assert stage.temporary_fixes[0]['variable_path'] == 'child.inlet.z'
-    assert stage.temporary_fixes[0]['trust_rank'] == 8
-    assert stage.temporary_fixes[0]['value'] == 8
+    assert {f['variable_path'] for f in stage.temporary_fixes} == {'child.inlet.x', 'child.inlet.y'}
+    assert 'child.inlet.z' not in {f['variable_path'] for f in stage.temporary_fixes}
     assert [(f['deficiency_before'], f['deficiency_after'])
             for f in stage.temporary_fixes] == [(2, 1), (1, 0)]
     assert get_variable(model, 'child.inlet.z').value == pytest.approx(2)
@@ -180,14 +186,15 @@ def test_dm_recomputed_after_each_fix_and_information_rank_is_used(tmp_path, sol
 
 def test_overconstraint_is_reported_without_adding_fixes(tmp_path, solver):
     model = build_plant(tmp_path)
-    get_variable(model, 'a.inlet.x').fix(1)
-    get_variable(model, 'a.outlet.y').fix(9)
+    # Duplicate physical equations remain an overconstraint diagnostic even
+    # though unmanaged output fixes are no longer a valid specification.
+    block = model.fs.root.relationship.models.a
+    block.duplicate = Constraint(expr=block.structs.outlet.y == 2 * block.structs.inlet.x)
+    block.duplicate2 = Constraint(expr=block.structs.outlet.y == 3 * block.structs.inlet.x)
     result = initialize_model(model, solver=solver)
     assert result.stages[0].status == 'overconstrained'
     assert result.stages[0].overconstrained_constraints
     assert result.stages[0].temporary_fixes == []
-    assert get_variable(model, 'a.outlet.y').value == 9
-    assert get_variable(model, 'a.outlet.y').fixed
 
 
 def test_custom_hooks_run_once_per_occurrence_before_parent_solve(tmp_path, solver):
@@ -337,7 +344,7 @@ def nested_open_input_plant(tmp_path, *, define_bias=False):
 def test_unsupplied_descendant_inputs_close_parent_and_survive_cloning(tmp_path, solver):
     model = nested_open_input_plant(tmp_path).clone()
     get_variable(model, 'inlet.x').fix(5)
-    get_variable(model, 'outlet.y').fix(13)
+    specify(model, 'outlet.y', 13)
     result = initialize_model(model, solver=solver)
     assert result.success, result
     stage = next(s for s in result.stages if s.model_path == 'middle')
@@ -386,7 +393,7 @@ def test_sghp_parent_candidates_include_only_unsupplied_child_inputs():
 def test_failed_parent_releases_descendant_input_fixes(tmp_path, solver):
     model = nested_open_input_plant(tmp_path)
     get_variable(model, 'inlet.x').fix(5)
-    get_variable(model, 'outlet.y').fix(13)
+    specify(model, 'outlet.y', 13)
     middle = model.fs.root.relationship.models.middle
     class FailAtMiddle:
         def solve(self, block, **kwargs):

@@ -5,6 +5,7 @@ import math
 
 from .initialization import apply_starting_values, initialize_custom_models
 from .selection import _partition
+from .replacement import audit_fixations
 from .scaling import apply_scaling, export_scaling, rank_inputs
 
 
@@ -103,6 +104,7 @@ def initialize_model(model, *, solver=None, information=None, specification=None
         raise ValueError('residual_tolerance must be finite and nonnegative')
     if not math.isfinite(rank_tolerance) or not 0 < rank_tolerance < 1:
         raise ValueError('rank_tolerance must be finite and between 0 and 1')
+    audit_fixations(model)
     result = InitializationResult()
     trust = {}
     if information is not None:
@@ -139,9 +141,16 @@ def initialize_model(model, *, solver=None, information=None, specification=None
             stage.initial_deficiency = len(vp.unmatched)
             stage.remaining_deficiency = len(vp.unmatched)
             is_root = position == len(order) - 1
+            local_ids = {id(v) for v in active_variables}
+            slots = model._model_language_specification_slots
+            occupied = {
+                slot for slot, entry in slots.items()
+                if slot != entry['variable_path']
+                and any(id(v) in local_ids for v in model._model_language_variables[entry['variable_path']].values())
+            }
             candidates = [
                 (name, index, variable)
-                for name, family in inputs.items()
+                for name, family in inputs.items() if name not in occupied
                 for index, variable in family.items()
             ]
             candidates.sort(key=lambda item: (-trust.get(item[0], 0), item[0], str(item[1])))

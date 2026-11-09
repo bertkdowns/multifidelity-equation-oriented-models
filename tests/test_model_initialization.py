@@ -147,7 +147,9 @@ def test_callback_receives_fixed_output_and_preserves_its_specification():
         block.p.set_value(block.q.value)
     model = custom(callback)
     outlet = get_variable(model, 'outlet.pressure')
-    outlet.fix(250000)
+    info = InformationDocument([record('outlet', 'outlet.pressure', 250)])
+    apply_specification(model, {'specifications': ['outlet'],
+                                'replacements': {'outlet': 'inlet.pressure'}}, info)
     initialize_custom_models(model)
     assert get_variable(model, 'inlet.pressure').value == 250000
     assert outlet.fixed and outlet.value == 250000

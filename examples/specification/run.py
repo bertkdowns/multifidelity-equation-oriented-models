@@ -39,6 +39,7 @@ def run(solver=None):
     }
     print(json.dumps({
         "selected_records": list(selection.specification.specifications),
+        "replacements": selection.specification.replacements,
         "skipped_records": {d["record_id"]: d["reason"]
                             for d in selection.decisions if not d["selected"]},
         "degrees_of_freedom": dof,

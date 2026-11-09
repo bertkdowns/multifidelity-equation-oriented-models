@@ -35,7 +35,7 @@ def document(record_id="reading"):
 def test_document_round_trip_and_minimal_shape():
     spec = SpecificationDocument.load_json(EXAMPLE / "specification.json")
     assert SpecificationDocument.from_json(spec.model_dump_json()) == spec
-    assert set(spec.model_dump()) == {"specifications", "initial_values"}
+    assert set(spec.model_dump()) == {"specifications", "replacements", "initial_values"}
     assert spec.specifications[0] == "inlet_flow"
     with pytest.raises(ValidationError):
         spec.specifications = ("other",)
@@ -264,7 +264,7 @@ def test_both_lists_default_to_empty_and_round_trip():
     document = SpecificationDocument(initial_values=["start"])
     assert SpecificationDocument.from_json(document.model_dump_json()) == document
     assert document.model_dump(mode="json") == {
-        "specifications": [], "initial_values": ["start"],
+        "specifications": [], "replacements": {}, "initial_values": ["start"],
     }
 
 

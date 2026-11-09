@@ -17,6 +17,7 @@ class SpecificationDocument(Definition):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     specifications: tuple[Annotated[str, Field(min_length=1)], ...] = ()
+    replacements: dict[Annotated[str, Field(min_length=1)], Annotated[str, Field(min_length=1)]] = Field(default_factory=dict)
     initial_values: tuple[Annotated[str, Field(min_length=1)], ...] = ()
 
     @model_validator(mode="after")
@@ -24,7 +25,20 @@ class SpecificationDocument(Definition):
         ids = self.specifications + self.initial_values
         if len(ids) != len(set(ids)):
             raise ValueError("Each information record may be selected only once across both lists")
+        if set(self.replacements) - set(self.specifications):
+            raise ValueError("Replacement keys must name selected operating specification records")
+        if len(set(self.replacements.values())) != len(self.replacements):
+            raise ValueError("Each canonical input can be replaced only once")
         return self
+
+
+def _document(specification):
+    if isinstance(specification, (str, Path)):
+        return SpecificationDocument.load_json(specification)
+    if not isinstance(specification, SpecificationDocument):
+        return SpecificationDocument.model_validate(specification)
+    # Revalidate editable nested mappings and model_copy(update=...) documents.
+    return SpecificationDocument.model_validate(specification.model_dump())
 
 
 def _initial_values_for(record, component, model):
@@ -52,10 +66,7 @@ def _prepare(model, specification, information):
     from pyomo.environ import units
     from .builder import _expression
 
-    if isinstance(specification, (str, Path)):
-        specification = SpecificationDocument.load_json(specification)
-    elif not isinstance(specification, SpecificationDocument):
-        specification = SpecificationDocument.model_validate(specification)
+    specification = _document(specification)
     if not isinstance(information, InformationDocument):
         raise TypeError("information must be an InformationDocument")
     registry = getattr(model, "_model_language_variables", None)
@@ -102,7 +113,7 @@ def _prepare(model, specification, information):
 
 
 def apply_specification(model, specification, information) -> None:
-    """Validate both lists, then fix whole families or initial time slices.
+    """Apply direct input fixes or explicitly paired operating replacements.
 
     Validation failure leaves values and fixed/free statuses unchanged. The
     information document is read only. No solver or initialization is invoked.
@@ -110,7 +121,21 @@ def apply_specification(model, specification, information) -> None:
     Initial values require dynamic time-indexed variables. Constants broadcast
     over non-time axes; series give initial profiles in non-time dimension order.
     """
+    from .replacement import _validate_slots, audit_fixations
+    specification = _document(specification)
     prepared = _prepare(model, specification, information)
+    audit_fixations(model)
+    slots = _validate_slots(model, specification, information)
+    initial_entries = set()
+    for record_id in specification.initial_values:
+        record = information.get(record_id)
+        family = get_variable(model, record.variable_path)
+        initial_entries.update((record.variable_path, index)
+                               for index in _initial_values_for(record, family, model))
+    initial_paths = {path for path, _ in initial_entries}
+    for slot, entry in {**model._model_language_specification_slots, **slots}.items():
+        if slot != entry['variable_path'] and slot in initial_paths:
+            raise ValueError(f'{slot}: replaced canonical input must remain free, including its initial slice')
     # Roll back unexpected backend failures as well as preventing partial writes
     # on ordinary validation errors.
     previous = [(variable, variable.value, variable.fixed) for variable, _ in prepared]
@@ -122,3 +147,5 @@ def apply_specification(model, specification, information) -> None:
             variable.set_value(value, skip_validation=True)
             variable.fixed = fixed
         raise
+    model._model_language_specification_slots.update(slots)
+    model._model_language_initial_fixations.update(initial_entries)

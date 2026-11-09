@@ -12,5 +12,11 @@
     "replay_source_inlet_temperature",
     "replay_hot_inlet_temperature",
     "replay_warm_inlet_temperature"
-  ]
+  ],
+  "replacements": {
+    "replay_source_inlet_temperature": "source_inlet.enthalpy",
+    "replay_hot_inlet_temperature": "hot_inlet.enthalpy",
+    "replay_warm_inlet_temperature": "warm_inlet.enthalpy"
+  },
+  "initial_values": []
 }

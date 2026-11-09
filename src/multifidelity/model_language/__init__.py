@@ -10,6 +10,7 @@ from .specification import (
     apply_specification,
 )
 from .selection import SpecificationSelection, select_specification
+from .replacement import canonical_inputs, pair_specification, specification_slots, audit_fixations
 from .variables import get_variable
 from .initialization import apply_starting_values, initialize_custom_models
 from .hierarchical_initialization import initialize_model, InitializationResult, InitializationStage
@@ -49,6 +50,10 @@ __all__ = [
     "SpecificationRelaxation",
     "SpecificationSelection",
     "select_specification",
+    "canonical_inputs",
+    "pair_specification",
+    "specification_slots",
+    "audit_fixations",
     "ModelView",
     "RelationshipView",
     "build_model",

@@ -51,3 +51,16 @@ test('tables show fixed then mixed then free, preserving order within groups and
   assert.deepEqual(fixedFirst(mixed.entries).map(entry=>entry.fixed),[true,false]);
   assert.deepEqual(mixed.entries.map(entry=>entry.fixed),[false,true]);
 });
+
+test('replacement pairs survive result loading and malformed pair maps are rejected', () => {
+  const doc=fixture();
+  doc.specification={specifications:['temperature'],replacements:{temperature:'state.enthalpy'},initial_values:[]};
+  assert.deepEqual(parseResults(JSON.stringify(doc)).specification.replacements,{temperature:'state.enthalpy'});
+  for (const replacements of [null,[],{missing:'state.enthalpy'},{temperature:''},{temperature:3}]) {
+    doc.specification.replacements=replacements;
+    assert.throws(()=>parseResults(JSON.stringify(doc)));
+  }
+  doc.specification.specifications=['a','b'];
+  doc.specification.replacements={a:'state.enthalpy',b:'state.enthalpy'};
+  assert.throws(()=>parseResults(JSON.stringify(doc)));
+});

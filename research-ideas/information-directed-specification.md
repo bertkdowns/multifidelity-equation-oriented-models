@@ -15,9 +15,12 @@ adds a physical explanation requirement to the intended specification workflow:
 every fixed variable must be an unsupplied input, or explicitly name the
 unsupplied input it replaces. Chosen pairs belong in the specification document,
 so a saved plan explains, for example, temperature instead of enthalpy. The current
-DM selector does not yet record or enforce these pairs. Its main workflow must
-be extended accordingly; the unrestricted selector remains a comparison baseline.
-Replacement keeps the physical equations intact. Jacobian-based recovery remains
+DM selector now records these pairs through automatic post-selection pairing:
+use DM/matching analysis to find admissible
+canonical partners, then prefer local and nearby inputs, optionally using upstream
+position as a tie-break. No model-authored replacement catalogue is required.
+Preserve the existing information choices and allow reassignment of pairs as well
+as user overrides. Replacement keeps the physical equations intact. Jacobian-based recovery remains
 a separate future study, rather than a prerequisite for this proposal.
 
 ## Two independently testable research problems
@@ -122,7 +125,9 @@ and [IDAES structural-singularity example](https://idaes-examples.readthedocs.io
 ## Specification document and separate algorithm diagnostics
 
 The implemented [specification document](../src/multifidelity/model_language/README.md#specification-documents)
-contains only selected information-record IDs; each record supplies its variable path. It has no
+contains selected information-record IDs and a `replacements` mapping from
+selected operating IDs to canonical input paths. Each information record supplies
+the fixed target path, value and unit. The document has no
 implementation references, values, actions, structural status or unused-information
 fields. Application receives the numerical model and information table separately.
 The initial trust-ranked selection loop is implemented in

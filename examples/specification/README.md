@@ -19,13 +19,17 @@ values are fixed elsewhere in the script. The measured pressure is used despite
 its nonzero uncertainty: fixing the central value is the initial approximation.
 The fallback and three outlet checks remain unused: the selector accepts four
 independent records in trust order, reducing structural deficiency from four to
-zero. It reports a reason for each skipped record.
+zero. It reports a reason for each skipped record. The default four records target
+canonical inputs, so their `replacements` mapping is empty. If outlet information
+is selected instead, the same selector automatically pairs it with an admissible
+canonical input; no valve-specific replacement logic is needed.
 
 Expected result:
 
 ```json
 {
   "selected_records": ["inlet_flow", "pressure_measurement", "inlet_enthalpy", "valve_pressure_drop"],
+  "replacements": {},
   "skipped_records": {
     "outlet_enthalpy_check": "already structurally determined",
     "outlet_flow_check": "already structurally determined",

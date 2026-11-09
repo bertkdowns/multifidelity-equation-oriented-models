@@ -31,12 +31,14 @@ model identities: references use the `id` declared inside a model document.
 | Information document | Portable representation of an information table; the JSON format is an array of records. | `InformationDocument` |
 | Quantity of interest / prediction target | Variable whose value an analysis aims to predict. | Variable path |
 | Quantity-of-interest document | Prediction target paths, without target values or accuracy thresholds. | Proposed JSON shape: `{"quantities": [{"variable_path": "..."}]}`; no typed class yet |
-| Specification document | Chosen information-record IDs in `specifications` (whole families) and `initial_values` (first time slice). Records own paths and values; context and diagnostics are separate. | `SpecificationDocument` with two arrays of ID strings; `apply_specification()` |
+| Canonical input | Public input not supplied by a selected parent constraint, connection or derivative, relative to a solve scope. | `canonical_inputs(model)` |
+| Variable replacement | A chosen fixation occupies a canonical input's specification slot; that input remains free and equations stay intact. | `SpecificationDocument.replacements` |
+| Specification document | Chosen information-record IDs in `specifications` (whole families) and `initial_values` (first time slice), plus `replacements` mapping operating record IDs to canonical input paths. Records own target paths and values; context and diagnostics are separate. | `SpecificationDocument`; `apply_specification()` |
 | Specification plan | The decisions contained in a specification document; not a separate document type. | Same conceptual artifact as the specification document |
 | Initial condition | A fixed value or profile at the first time point, selected through `initial_values`; distinct from an unfixed solver initial guess. | Applied by `apply_specification()` |
 | Starting guess | An unfixed numerical value from a variable declaration's optional `default`, unused applicable information, or an initialisation callback. | `Variable.default`, `apply_starting_values()`, `initialize_custom_models()` |
 | Numerical instance | Live numerical equation system for an implementation with its specifications applied. Construction alone may leave it unspecified. | Pyomo `ConcreteModel` with IDAES `FlowsheetBlock`; no instance-document class |
-| Solve result | Outputs, solver status and provenance from one solve attempt, distinct from structural specification status. | No model-language result type yet |
+| Solve result | Outputs, solver status and provenance from one solve attempt, distinct from structural specification status. | `ResultsDocument`; `export_results()` |
 
 ## Layered architecture
 
@@ -56,7 +58,7 @@ Numerical instance + numerical solve
 
 The first layer is implemented through library navigation, selected traversal and
 construction. Specification application and initial trust-ranked DM specification
-generation are implemented; typed target/result artifacts remain proposed. Structural algorithms may construct the numerical
+generation and result snapshots are implemented; the typed target artifact remains proposed. Structural algorithms may construct the numerical
 equations before generating a specification document; the diagram expresses data
 dependencies, not a mandatory construction order.
 
@@ -96,8 +98,11 @@ These current types are also available from `multifidelity.model_language`.
   recursive `submodels`. No model IDs; the root is supplied to the operation.
 - Information document: a Pydantic array of `InformationRecord` objects.
 - Specification document: a Pydantic object with `specifications`, an array of
-  selected information-record ID strings, plus `initial_values` for initial conditions.
-  Both arrays default to empty. No separate entry wrapper type.
+  selected information-record ID strings, `replacements` mapping selected operating
+  record IDs to canonical input paths, and `initial_values` for initial conditions.
+  The arrays default to empty and the mapping defaults to `{}`. No separate entry
+  wrapper type. Noncanonical operating fixations require explicit pairs, generated
+  automatically by `pair_specification()` or `select_specification()`.
 
 All support Pydantic validation/serialization plus `from_json()` and `load_json()`.
 `get_variable(model, path)` provides public access to numerical variable families.

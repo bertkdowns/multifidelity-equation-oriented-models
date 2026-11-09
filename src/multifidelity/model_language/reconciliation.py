@@ -4,8 +4,9 @@ from dataclasses import dataclass
 import math
 from numbers import Real
 
-from .specification import SpecificationDocument, _prepare
+from .specification import SpecificationDocument, _prepare, _document
 from .scaling import _factor
+from .replacement import audit_fixations
 
 
 @dataclass
@@ -44,8 +45,7 @@ def relax_specifications(model, specification, information, *, weights=None):
     """
     from pyomo.environ import Block, Constraint, Objective, Var, units
     from idaes.core.util.scaling import set_scaling_factor
-    if not isinstance(specification, SpecificationDocument):
-        specification = SpecificationDocument.model_validate(specification)
+    specification = _document(specification)
     weights = dict(weights or {})
     selected = specification.specifications + specification.initial_values
     if not selected:
@@ -55,6 +55,7 @@ def relax_specifications(model, specification, information, *, weights=None):
     if any(isinstance(w, bool) or not isinstance(w, Real) or not math.isfinite(w) or w <= 0
            for w in weights.values()):
         raise ValueError('Weights must be finite and positive')
+    audit_fixations(model)
     clone = model.clone()
     entries = []
     seen = set()
@@ -67,7 +68,8 @@ def relax_specifications(model, specification, information, *, weights=None):
     try:
         for record_id in selected:
             record = information.get(record_id)
-            single = SpecificationDocument(**{
+            single = SpecificationDocument(replacements=({record_id: specification.replacements[record_id]}
+                                                       if record_id in specification.replacements else {}), **{
                 'initial_values' if record_id in specification.initial_values else 'specifications': [record_id]})
             for variable, target in _prepare(clone, single, information):
                 if id(variable) in seen:
@@ -77,7 +79,7 @@ def relax_specifications(model, specification, information, *, weights=None):
                         or not math.isclose(variable.value, target, rel_tol=1e-12, abs_tol=1e-12)):
                     raise ValueError(f'{record_id}: specification must already be applied at its recorded value')
                 entries.append(dict(record_id=record_id, variable_path=record.variable_path,
-                                    index=variable.index(), variable=variable, target=target,
+                                    replaces=specification.replacements.get(record_id), index=variable.index(), variable=variable, target=target,
                                     unit=str(units.get_units(variable)), scale=_factor(variable),
                                     weight=weights.get(record_id, 1)))
     finally:
@@ -97,5 +99,13 @@ def relax_specifications(model, specification, information, *, weights=None):
         block.balance[i] = block.slack[i] == entry['scale'] * (magnitude - entry['target'])
         set_scaling_factor(block.slack[i], 1)
         set_scaling_factor(block.balance[i], 1)
+    # These slots are now soft observations on the diagnostic clone.
+    softened = {entry['variable_path'] for entry in entries}
+    clone._model_language_specification_slots = {
+        slot: entry for slot, entry in clone._model_language_specification_slots.items()
+        if entry['variable_path'] not in softened}
+    clone._model_language_initial_fixations = {
+        pair for pair in clone._model_language_initial_fixations
+        if pair[0] not in {e['variable_path'] for e in entries}}
     block.objective = Objective(expr=sum(e['weight'] * block.slack[i]**2 for i, e in enumerate(entries)))
     return SpecificationRelaxation(clone, entries)

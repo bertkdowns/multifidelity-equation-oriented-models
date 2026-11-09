@@ -1,10 +1,21 @@
 # Canonical variables and specification replacement
 
-Research proposal, investigated 6 November 2026 and revised 9 November 2026.
+Research and implementation note, investigated 6 November 2026 and revised
+9 November 2026.
 This note connects [pyomo-replace](https://github.com/bertkdowns/pyomo-replace)
 to the current [specification study](information-directed-specification.md) and
-[initialisation proposal](initialisation.md). The implementation below is proposed;
-the existing specification API does not yet enforce it.
+[initialisation proposal](initialisation.md). The specification format, structural
+pairing, application checks and slot-aware initialisation below are now implemented.
+The broader research experiments and dynamic initial-condition pairing remain
+future work.
+
+The public API is `canonical_inputs()`, `pair_specification()`,
+`apply_specification()`, `specification_slots()` and `audit_fixations()`.
+`select_specification()` keeps its trust-ranked DM policy and adds automatic
+pairs to the returned document; an unresolved assignment appears in
+`pairing_error` and prevents `complete=True`. Examples have been migrated to
+explicit replacement mappings. The model viewer accepts those mappings in saved
+result specifications. Historical result snapshots retain their original metadata.
 
 ## Purpose and core rule
 
@@ -14,6 +25,11 @@ compressor outlet pressure instead of compressor work**. The model records which
 normal input is now calculated, rather than leaving that choice implicit in a
 list of fixed measurements. Numerical conditioning is a separate concern and is
 not the motivation or a prerequisite for this implementation.
+
+The implementation uses general mathematical and graph logic only. It does not
+recognise thermodynamic states, compressors, or particular kinds of quantities.
+Variable names, descriptions and units make the resulting pairs understandable
+to the user; they do not determine which pairs the algorithm permits or prefers.
 
 The core rule is:
 
@@ -86,9 +102,11 @@ both paths, even if they lie in different units. The connection stays active.
 [`_validation.py`](../src/multifidelity/model_language/_validation.py) and the
 selected traversal already provide the declaration-level determination metadata.
 Reuse that metadata rather than infer canonical status from current Pyomo fixity.
-Keep the existing direction and duplicate-definition checks. A dependency path
-can help suggest a replacement, but the user or model author supplies the physical
-choice initially; there is no need to introduce automatic pair discovery first.
+Keep the existing direction and duplicate-definition checks. Discover replacement
+candidates automatically from the equation incidence graph and DM/matching
+analysis. No model-authored list of permitted replacement pairs is required.
+Use locality and graph distance to choose a readable explanation among admissible
+candidates; the user can edit that choice later.
 
 An input that is unused still appears in this declaration-level list. Report it
 as unused rather than presenting its replacement as a meaningful physical choice.
@@ -103,8 +121,12 @@ measurements loses the physical explanation and cannot enforce the rule on reloa
 Keep values and units in the information document; the chosen replacement belongs
 to the specification document because it depends on how we use that information.
 
-A small extension to the current record-ID format is a `replacements` mapping
-from selected information-record ID to canonical input path:
+### Implemented JSON format
+
+Retain the existing record-ID arrays and add one `replacements` object. Its keys
+are selected information-record IDs; its values are the canonical input paths
+those records replace. This is the serialized format, not just a display
+of the generated explanation:
 
 ```json
 {
@@ -121,7 +143,70 @@ In this illustrative model, the `inlet_pressure` record targets canonical input
 result reads: **specify pressure directly; specify temperature instead of
 enthalpy**. No enthalpy record or enthalpy default value is required.
 
-Proposed semantics:
+| Field | JSON type | Meaning | Default |
+| --- | --- | --- | --- |
+| `specifications` | Array of record-ID strings | Information records whose target variable families are fixed. | `[]` |
+| `replacements` | Object mapping record-ID strings to variable-path strings | Canonical input occupied by each noncanonical operating fixation. Omit an entry for a direct canonical fixation. | `{}` |
+| `initial_values` | Array of record-ID strings | Existing first-time-slice initial-condition choices; automatic replacement for this scope is deferred. | `[]` |
+
+For a steady-state case, `initial_values` is empty. The `replacements` keys
+must occur in `specifications`; this mapping does not yet
+describe replacements for dynamic initial conditions. Do not interpret an initial
+condition as an operating fixation or silently apply these steady-state rules to
+it. The separate dynamic extension described below must specify that contract.
+
+Use root-relative variable-family paths, with no index selectors, consistent with
+information records and `get_variable()`. Record IDs and paths are nonempty
+strings. Reject unknown top-level fields and replacement IDs absent from the
+selected operating records. The mapping's values are variable paths, not IDs of
+other information records.
+
+### Information supplied alongside the specification
+
+The specification above is used with an information document such as:
+
+```json
+[
+  {
+    "id": "inlet_pressure",
+    "tag": "P-1",
+    "information_type": "sensor_reading",
+    "variable_path": "state.pressure",
+    "type": "constant",
+    "value": 200000,
+    "unit": "Pa",
+    "trust_rank": 9
+  },
+  {
+    "id": "measured_temperature",
+    "tag": "T-1",
+    "information_type": "sensor_reading",
+    "variable_path": "properties.temperature",
+    "type": "constant",
+    "value": 350,
+    "unit": "K",
+    "trust_rank": 9
+  }
+]
+```
+
+The selected model supplies variables, equations and canonical-input discovery;
+the implementation document supplies the relationship choices. Neither is
+embedded in the specification document. Together these inputs resolve to:
+
+| Canonical slot | Fixed target | Information record | Action |
+| --- | --- | --- | --- |
+| `state.pressure` | `state.pressure` | `inlet_pressure` | Fix pressure to 200000 Pa directly. |
+| `state.enthalpy` | `properties.temperature` | `measured_temperature` | Fix temperature to 350 K; leave enthalpy free. |
+
+This table is derived, not another saved field. Values, units, uncertainty and
+trust remain in the information document. Pairing scores, alternatives, DM status
+and solver results remain separate diagnostics. The specification stores the
+chosen records and pairs, whether generated automatically or edited by the user.
+
+### Pairing semantics and compatibility
+
+Application semantics:
 
 - A selected record with no replacement entry must target a canonical input.
 - A record targeting any other variable must have an explicit replacement entry.
@@ -141,8 +226,9 @@ Proposed semantics:
 An omitted `replacements` mapping defaults to empty. Existing documents selecting
 only canonical inputs remain valid. Existing documents fixing outputs or supplied
 inputs need explicit pair annotations; accepting them without annotations would
-break the proposed rule. A migration report should list those records and request
-an input choice, rather than silently guess a physical explanation.
+break the proposed rule. Migration should run the same automatic pairing method
+used by selection, save the inferred pairs, and report any unresolved cases. It
+should not require users to annotate every existing output fixation manually.
 
 This changes the earlier proposal: the final fixed set alone is insufficient.
 An optional audit can still record selection decisions and rejected alternatives,
@@ -150,10 +236,11 @@ but the chosen replacement pairs are part of the specification itself.
 
 ## Apply and maintain the specification
 
-Extend [`SpecificationDocument` and `apply_specification()`](../src/multifidelity/model_language/specification.py)
-with the mapping above. A small shared helper should resolve the canonical slot
-for each requested fixation and be used by both manual application and automatic
-selection.
+[`SpecificationDocument` and `apply_specification()`](../src/multifidelity/model_language/specification.py)
+use the mapping above. Shared structural pairing and slot validation are in
+[`replacement.py`](../src/multifidelity/model_language/replacement.py). Manual
+application requires explicit pairs; `pair_specification()` generates missing
+pairs without changing the selected record IDs or numerical instance.
 
 1. Resolve the selected implementation, canonical inputs, record paths and pairs.
    Build a slot table containing canonical input, fixed variable, record ID and
@@ -187,59 +274,150 @@ should use the managed application path. Raw Pyomo `.fix()` remains technically
 possible, so a fixation audit at initialization/solve entry should detect a bypass
 and identify the missing input or replacement declaration.
 
-## Explain the physical choices accurately
+## General mathematical rule, readable domain examples
 
-For a pressure/enthalpy state, the natural example is:
+Let `C` be the canonical inputs obtained from the selected model's declarations,
+and let `z` be a variable chosen for fixation. If `z` belongs to `C`, it occupies
+its own slot. Otherwise choose a canonical input `c` using structural exchange
+admissibility and the graph/hierarchy heuristic described below. Record the pair
+`z replaces c`. The same procedure applies to every model and every variable.
 
-| Canonical input | Fixed quantity | Explanation |
+The report can render this as **fix {z}, instead of input {c}**, using the model's
+existing labels or paths. It does not need equipment-specific explanation rules.
+For example, this generic template might produce:
+
+| Canonical input | Fixed variable | Rendered explanation |
 | --- | --- | --- |
-| `state.pressure` | `state.pressure` | Specify pressure directly. |
-| `state.enthalpy` | `properties.temperature` | Specify temperature instead of enthalpy; calculate enthalpy using the property equations. |
+| `state.enthalpy` | `properties.temperature` | Fix temperature instead of input enthalpy. |
+| `compressor.parameters.pressure_rise` | `compressor.outlet.pressure` | Fix outlet pressure instead of input pressure rise. |
 
-For a compressor whose formulation takes work as an undefined input, fixing
-outlet pressure can explicitly replace that work input. The pressure, efficiency
-and energy equations then determine the work required.
+These are illustrations of algorithm outputs, not rules to encode. In particular,
+there must be no special case saying temperature replaces enthalpy, pressure
+replaces work, or a variable with a particular unit is a preferred partner.
+Existing unit conversion still validates each information record against its
+own target variable; it does not compare the units of the replacement pair.
 
-The current [`compressor.json`](../src/multifidelity/model_language/models/compressor.json)
-has a different forward contract: `parameters.pressure_rise` is an input and
-`performance.work` is an output. With this definition, the corresponding pair is
-**outlet pressure instead of pressure rise**. Specifying work would itself replace
-an input, such as pressure rise. To support the exact explanation **outlet
-pressure instead of work**, provide a work-input formulation with the appropriate
-`determines` declarations; do not label the current work output a canonical input.
-The physical equations can often stay the same while the authored forward
-contract differs.
+Which inputs are canonical follows the selected model, not domain knowledge in
+the replacement code. Thus if work is a canonical input, it can be a candidate;
+if the equations define work, it cannot be the canonical partner. This falls out
+of the same declaration and graph logic, without recognising a compressor or
+requiring a new formulation merely to obtain a particular explanation.
 
-These examples show why the pair is model-specific information. A list containing
-only a temperature or pressure record cannot express which input is to be
-calculated, especially when several inputs could be released.
+The generated pair states a structural specification choice. It does not claim
+a unique physical cause or a unique interpretation of the equations. Multiple
+mathematically admissible pairings can explain the same selected fixed set.
 
-## Update automatic specification selection
+## Automatic pairing with DM analysis and a locality heuristic
+
+Keep the existing information-driven specification method. It chooses which
+information to use; automatic pairing explains which canonical inputs those
+choices replace. These are related steps, but the explanation heuristic should
+not quietly change the trust ordering or discard a useful measurement merely
+because its nearest input already has a partner.
 
 The current [`select_specification()`](../src/multifidelity/model_language/selection.py)
-can choose any structurally admissible fixed variable without recording what it
-replaces. Update the proposed main workflow so it returns both chosen record IDs
-and their replacement mappings. Every selected fixation must satisfy the core
-rule, including those chosen automatically.
+tries records in trust order and uses DM analysis to accept structurally useful
+fixations. Its result now includes the replacement mapping. The user does not
+need to supply candidate pairs, and model definitions do not gain a replacement
+catalogue.
 
-Start with manually supplied or model-authored candidate pairs. Direct canonical
-records need no annotation. For other records, consider only explicitly nominated
-canonical slots. Trust rank can order records, and the existing DM trials can
-still check structural admissibility, but they cannot supply a physical explanation
-by themselves. When several slots are possible, expose the choice rather than
-use an arbitrary unmatched variable as its explanation.
+### Structural candidates
 
-The existing unrestricted selector can remain an experimental comparison. Its
-output must acquire explicit pairs before it is applied through the proposed
-specification API. High trust does not waive pairing, achieved-setpoint assumptions
-or prediction-target exclusions. A power measurement reserved for evaluation
-must not be used to specify power via a replacement.
+Build the bipartite graph of active equality equations and concrete variable
+entries, including connections and provider equations. Retain isolated variables
+in the analysis. Canonical status comes from the declarations; structural
+connectivity comes from the equations.
 
-The main result should be a readable slot report: **what is fixed, what input it
-replaces, where both quantities belong, and which information record supplies
-the value**. An unoccupied slot reports missing specification; a replacement
-reports a deliberate inverse calculation. These are more useful explanations
-than presenting only unmatched-variable names.
+For a proposed noncanonical fixation, identify canonical inputs connected to it
+through this graph. Use maximum matching and the corresponding DM deficiency counts to
+find admissible exchanges in the context of the other selected specifications.
+A shared connected component is a useful first filter, but not sufficient on its
+own. Likewise, two variables appearing somewhere in the DM underconstrained
+partition does not by itself make them an exchange pair. The actual exchange
+must preserve the intended structural matching.
+
+A simple prototype can test candidate exchanges on a structural working copy:
+use the canonical closure as a reference, release the candidate canonical input
+and impose the proposed fixation, retaining the other chosen exchanges. Compare
+matching/DM before and after. Where a valid canonical reference closure exists,
+the exchanged closure must remain structurally complete. Some steady reductions
+of dynamic models have a deficient canonical reference: for example, level may
+replace a withdrawal input whose value is constrained by zero accumulation.
+The implemented trial allows an exchange to improve deficiency and unmatched-row
+counts, but never worsen either. This is general matching logic, not a tank rule. More efficient
+alternating-path queries can replace repeated trials later.
+
+These reference fixations are graph bookkeeping: no canonical measurement or
+numerical value is needed, and they are never applied to the operating instance.
+The existing selector still returns a partial plan when information is missing.
+Actual structural completeness is still reported by the selector, separately
+from the replacement explanation. Virtual reference closure must not be confused
+with sufficient measured information for the operating instance. Jacobian
+validation is not part of this pairing procedure.
+
+### Rank the admissible partners
+
+Among structurally admissible choices, use a simple deterministic ordering:
+
+1. Prefer an input belonging to the same model occurrence as the fixed quantity.
+   Otherwise prefer a nearby occurrence in the hierarchy, measured by distance
+   through their lowest common ancestor.
+2. Prefer a shorter equation/variable path between the canonical input and the
+   fixed quantity. Count equation crossings consistently, including connections.
+3. Use upstream position as a secondary preference where the declared connection
+   directions or `determines` dependencies provide a useful ordering.
+4. Break remaining ties by the canonical variable's root-relative path.
+
+This ordering uses only model ownership, graph distance and declared edge
+direction. It never inspects variable names, physical quantity categories or
+equipment types. The structural check first determines which choices are possible
+under the other specifications; the heuristic ranks those choices. Domain examples
+may illustrate the result but must not add exceptions or override this ordering.
+
+Upstream preference is optional and must not exclude otherwise admissible pairs.
+Equations remain implicit and recycle loops need not have a unique upstream
+ordering. We can start with locality and distance, then assess whether adding an
+upstream tie-break improves explanations on actual flowsheets.
+
+### Preserve existing selection behaviour
+
+The implementation runs the current trust-ranked selector, then pairs its
+chosen noncanonical targets with canonical inputs. Direct canonical fixations
+reserve their own slots. Find an injective assignment of the remaining targets
+to admissible canonical slots, and validate the whole assignment structurally.
+This post-processing route preserves the selected information set while adding
+the replacement explanation.
+
+Do not commit permanently to the first greedy pair. A later specification can
+require moving earlier pairs. Recompute pairing for the entire chosen set, reserving all direct inputs first
+and honouring explicit user pairs as a joint assignment. This allows a later
+direct record to move an earlier automatic pair to another slot. Future
+alternating-path or search methods can extend this bounded heuristic if a valid
+assignment cannot be found. A matching over
+independently generated candidate pairs is only a proposal until the combined
+closure has been checked. If no assignment can be found, return the selected
+records with an explicit unresolved-pair diagnostic rather than inventing a pair
+or silently changing the chosen information. Such a result is not yet ready for
+application under the replacement rule.
+
+Pairing can subsequently be integrated into each DM selection trial, allowing
+reassignment after an accepted record. Neither approach changes the existing
+achieved-setpoint policy, prediction-target exclusions or unit/value checks.
+
+### User overrides and explanations
+
+Save the generated pairs in the specification document. The main report shows
+**what is fixed, which input it replaces, where both quantities belong, and which
+information record supplies the value**. Separate diagnostics can record why the
+heuristic preferred that input and list alternative admissible partners.
+
+The user can switch partners, including swapping several pairs together, without
+changing the measured values or physical equations. Validate the edited assignment
+jointly for connectivity, structural admissibility and unique slot ownership.
+Accept any admissible user choice even when the heuristic prefers another one.
+Changing pairs alone need not change numerical fixity: when the selected fixed
+variables stay the same, it changes their explanation and slot ownership. If the
+user changes the fixed targets as well, apply the fixation update atomically.
 
 ## Initialisation, providers and fidelity changes
 
@@ -268,35 +446,44 @@ must be accounted for in its interface or configuration, rather than allowing
 unexplained output fixations to bypass the public rule.
 
 After a fidelity change, rediscover canonical inputs and resolve the pairs
-against the new implementation. Retain physically meaningful stable paths where
-possible; report pairs whose target or canonical input no longer exists or has
-become defined. Do not silently repoint a replacement to some other free input.
+against the new implementation. Retain admissible pairs where possible and
+rerun automatic pairing for affected choices, reporting any changes. User-pinned
+pairs that become invalid need an explicit diagnostic rather than a silent
+replacement by the heuristic.
 
 Dynamic initial conditions require a separate explicit scope. The present
 `initial_values` convention can fix state/rate outputs, so it does not automatically
 satisfy the new rule. Before extending enforcement to dynamics, define canonical
 initial-condition slots from the dynamic formulation and pair alternative initial
 quantities with those slots. An initial condition is not a whole-trajectory input.
-The first implementation should cover steady operating specifications and local
-steady initialisation, with this dynamic extension recorded as unresolved rather
-than silently exempting initial fixes.
+The implementation supports whole-family operating replacements on steady or
+finalized dynamic grids, and local steady initialisation. Initial conditions
+remain explicitly tracked first-slice fixes in their own scope; automatic pairing
+of those initial conditions is deferred.
 
-## Implementation priority
+## Implemented scope and verification
 
-1. Expose canonical input discovery and implement the slot table and replacement
-   mapping in specification parsing/application.
-2. Add a fixation audit and a human-readable explanation for direct and replacement
-   specifications. Update examples that currently fix outputs without pairs.
-3. Make selection and local initialisation preserve the same slot ownership,
-   while retaining their existing policies for choosing admissible fixes.
-4. Demonstrate temperature instead of enthalpy and compressor outlet pressure
-   instead of its selected formulation's input, including save/reload of the pairs.
+- Canonical input discovery, replacement document parsing and atomic application.
+- Structural candidate trials, hierarchy/distance ranking and explicit user overrides.
+- Automatic pairing after information selection, with separate unresolved-pair diagnostics.
+- Slot reports and fixation audits, including protection of replaced inputs during
+  local initialisation when their fixed targets are in the active subtree.
+- Migrated SGHP and tank examples, provider-backed replay specifications and
+  model-viewer support for the new specification metadata.
+- Generic algebraic tests for pairing, reassignment, invalid exchanges, scope,
+  slot ownership, clone behaviour and save/reload.
 
 Tests should concentrate on this contract: accept a direct unsupplied input,
 require a pair for an output or supplied input, reject duplicate slot ownership,
 retain equations, and show the canonical input remains free under replacement.
 Check that invalid documents leave fixity unchanged and that initialization
-restores the final specification after temporary closures.
+restores the final specification after temporary closures. Include automatic
+pairing cases with a local and a distant admissible partner, a connected but
+inadmissible exchange, and a later record that requires reassignment of an earlier
+pair. Verify that a valid user override is accepted and that changing only pairs
+leaves the numerical fixed set unchanged. Renaming quantities or changing their
+physical labels must not affect admissibility or locality/distance scores; only
+the documented deterministic path tie-break may change when paths are renamed.
 
 Jacobian rank/conditioning studies can remain a later diagnostic experiment.
 The existing structural diagnostics and solver outcomes still describe whether

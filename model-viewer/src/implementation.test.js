@@ -11,7 +11,7 @@ const context = id => ({ definition: library[id], bindings: {} });
 const example = path => parseImplementation(readFileSync(new URL(`../../examples/${path}`, import.meta.url), 'utf8'));
 
 test('SGHP alternative combinations produce expected heat-pump subtree inputs and portable round trips', () => {
-  for (const [name, expected] of [['aggregate_aggregate', 5], ['aggregate_cycle', 10], ['cycle_aggregate', 9], ['cycle_cycle', 14]]) {
+  for (const [name, expected] of [['aggregate_aggregate', 5], ['aggregate_cycle', 10], ['cycle_aggregate', 10], ['cycle_cycle', 15]]) {
     const document = example(`steam_generating_heat_pump_system/${name}.json`);
     const result = analyzeImplementation(context('steam_generating_heat_pump_system'), document, library);
     assert.deepEqual(result.errors, []);
@@ -33,7 +33,7 @@ test('changing a child prunes stale descendants, preserves siblings and updates 
   assert.ok(!changed.submodels.sghp.submodels.cop_model);
   const result = analyzeImplementation(root, changed, library);
   assert.deepEqual(result.errors, []);
-  assert.equal(result.inputs.length - analyzeImplementation(root, original, library).inputs.length, 4);
+  assert.equal(result.inputs.length - analyzeImplementation(root, original, library).inputs.length, 5);
 });
 
 test('input requirements exclude supplied child fields, retaining partial structs and generic children', () => {

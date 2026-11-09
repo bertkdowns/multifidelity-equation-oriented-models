@@ -41,10 +41,10 @@ specification-replacement studies.
 
 The [canonical-variable replacement investigation](canonical-variable-replacement.md)
 examines `pyomo-replace`, treats unsupplied inputs as a candidate default
-specification interface, and proposes explicit, physically explainable pairs:
+specification interface, and records implemented, physically explainable pairs:
 temperature instead of enthalpy, for example. Every fixation must either target
 an unsupplied input or name the input it replaces. The note describes how to
-store and enforce this rule in specification documents, selection and
+store and enforce this rule in specification documents, automatic selection and
 hierarchical initialisation; Jacobian studies are secondary future work.
 
 This is an academic research project investigating multi-fidelity process

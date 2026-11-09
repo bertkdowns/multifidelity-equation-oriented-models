@@ -17,14 +17,17 @@ export function parseResults(source) {
   if (!['optimal','feasible','failed','not_solved'].includes(doc.solve.status)) throw Error('Invalid solve status.');
   for (const key of ['termination_condition','solver','message']) if (doc.solve[key] != null && typeof doc.solve[key] !== 'string') throw Error(`Invalid solve ${key}.`);
   if (doc.specification != null) {
-    keys(doc.specification,['specifications','initial_values'],[]);
+    keys(doc.specification,['specifications','replacements','initial_values'],[]);
     const ids=[];
     for (const key of ['specifications','initial_values']) {
-      const list=doc.specification[key] ?? [];
+      const list=doc.specification[key] === undefined ? [] : doc.specification[key];
       if (!Array.isArray(list) || !list.every(text)) throw Error('Invalid specification record IDs.');
       ids.push(...list);
     }
     if (new Set(ids).size !== ids.length) throw Error('Duplicate specification record IDs.');
+    const replacements = 'replacements' in doc.specification ? doc.specification.replacements : {};
+    if (!object(replacements) || Object.entries(replacements).some(([id,path]) => !text(id) || !text(path) || !(doc.specification.specifications ?? []).includes(id))) throw Error('Invalid replacement record or input path.');
+    if (new Set(Object.values(replacements)).size !== Object.values(replacements).length) throw Error('Duplicate replacement input slots.');
   }
   if (!Array.isArray(doc.variables)) throw Error('Expected result variable families.');
   const paths = new Set();
