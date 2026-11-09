@@ -10,6 +10,8 @@ import { routeDetailedEdges } from './edge-routing.js';
 import ImplementationPanel from './ImplementationPanel.jsx';
 import InformationPanel from './InformationPanel.jsx';
 import WorkspaceControls from './WorkspaceControls.jsx';
+import TimeSeriesChart from './TimeSeriesChart.jsx';
+import { timeDomainsByOccurrence, timeDimensionForVariable } from './time-series.js';
 import ResultsPanel, {ResultValues} from './ResultsPanel.jsx';
 import {indexResults, resultPreview, sameImplementation} from './results.js';
 import { useStoredDocuments } from './use-stored-documents.js';
@@ -27,6 +29,15 @@ function ResultsValue({name,localPath}) {
   return variable ? <button className="result-value nodrag nopan" title={`Saved snapshot · ${status}`} onClick={event=>{event.stopPropagation();inspect({title:name,result:{variable,status}});}}>
     {resultPreview(variable)} <code>{variable.unit}</code>
   </button> : null;
+}
+
+function VariableTrajectory({ localPath }) {
+  const results = useContext(ResultsContext);
+  if (results.mode !== 'dynamic') return null;
+  const variable = results.index.get([results.prefix, localPath].filter(Boolean).join('.'));
+  if (!variable) return null;
+  const dimension = timeDimensionForVariable(variable, results.timeDomains);
+  return dimension ? <TimeSeriesChart variable={variable} timeDimension={dimension} timeUnit={results.timeUnit}/> : null;
 }
 
 const InformationContext = createContext({ index: new Map(), prefix: '', inspect: () => {} });
@@ -167,9 +178,10 @@ function App() {
   const informationFile = informationFiles[rootId];
   const [resultFiles,setResultFiles,resultStorageErrors]=useStoredDocuments('results');
   const resultFile=resultFiles[rootId];
+  const timeDomains = useMemo(() => timeDomainsByOccurrence(implementationAnalysis), [implementationAnalysis]);
   const resultIndex=useMemo(()=>indexResults(resultFile?.document),[resultFile]);
   const showResults=resultFile && sameImplementation(implementation,resultFile.document.implementation) && selectedImplementation?.relationship===relationship && !implementationAnalysis.errors.length;
-  const resultsContext={index:showResults ? resultIndex : new Map(),prefix:trail.slice(1).map(item=>item.alias).join('.'),inspect:setSelection,status:resultFile?.document.solve.status};
+  const resultsContext={index:showResults ? resultIndex : new Map(),prefix:trail.slice(1).map(item=>item.alias).join('.'),inspect:setSelection,status:resultFile?.document.solve.status,mode:resultFile?.document.mode,timeUnit:resultFile?.document.time_unit,timeDomains};
   function openWorkspace(workspace, filename) {
     const root = workspace.results.model_id;
     setImplementations(previous => ({ ...previous, [root]: workspace.implementation }));
@@ -213,7 +225,8 @@ function App() {
   const selectionDetails = selection && <div className="details"><div className="selection-heading"><h3>{selection.title}</h3><button aria-label="Close selected item details" title="Close details" onClick={() => setSelection(null)}>×</button></div>
         {selection.child && !selection.child.unresolved && <button className="explore-button" onClick={() => explore(selection)}>Explore model →</button>}
         {Object.keys(selection.domainBindings ?? {}).length > 0 && <pre>Domain bindings: {JSON.stringify(selection.domainBindings, null, 2)}</pre>}
-        {selection.result ? <><p>Saved snapshot · {selection.result.status}</p><ResultValues variable={selection.result.variable}/></> : selection.variable ? <VariableInformation variable={selection.variable}/> : selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div key={name} title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><InformationValue name={name} variable={variable} localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div>)}</section>)}
+        {showResults && resultFile.document.mode === 'dynamic' && selection.rows?.length > 0 && <p>Saved dynamic snapshot · {resultFile.document.solve.status} · time in {resultFile.document.time_unit}</p>}
+        {selection.result ? <><p>Saved snapshot · {selection.result.status}</p><ResultValues variable={selection.result.variable} mode={resultFile?.document.mode} timeDimension={timeDimensionForVariable(selection.result.variable, timeDomains)} timeUnit={resultFile?.document.time_unit}/></> : selection.variable ? <VariableInformation variable={selection.variable}/> : selection.equation || selection.connection ? <pre>{JSON.stringify(selection.equation ?? selection.connection, null, 2)}</pre> : selection.rows.map(row => <section className="sidebar-struct" key={row.name}><h4>{row.name} <small>{row.direction}</small></h4>{Object.entries(row.variables).map(([name, variable]) => <div className="sidebar-variable" key={name}><div className="sidebar-variable-heading" title={JSON.stringify(variable)}><span>{variableLabel(name, variable)}</span><InformationValue name={name} variable={variable} localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div><VariableTrajectory localPath={`${selection.kind === 'model' ? `${selection.title}.` : ''}${row.name}.${name}`}/></div>)}</section>)}
       </div>;
   return <InformationContext.Provider value={informationContext}><ResultsContext.Provider value={resultsContext}><main>
     <aside ref={sidebarRef}><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Model explorer</h1>

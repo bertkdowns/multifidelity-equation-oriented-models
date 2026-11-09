@@ -172,3 +172,18 @@ current view or navigation state is included. Opening a bundle leaves local diag
 preferences intact. Individual file uploads/downloads remain available in their
 tabs. Python can produce the identical format using `export_workspace` or
 `WorkspaceDocument.from_results`; see the SGHP example's workspace files.
+
+### Dynamic trajectories
+
+For a matching dynamic results snapshot (including one opened from a workspace),
+select a model in Summary to see charts below its time-indexed struct variables
+in the left sidebar. Selecting a struct in Detailed also shows its variable charts.
+Charts use actual saved time coordinates and the snapshot's time unit, rather
+than assuming equal sample spacing. Scalars retain their normal value display.
+Hover over a chart or focus it and use Left/Right/Home/End to inspect values and
+export-time fixity. Missing values leave gaps; a flat series remains visible.
+Families with additional dimensions provide a selector for each coordinate
+combination. Model domain declarations identify the time axis, including locally
+renamed time domains. No interpolation, solving or unit conversion is performed.
+Expanded variable details in Results include the same chart. The selected-model
+sidebar labels the saved snapshot status; failed snapshots remain failed.
