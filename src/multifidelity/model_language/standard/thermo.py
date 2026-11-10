@@ -13,13 +13,13 @@ if TYPE_CHECKING:
 
 @contextmanager
 def _fluid_data(fluid):
-    """Embed Ahuora's additional n-butane data without retaining its global path.
+    """Embed Ahuora's additional butane isomer data without retaining its global path.
 
     IDAES embeds the data directory in each constructed external expression.
     Construct all reported properties inside this context, before restoring the
     previous directory and its component registry. No files are copied/modified.
     """
-    if fluid != 'n-butane':
+    if fluid not in {'n-butane', 'i-butane'}:
         yield
         return
     from ahuora_property_packages.helmholtz import parameters

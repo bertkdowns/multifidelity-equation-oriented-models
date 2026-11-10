@@ -810,3 +810,75 @@ information, selected initial/operating specifications and time-series results.
 the response. `thermal_verification.json` records the no-step, conservation and
 refinement checks. Corresponding `_no_step` and `_refined` artifacts preserve
 the other runs.
+
+## Detailed SGHP dynamic relationship
+
+The same `steam_generating_heat_pump_system_thermal` model can select the
+SGHP `cycle` relationship using `thermal_cycle.json`. Only the SGHP selection
+subtree differs from `thermal_aggregate.json`; PHNIX stays aggregate and all
+water inventories, topology, flow settings, initial states, pressures, powers,
+warm duty and PHNIX power-step settings are retained.
+
+```sh
+# Default: 60 s grid, SGHP cycle; output prefix thermal_cycle_step
+OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/run_thermal_dynamics.py --sghp cycle
+# 30 s grid
+OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/run_thermal_dynamics.py --sghp cycle --nfe 20 --prefix thermal_cycle_step_refined
+# Detailed no-step equilibrium check
+OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/run_thermal_dynamics.py --sghp cycle --step-fraction 0 --prefix thermal_cycle_no_step
+MPLCONFIGDIR=/tmp/multifidelity-matplotlib .venv/bin/python examples/steam_generating_heat_pump_system/verify_cycle_dynamics.py
+```
+
+The cycle calculates COP, so the aggregate's fixed COP has no input counterpart.
+A first structural check found one unmatched variable per time point. The user
+selected fixed compressor pressure rise at the matching steady value,
+**2.1056944726 MPa**, to replace that operating choice. The runner selects this
+value from `common_cycle_aggregate_results.json` by default; `--pressure-rise`
+can supply an explicit pressure rise in Pa. Four captured exchanger
+conductances and compressor efficiency retain their existing cycle values.
+This is an algebraic refrigerant cycle coupled to dynamic water inventories;
+no refrigerant charge, compressor inertia or pressure-controller dynamics are
+introduced.
+
+All detailed cases pass the standard specification pairing and unit checks,
+with zero DOF and no unmatched or under/overconstrained DM sets. No
+specifications are relaxed. The no-step run holds its initial equilibrium,
+with temperature drift below **4e-12 K**. The step case's largest scaled
+violation is approximately **7.1e-11** on the 60 s grid.
+
+At 600 s, the detailed results are:
+
+| Quantity | 60 s grid | 30 s grid | Aggregate |
+| --- | ---: | ---: | ---: |
+| Source temperature | 79.20868°C | 79.27541°C | 81.80015°C |
+| SGHP COP | 4.822734 | 4.826610 | 4.598828 |
+| Steam production | 76.01538 kg/h | 76.11355 kg/h | 70.34351 kg/h |
+
+Unlike fixed-COP aggregate performance, the cycle extracts more source heat
+as the source warms. At fixed 15.20 kW compressor power, its COP and hot-water
+heating duty increase, raising steam production and reducing source-water
+heat accumulation. Warm-water duty remains prescribed; the warm-loop
+temperature stays near 59.48463°C and the hot-loop temperature changes by
+only about 0.0012 K.
+
+The source-loop mass remains constant. Hot-loop mass falls by approximately
+**0.49 kg** on the 60 s grid (**0.48 kg** on the 30 s grid), since makeup stays
+fixed at the original 70.34351 kg/h while steam export increases. This is
+conserved withdrawal from inventory, not an unnoticed additional water feed
+or a fixed tank mass. No level controller is included. Compressor inlet
+vapor fraction remains 1 and all tank levels remain positive.
+
+Independent plant-boundary mass and energy integrations close to approximately
+**2e-14 kg** per interval and **3e-8 J** over each run. The maximum difference
+between the 60 s and 30 s temperature trajectories is **0.06674 K**, and steam
+rates differ by at most **0.09818 kg/h**. The stated precision of the trajectory
+is limited by this time-grid comparison and the illustrative water volumes.
+The numerical regression tests cover both fidelity selections, initial-only
+inventory fixity, varying COP/steam and the hot-inventory mass deficit.
+
+Open `thermal_cycle_step_refined_workspace.json` for the finer detailed run,
+or `thermal_cycle_step_workspace.json` for the 60 s run.
+`thermal_cycle_comparison.png` compares aggregate and cycle trajectories;
+`thermal_cycle_step.csv` contains the 60 s detailed trajectory.
+`thermal_cycle_verification.json` records conservation, no-step, refinement
+and phase/level checks.

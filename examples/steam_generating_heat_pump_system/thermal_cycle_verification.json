@@ -1,0 +1,41 @@
+{
+  "cycle": {
+    "max_step_mass_error_kg": 1.659783421814609e-14,
+    "max_step_energy_error_J": 1.2456439435482025e-08,
+    "inventory_energy_change_J": 1306117.580470223,
+    "integrated_net_energy_J": 1306117.5804702262,
+    "total_energy_error_J": 3.259629011154175e-09
+  },
+  "refined": {
+    "max_step_mass_error_kg": 1.5827616994812388e-14,
+    "max_step_energy_error_J": 2.1842424757778645e-08,
+    "inventory_energy_change_J": 1340006.804897923,
+    "integrated_net_energy_J": 1340006.804897934,
+    "total_energy_error_J": 1.0943040251731873e-08
+  },
+  "no_step": {
+    "max_step_mass_error_kg": 1.5515366769136563e-14,
+    "max_step_energy_error_J": 9.42964106798172e-09,
+    "inventory_energy_change_J": 2.682209014892578e-07,
+    "integrated_net_energy_J": 2.7197529561817646e-07,
+    "total_energy_error_J": 3.754394128918648e-09
+  },
+  "no_step_temperature_drift_K": 3.126388037344441e-12,
+  "maximum_coincident_temperature_difference_K": 0.06673120270318122,
+  "maximum_coincident_steam_difference_kg_h": 0.09817091988435084,
+  "initial_temperature_difference_K": 1.3073986337985843e-12,
+  "final": {
+    "source_temperature_C": 79.20867869836871,
+    "aggregate_source_temperature_C": 81.8001470878321,
+    "cop": 4.822733565763631,
+    "steam_kg_h": 76.01537806344406,
+    "aggregate_steam_kg_h": 70.34350642600997,
+    "hot_inventory_mass_change_kg": -0.49076214837613463,
+    "refined_source_temperature_C": 79.2754099010719,
+    "refined_cop": 4.826610179737411,
+    "refined_steam_kg_h": 76.11354898332841
+  },
+  "minimum_compressor_inlet_vapor_fraction": 1.0,
+  "minimum_level_m": 0.09947742778159101,
+  "verified": true
+}

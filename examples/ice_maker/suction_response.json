@@ -1,0 +1,49 @@
+{
+  "id": "suction_response",
+  "description": "Lumped response of the suction probe to measured water and ambient temperatures. The temperature offset absorbs unmeasured cycle effects.",
+  "domains": {"time": {"kind": "time"}},
+  "structs": {
+    "boundary": {
+      "direction": "input",
+      "variables": {
+        "water": {"unit": "K", "dimensions": ["time"], "default": 300},
+        "ambient": {"unit": "K", "dimensions": ["time"], "default": 295}
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "tau": {"unit": "s", "bounds": {"min": 5, "max": 1800}, "default": 90},
+        "water_weight": {"unit": "dimensionless", "bounds": {"min": 0, "max": 1}, "default": 0.5},
+        "offset": {"unit": "K", "default": -5}
+      }
+    },
+    "state": {
+      "direction": "output",
+      "variables": {
+        "suction": {"unit": "K", "dimensions": ["time"], "default": 295},
+        "rate": {"unit": "K/s", "dimensions": ["time"], "default": 0}
+      }
+    }
+  },
+  "relationships": {
+    "lumped": {
+      "constraints": {
+        "response": {
+          "lhs": "parameters.tau * state.rate[t]",
+          "rhs": "boundary.ambient[t] + parameters.water_weight * (boundary.water[t] - boundary.ambient[t]) + parameters.offset - state.suction[t]",
+          "determines": "state.rate[t]",
+          "for_each": {"t": "time"}
+        }
+      },
+      "derivatives": {
+        "temperature": {
+          "state": "state.suction",
+          "rate": "state.rate",
+          "with_respect_to": "time",
+          "determines": "state.suction"
+        }
+      }
+    }
+  }
+}

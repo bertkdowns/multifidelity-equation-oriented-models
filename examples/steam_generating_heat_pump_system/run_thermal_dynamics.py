@@ -1,4 +1,4 @@
-"""Aggregate PHNIX power-step demonstration with three mixed water inventories."""
+"""PHNIX power-step demonstration with three inventories and selectable SGHP fidelity."""
 import argparse
 import json
 import math
@@ -29,14 +29,16 @@ DENSITY = {'source_tank': 'phnix.sink_inlet_state.properties.density',
            'hot_tank': 'sghp.hot_inlet_state.properties.density'}
 
 
-def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1):
-    snapshot = json.loads((HERE / 'common_aggregate_aggregate_results.json').read_text())
+def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, sghp="aggregate", pressure_rise=None):
+    snapshot = json.loads((HERE / f'common_{sghp}_aggregate_results.json').read_text())
     steady = {r['variable_path']: r['entries'][0]['value'] for r in snapshot['variables']}
+    if sghp == 'cycle' and pressure_rise is None:
+        pressure_rise = steady['sghp.compressor.parameters.pressure_rise']
     library = Library(); register_standard_providers(library)
     grid = [horizon*i/nfe for i in range(nfe+1)]
     if not any(abs(t-step_time) < 1e-8 for t in grid):
         raise ValueError('Step time must lie on the time grid')
-    model = build_model('steam_generating_heat_pump_system_thermal', HERE / 'thermal_aggregate.json',
+    model = build_model('steam_generating_heat_pump_system_thermal', HERE / f'thermal_{sghp}.json',
                         library=library, mode='dynamic', domain_values={'time': grid})
     pyo.TransformationFactory('dae.finite_difference').apply_to(
         model, wrt=model.fs.time, nfe=nfe, scheme='BACKWARD')
@@ -54,7 +56,14 @@ def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1):
             information_type='assumption', variable_path=path, value=number, unit=unit,
             type='series' if series else 'constant', trust_rank=8))
         (initial if initial_only else ids).append(name)
-    add('thermal_sghp_cop', 'sghp.cop_model.parameters.cop', steady['sghp.performance.cop'], 'dimensionless')
+    if sghp == 'aggregate':
+        add('thermal_sghp_cop', 'sghp.cop_model.parameters.cop', steady['sghp.performance.cop'], 'dimensionless')
+    else:
+        ids += [f'config_sghp_{name}_parameters_conductance' for name in
+                ['condenser','evaporator','subcooler','ihx']]
+        ids += ['config_sghp_compressor_parameters_efficiency']
+        if pressure_rise is not None:
+            add('thermal_sghp_pressure_rise', 'sghp.compressor.parameters.pressure_rise', pressure_rise, 'Pa')
     add('thermal_makeup', 'makeup_state.state.flow', steady['makeup_state.state.flow'], 'kg/s')
     add('thermal_warm_split', 'warm_water_splitter.parameters.fraction', steady['warm_water_splitter.parameters.fraction'], 'dimensionless')
     for alias in ['source_valve', 'warm_water_valve']:
@@ -111,8 +120,11 @@ def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1):
     return model,information,spec,steady,inventories
 
 
-def run(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, prefix='thermal_step'):
-    model,info,spec,steady,inventories=build_case(nfe=nfe,horizon=horizon,step_time=step_time,step_fraction=step_fraction)
+def run(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, prefix=None, sghp='aggregate', pressure_rise=None):
+    model,info,spec,steady,inventories=build_case(nfe=nfe,horizon=horizon,step_time=step_time,step_fraction=step_fraction,sghp=sghp,pressure_rise=pressure_rise)
+    prefix = prefix or ('thermal_cycle_step' if sghp == 'cycle' else 'thermal_step')
+    if sghp == 'cycle':
+        pressure_rise = get_variable(model, 'sghp.compressor.parameters.pressure_rise')[0].value
     vp,cp=_partition(model)
     structure=dict(degrees_of_freedom=degrees_of_freedom(model), unmatched_variables=len(vp.unmatched),
                    unmatched_constraints=len(cp.unmatched), underconstrained=len(vp.underconstrained),
@@ -124,7 +136,7 @@ def run(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, prefix='thermal
         raise RuntimeError('Dynamic specification is not closed')
     result=get_solver('ipopt',options={'max_iter':500,'tol':1e-8,'max_cpu_time':120,
         'nlp_scaling_method':'user-scaling','linear_system_scaling':'none'}).solve(model,tee=True,load_solutions=False)
-    report=dict(structure=structure,termination=str(result.solver.termination_condition),
+    report=dict(sghp=sghp,pressure_rise_Pa=pressure_rise,structure=structure,termination=str(result.solver.termination_condition),
                 nfe=nfe,horizon_s=horizon,step_time_s=step_time,step_fraction=step_fraction,
                 initial_volume_m3_per_loop=.1,initial_inventories=inventories)
     if len(result.solution):
@@ -133,7 +145,9 @@ def run(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, prefix='thermal
         report['max_scaled_violation']=float(max(r['scaled_violation'] for r in residuals))
         report['largest_physical_residuals']=residuals[:10]
         paths=['source_tank.inventory.temperature','warm_tank.inventory.temperature','hot_tank.inventory.temperature',
-               'steam_outlet.flow','phnix.performance.electrical_power','sghp.performance.cop']
+               'steam_outlet.flow','phnix.performance.electrical_power','sghp.performance.cop',
+               'sghp.performance.heating_duty','sghp.performance.cooling_duty',
+               'sghp.performance.hot_water_duty','hot_tank.inventory.mass','source_tank.inventory.mass']
         report['trajectory']=[dict(time_s=float(t),**{p:get_variable(model,p)[t].value for p in paths}) for t in model.fs.time]
     report['solved']=bool(report['termination']=='optimal' and report.get('max_scaled_violation',1)<1e-6)
     (HERE/f'{prefix}_information.json').write_text(info.model_dump_json(indent=2)+'\n')
@@ -141,7 +155,7 @@ def run(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, prefix='thermal
     (HERE/f'{prefix}_report.json').write_text(json.dumps(report,indent=2)+'\n')
     snapshot=export_results(model,status='optimal' if report['solved'] else 'failed',solver='ipopt',
         termination_condition=report['termination'],specification=spec,
-        message='Three initial 100-litre water inventories; constant COPs and circulation; algebraic flash.')
+        message=f'Three initial 100-litre water inventories; aggregate PHNIX, {sghp} SGHP; constant circulation and algebraic flash.')
     snapshot.write_json(HERE/f'{prefix}_results.json')
     WorkspaceDocument.from_results(snapshot,info).write_json(HERE/f'{prefix}_workspace.json')
     print(json.dumps(report,indent=2),flush=True)
@@ -150,11 +164,15 @@ def run(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, prefix='thermal
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--sghp',choices=['aggregate','cycle'],default='aggregate')
+    parser.add_argument('--pressure-rise',type=float,help='Fixed detailed SGHP compressor pressure rise (Pa).')
     parser.add_argument('--nfe',type=int,default=10)
     parser.add_argument('--step-fraction',type=float,default=.1)
-    parser.add_argument('--prefix',default='thermal_step')
+    parser.add_argument('--prefix',help='Artifact prefix; defaults to thermal_step or thermal_cycle_step.')
     args=parser.parse_args()
     if args.nfe<1 or not math.isfinite(args.step_fraction) or args.step_fraction<=-1:
         parser.error('Positive nfe and finite step fraction greater than -1 required')
-    report=run(nfe=args.nfe,step_fraction=args.step_fraction,prefix=args.prefix)
+    if args.pressure_rise is not None and (not math.isfinite(args.pressure_rise) or args.pressure_rise<=0):
+        parser.error('Compressor pressure rise must be finite and positive')
+    report=run(nfe=args.nfe,step_fraction=args.step_fraction,prefix=args.prefix,sghp=args.sghp,pressure_rise=args.pressure_rise)
     raise SystemExit(0 if report['solved'] else 1)
