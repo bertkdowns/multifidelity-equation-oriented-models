@@ -1,6 +1,6 @@
 {
   "id": "pipe",
-  "description": "Adiabatic pipe with ideal pass-through or fixed-volume, perfectly mixed thermal holdup. No pressure drop, wall storage, or spatial transport delay. Forward flow only.",
+  "description": "Adiabatic pipe with ideal pass-through, optional stream-state evaluation, or fixed-volume mixed holdup. Forward flow with zero pressure drop.",
   "domains": {
     "time": {
       "kind": "time"
@@ -120,6 +120,63 @@
         }
       },
       "constraints": {}
+    },
+    "pass_through_with_state": {
+      "models": {
+        "state": {
+          "model": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model_parameter": "FluidProperties"
+            }
+          }
+        }
+      },
+      "constraints": {
+        "flow": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.flow[t]",
+          "rhs": "inlet.flow[t]",
+          "determines": "outlet.flow[t]"
+        },
+        "pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "outlet.pressure[t]"
+        },
+        "enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]"
+        },
+        "state_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "state.state.pressure[t]",
+          "rhs": "outlet.pressure[t]",
+          "determines": "state.state.pressure[t]"
+        },
+        "state_enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "state.state.enthalpy[t]",
+          "rhs": "outlet.enthalpy[t]",
+          "determines": "state.state.enthalpy[t]"
+        }
+      }
     }
   },
   "model_parameters": {

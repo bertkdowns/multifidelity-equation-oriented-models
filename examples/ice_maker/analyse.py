@@ -21,7 +21,9 @@ from multifidelity.model_language import (
     SpecificationDocument,
     apply_specification,
     build_model,
+    export_workspace,
     get_variable,
+    register_standard_providers,
 )
 from multifidelity.model_language.standard.thermo import _fluid_data
 
@@ -32,6 +34,9 @@ GRID_SECONDS = 5
 # Elapsed seconds from each file's first timestamp. Separate, contiguous episodes.
 EXPORT_FIT, EXPORT_CHECK = (1000, 1420), (1510, 1940)
 HOT_FIT, HOT_CHECK = (2105, 2635), (2940, 3185)
+HOT_HIGH_BAR = 15.6
+CHARGE_G = 24
+BASE_INVENTORY = (50, 30, 0.02, 5)
 
 
 def load_log(path):
@@ -71,9 +76,9 @@ def window(log, limits):
     return grid, values
 
 
-def fit_response(grid, data, *, water_only):
+def fit_response(grid, data, *, water_only, workspace_path=None):
     model = build_model(
-        "suction_response", {"relationship": "lumped"}, library=Library(HERE),
+        "suction_response", {"relationship": "lumped"},
         mode="dynamic", domain_values={"time": grid.tolist()},
     )
     pyo.TransformationFactory("dae.finite_difference").apply_to(
@@ -89,10 +94,8 @@ def fit_response(grid, data, *, water_only):
     information.add(dict(id="initial", tag="channel 1", information_type="sensor_reading",
                          variable_path=paths["suction"], value=data[0, 0] + KELVIN,
                          unit="K", trust_rank=5))
-    apply_specification(
-        model, SpecificationDocument(specifications=("water", "ambient"), initial_values=("initial",)),
-        information,
-    )
+    specification = SpecificationDocument(specifications=("water", "ambient"), initial_values=("initial",))
+    apply_specification(model, specification, information)
     suction = get_variable(model, paths["suction"])
     target = information.get("suction").values_for(suction)
     for time, measurement in target.items():
@@ -101,7 +104,14 @@ def fit_response(grid, data, *, water_only):
     if water_only:
         parameters[1].fix(1)
     model.fit = pyo.Objective(expr=sum(((suction[t] / pyo.units.K) - target[t])**2 for t in target))
-    pyo.assert_optimal_termination(get_solver("ipopt").solve(model))
+    result = get_solver("ipopt").solve(model)
+    pyo.assert_optimal_termination(result)
+    if workspace_path is not None:
+        export_workspace(
+            model, information, status="optimal", solver="ipopt", specification=specification,
+            termination_condition=str(result.solver.termination_condition),
+            message="Hot-run water and ambient fit on the selected training window.",
+        ).write_json(workspace_path)
     return tuple(pyo.value(p) for p in parameters), np.array([pyo.value(suction[t]) - KELVIN for t in grid])
 
 
@@ -119,10 +129,8 @@ def rmse(prediction, observation):
     return np.sqrt(np.mean((prediction - observation)**2))
 
 
-def screen_cycle(thermo, values, superheat, subcooling):
-    """Four states at assumed pressures with an isenthalpic capillary."""
-    suction, discharge, pre_cap, post_cap, ambient, water = values
-    evap, cond = suction - superheat, pre_cap + subcooling
+def cycle_state_inputs(thermo, values, evap, cond):
+    suction, discharge, pre_cap = values[:3]
     p_low = thermo.p_sat(T=(evap + KELVIN) * pyo.units.K)
     p_high = thermo.p_sat(T=(cond + KELVIN) * pyo.units.K)
     if not evap < cond < discharge:
@@ -131,8 +139,16 @@ def screen_cycle(thermo, values, superheat, subcooling):
     h1 = thermo.h_vap(T=(suction + KELVIN) * temperature, p=p_low)
     h2 = thermo.h_vap(T=(discharge + KELVIN) * temperature, p=p_high)
     h3 = thermo.h_liq(T=(pre_cap + KELVIN) * temperature, p=p_high)
+    return p_low, p_high, h1, h2, h3
+
+
+def screen_cycle(thermo, values, superheat, subcooling):
+    """Four states at assumed pressures with an isenthalpic capillary."""
+    suction, _, pre_cap, post_cap, ambient, water = values
+    evap, cond = suction - superheat, pre_cap + subcooling
+    p_low, p_high, h1, h2, h3 = cycle_state_inputs(thermo, values, evap, cond)
     h4 = h3
-    s1 = thermo.s_vap(T=(suction + KELVIN) * temperature, p=p_low)
+    s1 = thermo.s_vap(T=(suction + KELVIN) * pyo.units.K, p=p_low)
     h2s = thermo.h(s=s1, p=p_high)
     work, q_evap, q_cond = map(pyo.value, (h2 - h1, h1 - h4, h2 - h3))
     flash_quality = pyo.value(thermo.x(h=h4, p=p_low))
@@ -155,16 +171,103 @@ def saturation(thermo, celsius):
     )
 
 
-def report_charge_balance(thermo, values):
+def export_cycle_workspace(values, pressure_enthalpy, efficiency, densities, workspace_path):
+    library = Library()
+    register_standard_providers(library)
+    helmholtz = {"relationship": "helmholtz"}
+    state_block = {"relationship": "evaluate", "submodels": {"fluid": helmholtz}}
+    pipe_with_state = {"relationship": "pass_through_with_state", "submodels": {"state": state_block}}
+    model = build_model(
+        "ice_maker_refrigeration_loop",
+        {"relationship": "capillary_cycle",
+         "submodels": {
+             "compressor": {
+                 "relationship": "isentropic",
+                 "submodels": {"inlet_state": state_block, "outlet_state": state_block,
+                               "isentropic_state": helmholtz},
+             },
+             "condenser_cooler": {"relationship": "energy_balance"},
+             "capillary_valve": {"relationship": "isenthalpic"},
+             "evaporator_heater": {"relationship": "energy_balance"},
+             "refrigerant_mass_recycle": {"relationship": "define"},
+             "pre_capillary": pipe_with_state,
+             "post_capillary": pipe_with_state,
+         }},
+        library=library,
+    )
+    p_low, p_high, h1, h2, h3 = pressure_enthalpy
+    high_ml, low_ml, low_fraction, shell_g = BASE_INVENTORY
+    low_liquid, low_vapour, high_liquid, high_vapour = densities
+    inputs = {
+        "compressor.inlet.pressure": (p_low, "Pa"),
+        "compressor.outlet.pressure": (p_high, "Pa"),
+        "evaporator_heater.outlet.enthalpy": (h1, "J/kg"),
+        "condenser_cooler.outlet.enthalpy": (h3, "J/kg"),
+        "refrigerant_mass_recycle.flow_definition.flow": (1, "kg/s"),
+        "compressor.parameters.efficiency": (efficiency, "dimensionless"),
+        "inventory_inputs.charge": (CHARGE_G / 1000, "kg"),
+        "inventory_inputs.compressor_mass": (shell_g / 1000, "kg"),
+        "inventory_inputs.external_low_volume": (low_ml / 1e6, "m**3"),
+        "inventory_inputs.high_volume": (high_ml / 1e6, "m**3"),
+        "inventory_inputs.external_low_liquid_fraction": (low_fraction, "dimensionless"),
+        "inventory_inputs.low_liquid_density": (low_liquid, "kg/m**3"),
+        "inventory_inputs.low_vapour_density": (low_vapour, "kg/m**3"),
+        "inventory_inputs.high_liquid_density": (high_liquid, "kg/m**3"),
+        "inventory_inputs.high_vapour_density": (high_vapour, "kg/m**3"),
+    }
+    information = InformationDocument([
+        dict(id=path, tag=path, information_type="equipment_specification" if path == "inventory_inputs.charge" else "assumption",
+             variable_path=path, value=value, unit=unit, trust_rank=8 if path == "inventory_inputs.charge" else 3)
+        for path, (value, unit) in inputs.items()
+    ])
+    specification = SpecificationDocument(
+        specifications=tuple(inputs),
+        replacements={
+            "compressor.inlet.pressure": "capillary_valve.parameters.pressure_drop",
+            "compressor.outlet.pressure": "compressor.parameters.pressure_rise",
+            "evaporator_heater.outlet.enthalpy": "evaporator_heater.parameters.heat_duty",
+            "condenser_cooler.outlet.enthalpy": "condenser_cooler.parameters.heat_duty",
+        },
+    )
+    apply_specification(model, specification, information)
+    time = model.fs.time.first()
+    probes = ("compressor.inlet_state", "compressor.outlet_state",
+              "pre_capillary.state", "post_capillary.state")
+    for channel, alias in enumerate(probes, start=1):
+        information.add(dict(
+            id=f"channel_{channel}", tag=f"Hot-run peak, channel {channel}",
+            information_type="sensor_reading", variable_path=f"{alias}.properties.temperature",
+            value=values[channel - 1] + KELVIN, unit="K", trust_rank=5,
+        ))
+    # Start the native PH states on the expected branches, including the
+    # isentropic reference, whose entropy equation is solved by the compressor.
+    for alias, pressure, enthalpy in (
+        ("compressor.inlet_state.fluid", p_low, h1),
+        ("compressor.outlet_state.fluid", p_high, h2),
+        ("compressor.isentropic_state", p_high, h1 + efficiency * (h2 - h1)),
+        ("pre_capillary.state.fluid", p_high, h3),
+        ("post_capillary.state.fluid", p_low, h3),
+    ):
+        get_variable(model, f"{alias}.state.pressure")[time].set_value(pressure)
+        get_variable(model, f"{alias}.state.enthalpy")[time].set_value(enthalpy)
+    result = get_solver("ipopt").solve(model)
+    pyo.assert_optimal_termination(result)
+    export_workspace(
+        model, information, status="optimal", solver="ipopt", specification=specification,
+        termination_condition=str(result.solver.termination_condition),
+        message=("Conditional hot-peak capillary case. Unit powers use a 1 kg/s reference flow. "
+                 "The observed post-capillary temperature is an overlay."),
+    ).write_json(workspace_path)
+
+
+def report_charge_balance(thermo, values, workspace_path=None):
     """Close the hot-peak inventory with the known charge and assumed volumes."""
-    charge_g = 24
-    high_bar = 15.6
     suction, _, pre_cap, *_ = values
-    cond = pyo.value(thermo.T_sat(p=high_bar * 1e5 * pyo.units.Pa)) - KELVIN
+    cond = pyo.value(thermo.T_sat(p=HOT_HIGH_BAR * 1e5 * pyo.units.Pa)) - KELVIN
     low_bar, low_liquid, low_vapour = saturation(thermo, suction)
     _, high_liquid, high_vapour = saturation(thermo, cond)
     cycle = screen_cycle(thermo, values, superheat=0, subcooling=cond - pre_cap)
-    print(f"24 g hot-peak case: {low_bar:.2f}/{high_bar:.2f} bar abs, "
+    print(f"{CHARGE_G} g hot-peak case: {low_bar:.2f}/{HOT_HIGH_BAR:.2f} bar abs, "
           f"{cond:.2f} °C condensing, {cycle['eta_isentropic']:.1%} isentropic efficiency")
     print(f"  Flash: {cycle['flash_c']:.2f} °C, {cycle['flash_quality']:.1%} vapour by mass, "
           f"{abs(cycle['flash_minus_probe']):.2f} K from the post-capillary probe")
@@ -174,25 +277,30 @@ def report_charge_balance(thermo, values):
     print("  High mL  External low mL  Low liquid vol%  Compressor g  "
           "External low g  High g  High liquid vol%  High liquid mL")
     cases = (
-        (50, 30, 0.02, 5), (50, 30, 0.02, 0), (50, 30, 0.02, 2), (50, 30, 0.02, 8),
+        BASE_INVENTORY, (50, 30, 0.02, 0), (50, 30, 0.02, 2), (50, 30, 0.02, 8),
         (35, 30, 0.02, 5), (100, 30, 0.02, 5), (50, 15, 0.02, 5), (50, 60, 0.02, 5),
         (50, 30, 0.10, 5), (50, 30, 1.00, 5),
     )
     for high_ml, low_ml, low_fraction, compressor_g in cases:
         low_g = low_ml / 1000 * (low_vapour + low_fraction * (low_liquid - low_vapour))
-        high_g = charge_g - compressor_g - low_g
+        high_g = CHARGE_G - compressor_g - low_g
         high_fraction = (1000 * high_g / high_ml - high_vapour) / (high_liquid - high_vapour)
         liquid = (f"{high_fraction:16.1%} {high_ml * high_fraction:15.2f}"
                   if 0 <= high_fraction <= 1 else "  infeasible at these assumptions")
         print(f"  {high_ml:7} {low_ml:16} {low_fraction:15.0%} {compressor_g:13.1f} "
               f"{low_g:14.2f} {high_g:7.2f} {liquid}")
     baseline_low_g = 0.030 * (0.98 * low_vapour + 0.02 * low_liquid)
-    min_high_ml = 1000 * (charge_g - 5 - baseline_low_g) / high_liquid
+    min_high_ml = 1000 * (CHARGE_G - 5 - baseline_low_g) / high_liquid
     print(f"  With 5 g in the compressor and 2% external low-side liquid, the high side needs "
           f"at least {min_high_ml:.1f} mL even if full of liquid at condensing temperature")
+    if workspace_path is not None:
+        export_cycle_workspace(
+            values, tuple(map(pyo.value, cycle_state_inputs(thermo, values, suction, cond))),
+            cycle["eta_isentropic"], (low_liquid, low_vapour, high_liquid, high_vapour), workspace_path,
+        )
 
 
-def report_cycle(export, hot):
+def report_cycle(export, hot, workspace_path=None):
     time, data = hot
     peak = np.nanargmax(data[:, 1])
     export_time, export_data = export
@@ -217,7 +325,7 @@ def report_cycle(export, hot):
                   data[peak, 2] + 5, data[peak, 3], 100, 105, 110):
             p, liquid, vapour = saturation(thermo, c)
             print(f"{c:7.2f} {p:7.3f} {liquid:8.2f} {vapour:8.2f}")
-        report_charge_balance(thermo, data[peak])
+        report_charge_balance(thermo, data[peak], workspace_path)
 
 
 def main():
@@ -225,7 +333,10 @@ def main():
     parser.add_argument("export", type=Path, help="Path to export (2).csv")
     parser.add_argument("hot", type=Path, help="Path to IceMaker Hot until liquid slug.csv")
     parser.add_argument("--plot", type=Path, help="Optional destination for a diagnostic PNG")
+    parser.add_argument("--workspace-dir", type=Path, help="Directory for the cycle and suction workspaces")
     args = parser.parse_args()
+    if args.workspace_dir is not None:
+        args.workspace_dir.mkdir(parents=True, exist_ok=True)
     cases = (
         ("6 Nov export", load_log(args.export), EXPORT_FIT, EXPORT_CHECK),
         ("10 Nov hot run", load_log(args.hot), HOT_FIT, HOT_CHECK),
@@ -240,7 +351,10 @@ def main():
         print(label)
         for water_only in (True, False):
             name = "Water only" if water_only else "Water + ambient"
-            parameters, predicted = fit_response(train_t, train, water_only=water_only)
+            suction_workspace = (args.workspace_dir / "suction_workspace.json"
+                                 if args.workspace_dir is not None and i == 1 and not water_only else None)
+            parameters, predicted = fit_response(train_t, train, water_only=water_only,
+                                                 workspace_path=suction_workspace)
             np.testing.assert_allclose(predicted, replay(train_t, train, parameters), atol=1e-5, rtol=0)
             validation = replay(check_t, check, parameters)
             print(f"{name}: tau={parameters[0]:.2f} s, water weight={parameters[1]:.3f}, "
@@ -265,7 +379,8 @@ def main():
             for axis in axes[i]:
                 axis.set_xlabel("Elapsed time (min)")
                 axis.grid(alpha=0.2)
-    report_cycle(cases[0][1], cases[1][1])
+    cycle_workspace = args.workspace_dir / "workspace.json" if args.workspace_dir is not None else None
+    report_cycle(cases[0][1], cases[1][1], cycle_workspace)
     if args.plot:
         figure.savefig(args.plot, dpi=150)
 

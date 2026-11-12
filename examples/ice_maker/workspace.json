@@ -1,0 +1,3278 @@
+{
+  "implementation": {
+    "relationship": "capillary_cycle",
+    "submodels": {
+      "compressor": {
+        "relationship": "isentropic",
+        "submodels": {
+          "inlet_state": {
+            "relationship": "evaluate",
+            "submodels": {
+              "fluid": {
+                "relationship": "helmholtz",
+                "submodels": {}
+              }
+            }
+          },
+          "outlet_state": {
+            "relationship": "evaluate",
+            "submodels": {
+              "fluid": {
+                "relationship": "helmholtz",
+                "submodels": {}
+              }
+            }
+          },
+          "isentropic_state": {
+            "relationship": "helmholtz",
+            "submodels": {}
+          }
+        }
+      },
+      "condenser_cooler": {
+        "relationship": "energy_balance",
+        "submodels": {}
+      },
+      "capillary_valve": {
+        "relationship": "isenthalpic",
+        "submodels": {}
+      },
+      "evaporator_heater": {
+        "relationship": "energy_balance",
+        "submodels": {}
+      },
+      "refrigerant_mass_recycle": {
+        "relationship": "define",
+        "submodels": {}
+      },
+      "pre_capillary": {
+        "relationship": "pass_through_with_state",
+        "submodels": {
+          "state": {
+            "relationship": "evaluate",
+            "submodels": {
+              "fluid": {
+                "relationship": "helmholtz",
+                "submodels": {}
+              }
+            }
+          }
+        }
+      },
+      "post_capillary": {
+        "relationship": "pass_through_with_state",
+        "submodels": {
+          "state": {
+            "relationship": "evaluate",
+            "submodels": {
+              "fluid": {
+                "relationship": "helmholtz",
+                "submodels": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "information": [
+    {
+      "id": "compressor.inlet.pressure",
+      "tag": "compressor.inlet.pressure",
+      "information_type": "assumption",
+      "variable_path": "compressor.inlet.pressure",
+      "type": "constant",
+      "value": 401831.85094592976,
+      "unit": "Pa",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "compressor.outlet.pressure",
+      "tag": "compressor.outlet.pressure",
+      "information_type": "assumption",
+      "variable_path": "compressor.outlet.pressure",
+      "type": "constant",
+      "value": 1560000.0000000005,
+      "unit": "Pa",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "evaporator_heater.outlet.enthalpy",
+      "tag": "evaporator_heater.outlet.enthalpy",
+      "information_type": "assumption",
+      "variable_path": "evaporator_heater.outlet.enthalpy",
+      "type": "constant",
+      "value": -7433.02764743251,
+      "unit": "J/kg",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "condenser_cooler.outlet.enthalpy",
+      "tag": "condenser_cooler.outlet.enthalpy",
+      "information_type": "assumption",
+      "variable_path": "condenser_cooler.outlet.enthalpy",
+      "type": "constant",
+      "value": -207294.2262458776,
+      "unit": "J/kg",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "refrigerant_mass_recycle.flow_definition.flow",
+      "tag": "refrigerant_mass_recycle.flow_definition.flow",
+      "information_type": "assumption",
+      "variable_path": "refrigerant_mass_recycle.flow_definition.flow",
+      "type": "constant",
+      "value": 1.0,
+      "unit": "kg/s",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "compressor.parameters.efficiency",
+      "tag": "compressor.parameters.efficiency",
+      "information_type": "assumption",
+      "variable_path": "compressor.parameters.efficiency",
+      "type": "constant",
+      "value": 0.6005638196894006,
+      "unit": "dimensionless",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "inventory_inputs.charge",
+      "tag": "inventory_inputs.charge",
+      "information_type": "equipment_specification",
+      "variable_path": "inventory_inputs.charge",
+      "type": "constant",
+      "value": 0.024,
+      "unit": "kg",
+      "standard_deviation": null,
+      "trust_rank": 8
+    },
+    {
+      "id": "inventory_inputs.compressor_mass",
+      "tag": "inventory_inputs.compressor_mass",
+      "information_type": "assumption",
+      "variable_path": "inventory_inputs.compressor_mass",
+      "type": "constant",
+      "value": 0.005,
+      "unit": "kg",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "inventory_inputs.external_low_volume",
+      "tag": "inventory_inputs.external_low_volume",
+      "information_type": "assumption",
+      "variable_path": "inventory_inputs.external_low_volume",
+      "type": "constant",
+      "value": 0.00003,
+      "unit": "m**3",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "inventory_inputs.high_volume",
+      "tag": "inventory_inputs.high_volume",
+      "information_type": "assumption",
+      "variable_path": "inventory_inputs.high_volume",
+      "type": "constant",
+      "value": 0.00005,
+      "unit": "m**3",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "inventory_inputs.external_low_liquid_fraction",
+      "tag": "inventory_inputs.external_low_liquid_fraction",
+      "information_type": "assumption",
+      "variable_path": "inventory_inputs.external_low_liquid_fraction",
+      "type": "constant",
+      "value": 0.02,
+      "unit": "dimensionless",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "inventory_inputs.low_liquid_density",
+      "tag": "inventory_inputs.low_liquid_density",
+      "information_type": "assumption",
+      "variable_path": "inventory_inputs.low_liquid_density",
+      "type": "constant",
+      "value": 544.6366545817745,
+      "unit": "kg/m**3",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "inventory_inputs.low_vapour_density",
+      "tag": "inventory_inputs.low_vapour_density",
+      "information_type": "assumption",
+      "variable_path": "inventory_inputs.low_vapour_density",
+      "type": "constant",
+      "value": 10.407316024263343,
+      "unit": "kg/m**3",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "inventory_inputs.high_liquid_density",
+      "tag": "inventory_inputs.high_liquid_density",
+      "information_type": "assumption",
+      "variable_path": "inventory_inputs.high_liquid_density",
+      "type": "constant",
+      "value": 456.1746258033666,
+      "unit": "kg/m**3",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "inventory_inputs.high_vapour_density",
+      "tag": "inventory_inputs.high_vapour_density",
+      "information_type": "assumption",
+      "variable_path": "inventory_inputs.high_vapour_density",
+      "type": "constant",
+      "value": 42.31689675414861,
+      "unit": "kg/m**3",
+      "standard_deviation": null,
+      "trust_rank": 3
+    },
+    {
+      "id": "channel_1",
+      "tag": "Hot-run peak, channel 1",
+      "information_type": "sensor_reading",
+      "variable_path": "compressor.inlet_state.properties.temperature",
+      "type": "constant",
+      "value": 302.8956836700439,
+      "unit": "K",
+      "standard_deviation": null,
+      "trust_rank": 5
+    },
+    {
+      "id": "channel_2",
+      "tag": "Hot-run peak, channel 2",
+      "information_type": "sensor_reading",
+      "variable_path": "compressor.outlet_state.properties.temperature",
+      "type": "constant",
+      "value": 365.7868255615234,
+      "unit": "K",
+      "standard_deviation": null,
+      "trust_rank": 5
+    },
+    {
+      "id": "channel_3",
+      "tag": "Hot-run peak, channel 3",
+      "information_type": "sensor_reading",
+      "variable_path": "pre_capillary.state.properties.temperature",
+      "type": "constant",
+      "value": 349.6489776611328,
+      "unit": "K",
+      "standard_deviation": null,
+      "trust_rank": 5
+    },
+    {
+      "id": "channel_4",
+      "tag": "Hot-run peak, channel 4",
+      "information_type": "sensor_reading",
+      "variable_path": "post_capillary.state.properties.temperature",
+      "type": "constant",
+      "value": 341.9339889526367,
+      "unit": "K",
+      "standard_deviation": null,
+      "trust_rank": 5
+    }
+  ],
+  "results": {
+    "schema_version": 1,
+    "run_id": "3c008228-81c9-4fc7-8342-8ce452fa60e8",
+    "created_at": "2026-11-10T23:03:51.899950Z",
+    "model_id": "ice_maker_refrigeration_loop",
+    "implementation": {
+      "relationship": "capillary_cycle",
+      "submodels": {
+        "compressor": {
+          "relationship": "isentropic",
+          "submodels": {
+            "inlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz",
+                  "submodels": {}
+                }
+              }
+            },
+            "outlet_state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz",
+                  "submodels": {}
+                }
+              }
+            },
+            "isentropic_state": {
+              "relationship": "helmholtz",
+              "submodels": {}
+            }
+          }
+        },
+        "condenser_cooler": {
+          "relationship": "energy_balance",
+          "submodels": {}
+        },
+        "capillary_valve": {
+          "relationship": "isenthalpic",
+          "submodels": {}
+        },
+        "evaporator_heater": {
+          "relationship": "energy_balance",
+          "submodels": {}
+        },
+        "refrigerant_mass_recycle": {
+          "relationship": "define",
+          "submodels": {}
+        },
+        "pre_capillary": {
+          "relationship": "pass_through_with_state",
+          "submodels": {
+            "state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz",
+                  "submodels": {}
+                }
+              }
+            }
+          }
+        },
+        "post_capillary": {
+          "relationship": "pass_through_with_state",
+          "submodels": {
+            "state": {
+              "relationship": "evaluate",
+              "submodels": {
+                "fluid": {
+                  "relationship": "helmholtz",
+                  "submodels": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "mode": "steady",
+    "time_unit": "s",
+    "solve": {
+      "status": "optimal",
+      "termination_condition": "optimal",
+      "solver": "ipopt",
+      "message": "Conditional hot-peak capillary case. Unit powers use a 1 kg/s reference flow. The observed post-capillary temperature is an overlay."
+    },
+    "specification": {
+      "specifications": [
+        "compressor.inlet.pressure",
+        "compressor.outlet.pressure",
+        "evaporator_heater.outlet.enthalpy",
+        "condenser_cooler.outlet.enthalpy",
+        "refrigerant_mass_recycle.flow_definition.flow",
+        "compressor.parameters.efficiency",
+        "inventory_inputs.charge",
+        "inventory_inputs.compressor_mass",
+        "inventory_inputs.external_low_volume",
+        "inventory_inputs.high_volume",
+        "inventory_inputs.external_low_liquid_fraction",
+        "inventory_inputs.low_liquid_density",
+        "inventory_inputs.low_vapour_density",
+        "inventory_inputs.high_liquid_density",
+        "inventory_inputs.high_vapour_density"
+      ],
+      "replacements": {
+        "compressor.inlet.pressure": "capillary_valve.parameters.pressure_drop",
+        "compressor.outlet.pressure": "compressor.parameters.pressure_rise",
+        "evaporator_heater.outlet.enthalpy": "evaporator_heater.parameters.heat_duty",
+        "condenser_cooler.outlet.enthalpy": "condenser_cooler.parameters.heat_duty"
+      },
+      "initial_values": []
+    },
+    "variables": [
+      {
+        "variable_path": "capillary_valve.inlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "capillary_valve.inlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "capillary_valve.inlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "capillary_valve.outlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "capillary_valve.outlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "capillary_valve.outlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "capillary_valve.parameters.pressure_drop",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1158168.1490540707,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -7433.02764743251,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.density",
+        "unit": "kg/m**3",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 10.407316024263343,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.enthalpy_liquid",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -331051.24405103264,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.enthalpy_liquid_sat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -331051.24405103264,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.enthalpy_vapor",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -7433.02764743251,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.enthalpy_vapor_sat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -7433.02764743251,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.entropy",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -206.7447086747869,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.heat_capacity",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1833.2228476279136,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.temperature",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8952516461244,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.temperature_bubble",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8956836700439,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.temperature_dew",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8956836700439,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.properties.vapor_fraction",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.state.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -7433.02764743251,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.fluid.state.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.properties.density",
+        "unit": "kg/m**3",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 10.407316024263343,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.properties.entropy",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -206.7447086747869,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.properties.heat_capacity",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1833.2228476279136,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.properties.temperature",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8952516461244,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.properties.temperature_bubble",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8956836700439,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.properties.temperature_dew",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8956836700439,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.properties.vapor_fraction",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.state.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -7433.02764743251,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.state.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.inlet_state.state.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.density",
+        "unit": "kg/m**3",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 45.875276405521284,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.enthalpy_liquid",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -175025.17979662452,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.enthalpy_liquid_sat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -175025.17979662443,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.enthalpy_vapor",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 63564.25735756969,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.enthalpy_vapor_sat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 63564.25735756967,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.entropy",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -206.7447086747869,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.heat_capacity",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 2603.6267223364393,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.temperature",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5472378835049,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.temperature_bubble",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5447290128007,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.temperature_dew",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5447290128007,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.properties.vapor_fraction",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 0.9145024554357204,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.state.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 43165.44632191259,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.isentropic_state.state.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 76818.59109895417,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.density",
+        "unit": "kg/m**3",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 40.55855862150317,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.enthalpy_liquid",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -159022.52896035888,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.enthalpy_liquid_sat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -175025.17979662443,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.enthalpy_vapor",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 76818.59109895423,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.enthalpy_vapor_sat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 63564.25735756967,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.entropy",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -113.6686234631188,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.heat_capacity",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 2500.2376165509872,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.temperature",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 365.791290427039,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.temperature_bubble",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5447290128007,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.temperature_dew",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5447290128007,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.properties.vapor_fraction",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.state.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 76818.59109895417,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.fluid.state.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.properties.density",
+        "unit": "kg/m**3",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 40.55855862150317,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.properties.entropy",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -113.6686234631188,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.properties.heat_capacity",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 2500.2376165509872,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.properties.temperature",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 365.791290427039,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.properties.temperature_bubble",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5447290128007,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.properties.temperature_dew",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5447290128007,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.properties.vapor_fraction",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.state.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 76818.59109895417,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.state.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.outlet_state.state.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.parameters.efficiency",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 0.6005638196894006,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.parameters.pressure_rise",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1158168.1490540707,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.performance.isentropic_work",
+        "unit": "W",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 50598.4739693451,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "compressor.performance.work",
+        "unit": "W",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 84251.61874638668,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "condenser_cooler.inlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 76818.59109895417,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "condenser_cooler.inlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "condenser_cooler.inlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "condenser_cooler.outlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "condenser_cooler.outlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "condenser_cooler.outlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "condenser_cooler.parameters.heat_duty",
+        "unit": "W",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -284112.81734483177,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "evaporator_heater.inlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "evaporator_heater.inlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "evaporator_heater.inlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "evaporator_heater.outlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -7433.02764743251,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "evaporator_heater.outlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "evaporator_heater.outlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "evaporator_heater.parameters.heat_duty",
+        "unit": "W",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 199861.19859844507,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory.external_low_mass",
+        "unit": "kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 0.000632757083862407,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory.high_liquid_fraction",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 0.7853615838353699,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory.high_liquid_volume",
+        "unit": "m**3",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 0.0000392680791917685,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory.high_mass",
+        "unit": "kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 0.018367242916137592,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory_inputs.charge",
+        "unit": "kg",
+        "dimensions": [],
+        "entries": [
+          {
+            "index": [],
+            "value": 0.024,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory_inputs.compressor_mass",
+        "unit": "kg",
+        "dimensions": [],
+        "entries": [
+          {
+            "index": [],
+            "value": 0.005,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory_inputs.external_low_liquid_fraction",
+        "unit": "dimensionless",
+        "dimensions": [],
+        "entries": [
+          {
+            "index": [],
+            "value": 0.02,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory_inputs.external_low_volume",
+        "unit": "m**3",
+        "dimensions": [],
+        "entries": [
+          {
+            "index": [],
+            "value": 0.00003,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory_inputs.high_liquid_density",
+        "unit": "kg/m**3",
+        "dimensions": [],
+        "entries": [
+          {
+            "index": [],
+            "value": 456.1746258033666,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory_inputs.high_vapour_density",
+        "unit": "kg/m**3",
+        "dimensions": [],
+        "entries": [
+          {
+            "index": [],
+            "value": 42.31689675414861,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory_inputs.high_volume",
+        "unit": "m**3",
+        "dimensions": [],
+        "entries": [
+          {
+            "index": [],
+            "value": 0.00005,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory_inputs.low_liquid_density",
+        "unit": "kg/m**3",
+        "dimensions": [],
+        "entries": [
+          {
+            "index": [],
+            "value": 544.6366545817745,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "inventory_inputs.low_vapour_density",
+        "unit": "kg/m**3",
+        "dimensions": [],
+        "entries": [
+          {
+            "index": [],
+            "value": 10.407316024263343,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.inlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.inlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.inlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.outlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.outlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.outlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.density",
+        "unit": "kg/m**3",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 26.399903540122697,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.enthalpy_liquid",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -331051.24405103264,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.enthalpy_liquid_sat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -331051.24405103264,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.enthalpy_vapor",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -7433.02764743251,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.enthalpy_vapor_sat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -7433.02764743251,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.entropy",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -866.5797917529654,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.heat_capacity",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 2221.2977225295563,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.temperature",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8836352735672,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.temperature_bubble",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8956836700439,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.temperature_dew",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8956836700439,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.properties.vapor_fraction",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 0.382416722953604,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.state.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.fluid.state.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.properties.density",
+        "unit": "kg/m**3",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 26.399903540122697,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.properties.entropy",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -866.5797917529654,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.properties.heat_capacity",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 2221.2977225295563,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.properties.temperature",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8836352735672,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.properties.temperature_bubble",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8956836700439,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.properties.temperature_dew",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 302.8956836700439,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.properties.vapor_fraction",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 0.382416722953604,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.state.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.state.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "post_capillary.state.state.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.inlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.inlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.inlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.outlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.outlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.outlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.density",
+        "unit": "kg/m**3",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 477.7459672736339,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.enthalpy_liquid",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.enthalpy_liquid_sat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -175025.17979662443,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.enthalpy_vapor",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 51701.93880279825,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.enthalpy_vapor_sat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 63564.25735756967,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.entropy",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -902.780588910265,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.heat_capacity",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 2874.670560406879,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.temperature",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 349.6369292646561,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.temperature_bubble",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5447290128007,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.temperature_dew",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5447290128007,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.properties.vapor_fraction",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 0.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.state.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.fluid.state.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.properties.density",
+        "unit": "kg/m**3",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 477.7459672736339,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.properties.entropy",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -902.780588910265,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.properties.heat_capacity",
+        "unit": "J/K/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 2874.670560406879,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.properties.temperature",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 349.6369292646561,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.properties.temperature_bubble",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5447290128007,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.properties.temperature_dew",
+        "unit": "K",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 360.5447290128007,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.properties.vapor_fraction",
+        "unit": "dimensionless",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 0.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.state.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -207294.2262458776,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.state.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "pre_capillary.state.state.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1560000.0000000005,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "refrigerant_mass_recycle.flow_definition.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": true,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "refrigerant_mass_recycle.inlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -7433.02764743251,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "refrigerant_mass_recycle.inlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "refrigerant_mass_recycle.inlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "refrigerant_mass_recycle.outlet.enthalpy",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": -7433.02764743251,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "refrigerant_mass_recycle.outlet.flow",
+        "unit": "kg/s",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 1.0,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "refrigerant_mass_recycle.outlet.pressure",
+        "unit": "Pa",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 401831.85094592976,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "specific_duties.compressor_work",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 84251.61874638668,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "specific_duties.condenser_heat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 284112.81734483177,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      },
+      {
+        "variable_path": "specific_duties.evaporator_heat",
+        "unit": "J/kg",
+        "dimensions": [
+          "time"
+        ],
+        "entries": [
+          {
+            "index": [
+              0.0
+            ],
+            "value": 199861.19859844507,
+            "fixed": false,
+            "issue": null
+          }
+        ]
+      }
+    ]
+  }
+}

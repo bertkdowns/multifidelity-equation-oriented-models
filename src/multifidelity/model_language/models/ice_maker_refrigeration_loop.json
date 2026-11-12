@@ -1,0 +1,250 @@
+{
+  "id": "ice_maker_refrigeration_loop",
+  "description": "Conditional R600a cycle using the standard compressor, thermal conditioners and isenthalpic valve. Flow is a reference basis for specific duties. The harvest bypass is closed.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "inventory_inputs": {
+      "direction": "input",
+      "variables": {
+        "charge": {
+          "unit": "kg"
+        },
+        "compressor_mass": {
+          "unit": "kg"
+        },
+        "external_low_volume": {
+          "unit": "m**3"
+        },
+        "high_volume": {
+          "unit": "m**3"
+        },
+        "external_low_liquid_fraction": {
+          "unit": "dimensionless"
+        },
+        "low_liquid_density": {
+          "unit": "kg/m**3"
+        },
+        "low_vapour_density": {
+          "unit": "kg/m**3"
+        },
+        "high_liquid_density": {
+          "unit": "kg/m**3"
+        },
+        "high_vapour_density": {
+          "unit": "kg/m**3"
+        }
+      }
+    },
+    "specific_duties": {
+      "direction": "output",
+      "variables": {
+        "compressor_work": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "condenser_heat": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "evaporator_heat": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "inventory": {
+      "direction": "output",
+      "variables": {
+        "external_low_mass": {
+          "unit": "kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "high_mass": {
+          "unit": "kg",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "high_liquid_fraction": {
+          "unit": "dimensionless",
+          "bounds": {
+            "min": 0,
+            "max": 1
+          },
+          "dimensions": [
+            "time"
+          ]
+        },
+        "high_liquid_volume": {
+          "unit": "m**3",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "relationships": {
+    "capillary_cycle": {
+      "models": {
+        "compressor": {
+          "model": "compressor",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_isobutane_ph"
+            }
+          }
+        },
+        "condenser_cooler": {
+          "model": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "capillary_valve": {
+          "model": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "evaporator_heater": {
+          "model": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "refrigerant_mass_recycle": {
+          "model": "mass_recycle_definition",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "pre_capillary": {
+          "model": "pipe",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_isobutane_ph"
+            }
+          }
+        },
+        "post_capillary": {
+          "model": "pipe",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "model_arguments": {
+            "FluidProperties": {
+              "model": "helmholtz_isobutane_ph"
+            }
+          }
+        }
+      },
+      "constraints": {
+        "compressor_work": {
+          "lhs": "specific_duties.compressor_work[t]",
+          "rhs": "compressor.performance.work[t] / compressor.inlet.flow[t]",
+          "determines": "specific_duties.compressor_work[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "condenser_heat_rejection": {
+          "lhs": "specific_duties.condenser_heat[t]",
+          "rhs": "-condenser_cooler.parameters.heat_duty[t] / compressor.inlet.flow[t]",
+          "determines": "specific_duties.condenser_heat[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "evaporator_heat_uptake": {
+          "lhs": "specific_duties.evaporator_heat[t]",
+          "rhs": "evaporator_heater.parameters.heat_duty[t] / compressor.inlet.flow[t]",
+          "determines": "specific_duties.evaporator_heat[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "external_low_side_holdup": {
+          "lhs": "inventory.external_low_mass[t]",
+          "rhs": "inventory_inputs.external_low_volume * (inventory_inputs.low_vapour_density + inventory_inputs.external_low_liquid_fraction * (inventory_inputs.low_liquid_density - inventory_inputs.low_vapour_density))",
+          "determines": "inventory.external_low_mass[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "total_charge_balance": {
+          "lhs": "inventory.high_mass[t]",
+          "rhs": "inventory_inputs.charge - inventory_inputs.compressor_mass - inventory.external_low_mass[t]",
+          "determines": "inventory.high_mass[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "high_side_liquid_fraction": {
+          "lhs": "inventory.high_liquid_fraction[t]",
+          "rhs": "(inventory.high_mass[t] / inventory_inputs.high_volume - inventory_inputs.high_vapour_density) / (inventory_inputs.high_liquid_density - inventory_inputs.high_vapour_density)",
+          "determines": "inventory.high_liquid_fraction[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "high_side_liquid_volume": {
+          "lhs": "inventory.high_liquid_volume[t]",
+          "rhs": "inventory_inputs.high_volume * inventory.high_liquid_fraction[t]",
+          "determines": "inventory.high_liquid_volume[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {
+        "discharge": {
+          "from": "compressor.outlet",
+          "to": "condenser_cooler.inlet"
+        },
+        "liquid_line": {
+          "from": "condenser_cooler.outlet",
+          "to": "pre_capillary.inlet"
+        },
+        "capillary_feed": {
+          "from": "pre_capillary.outlet",
+          "to": "capillary_valve.inlet"
+        },
+        "expansion_outlet": {
+          "from": "capillary_valve.outlet",
+          "to": "post_capillary.inlet"
+        },
+        "evaporator_feed": {
+          "from": "post_capillary.outlet",
+          "to": "evaporator_heater.inlet"
+        },
+        "evaporator_return": {
+          "from": "evaporator_heater.outlet",
+          "to": "refrigerant_mass_recycle.inlet"
+        },
+        "compressor_feed": {
+          "from": "refrigerant_mass_recycle.outlet",
+          "to": "compressor.inlet"
+        }
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@ The 6 November export contains 2,161 one-second frames from logger AO012/780. Th
 
 The export has an isolated 89 °C suction spike at 5:06 elapsed with the other channels near room temperature. The hot run starts with erratic measurements and includes a −270 °C recorder value, treated as missing. The selected fit and validation windows lie in later, contiguous episodes. The model uses a 5 s grid interpolated from the actual logger timestamps. The shaded plot regions show the chosen windows. Validation starts from the measured suction temperature at the beginning of each window.
 
-The model-language definition [suction_response.json](suction_response.json) fits the measured suction probe with a single time constant:
+The model-library definition [suction_response.json](../../src/multifidelity/model_language/models/suction_response.json) fits the measured suction probe with a single time constant:
 
 ```text
 τ dT_suction/dt = T_ambient + w (T_water − T_ambient) + b − T_suction
@@ -90,6 +90,15 @@ The runnable example builds the dynamic Pyomo model from JSON. It loads the obse
 
 The dynamic inventory tier would reuse the framework's pipe holdup mass and energy balances, with pressure–enthalpy states, fixed geometry, independent wall heat capacities and a sealed total charge constraint. For fitting that tier, the most useful additional evidence is paired suction and discharge pressures, compressor status and event timing, nameplate charge and internal volumes, and a water-side heat balance. The [parameter estimation research note](../../research-ideas/ice-maker-parameter-estimation.md) describes the IDAES examples, pinned Parmest API and calibration design.
 
+## Open in the model viewer
+
+Use **Open workspace** in the viewer sidebar and select either of these files. The viewer selects the matching library model automatically.
+
+- [workspace.json](workspace.json) opens **ice_maker_refrigeration_loop** at the hot discharge peak. Follow **compressor → condenser cooler → pre-capillary pipe → capillary valve → post-capillary pipe → evaporator heater → refrigerant mass recycle → compressor**. Both pipes use the pass-through relationship with state evaluation. Their ports show flow, pressure and enthalpy. Open each pipe's **state** child to see its R600a temperature and vapour fraction.
+- The workspace information records specify the recycle flow and compressor efficiency directly on those units. The saved specification fixes compressor inlet and outlet pressures in place of the valve pressure drop and compressor pressure rise. It fixes the cooler and heater outlet enthalpies in place of their heat duties. The unit equations solve for those pressure changes and duties.
+- In the cycle workspace, drill into the compressor for its inlet and outlet R600a states. The **Results** tab shows the calculated flash temperature and holdup. Probe temperatures appear as information overlays. The model uses a **1 kg/s reference flow** to evaluate the unit equations. Read the root **specific_duties** in J/kg for the case comparison. The machine's actual flow and power remain unknown.
+- [suction_workspace.json](suction_workspace.json) opens **suction_response** with the hot-run water and ambient fit over 2105–2635 s. The measured suction series is in **Information**, and the fitted trajectory and parameters are in **Results**.
+
 ## Reproduce
 
 Run from the repository root with IPOPT and IDAES Helmholtz extensions available. Matplotlib is only needed for the optional plot.
@@ -98,7 +107,8 @@ Run from the repository root with IPOPT and IDAES Helmholtz extensions available
 .venv/bin/python examples/ice_maker/analyse.py \
   '/home/bd65/Downloads/export (2).csv' \
   '/home/bd65/Downloads/IceMaker Hot until liquid slug.csv' \
-  --plot examples/ice_maker/diagnostics.png
+  --plot examples/ice_maker/diagnostics.png \
+  --workspace-dir examples/ice_maker
 ```
 
 [Temperature traces and held-out fits](diagnostics.png)
