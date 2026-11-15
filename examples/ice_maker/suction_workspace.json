@@ -6,7 +6,6 @@
   "information": [
     {
       "id": "water",
-      "tag": "channel 6",
       "information_type": "sensor_reading",
       "variable_path": "boundary.water",
       "type": "series",
@@ -125,7 +124,6 @@
     },
     {
       "id": "ambient",
-      "tag": "channel 5",
       "information_type": "sensor_reading",
       "variable_path": "boundary.ambient",
       "type": "series",
@@ -244,7 +242,6 @@
     },
     {
       "id": "suction",
-      "tag": "channel 1",
       "information_type": "sensor_reading",
       "variable_path": "state.suction",
       "type": "series",
@@ -363,7 +360,6 @@
     },
     {
       "id": "initial",
-      "tag": "channel 1",
       "information_type": "sensor_reading",
       "variable_path": "state.suction",
       "type": "constant",

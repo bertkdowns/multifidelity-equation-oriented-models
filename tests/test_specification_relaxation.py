@@ -22,9 +22,9 @@ def setup_problem():
     model = build_model('valve', {'relationship': 'isenthalpic'}, library=library)
     information = InformationDocument([
         InformationRecord(id='in', variable_path='inlet.flow', value=2, unit='kg/s',
-                          information_type='sensor_reading', tag='test', trust_rank=1),
+                          information_type='sensor_reading', trust_rank=1),
         InformationRecord(id='out', variable_path='outlet.flow', value=3, unit='kg/s',
-                          information_type='sensor_reading', tag='test', trust_rank=1),
+                          information_type='sensor_reading', trust_rank=1),
     ])
     spec = {'specifications': ['in', 'out'], 'replacements': {'out': 'parameters.offset'}}
     apply_specification(model, spec, information)
@@ -83,7 +83,7 @@ def test_declared_scales_change_normalized_penalties():
 def test_record_units_convert_and_bounds_are_retained():
     m,s,i=setup_problem()
     info=InformationDocument([InformationRecord(
-        id='pressure',tag='p',trust_rank=1,information_type='sensor_reading',
+        id='pressure',trust_rank=1,information_type='sensor_reading',
         variable_path='outlet.pressure',value=200,unit='kPa')])
     get_variable(m, 'parameters.pressure_drop').unfix()
     spec={'specifications':['pressure'], 'replacements': {'pressure': 'parameters.pressure_drop'}}

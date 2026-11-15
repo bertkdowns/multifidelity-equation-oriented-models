@@ -78,7 +78,6 @@
   "information": [
     {
       "id": "compressor.inlet.pressure",
-      "tag": "compressor.inlet.pressure",
       "information_type": "assumption",
       "variable_path": "compressor.inlet.pressure",
       "type": "constant",
@@ -89,7 +88,6 @@
     },
     {
       "id": "compressor.outlet.pressure",
-      "tag": "compressor.outlet.pressure",
       "information_type": "assumption",
       "variable_path": "compressor.outlet.pressure",
       "type": "constant",
@@ -100,7 +98,6 @@
     },
     {
       "id": "evaporator_heater.outlet.enthalpy",
-      "tag": "evaporator_heater.outlet.enthalpy",
       "information_type": "assumption",
       "variable_path": "evaporator_heater.outlet.enthalpy",
       "type": "constant",
@@ -111,7 +108,6 @@
     },
     {
       "id": "condenser_cooler.outlet.enthalpy",
-      "tag": "condenser_cooler.outlet.enthalpy",
       "information_type": "assumption",
       "variable_path": "condenser_cooler.outlet.enthalpy",
       "type": "constant",
@@ -122,7 +118,6 @@
     },
     {
       "id": "refrigerant_mass_recycle.flow_definition.flow",
-      "tag": "refrigerant_mass_recycle.flow_definition.flow",
       "information_type": "assumption",
       "variable_path": "refrigerant_mass_recycle.flow_definition.flow",
       "type": "constant",
@@ -133,7 +128,6 @@
     },
     {
       "id": "compressor.parameters.efficiency",
-      "tag": "compressor.parameters.efficiency",
       "information_type": "assumption",
       "variable_path": "compressor.parameters.efficiency",
       "type": "constant",
@@ -144,7 +138,6 @@
     },
     {
       "id": "inventory_inputs.charge",
-      "tag": "inventory_inputs.charge",
       "information_type": "equipment_specification",
       "variable_path": "inventory_inputs.charge",
       "type": "constant",
@@ -155,7 +148,6 @@
     },
     {
       "id": "inventory_inputs.compressor_mass",
-      "tag": "inventory_inputs.compressor_mass",
       "information_type": "assumption",
       "variable_path": "inventory_inputs.compressor_mass",
       "type": "constant",
@@ -166,7 +158,6 @@
     },
     {
       "id": "inventory_inputs.external_low_volume",
-      "tag": "inventory_inputs.external_low_volume",
       "information_type": "assumption",
       "variable_path": "inventory_inputs.external_low_volume",
       "type": "constant",
@@ -177,7 +168,6 @@
     },
     {
       "id": "inventory_inputs.high_volume",
-      "tag": "inventory_inputs.high_volume",
       "information_type": "assumption",
       "variable_path": "inventory_inputs.high_volume",
       "type": "constant",
@@ -188,7 +178,6 @@
     },
     {
       "id": "inventory_inputs.external_low_liquid_fraction",
-      "tag": "inventory_inputs.external_low_liquid_fraction",
       "information_type": "assumption",
       "variable_path": "inventory_inputs.external_low_liquid_fraction",
       "type": "constant",
@@ -199,7 +188,6 @@
     },
     {
       "id": "inventory_inputs.low_liquid_density",
-      "tag": "inventory_inputs.low_liquid_density",
       "information_type": "assumption",
       "variable_path": "inventory_inputs.low_liquid_density",
       "type": "constant",
@@ -210,7 +198,6 @@
     },
     {
       "id": "inventory_inputs.low_vapour_density",
-      "tag": "inventory_inputs.low_vapour_density",
       "information_type": "assumption",
       "variable_path": "inventory_inputs.low_vapour_density",
       "type": "constant",
@@ -221,7 +208,6 @@
     },
     {
       "id": "inventory_inputs.high_liquid_density",
-      "tag": "inventory_inputs.high_liquid_density",
       "information_type": "assumption",
       "variable_path": "inventory_inputs.high_liquid_density",
       "type": "constant",
@@ -232,7 +218,6 @@
     },
     {
       "id": "inventory_inputs.high_vapour_density",
-      "tag": "inventory_inputs.high_vapour_density",
       "information_type": "assumption",
       "variable_path": "inventory_inputs.high_vapour_density",
       "type": "constant",
@@ -243,7 +228,6 @@
     },
     {
       "id": "channel_1",
-      "tag": "Hot-run peak, channel 1",
       "information_type": "sensor_reading",
       "variable_path": "compressor.inlet_state.properties.temperature",
       "type": "constant",
@@ -254,7 +238,6 @@
     },
     {
       "id": "channel_2",
-      "tag": "Hot-run peak, channel 2",
       "information_type": "sensor_reading",
       "variable_path": "compressor.outlet_state.properties.temperature",
       "type": "constant",
@@ -265,7 +248,6 @@
     },
     {
       "id": "channel_3",
-      "tag": "Hot-run peak, channel 3",
       "information_type": "sensor_reading",
       "variable_path": "pre_capillary.state.properties.temperature",
       "type": "constant",
@@ -276,7 +258,6 @@
     },
     {
       "id": "channel_4",
-      "tag": "Hot-run peak, channel 4",
       "information_type": "sensor_reading",
       "variable_path": "post_capillary.state.properties.temperature",
       "type": "constant",

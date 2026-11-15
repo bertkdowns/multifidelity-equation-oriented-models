@@ -22,7 +22,7 @@ def valve():
 
 def information(path="inlet.pressure", **changes):
     return InformationDocument([{
-        "id": "reading", "tag": "PT101", "information_type": "sensor_reading",
+        "id": "reading", "information_type": "sensor_reading",
         "variable_path": path, "value": 200, "unit": "kPa", "trust_rank": 10,
         "standard_deviation": 0.5, **changes,
     }])
@@ -291,7 +291,7 @@ def test_operating_and_initial_values_apply_together_on_final_grid():
         model, wrt=model.fs.time, nfe=2, scheme="BACKWARD",
     )
     table = information("tank.inlet.flow", value=2, unit="kg/s")
-    table.add({**table.get("reading").model_dump(), "id": "start", "tag": "start",
+    table.add({**table.get("reading").model_dump(), "id": "start",
                "variable_path": "tank.inventory.level", "value": 100, "unit": "cm"})
     apply_specification(model, {
         "specifications": ["reading"], "initial_values": ["start"],
@@ -319,7 +319,7 @@ def test_invalid_initial_value_preserves_operating_values_and_guesses(
     flow = get_variable(model, "tank.inlet.flow")
     flow[5].set_value(42)
     table = information("tank.inlet.flow", value=2, unit="kg/s")
-    table.add({**table.get("reading").model_dump(), "id": "start", "tag": "start",
+    table.add({**table.get("reading").model_dump(), "id": "start",
                "variable_path": "tank." + initial_path, "value": initial_value, "unit": initial_unit})
     with pytest.raises(ValueError, match=error):
         apply_specification(model, {
@@ -337,7 +337,7 @@ def test_initial_values_reject_steady_models_and_overlapping_families():
         apply_specification(valve(), {"initial_values": ["reading"]}, information())
     model = dynamic_tank()
     table = information("tank.inventory.level", value=1, unit="m")
-    table.add({**table.get("reading").model_dump(), "id": "start", "tag": "start"})
+    table.add({**table.get("reading").model_dump(), "id": "start"})
     with pytest.raises(ValueError, match="Multiple information records"):
         apply_specification(model, {
             "specifications": ["reading"], "initial_values": ["start"],

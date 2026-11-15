@@ -1,7 +1,6 @@
 [
   {
     "id": "config_sghp_condenser_parameters_conductance",
-    "tag": "ahuora.property_value.630152",
     "information_type": "assumption",
     "variable_path": "sghp.condenser.parameters.conductance",
     "value": 35462.01923747691,
@@ -10,7 +9,6 @@
   },
   {
     "id": "config_sghp_evaporator_parameters_conductance",
-    "tag": "ahuora.property_value.630364",
     "information_type": "assumption",
     "variable_path": "sghp.evaporator.parameters.conductance",
     "value": 10526.54640593055,
@@ -19,7 +17,6 @@
   },
   {
     "id": "config_sghp_subcooler_parameters_conductance",
-    "tag": "ahuora.property_value.630103",
     "information_type": "assumption",
     "variable_path": "sghp.subcooler.parameters.conductance",
     "value": 665.2591195974528,
@@ -28,7 +25,6 @@
   },
   {
     "id": "config_sghp_ihx_parameters_conductance",
-    "tag": "ahuora.property_value.630222",
     "information_type": "assumption",
     "variable_path": "sghp.ihx.parameters.conductance",
     "value": 66.74409622462433,
@@ -37,7 +33,6 @@
   },
   {
     "id": "config_cooling_exchanger_parameters_conductance",
-    "tag": "ahuora.property_value.629962",
     "information_type": "equipment_specification",
     "variable_path": "cooling_exchanger.parameters.conductance",
     "value": 540.0,
@@ -46,7 +41,6 @@
   },
   {
     "id": "config_hot_water_pump_parameters_efficiency",
-    "tag": "ahuora.property_value.630554",
     "information_type": "equipment_specification",
     "variable_path": "hot_water_pump.parameters.efficiency",
     "value": 1.0,
@@ -55,7 +49,6 @@
   },
   {
     "id": "config_warm_water_pump_parameters_efficiency",
-    "tag": "ahuora.property_value.630656",
     "information_type": "equipment_specification",
     "variable_path": "warm_water_pump.parameters.efficiency",
     "value": 0.9,
@@ -64,7 +57,6 @@
   },
   {
     "id": "config_source_pump_parameters_efficiency",
-    "tag": "ahuora.property_value.630866",
     "information_type": "equipment_specification",
     "variable_path": "source_pump.parameters.efficiency",
     "value": 0.9,
@@ -73,7 +65,6 @@
   },
   {
     "id": "config_sghp_compressor_parameters_efficiency",
-    "tag": "ahuora.property_value.630425",
     "information_type": "equipment_specification",
     "variable_path": "sghp.compressor.parameters.efficiency",
     "value": 0.75,
@@ -82,7 +73,6 @@
   },
   {
     "id": "config_warm_water_splitter_parameters_fraction",
-    "tag": "ahuora.property_value.630044",
     "information_type": "assumption",
     "variable_path": "warm_water_splitter.parameters.fraction",
     "value": 0.919638254787468,
@@ -91,7 +81,6 @@
   },
   {
     "id": "config_phnix_power_model_parameters_electrical_power",
-    "tag": "ahuora.property_value.630770",
     "information_type": "assumption",
     "variable_path": "phnix.power_model.parameters.electrical_power",
     "value": 27.3281092732687,
@@ -100,7 +89,6 @@
   },
   {
     "id": "config_phnix_cop_model_parameters_cop",
-    "tag": "ahuora.property_value.630773",
     "information_type": "equipment_specification",
     "variable_path": "phnix.cop_model.parameters.cop",
     "value": 2.0,
@@ -109,7 +97,6 @@
   },
   {
     "id": "config_source_pump_parameters_pressure_rise",
-    "tag": "ahuora.property_value.630867",
     "information_type": "equipment_specification",
     "variable_path": "source_pump.parameters.pressure_rise",
     "value": 5.0,
@@ -118,7 +105,6 @@
   },
   {
     "id": "config_warm_water_pump_parameters_pressure_rise",
-    "tag": "ahuora.property_value.630657",
     "information_type": "equipment_specification",
     "variable_path": "warm_water_pump.parameters.pressure_rise",
     "value": 7.0,
@@ -127,7 +113,6 @@
   },
   {
     "id": "config_makeup_inlet_pressure",
-    "tag": "ahuora.property_value.630014",
     "information_type": "equipment_specification",
     "variable_path": "makeup_state.state.pressure",
     "value": 400.0,
@@ -136,7 +121,6 @@
   },
   {
     "id": "config_phnix_source_inlet_pressure",
-    "tag": "ahuora.property_value.630807",
     "information_type": "equipment_specification",
     "variable_path": "phnix_source_state.state.pressure",
     "value": 100.0,
@@ -145,7 +129,6 @@
   },
   {
     "id": "config_cooling_water_inlet_pressure",
-    "tag": "ahuora.property_value.629970",
     "information_type": "equipment_specification",
     "variable_path": "cooling_water_state.state.pressure",
     "value": 100.0,
@@ -154,7 +137,6 @@
   },
   {
     "id": "config_phnix_sink_inlet_pressure",
-    "tag": "user.source_loop_pressure",
     "information_type": "assumption",
     "variable_path": "phnix.sink_inlet.pressure",
     "value": 2,
@@ -163,7 +145,6 @@
   },
   {
     "id": "config_sghp_hot_inlet_flow",
-    "tag": "ahuora.property_value.630628",
     "information_type": "equipment_specification",
     "variable_path": "sghp.hot_inlet.flow",
     "value": 0.830463850734013,
@@ -172,7 +153,6 @@
   },
   {
     "id": "config_phnix_sink_inlet_flow",
-    "tag": "ahuora.property_value.630912",
     "information_type": "equipment_specification",
     "variable_path": "phnix.sink_inlet.flow",
     "value": 9.007633999999996,
@@ -181,7 +161,6 @@
   },
   {
     "id": "config_phnix_source_inlet_flow",
-    "tag": "ahuora.property_value.630804",
     "information_type": "equipment_specification",
     "variable_path": "phnix_source_state.state.flow",
     "value": 9.007634000000001,
@@ -190,7 +169,6 @@
   },
   {
     "id": "config_cooling_water_inlet_flow",
-    "tag": "ahuora.property_value.629967",
     "information_type": "equipment_specification",
     "variable_path": "cooling_water_state.state.flow",
     "value": 0.26783324982654794,
@@ -199,7 +177,6 @@
   },
   {
     "id": "config_flash_tank_inlet_pressure",
-    "tag": "ahuora.property_value.630494",
     "information_type": "equipment_specification",
     "variable_path": "flash_tank.inlet.pressure",
     "value": 200.0,
@@ -208,7 +185,6 @@
   },
   {
     "id": "config_hot_water_pump_outlet_pressure",
-    "tag": "ahuora.property_value.630572",
     "information_type": "equipment_specification",
     "variable_path": "hot_water_pump.outlet.pressure",
     "value": 400.0,
@@ -217,7 +193,6 @@
   },
   {
     "id": "config_makeup_inlet_state_temperature",
-    "tag": "ahuora.property_value.630013",
     "information_type": "assumption",
     "variable_path": "makeup_state.properties.temperature",
     "value": 298.150000000004,
@@ -226,7 +201,6 @@
   },
   {
     "id": "config_phnix_source_inlet_state_temperature",
-    "tag": "ahuora.property_value.630806",
     "information_type": "assumption",
     "variable_path": "phnix_source_state.properties.temperature",
     "value": 293.1499999999972,
@@ -235,7 +209,6 @@
   },
   {
     "id": "config_cooling_water_inlet_state_temperature",
-    "tag": "ahuora.property_value.629969",
     "information_type": "assumption",
     "variable_path": "cooling_water_state.properties.temperature",
     "value": 308.15000000000765,
@@ -244,7 +217,6 @@
   },
   {
     "id": "config_phnix_sink_inlet_state_temperature",
-    "tag": "ahuora.property_value.630914",
     "information_type": "assumption",
     "variable_path": "phnix.sink_inlet_state.properties.temperature",
     "value": 348.53367004961297,
@@ -253,7 +225,6 @@
   },
   {
     "id": "config_sghp_source_inlet_state_temperature",
-    "tag": "ahuora.property_value.630789",
     "information_type": "assumption",
     "variable_path": "sghp.source_inlet_state.properties.temperature",
     "value": 350.15000000040436,
@@ -262,7 +233,6 @@
   },
   {
     "id": "config_sghp_hot_inlet_state_temperature",
-    "tag": "ahuora.property_value.630630",
     "information_type": "assumption",
     "variable_path": "sghp.hot_inlet_state.properties.temperature",
     "value": 392.72659727435075,
@@ -271,7 +241,6 @@
   },
   {
     "id": "config_sghp_warm_inlet_state_temperature",
-    "tag": "ahuora.property_value.630673",
     "information_type": "assumption",
     "variable_path": "sghp.warm_inlet_state.properties.temperature",
     "value": 332.63462987445513,
@@ -280,7 +249,6 @@
   },
   {
     "id": "config_flash_liquid_to_liquid",
-    "tag": "ahuora.phase_routing.liquid_to_liquid",
     "information_type": "equipment_specification",
     "variable_path": "flash_tank.parameters.liquid_to_liquid",
     "value": 1,
@@ -289,7 +257,6 @@
   },
   {
     "id": "config_flash_vapor_to_liquid",
-    "tag": "ahuora.phase_routing.vapor_to_liquid",
     "information_type": "equipment_specification",
     "variable_path": "flash_tank.parameters.vapor_to_liquid",
     "value": 0,

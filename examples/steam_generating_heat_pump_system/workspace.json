@@ -279,7 +279,6 @@
   "information": [
     {
       "id": "config_sghp_condenser_parameters_conductance",
-      "tag": "ahuora.property_value.630152",
       "information_type": "assumption",
       "variable_path": "sghp.condenser.parameters.conductance",
       "type": "constant",
@@ -290,7 +289,6 @@
     },
     {
       "id": "config_sghp_evaporator_parameters_conductance",
-      "tag": "ahuora.property_value.630364",
       "information_type": "assumption",
       "variable_path": "sghp.evaporator.parameters.conductance",
       "type": "constant",
@@ -301,7 +299,6 @@
     },
     {
       "id": "config_sghp_subcooler_parameters_conductance",
-      "tag": "ahuora.property_value.630103",
       "information_type": "assumption",
       "variable_path": "sghp.subcooler.parameters.conductance",
       "type": "constant",
@@ -312,7 +309,6 @@
     },
     {
       "id": "config_sghp_ihx_parameters_conductance",
-      "tag": "ahuora.property_value.630222",
       "information_type": "assumption",
       "variable_path": "sghp.ihx.parameters.conductance",
       "type": "constant",
@@ -323,7 +319,6 @@
     },
     {
       "id": "config_cooling_exchanger_parameters_conductance",
-      "tag": "ahuora.property_value.629962",
       "information_type": "equipment_specification",
       "variable_path": "cooling_exchanger.parameters.conductance",
       "type": "constant",
@@ -334,7 +329,6 @@
     },
     {
       "id": "config_hot_water_pump_parameters_efficiency",
-      "tag": "ahuora.property_value.630554",
       "information_type": "equipment_specification",
       "variable_path": "hot_water_pump.parameters.efficiency",
       "type": "constant",
@@ -345,7 +339,6 @@
     },
     {
       "id": "config_warm_water_pump_parameters_efficiency",
-      "tag": "ahuora.property_value.630656",
       "information_type": "equipment_specification",
       "variable_path": "warm_water_pump.parameters.efficiency",
       "type": "constant",
@@ -356,7 +349,6 @@
     },
     {
       "id": "config_source_pump_parameters_efficiency",
-      "tag": "ahuora.property_value.630866",
       "information_type": "equipment_specification",
       "variable_path": "source_pump.parameters.efficiency",
       "type": "constant",
@@ -367,7 +359,6 @@
     },
     {
       "id": "config_sghp_compressor_parameters_efficiency",
-      "tag": "ahuora.property_value.630425",
       "information_type": "equipment_specification",
       "variable_path": "sghp.compressor.parameters.efficiency",
       "type": "constant",
@@ -378,7 +369,6 @@
     },
     {
       "id": "config_warm_water_splitter_parameters_fraction",
-      "tag": "ahuora.property_value.630044",
       "information_type": "assumption",
       "variable_path": "warm_water_splitter.parameters.fraction",
       "type": "constant",
@@ -389,7 +379,6 @@
     },
     {
       "id": "config_phnix_power_model_parameters_electrical_power",
-      "tag": "ahuora.property_value.630770",
       "information_type": "assumption",
       "variable_path": "phnix.power_model.parameters.electrical_power",
       "type": "constant",
@@ -400,7 +389,6 @@
     },
     {
       "id": "config_phnix_cop_model_parameters_cop",
-      "tag": "ahuora.property_value.630773",
       "information_type": "equipment_specification",
       "variable_path": "phnix.cop_model.parameters.cop",
       "type": "constant",
@@ -411,7 +399,6 @@
     },
     {
       "id": "config_source_pump_parameters_pressure_rise",
-      "tag": "ahuora.property_value.630867",
       "information_type": "equipment_specification",
       "variable_path": "source_pump.parameters.pressure_rise",
       "type": "constant",
@@ -422,7 +409,6 @@
     },
     {
       "id": "config_warm_water_pump_parameters_pressure_rise",
-      "tag": "ahuora.property_value.630657",
       "information_type": "equipment_specification",
       "variable_path": "warm_water_pump.parameters.pressure_rise",
       "type": "constant",
@@ -433,7 +419,6 @@
     },
     {
       "id": "config_makeup_inlet_pressure",
-      "tag": "ahuora.property_value.630014",
       "information_type": "equipment_specification",
       "variable_path": "makeup_state.state.pressure",
       "type": "constant",
@@ -444,7 +429,6 @@
     },
     {
       "id": "config_phnix_source_inlet_pressure",
-      "tag": "ahuora.property_value.630807",
       "information_type": "equipment_specification",
       "variable_path": "phnix_source_state.state.pressure",
       "type": "constant",
@@ -455,7 +439,6 @@
     },
     {
       "id": "config_cooling_water_inlet_pressure",
-      "tag": "ahuora.property_value.629970",
       "information_type": "equipment_specification",
       "variable_path": "cooling_water_state.state.pressure",
       "type": "constant",
@@ -466,7 +449,6 @@
     },
     {
       "id": "config_phnix_sink_inlet_pressure",
-      "tag": "user.source_loop_pressure",
       "information_type": "assumption",
       "variable_path": "phnix.sink_inlet.pressure",
       "type": "constant",
@@ -477,7 +459,6 @@
     },
     {
       "id": "config_sghp_hot_inlet_flow",
-      "tag": "ahuora.property_value.630628",
       "information_type": "equipment_specification",
       "variable_path": "sghp.hot_inlet.flow",
       "type": "constant",
@@ -488,7 +469,6 @@
     },
     {
       "id": "config_phnix_sink_inlet_flow",
-      "tag": "ahuora.property_value.630912",
       "information_type": "equipment_specification",
       "variable_path": "phnix.sink_inlet.flow",
       "type": "constant",
@@ -499,7 +479,6 @@
     },
     {
       "id": "config_phnix_source_inlet_flow",
-      "tag": "ahuora.property_value.630804",
       "information_type": "equipment_specification",
       "variable_path": "phnix_source_state.state.flow",
       "type": "constant",
@@ -510,7 +489,6 @@
     },
     {
       "id": "config_cooling_water_inlet_flow",
-      "tag": "ahuora.property_value.629967",
       "information_type": "equipment_specification",
       "variable_path": "cooling_water_state.state.flow",
       "type": "constant",
@@ -521,7 +499,6 @@
     },
     {
       "id": "config_flash_tank_inlet_pressure",
-      "tag": "ahuora.property_value.630494",
       "information_type": "equipment_specification",
       "variable_path": "flash_tank.inlet.pressure",
       "type": "constant",
@@ -532,7 +509,6 @@
     },
     {
       "id": "config_hot_water_pump_outlet_pressure",
-      "tag": "ahuora.property_value.630572",
       "information_type": "equipment_specification",
       "variable_path": "hot_water_pump.outlet.pressure",
       "type": "constant",
@@ -543,7 +519,6 @@
     },
     {
       "id": "config_makeup_inlet_state_temperature",
-      "tag": "ahuora.property_value.630013",
       "information_type": "assumption",
       "variable_path": "makeup_state.properties.temperature",
       "type": "constant",
@@ -554,7 +529,6 @@
     },
     {
       "id": "config_phnix_source_inlet_state_temperature",
-      "tag": "ahuora.property_value.630806",
       "information_type": "assumption",
       "variable_path": "phnix_source_state.properties.temperature",
       "type": "constant",
@@ -565,7 +539,6 @@
     },
     {
       "id": "config_cooling_water_inlet_state_temperature",
-      "tag": "ahuora.property_value.629969",
       "information_type": "assumption",
       "variable_path": "cooling_water_state.properties.temperature",
       "type": "constant",
@@ -576,7 +549,6 @@
     },
     {
       "id": "config_phnix_sink_inlet_state_temperature",
-      "tag": "ahuora.property_value.630914",
       "information_type": "assumption",
       "variable_path": "phnix.sink_inlet_state.properties.temperature",
       "type": "constant",
@@ -587,7 +559,6 @@
     },
     {
       "id": "config_sghp_source_inlet_state_temperature",
-      "tag": "ahuora.property_value.630789",
       "information_type": "assumption",
       "variable_path": "sghp.source_inlet_state.properties.temperature",
       "type": "constant",
@@ -598,7 +569,6 @@
     },
     {
       "id": "config_sghp_hot_inlet_state_temperature",
-      "tag": "ahuora.property_value.630630",
       "information_type": "assumption",
       "variable_path": "sghp.hot_inlet_state.properties.temperature",
       "type": "constant",
@@ -609,7 +579,6 @@
     },
     {
       "id": "config_sghp_warm_inlet_state_temperature",
-      "tag": "ahuora.property_value.630673",
       "information_type": "assumption",
       "variable_path": "sghp.warm_inlet_state.properties.temperature",
       "type": "constant",
@@ -620,7 +589,6 @@
     },
     {
       "id": "attempt_flash_liquid_outlet_quality",
-      "tag": "user_assumption.attempt_flash_liquid_outlet_quality",
       "information_type": "assumption",
       "variable_path": "flash_tank.liquid_properties.vapor_fraction",
       "type": "constant",
@@ -631,7 +599,6 @@
     },
     {
       "id": "attempt_flash_vapor_outlet_quality",
-      "tag": "user_assumption.attempt_flash_vapor_outlet_quality",
       "information_type": "assumption",
       "variable_path": "flash_tank.vapor_properties.vapor_fraction",
       "type": "constant",
@@ -642,7 +609,6 @@
     },
     {
       "id": "attempt_source_tank_adiabatic",
-      "tag": "user_assumption.source_tank_adiabatic",
       "information_type": "assumption",
       "variable_path": "source_tank.parameters.heat_duty",
       "type": "constant",
@@ -653,7 +619,6 @@
     },
     {
       "id": "attempt_export_steam_pressure",
-      "tag": "user_assumption.export_steam_pressure",
       "information_type": "assumption",
       "variable_path": "steam_outlet.pressure",
       "type": "constant",
@@ -664,7 +629,6 @@
     },
     {
       "id": "attempt_warm_water_pressure",
-      "tag": "user_assumption.warm_water_pressure",
       "information_type": "assumption",
       "variable_path": "warm_water_mixer.outlet.pressure",
       "type": "constant",
@@ -675,7 +639,6 @@
     },
     {
       "id": "attempt_warm_makeup_pressure",
-      "tag": "user_assumption.warm_makeup_pressure",
       "information_type": "assumption",
       "variable_path": "warm_makeup_valve.outlet.pressure",
       "type": "constant",
@@ -686,7 +649,6 @@
     },
     {
       "id": "attempt_makeup_mass_flow",
-      "tag": "user_assumption.makeup_mass_flow",
       "information_type": "assumption",
       "variable_path": "makeup_state.state.flow",
       "type": "constant",
@@ -697,7 +659,6 @@
     },
     {
       "id": "guess_flash_inlet_enthalpy",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.inlet.enthalpy",
       "type": "constant",
@@ -708,7 +669,6 @@
     },
     {
       "id": "guess_flash_liquid_enthalpy",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.liquid.enthalpy",
       "type": "constant",
@@ -719,7 +679,6 @@
     },
     {
       "id": "guess_flash_vapor_enthalpy",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.vapor.enthalpy",
       "type": "constant",
@@ -730,7 +689,6 @@
     },
     {
       "id": "guess_flash_inlet_state_state_enthalpy",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.inlet_state.state.enthalpy",
       "type": "constant",
@@ -741,7 +699,6 @@
     },
     {
       "id": "guess_flash_liquid_state_state_enthalpy",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.liquid_state.state.enthalpy",
       "type": "constant",
@@ -752,7 +709,6 @@
     },
     {
       "id": "guess_flash_vapor_state_state_enthalpy",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.vapor_state.state.enthalpy",
       "type": "constant",
@@ -763,7 +719,6 @@
     },
     {
       "id": "guess_flash_liquid_to_liquid",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.parameters.liquid_to_liquid",
       "type": "constant",
@@ -774,7 +729,6 @@
     },
     {
       "id": "guess_flash_vapor_to_liquid",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.parameters.vapor_to_liquid",
       "type": "constant",
@@ -785,7 +739,6 @@
     },
     {
       "id": "attempt_sghp_operating_cop",
-      "tag": "user_assumption.sghp_operating_cop",
       "information_type": "assumption",
       "variable_path": "sghp.cop_model.parameters.cop",
       "type": "constant",
@@ -796,7 +749,6 @@
     },
     {
       "id": "guess_flash_liquid_mixture_liquid_flow",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.liquid_mixture.phases.liquid_flow",
       "type": "constant",
@@ -807,7 +759,6 @@
     },
     {
       "id": "guess_flash_liquid_mixture_vapor_flow",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.liquid_mixture.phases.vapor_flow",
       "type": "constant",
@@ -818,7 +769,6 @@
     },
     {
       "id": "guess_flash_liquid_mixture_liquid_enthalpy",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.liquid_mixture.phases.liquid_enthalpy",
       "type": "constant",
@@ -829,7 +779,6 @@
     },
     {
       "id": "guess_flash_liquid_mixture_vapor_enthalpy",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.liquid_mixture.phases.vapor_enthalpy",
       "type": "constant",
@@ -840,7 +789,6 @@
     },
     {
       "id": "guess_flash_vapor_mixture_liquid_flow",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.vapor_mixture.phases.liquid_flow",
       "type": "constant",
@@ -851,7 +799,6 @@
     },
     {
       "id": "guess_flash_vapor_mixture_vapor_flow",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.vapor_mixture.phases.vapor_flow",
       "type": "constant",
@@ -862,7 +809,6 @@
     },
     {
       "id": "guess_flash_vapor_mixture_liquid_enthalpy",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.vapor_mixture.phases.liquid_enthalpy",
       "type": "constant",
@@ -873,7 +819,6 @@
     },
     {
       "id": "guess_flash_vapor_mixture_vapor_enthalpy",
-      "tag": "initial_guess.flash_outlet_compositions",
       "information_type": "assumption",
       "variable_path": "flash_tank.vapor_mixture.phases.vapor_enthalpy",
       "type": "constant",

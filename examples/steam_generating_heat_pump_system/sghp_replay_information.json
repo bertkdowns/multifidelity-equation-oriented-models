@@ -1,7 +1,6 @@
 [
   {
     "id": "replay_reference_sghp_source_inlet_flow",
-    "tag": "ahuora.property_value.630787",
     "information_type": "assumption",
     "variable_path": "source_inlet.flow",
     "value": 9.007633999999996,
@@ -10,7 +9,6 @@
   },
   {
     "id": "replay_reference_sghp_source_inlet_pressure",
-    "tag": "user.source_loop_pressure",
     "information_type": "assumption",
     "variable_path": "source_inlet.pressure",
     "value": 2,
@@ -19,7 +17,6 @@
   },
   {
     "id": "replay_reference_sghp_hot_inlet_flow",
-    "tag": "ahuora.property_value.630628",
     "information_type": "assumption",
     "variable_path": "hot_inlet.flow",
     "value": 0.830463850734013,
@@ -28,7 +25,6 @@
   },
   {
     "id": "replay_reference_sghp_hot_inlet_pressure",
-    "tag": "ahuora.property_value.630631",
     "information_type": "assumption",
     "variable_path": "hot_inlet.pressure",
     "value": 396.99324280996854,
@@ -37,7 +33,6 @@
   },
   {
     "id": "replay_reference_sghp_warm_inlet_flow",
-    "tag": "ahuora.property_value.630671",
     "information_type": "assumption",
     "variable_path": "warm_inlet.flow",
     "value": 0.19353170431922537,
@@ -46,7 +41,6 @@
   },
   {
     "id": "replay_reference_sghp_warm_inlet_pressure",
-    "tag": "ahuora.property_value.630674",
     "information_type": "assumption",
     "variable_path": "warm_inlet.pressure",
     "value": 399.9929657079141,
@@ -55,7 +49,6 @@
   },
   {
     "id": "replay_reference_sghp_performance_electrical_power",
-    "tag": "ahuora.property_value.630428",
     "information_type": "assumption",
     "variable_path": "power_model.parameters.electrical_power",
     "value": 12.755835603752978,
@@ -64,7 +57,6 @@
   },
   {
     "id": "replay_reference_sghp_performance_warm_water_duty",
-    "tag": "ahuora.property_value.630105",
     "information_type": "assumption",
     "variable_path": "warm_water_heater.parameters.heat_duty",
     "value": 20.69473222747439,
@@ -73,7 +65,6 @@
   },
   {
     "id": "replay_calibrated_cop",
-    "tag": "derived.sghp.total_heating_cop",
     "information_type": "assumption",
     "variable_path": "cop_model.parameters.cop",
     "value": 5.288199521202138,
@@ -82,7 +73,6 @@
   },
   {
     "id": "replay_source_inlet_temperature",
-    "tag": "ahuora.property_value.630789",
     "information_type": "assumption",
     "variable_path": "source_inlet_state.properties.temperature",
     "value": 350.15000000040436,
@@ -91,7 +81,6 @@
   },
   {
     "id": "replay_hot_inlet_temperature",
-    "tag": "ahuora.property_value.630630",
     "information_type": "assumption",
     "variable_path": "hot_inlet_state.properties.temperature",
     "value": 392.72659727435075,
@@ -100,7 +89,6 @@
   },
   {
     "id": "replay_warm_inlet_temperature",
-    "tag": "ahuora.property_value.630673",
     "information_type": "assumption",
     "variable_path": "warm_inlet_state.properties.temperature",
     "value": 332.63462987445513,

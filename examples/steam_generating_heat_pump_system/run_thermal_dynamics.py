@@ -52,7 +52,7 @@ def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, sghp="ag
     ids = [i for i in ids if i not in removed]
     initial = []
     def add(name, path, number, unit, *, initial_only=False, series=False):
-        records.append(InformationRecord(id=name, tag='thermal_demo.'+name,
+        records.append(InformationRecord(id=name,
             information_type='assumption', variable_path=path, value=number, unit=unit,
             type='series' if series else 'constant', trust_rank=8))
         (initial if initial_only else ids).append(name)

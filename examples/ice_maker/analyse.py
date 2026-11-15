@@ -86,12 +86,12 @@ def fit_response(grid, data, *, water_only, workspace_path=None):
     )
     paths = {"water": "boundary.water", "ambient": "boundary.ambient", "suction": "state.suction"}
     information = InformationDocument([
-        dict(id=name, tag=f"channel {channel}", information_type="sensor_reading",
+        dict(id=name, information_type="sensor_reading",
              variable_path=paths[name], type="series", value=data[:, channel - 1] + KELVIN,
              unit="K", trust_rank=5)
         for name, channel in (("water", 6), ("ambient", 5), ("suction", 1))
     ])
-    information.add(dict(id="initial", tag="channel 1", information_type="sensor_reading",
+    information.add(dict(id="initial", information_type="sensor_reading",
                          variable_path=paths["suction"], value=data[0, 0] + KELVIN,
                          unit="K", trust_rank=5))
     specification = SpecificationDocument(specifications=("water", "ambient"), initial_values=("initial",))
@@ -216,7 +216,7 @@ def export_cycle_workspace(values, pressure_enthalpy, efficiency, densities, wor
         "inventory_inputs.high_vapour_density": (high_vapour, "kg/m**3"),
     }
     information = InformationDocument([
-        dict(id=path, tag=path, information_type="equipment_specification" if path == "inventory_inputs.charge" else "assumption",
+        dict(id=path, information_type="equipment_specification" if path == "inventory_inputs.charge" else "assumption",
              variable_path=path, value=value, unit=unit, trust_rank=8 if path == "inventory_inputs.charge" else 3)
         for path, (value, unit) in inputs.items()
     ])
@@ -235,7 +235,7 @@ def export_cycle_workspace(values, pressure_enthalpy, efficiency, densities, wor
               "pre_capillary.state", "post_capillary.state")
     for channel, alias in enumerate(probes, start=1):
         information.add(dict(
-            id=f"channel_{channel}", tag=f"Hot-run peak, channel {channel}",
+            id=f"channel_{channel}",
             information_type="sensor_reading", variable_path=f"{alias}.properties.temperature",
             value=values[channel - 1] + KELVIN, unit="K", trust_rank=5,
         ))

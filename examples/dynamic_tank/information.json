@@ -1,7 +1,6 @@
 [
   {
     "id": "tank_area",
-    "tag": "tank_area",
     "information_type": "assumption",
     "variable_path": "tank.parameters.area",
     "value": 1,
@@ -10,7 +9,6 @@
   },
   {
     "id": "inlet_flow",
-    "tag": "inlet_flow",
     "information_type": "assumption",
     "variable_path": "tank.inlet.flow",
     "value": 1,
@@ -19,7 +17,6 @@
   },
   {
     "id": "inlet_temperature",
-    "tag": "inlet_temperature",
     "information_type": "assumption",
     "variable_path": "tank.inlet_state.properties.temperature",
     "value": 333.15,
@@ -28,7 +25,6 @@
   },
   {
     "id": "heat_loss",
-    "tag": "heat_loss",
     "information_type": "assumption",
     "variable_path": "tank.loss.heat",
     "value": 0,
@@ -37,7 +33,6 @@
   },
   {
     "id": "withdrawal_flow",
-    "tag": "withdrawal_flow",
     "information_type": "assumption",
     "variable_path": "tank.withdrawal.flow",
     "value": 1,
@@ -46,7 +41,6 @@
   },
   {
     "id": "tank_level",
-    "tag": "tank_level",
     "information_type": "assumption",
     "variable_path": "tank.inventory.level",
     "value": 1,
@@ -55,7 +49,6 @@
   },
   {
     "id": "starting_energy",
-    "tag": "starting_energy",
     "information_type": "assumption",
     "variable_path": "tank.inventory.energy",
     "value": 125341334.4490745,
@@ -64,7 +57,6 @@
   },
   {
     "id": "inlet_pressure",
-    "tag": "inlet_pressure",
     "information_type": "assumption",
     "variable_path": "tank.inlet.pressure",
     "value": 101325,
@@ -73,7 +65,6 @@
   },
   {
     "id": "tank_pressure",
-    "tag": "tank_pressure",
     "information_type": "assumption",
     "variable_path": "tank.parameters.pressure",
     "value": 101325,

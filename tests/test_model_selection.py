@@ -69,11 +69,11 @@ def test_isolated_variables_and_local_overconstraint_are_not_hidden():
 
 
 def test_incompatible_preferred_record_falls_back_and_setpoints_need_assumption():
-    records = [dict(id='bad', tag='a', information_type='sensor_reading',
+    records = [dict(id='bad', information_type='sensor_reading',
                     variable_path='inlet.pressure', value=2, unit='kg', trust_rank=10),
-               dict(id='setpoint', tag='b', information_type='control_setpoint',
+               dict(id='setpoint', information_type='control_setpoint',
                     variable_path='inlet.pressure', value=200, unit='kPa', trust_rank=9),
-               dict(id='fallback', tag='c', information_type='assumption',
+               dict(id='fallback', information_type='assumption',
                     variable_path='inlet.pressure', value=190, unit='kPa', trust_rank=1)]
     table = InformationDocument(records)
     result = select_specification(valve(), table)
@@ -88,7 +88,7 @@ def test_family_trial_rejected_if_one_entry_is_already_determined():
     model.profile_equation = Constraint(expr=model.profile[0] == 1)
     model._model_language_variables['profile'] = model.profile
     table = InformationDocument([dict(
-        id='profile', tag='p', information_type='assumption',
+        id='profile', information_type='assumption',
         variable_path='profile', value=1, unit='dimensionless', trust_rank=10)])
     result = select_specification(model, table)
     assert not result.specification.specifications

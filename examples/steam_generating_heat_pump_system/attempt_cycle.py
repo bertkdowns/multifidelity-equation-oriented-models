@@ -31,7 +31,7 @@ if __name__ == '__main__':
     power = observations.get('reference_sghp_performance_electrical_power')
     if args.power_kw is not None:
         power = power.model_copy(update={
-            'id': 'attempt_sghp_operating_power', 'tag': 'user_assumption.sghp_operating_power',
+            'id': 'attempt_sghp_operating_power',
             'value': args.power_kw, 'unit': 'kW', 'trust_rank': 8,
         })
     information = InformationDocument(root=(*information.records, pressure_rise, power))

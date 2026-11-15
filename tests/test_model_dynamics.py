@@ -29,7 +29,7 @@ def with_initial_values(model, entries):
         path = entry["variable_path"]
         unit = entry.get("unit", str(pyo.units.get_units(get_variable(model, path))))
         records.append({
-            "id": f"initial_{index}", "tag": f"initial_{index}",
+            "id": f"initial_{index}",
             "information_type": "assumption", "trust_rank": 5,
             **entry, "unit": unit,
         })

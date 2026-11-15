@@ -61,7 +61,7 @@ if __name__ == '__main__':
                         guesses[path] = number
         guesses['sghp.refrigerant_mass_recycle.flow_definition.flow'] = state(1671821)['flow']
         guesses['sghp.expansion_valve.parameters.pressure_drop'] = 2011686.3921285754
-        records = [InformationRecord(id=f'cycle_guess_{i}', tag='captured_reference_starting_guess',
+        records = [InformationRecord(id=f'cycle_guess_{i}',
                                      information_type='assumption', variable_path=path, value=number,
                                      unit='kg/s' if path.endswith('.flow') else 'Pa' if path.endswith(('.pressure', '.pressure_drop')) else 'J/kg',
                                      trust_rank=1)

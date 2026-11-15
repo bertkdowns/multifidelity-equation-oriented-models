@@ -6,7 +6,6 @@
   "information": [
     {
       "id": "inlet_flow",
-      "tag": "FT101",
       "information_type": "sensor_reading",
       "variable_path": "inlet.flow",
       "type": "constant",
@@ -17,7 +16,6 @@
     },
     {
       "id": "pressure_measurement",
-      "tag": "PT101",
       "information_type": "sensor_reading",
       "variable_path": "inlet.pressure",
       "type": "constant",
@@ -28,7 +26,6 @@
     },
     {
       "id": "pressure_estimate",
-      "tag": "pressure_fallback",
       "information_type": "assumption",
       "variable_path": "inlet.pressure",
       "type": "constant",
@@ -39,7 +36,6 @@
     },
     {
       "id": "inlet_enthalpy",
-      "tag": "feed_enthalpy",
       "information_type": "parameter",
       "variable_path": "inlet.enthalpy",
       "type": "constant",
@@ -50,7 +46,6 @@
     },
     {
       "id": "valve_pressure_drop",
-      "tag": "valve_dp",
       "information_type": "equipment_specification",
       "variable_path": "parameters.pressure_drop",
       "type": "constant",
@@ -61,7 +56,6 @@
     },
     {
       "id": "outlet_flow_check",
-      "tag": "outlet_flow_check",
       "information_type": "sensor_reading",
       "variable_path": "outlet.flow",
       "type": "constant",
@@ -72,7 +66,6 @@
     },
     {
       "id": "outlet_enthalpy_check",
-      "tag": "outlet_enthalpy_check",
       "information_type": "sensor_reading",
       "variable_path": "outlet.enthalpy",
       "type": "constant",
@@ -83,7 +76,6 @@
     },
     {
       "id": "outlet_pressure_check",
-      "tag": "outlet_pressure_check",
       "information_type": "sensor_reading",
       "variable_path": "outlet.pressure",
       "type": "constant",

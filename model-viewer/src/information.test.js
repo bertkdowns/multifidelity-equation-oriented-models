@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { parseInformation, indexInformation, informationPreview, findVariable, appendInformation } from './information.js';
-const fixture = { id: 'r', tag: 'T', information_type: 'sensor_reading', variable_path: 'inlet.pressure', value: 200, unit: 'kPa', trust_rank: 8 };
+const fixture = { id: 'r', information_type: 'sensor_reading', variable_path: 'inlet.pressure', value: 200, unit: 'kPa', trust_rank: 8 };
 const directory = new URL('../../src/multifidelity/model_language/models/', import.meta.url);
 const library = Object.fromEntries(readdirSync(directory).filter(name => name.endsWith('.json')).map(name => {
   const model = JSON.parse(readFileSync(new URL(name, directory), 'utf8')); return [model.id, model];
@@ -21,7 +21,7 @@ test('real example files load and alternatives retain their original values and 
 });
 
 test('invalid records are rejected atomically', () => {
-  for (const value of [{}, [fixture, fixture], [{ ...fixture, trust_rank: true }], [{ ...fixture, unit: '' }], [{ ...fixture, value: [1] }], [{ ...fixture, type: 'series', value: 1 }], [{ ...fixture, type: 'series', value: [[1], [2, 3]] }], [{ ...fixture, value: true }], [{ ...fixture, standard_deviation: -1 }], [{ ...fixture, extra: 'unknown' }]])
+  for (const value of [{}, [fixture, fixture], [{ ...fixture, trust_rank: true }], [{ ...fixture, unit: '' }], [{ ...fixture, value: [1] }], [{ ...fixture, type: 'series', value: 1 }], [{ ...fixture, type: 'series', value: [[1], [2, 3]] }], [{ ...fixture, value: true }], [{ ...fixture, standard_deviation: -1 }], [{ ...fixture, extra: 'unknown' }], [{ ...fixture, tag: 'legacy_tag' }]])
     assert.throws(() => parseInformation(JSON.stringify(value)));
   assert.throws(() => parseInformation('{broken'));
 });
@@ -43,7 +43,7 @@ test('paths match the root and nested occurrences independently, across relation
   assert.deepEqual(findVariable(tank, 'inventory.level', library).dimensions, ['time']);
 });
 
-const draft = { id: 'new', tag: 'P2', variable_path: 'inlet.pressure', information_type: 'sensor_reading', type: 'constant', value: '220.5', unit: 'kPa', trust_rank: '10', standard_deviation: '' };
+const draft = { id: 'new', variable_path: 'inlet.pressure', information_type: 'sensor_reading', type: 'constant', value: '220.5', unit: 'kPa', trust_rank: '10', standard_deviation: '' };
 
 test('adding a record preserves alternatives and updates the diagram preview ordering', () => {
   const previous = [fixture];

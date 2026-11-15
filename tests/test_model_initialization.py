@@ -11,7 +11,7 @@ from multifidelity.model_language.definitions import Variable
 
 
 def record(id, path, value, unit='kPa', trust_rank=5):
-    return dict(id=id, tag=id, variable_path=path, value=value, unit=unit,
+    return dict(id=id, variable_path=path, value=value, unit=unit,
                 trust_rank=trust_rank, information_type='sensor_reading')
 
 

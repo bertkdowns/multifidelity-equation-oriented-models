@@ -11,7 +11,6 @@ from multifidelity.model_language.information import InformationRecord, Informat
 def record(record_id="measurement", **changes):
     return {
         "id": record_id,
-        "tag": "TT101",
         "information_type": "sensor_reading",
         "variable_path": "sink_inlet.temperature",
         "value": 323.15,
@@ -118,6 +117,7 @@ def test_missing_and_zero_uncertainty_are_distinct():
         {"id": ""},
         {"variable_path": ""},
         {"unexpected": "field"},
+        {"tag": "legacy_tag"},
     ],
 )
 def test_invalid_records_are_rejected(changes):

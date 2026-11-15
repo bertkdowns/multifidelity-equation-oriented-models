@@ -64,7 +64,6 @@ class InformationRecord(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
 
     id: str = Field(min_length=1)
-    tag: str = Field(min_length=1)
     information_type: InformationType
     variable_path: str = Field(min_length=1)
     type: Literal["constant", "series"] = "constant"

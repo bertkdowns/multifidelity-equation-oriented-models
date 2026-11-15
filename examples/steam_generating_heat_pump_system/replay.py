@@ -106,7 +106,7 @@ def replay_flash(sghp_outputs, solver=None, *, workspace_path=None, phase_fracti
         ])
     for field in ['flow', 'enthalpy']:
         information.add({
-            'id': f'solved_hot_outlet_{field}', 'tag': f'replay.hot_outlet.{field}',
+            'id': f'solved_hot_outlet_{field}',
             'information_type': 'assumption', 'variable_path': f'flash_separator.inlet.{field}',
             'value': sghp_outputs[f'hot_outlet.{field}'],
             'unit': 'kg/s' if field == 'flow' else 'J/kg', 'trust_rank': 2,

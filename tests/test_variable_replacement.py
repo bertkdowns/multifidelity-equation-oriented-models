@@ -36,7 +36,7 @@ def algebra(tmp_path, *, grid=False, mode="steady"):
 
 
 def records(**paths):
-    return InformationDocument([dict(id=i, tag=i, information_type='sensor_reading',
+    return InformationDocument([dict(id=i, information_type='sensor_reading',
                                     variable_path=p, value=2, unit='dimensionless', trust_rank=10)
                                 for i, p in paths.items()])
 

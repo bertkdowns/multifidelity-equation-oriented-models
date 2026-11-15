@@ -1211,7 +1211,6 @@ Each record has:
 | Field | Meaning |
 | --- | --- |
 | `id` | Unique identity of the information record |
-| `tag` | Tag name for linking to external systems; distinct from the record identity |
 | `information_type` | One of `sensor_reading`, `control_setpoint`, `equipment_specification`, `parameter`, or `assumption` |
 | `variable_path` | Path to the variable family, without individual index subscripts |
 | `type` | `constant` (default) or `series` |
@@ -1219,6 +1218,10 @@ Each record has:
 | `unit` | Unit in which the value and its standard deviation are expressed |
 | `standard_deviation` | Optional nonnegative uncertainty in the same unit as `value` |
 | `trust_rank` | Integer from 1 to 10; higher ranks are prioritized when selecting specifications |
+
+Record IDs identify evidence independently of the model path. The former `tag`
+field has been removed; remove it from older information and workspace JSON
+files before loading them. Existing record IDs remain unchanged.
 
 For now, use variable paths directly. Assume shared public variables retain their
 paths and physical meanings across fidelity choices; do not introduce a separate
@@ -1235,7 +1238,6 @@ and correlation models are not introduced.
 [
   {
     "id": "sink_temperature_observation",
-    "tag": "TT101",
     "information_type": "sensor_reading",
     "variable_path": "sink_inlet.temperature",
     "type": "series",
@@ -1246,7 +1248,6 @@ and correlation models are not introduced.
   },
   {
     "id": "sink_temperature_target",
-    "tag": "TSP101",
     "information_type": "control_setpoint",
     "variable_path": "sink_inlet.temperature",
     "type": "constant",
@@ -1305,7 +1306,7 @@ or ndarray cannot change table contents. `model_dump_json()` and
 
 ```python
 series = InformationRecord(
-    id="inlet_temperature_series", tag="TT101",
+    id="inlet_temperature_series",
     information_type="sensor_reading", variable_path="inlet.temperature",
     type="series", value=[303.15, 305.15, 310.15],
     unit="K", standard_deviation=0.2, trust_rank=10,
@@ -1352,7 +1353,6 @@ table = InformationDocument.load_json("information.json")
 
 table.add(InformationRecord(
     id="sink_temperature_assumption",
-    tag="sink_temperature_fallback",
     information_type="assumption",
     variable_path="sink_inlet.temperature",
     value=323.15,
@@ -1367,7 +1367,7 @@ alternatives = table.candidates("sink_inlet.temperature")
 `add` accepts either an `InformationRecord` or a dictionary and returns the
 validated record. The table can also be constructed from an iterable of records
 or dictionaries. Invalid records and duplicate IDs are rejected without replacing
-an existing record. Repeated tags and variable paths are allowed.
+an existing record. Repeated variable paths are allowed; record IDs must be unique.
 
 `records` returns the records in insertion order. `candidates` returns all records
 for an exact variable path, sorted by descending trust rank and then record ID;

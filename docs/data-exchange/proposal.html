@@ -1,0 +1,48 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Data exchange proposal</title><style>
+body{margin:0;background:#f7f9fc;color:#26354b;font:15px/1.6 system-ui,sans-serif}main{max-width:1080px;margin:auto;padding:36px 32px}h1{font-size:28px;margin:0}h2{font-size:19px;margin:30px 0 10px}p{margin:10px 0}pre{padding:18px;background:white;border:1px solid #dbe4ee;border-radius:6px;overflow:auto;font:12px/1.7 ui-monospace,monospace}code{font-family:ui-monospace,monospace;font-size:.9em}li{margin:9px 0}img{width:100%;border:1px solid #dbe4ee;border-radius:6px}a{color:#345f8b}.muted{font-size:12px;color:#708097}strong{font-weight:650}</style><main>
+<h1>A common interface for simulation data</h1>
+<p class="muted">Design proposal · 16 November 2026</p>
+<p>A proposed data registry would give Multifidelity a common way to read measurements from files, databases and live services, then send calculated results to external applications. A single <code>Simulation.solve()</code> call would coordinate the process, while a saved catalogue would show where each input comes from and where each output goes.</p>
+<p>The design centres on small Python connectors. Developers would register a source and the information record IDs it supplies. They would register output destinations, or sinks, in much the same way. The code that reads a CSV or queries a plant historian would remain separate from the model.</p>
+<p>For an application connecting plant measurements and equipment data to a reporting database, the proposed interface would look like this:</p>
+<pre><code># Proposed API; names are illustrative.
+io = DataRegistry()
+io.register_source(&quot;plant&quot;, PlantAPI(client),
+                   ids=[&quot;inlet_flow&quot;, &quot;pressure_measurement&quot;])
+io.register_source(&quot;equipment&quot;, EquipmentCSV(&quot;equipment.csv&quot;),
+                   ids=[&quot;valve_pressure_drop&quot;])
+
+io.register_sink(&quot;reporting&quot;, ReportingSQL(connection),
+                 variables=[&quot;outlet.pressure&quot;])
+
+simulation = Simulation(implementation=implementation,
+                        information=information, data=io, solver=solver)
+io.describe()             # Inspect providers and the record IDs they supply.
+run = simulation.solve()  # Read inputs, specify, solve and deliver outputs.
+</code></pre>
+<p>Each information record has an <code>id</code> identifying the evidence and a <code>variable_path</code> locating the model variable it describes. The same record ID would be used in provider registration, read requests and returned values. No separate tag or input-binding layer is needed. If an external system uses different names, the connector would translate them internally. Two providers claiming the same record ID would produce a configuration error.</p>
+<h2>One request per source</h2>
+<p>Each source would receive one batch containing the data needed for a run. Its connector could satisfy that request with a single database query, a file read or several API calls. This keeps bulk acquisition inside the connector and avoids a public prepare/get sequence, which would require the framework to manage prepared data between calls.</p>
+<pre><code>class DataSource(Protocol):
+    def read(self, request: ReadRequest) -&gt; ReadBatch: ...
+
+class DataSink(Protocol):
+    def write(self, batch: WriteBatch) -&gt; WriteReceipt: ...
+</code></pre>
+<p>A read request would carry record IDs and the run’s time or final numerical grid. Its response would contain values, units, measurement times and errors, keyed by those same record IDs. An output batch would contain only the destination’s subscribed results, including their units, coordinates and run ID.</p>
+<p>The backend would retain responsibility for checking units, freshness and grid alignment before selecting specifications. Connectors would supply observations; trust ranks and decisions about how to use those observations would remain with the information and specification layers. Array interpolation would require an explicit policy.</p>
+<p>For each run, the runner would use the existing record’s metadata as a template and replace its value in a fresh information copy. A missing or invalid connected input would stop the run rather than quietly reuse an old value. Fallback evidence would have its own record. This first version would therefore require an existing information record; templates without saved values could follow later.</p>
+<h2>A solved model and a delivered result are separate outcomes</h2>
+<p>Outputs would be drawn from the saved result snapshot after a successful solve. Their subscriptions would select model paths directly, allowing calculated variables to be exported even when they have no corresponding input record.</p>
+<p>If a destination failed, the run would retain its numerical result and report the delivery failure separately. Python could retry the saved output without fetching measurements or solving again. Automatic retries would require the destination to recognise a delivery ID and avoid accepting the same batch twice.</p>
+<p>The registry’s catalogue would be stored with the workspace: source and sink IDs, labels, implementation names, supplied record IDs and output subscriptions, accompanied by a small audit of reads and deliveries. Connector code and credentials would remain in the application. Opening a workspace would display the saved connections without contacting external systems. Supporting this metadata would require a versioned workspace format that continued to accept existing files.</p>
+<h2>Two tabs for managing connections</h2>
+<p>The viewer would retain its existing sidebar and add two tabs: Providers and Output channels. Information would continue to hold evidence records, and Results would continue to show numerical snapshots. Connection setup would have its own place in the workspace.</p>
+<p>Providers would list registered input sources and the information record IDs each supplies. Selecting a provider would expose its implementation details and the records assigned to it. The record list would be the provider declaration itself, without another mapping layer. The catalogue would be available before any data was fetched.</p>
+<img src="connections.svg" alt="Proposed Providers tab with registered sources and supplied information record IDs">
+<p>Output channels would manage destinations and their subscriptions to model variables. Users could select a channel and add or remove variable subscriptions. External naming would stay inside the connector. The same tab would show delivery receipts for the selected run, alongside the channel configuration.</p>
+<img src="run-audit.svg" alt="Proposed Output channels tab with destination configuration, subscriptions and recorded delivery status">
+<p>These editors would change provider record lists and output subscriptions, which would be saved with the workspace. Connector code, credentials, execution and retries would remain in Python. Opening a saved workspace would make its catalogue and recorded status available even when the connectors were not installed.</p>
+<p>The proposed <code>Simulation.solve()</code> would wrap the existing build, specify, solve and export operations. Applications could keep using those lower-level APIs, while those needing external data would gain a common entry point for acquisition and delivery.</p>
+<p class="muted">API names and mockup data are illustrative. This proposal includes no runtime or viewer implementation.</p>
+</main></html>

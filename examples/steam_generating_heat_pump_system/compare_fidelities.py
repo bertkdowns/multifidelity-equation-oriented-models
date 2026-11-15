@@ -28,11 +28,11 @@ def common_case():
     """Freeze the reference duty explicitly; later results cannot change it."""
     information = InformationDocument.load_json(HERE / 'attempt_information.json')
     power = InformationRecord(
-        id='common_sghp_power', tag='user_assumption.sghp_operating_power',
+        id='common_sghp_power',
         information_type='assumption', variable_path='sghp.performance.electrical_power',
         value=15.20, unit='kW', trust_rank=8)
     warm = InformationRecord(
-        id='common_sghp_warm_duty', tag='comparison.reference_cycle_warm_water_duty',
+        id='common_sghp_warm_duty',
         information_type='assumption', variable_path='sghp.performance.warm_water_duty',
         value=25598.804912630734, unit='W', trust_rank=8)
     information = InformationDocument(root=(*information.records, power, warm))

@@ -11,7 +11,7 @@ from multifidelity.model_language import (
 
 def information():
     return InformationDocument([{
-        'id': 'pressure', 'tag': 'PT1', 'information_type': 'sensor_reading',
+        'id': 'pressure', 'information_type': 'sensor_reading',
         'variable_path': 'inlet.pressure', 'value': 200, 'unit': 'kPa', 'trust_rank': 10,
     }])
 

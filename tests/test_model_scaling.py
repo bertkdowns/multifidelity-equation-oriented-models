@@ -176,7 +176,7 @@ def test_helmholtz_temperature_specification_leaves_enthalpy_free(solver):
     }}, library=library)
     from multifidelity.model_language import InformationDocument, apply_specification
     information = InformationDocument([dict(
-        id='temperature', tag='temperature', information_type='assumption',
+        id='temperature', information_type='assumption',
         variable_path='states.properties.temperature', value=350.15, unit='K', trust_rank=5)])
     apply_specification(model, {'specifications': ['temperature'],
                                 'replacements': {'temperature': 'states.state.enthalpy'}}, information)

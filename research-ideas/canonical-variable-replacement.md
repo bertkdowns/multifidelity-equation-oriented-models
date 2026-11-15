@@ -169,7 +169,6 @@ The specification above is used with an information document such as:
 [
   {
     "id": "inlet_pressure",
-    "tag": "P-1",
     "information_type": "sensor_reading",
     "variable_path": "state.pressure",
     "type": "constant",
@@ -179,7 +178,6 @@ The specification above is used with an information document such as:
   },
   {
     "id": "measured_temperature",
-    "tag": "T-1",
     "information_type": "sensor_reading",
     "variable_path": "properties.temperature",
     "type": "constant",

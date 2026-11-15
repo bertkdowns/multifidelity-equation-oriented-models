@@ -2,7 +2,7 @@ import { resolveReference } from './graph.js';
 
 const types = new Set(['sensor_reading', 'control_setpoint', 'equipment_specification', 'parameter', 'assumption']);
 export const informationTypes = [...types];
-const fields = new Set(['id', 'tag', 'information_type', 'variable_path', 'type', 'value', 'unit', 'standard_deviation', 'trust_rank']);
+const fields = new Set(['id', 'information_type', 'variable_path', 'type', 'value', 'unit', 'standard_deviation', 'trust_rank']);
 export function valueShape(value) {
   if (typeof value === 'number' && Number.isFinite(value)) return [];
   if (!Array.isArray(value) || !value.length) throw Error('Values must be finite numbers or nonempty numeric arrays.');
@@ -19,7 +19,7 @@ export function parseInformation(text) {
     try {
       if (!record || typeof record !== 'object' || Array.isArray(record)) throw Error('Expected a record object.');
       if (Object.keys(record).some(key => !fields.has(key))) throw Error('Unknown record field.');
-      for (const field of ['id', 'tag', 'variable_path', 'unit'])
+      for (const field of ['id', 'variable_path', 'unit'])
         if (typeof record[field] !== 'string' || !record[field].trim()) throw Error(`Missing or invalid ${field}.`);
       if (ids.has(record.id)) throw Error(`Duplicate record ID: ${record.id}`);
       if (!types.has(record.information_type)) throw Error('Invalid information_type.');
@@ -59,7 +59,7 @@ export function appendInformation(records, draft) {
   if (draft.standard_deviation.trim() && !Number.isFinite(Number(draft.standard_deviation)))
     throw Error('Standard deviation must be a finite nonnegative number.');
   const record = {
-    id: draft.id.trim(), tag: draft.tag.trim(), variable_path: draft.variable_path.trim(),
+    id: draft.id.trim(), variable_path: draft.variable_path.trim(),
     information_type: draft.information_type, type: draft.type, value,
     unit: draft.unit.trim(), trust_rank: Number(draft.trust_rank),
     ...(draft.standard_deviation.trim() ? { standard_deviation: Number(draft.standard_deviation) } : {}),

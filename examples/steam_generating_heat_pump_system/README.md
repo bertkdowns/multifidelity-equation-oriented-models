@@ -87,7 +87,6 @@ For example, an information record for the SGHP source-water inlet is:
 ```json
 {
   "id": "source_temperature",
-  "tag": "source.temperature",
   "information_type": "assumption",
   "variable_path": "sghp.source_inlet_state.properties.temperature",
   "value": 350.15,

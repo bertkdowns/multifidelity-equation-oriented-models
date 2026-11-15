@@ -12,7 +12,7 @@ from multifidelity.model_language import (
 
 
 def specify(model, path, value):
-    info = InformationDocument([dict(id=path, tag=path, variable_path=path, value=value,
+    info = InformationDocument([dict(id=path, variable_path=path, value=value,
                                     unit='dimensionless', information_type='assumption', trust_rank=5)])
     spec = pair_specification(model, {'specifications': [path]}, info)
     apply_specification(model, spec, info)
@@ -169,7 +169,7 @@ def test_dm_recomputed_after_each_fix_and_information_rank_is_used(tmp_path, sol
     get_variable(model, 'feed.y').fix(1)
     specify(model, 'child.outlet.total', 10)
     info = InformationDocument([dict(
-        id='z_guess', tag='guess', variable_path='child.inlet.z', value=8,
+        id='z_guess', variable_path='child.inlet.z', value=8,
         unit='dimensionless', information_type='assumption', trust_rank=8)])
     result = initialize_model(model, solver=solver, information=info)
     assert result.success

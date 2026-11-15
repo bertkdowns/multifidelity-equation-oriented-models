@@ -80,7 +80,7 @@ function VariableInformation({ variable }) {
   return <div className="variable-information"><code>{variable.path}</code><p>Model unit: {variable.metadata.unit ?? 'dimensionless'}</p>
     {variable.metadata.dimensions?.length > 0 && <p>Dimensions: {variable.metadata.dimensions.join(', ')}</p>}
     <p>Records ordered by trust rank then ID. {variable.selectedRecordId ? `The specification selects ${variable.selectedRecordId}.` : 'The first record is the display preview.'}</p>
-    {variable.records.map((record, index) => <details key={record.id} open={variable.selectedRecordId ? record.id === variable.selectedRecordId : index === 0}><summary>{informationPreview(record)} {record.unit} · trust {record.trust_rank}</summary><p>{record.information_type} · {record.tag}</p><p>Standard deviation: {record.standard_deviation == null ? 'unknown' : `${record.standard_deviation} ${record.unit}`}</p><pre>{JSON.stringify(record, null, 2)}</pre></details>)}
+    {variable.records.map((record, index) => <details key={record.id} open={variable.selectedRecordId ? record.id === variable.selectedRecordId : index === 0}><summary>{informationPreview(record)} {record.unit} · trust {record.trust_rank}</summary><p>{record.information_type}</p><p>Standard deviation: {record.standard_deviation == null ? 'unknown' : `${record.standard_deviation} ${record.unit}`}</p><pre>{JSON.stringify(record, null, 2)}</pre></details>)}
   </div>;
 }
 function Port({ id }) {

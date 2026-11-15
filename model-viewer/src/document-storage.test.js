@@ -6,7 +6,7 @@ function storage() {
   return { get length() { return entries.size; }, key: index => [...entries.keys()][index], getItem: key => entries.get(key) ?? null, setItem: (key, value) => entries.set(key, value), removeItem: key => entries.delete(key) };
 }
 const implementation = { relationship: 'isenthalpic', submodels: {} };
-const information = { name: 'information.json', records: [{ id: 'p', tag: 'P', information_type: 'sensor_reading', variable_path: 'inlet.pressure', type: 'constant', value: 200, unit: 'kPa', trust_rank: 8 }] };
+const information = { name: 'information.json', records: [{ id: 'p', information_type: 'sensor_reading', variable_path: 'inlet.pressure', type: 'constant', value: 200, unit: 'kPa', trust_rank: 8 }] };
 const results = { name: 'results.json', document: { schema_version: 1, run_id: 'r', created_at: '2026-11-05T00:00:00Z', model_id: 'valve', implementation, mode: 'steady', time_unit: 's', solve: { status: 'optimal' }, variables: [] } };
 
 test('implementation, information and results survive refresh independently by root', () => {

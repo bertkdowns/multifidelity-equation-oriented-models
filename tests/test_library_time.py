@@ -148,7 +148,7 @@ def test_dynamic_map_drives_energy_accumulator(tmp_path, solver):
                               'submodels': {'map': {'relationship': 'cooling_60rps'}}},
                     library=library, mode='dynamic', domain_values={'time': [0, 10]})
     apply_specification(m, {'initial_values': ['starting_energy']}, InformationDocument([{
-        'id': 'starting_energy', 'tag': 'starting_energy', 'information_type': 'assumption',
+        'id': 'starting_energy', 'information_type': 'assumption',
         'trust_rank': 5, 'variable_path': 'inventory.energy', 'value': 0, 'unit': 'J',
     }]))
     pyo.TransformationFactory('dae.finite_difference').apply_to(
