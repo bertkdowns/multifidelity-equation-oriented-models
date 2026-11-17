@@ -1,25 +1,25 @@
-"""Guesses never become specifications; native hooks preserve model fixity."""
+"""Guesses never become parameters; native hooks preserve model fixity."""
 import pytest
 from pydantic import ValidationError
 from pyomo.environ import Constraint, TransformationFactory, Var, units
 
 from multifidelity.model_language import (
-    InformationDocument, Library, ModelDocument, apply_specification,
+    ResourceCatalog, BlockLibrary, BlockCatalog, apply_parameters,
     apply_starting_values, build_model, get_variable, initialize_custom_models,
 )
 from multifidelity.model_language.definitions import Variable
 
 
-def record(id, path, value, unit='kPa', trust_rank=5):
-    return dict(id=id, variable_path=path, value=value, unit=unit,
-                trust_rank=trust_rank, information_type='sensor_reading')
+def record(tag, path, value, unit='kPa', trust_rank=5):
+    return dict(tag=tag, variable_path=path, value=value, unit=unit,
+                trust_rank=trust_rank, resource_type='sensor_reading')
 
 
 def test_defaults_broadcast_and_survive_discretization():
-    library = Library()
-    library.models['valve'].structs['inlet'].variables['pressure'].default = 200000
-    library.models['valve'].structs['outlet'].variables['pressure'].default = None
-    model = build_model('valve', {'relationship': 'isenthalpic'}, library=library,
+    library = BlockLibrary()
+    library.blocks['valve'].structs['inlet'].variables['pressure'].default = 200000
+    library.blocks['valve'].structs['outlet'].variables['pressure'].default = None
+    model = build_model('valve', {'formulation': 'isenthalpic'}, library=library,
                         mode='dynamic', domain_values={'time': [0, 1]})
     TransformationFactory('dae.finite_difference').apply_to(model, wrt=model.fs.time, nfe=4)
     assert all(v.value == 200000 and not v.fixed
@@ -33,18 +33,18 @@ def test_invalid_default(guess):
         Variable(default=guess, bounds={'min': 0, 'max': 10})
 
 
-def test_information_rank_units_exclusions_and_fixed_specifications():
-    model = build_model('valve', {'relationship': 'isenthalpic'})
-    info = InformationDocument([
+def test_resources_rank_units_exclusions_and_fixed_parameters():
+    model = build_model('valve', {'formulation': 'isenthalpic'})
+    info = ResourceCatalog([
         record('fixed', 'inlet.pressure', 200),
         record('out_low', 'outlet.pressure', 100),
         record('out_high', 'outlet.pressure', 150, trust_rank=8),
         record('held_out', 'outlet.pressure', 999, trust_rank=10),
-        record('other_implementation', 'not_here.x', 10),
+        record('other_model_catalog', 'not_here.x', 10),
     ])
-    spec = {'specifications': ['fixed']}
-    apply_specification(model, spec, info)
-    used = apply_starting_values(model, info, spec, excluded_record_ids=['held_out'])
+    spec = {'parameters': ['fixed']}
+    apply_parameters(model, spec, info)
+    used = apply_starting_values(model, info, spec, excluded_record_tags=['held_out'])
     assert used == ['out_high']
     assert get_variable(model, 'outlet.pressure')[0].value == 150000
     assert not get_variable(model, 'outlet.pressure')[0].fixed
@@ -52,10 +52,10 @@ def test_information_rank_units_exclusions_and_fixed_specifications():
     assert get_variable(model, 'inlet.pressure')[0].fixed
 
 
-def test_information_validation_is_atomic():
-    model = build_model('valve', {'relationship': 'isenthalpic'})
+def test_resources_validation_is_atomic():
+    model = build_model('valve', {'formulation': 'isenthalpic'})
     get_variable(model, 'inlet.pressure')[0].set_value(123)
-    info = InformationDocument([
+    info = ResourceCatalog([
         record('good', 'inlet.pressure', 200),
         record('bad', 'outlet.pressure', 1, unit='kg'),
     ])
@@ -65,12 +65,12 @@ def test_information_validation_is_atomic():
 
 
 def custom(callback):
-    library = Library()
-    library.models['custom'] = ModelDocument.model_validate({
+    library = BlockLibrary()
+    library.blocks['custom'] = BlockCatalog.model_validate({
         'id': 'custom', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'pressure': {'unit': 'Pa', 'default': 200000}}},
             'outlet': {'direction': 'output', 'variables': {'pressure': {'unit': 'Pa'}}},
-        }, 'relationships': {'native': {'external': {'provider': 'test',
+        }, 'formulations': {'native': {'external': {'provider': 'test',
             'dependencies': {'outlet.pressure': ['inlet.pressure']}}}},
     })
     def provider(block, config):
@@ -79,7 +79,7 @@ def custom(callback):
         block.balance = Constraint(expr=block.q == block.p)
         return {'inlet.pressure': block.p, 'outlet.pressure': block.q}
     library.register_provider('test', provider, initializer=callback)
-    return build_model('custom', {'relationship': 'native'}, library=library)
+    return build_model('custom', {'formulation': 'native'}, library=library)
 
 
 def test_callback_is_explicit_and_transfers_units_restoring_temporary_changes():
@@ -97,7 +97,7 @@ def test_callback_is_explicit_and_transfers_units_restoring_temporary_changes():
     assert calls == [300]
     assert get_variable(model, 'outlet.pressure').value == 300000
     assert not get_variable(model, 'outlet.pressure').fixed
-    native = model.fs.root.relationship.provider
+    native = model.fs.root.formulation.provider
     assert not native.p.fixed and not native.q.fixed
     assert native.balance.active
     assert inlet.fixed and inlet.value == 300000
@@ -111,7 +111,7 @@ def test_callback_failure_restores_values_and_fixity():
     model = custom(callback)
     with pytest.raises(RuntimeError, match='failed'):
         initialize_custom_models(model)
-    native = model.fs.root.relationship.provider
+    native = model.fs.root.formulation.provider
     assert native.p.value is None and not native.p.fixed
     assert native.balance.active
     assert get_variable(model, 'inlet.pressure').value == 200000
@@ -129,11 +129,11 @@ def test_callback_references_follow_model_clone():
 
 
 def test_series_guesses_preserve_fixed_dynamic_initial_entry():
-    model = build_model('valve', {'relationship': 'isenthalpic'},
+    model = build_model('valve', {'formulation': 'isenthalpic'},
                         mode='dynamic', domain_values={'time': [0, 1, 2]})
     family = get_variable(model, 'inlet.pressure')
     family[0].fix(200000)
-    info = InformationDocument([
+    info = ResourceCatalog([
         {**record('profile', 'inlet.pressure', [100, 150, 180]), 'type': 'series'},
     ])
     assert apply_starting_values(model, info) == ['profile']
@@ -141,14 +141,14 @@ def test_series_guesses_preserve_fixed_dynamic_initial_entry():
     assert [v.fixed for v in family.values()] == [True, False, False]
 
 
-def test_callback_receives_fixed_output_and_preserves_its_specification():
+def test_callback_receives_fixed_output_and_preserves_its_parameters():
     def callback(block, config):
         assert block.q.fixed and block.q.value == 250
         block.p.set_value(block.q.value)
     model = custom(callback)
     outlet = get_variable(model, 'outlet.pressure')
-    info = InformationDocument([record('outlet', 'outlet.pressure', 250)])
-    apply_specification(model, {'specifications': ['outlet'],
+    info = ResourceCatalog([record('outlet', 'outlet.pressure', 250)])
+    apply_parameters(model, {'parameters': ['outlet'],
                                 'replacements': {'outlet': 'inlet.pressure'}}, info)
     initialize_custom_models(model)
     assert get_variable(model, 'inlet.pressure').value == 250000
@@ -156,8 +156,8 @@ def test_callback_receives_fixed_output_and_preserves_its_specification():
 
 
 def test_custom_callbacks_include_new_discretization_slices():
-    from examples.custom_models.build import HERE, make_library
-    model = build_model('pump_flowsheet', HERE / 'implementation.json',
+    from examples.custom_blocks.build import HERE, make_library
+    model = build_model('pump_flowsheet', HERE / 'model_selection.json',
                         library=make_library(), mode='dynamic',
                         domain_values={'time': [0, 1]})
     TransformationFactory('dae.finite_difference').apply_to(model, wrt=model.fs.time, nfe=4)

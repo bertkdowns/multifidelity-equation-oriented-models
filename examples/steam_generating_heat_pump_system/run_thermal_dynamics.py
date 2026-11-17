@@ -12,14 +12,14 @@ from pyomo.core.expr.calculus.derivatives import differentiate
 from pyomo.core.expr.visitor import identify_variables
 from pyomo.util.check_units import assert_units_consistent
 from multifidelity.model_language import (
-    Library, InformationDocument, InformationRecord, SpecificationDocument,
-    build_model, register_standard_providers, pair_specification, apply_specification,
-    get_variable, export_results, WorkspaceDocument,
+    BlockLibrary, ResourceCatalog, Resource, ParameterCatalog,
+    build_model, register_standard_providers, pair_parameters, apply_parameters,
+    get_variable, export_results, WorkspaceCatalog,
 )
 from multifidelity.model_language.scaling import apply_scaling, export_scaling, _branch_expression
 from multifidelity.model_language.selection import _partition
 from saved_state_guesses import refresh_properties
-from diagnose_specifications import physical_residuals
+from diagnose_parameters import physical_residuals
 
 HERE = Path(__file__).resolve().parent
 LOOPS = {'source_tank': 'source_tank.outlet', 'warm_tank': 'sghp.warm_inlet',
@@ -34,7 +34,7 @@ def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, sghp="ag
     steady = {r['variable_path']: r['entries'][0]['value'] for r in snapshot['variables']}
     if sghp == 'cycle' and pressure_rise is None:
         pressure_rise = steady['sghp.compressor.parameters.pressure_rise']
-    library = Library(); register_standard_providers(library)
+    library = BlockLibrary(); register_standard_providers(library)
     grid = [horizon*i/nfe for i in range(nfe+1)]
     if not any(abs(t-step_time) < 1e-8 for t in grid):
         raise ValueError('Step time must lie on the time grid')
@@ -43,25 +43,25 @@ def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, sghp="ag
     pyo.TransformationFactory('dae.finite_difference').apply_to(
         model, wrt=model.fs.time, nfe=nfe, scheme='BACKWARD')
     assert_units_consistent(model)
-    records = list(InformationDocument.load_json(HERE / 'common_operating_information.json').records)
-    ids = list(SpecificationDocument.load_json(HERE / 'common_aggregate_aggregate_specification.json').specifications)
+    records = list(ResourceCatalog.load_json(HERE / 'common_operating_resources.json').records)
+    tags = list(ParameterCatalog.load_json(HERE / 'common_aggregate_aggregate_parameters.json').parameters)
     removed = {'attempt_source_tank_adiabatic', 'config_phnix_sink_inlet_pressure',
                'attempt_warm_water_pressure', 'config_phnix_sink_inlet_state_temperature',
                'config_sghp_source_inlet_state_temperature', 'config_sghp_warm_inlet_state_temperature',
-               'config_sghp_hot_inlet_flow', 'config_phnix_power_model_parameters_electrical_power'}
-    ids = [i for i in ids if i not in removed]
+               'config_sghp_hot_inlet_flow', 'config_phnix_power_block_slots_electrical_power'}
+    tags = [i for i in tags if i not in removed]
     initial = []
     def add(name, path, number, unit, *, initial_only=False, series=False):
-        records.append(InformationRecord(id=name,
-            information_type='assumption', variable_path=path, value=number, unit=unit,
+        records.append(Resource(tag=name,
+            resource_type='assumption', variable_path=path, value=number, unit=unit,
             type='series' if series else 'constant', trust_rank=8))
-        (initial if initial_only else ids).append(name)
+        (initial if initial_only else tags).append(name)
     if sghp == 'aggregate':
         add('thermal_sghp_cop', 'sghp.cop_model.parameters.cop', steady['sghp.performance.cop'], 'dimensionless')
     else:
-        ids += [f'config_sghp_{name}_parameters_conductance' for name in
+        tags += [f'config_sghp_{name}_parameters_conductance' for name in
                 ['condenser','evaporator','subcooler','ihx']]
-        ids += ['config_sghp_compressor_parameters_efficiency']
+        tags += ['config_sghp_compressor_parameters_efficiency']
         if pressure_rise is not None:
             add('thermal_sghp_pressure_rise', 'sghp.compressor.parameters.pressure_rise', pressure_rise, 'Pa')
     add('thermal_makeup', 'makeup_state.state.flow', steady['makeup_state.state.flow'], 'kg/s')
@@ -86,9 +86,9 @@ def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, sghp="ag
             add('thermal_'+alias+'_'+suffix.replace('.','_'),alias+'.'+suffix,number,unit)
         for suffix, number, unit in [('inventory.mass',mass,'kg'),('inventory.energy',energy,'J')]:
             add('initial_'+alias+'_'+suffix.split('.')[-1],alias+'.'+suffix,number,unit,initial_only=True)
-    information = InformationDocument(root=tuple(records))
-    spec = pair_specification(model, SpecificationDocument(specifications=ids, initial_values=initial), information)
-    apply_specification(model,spec,information)
+    resources = ResourceCatalog(root=tuple(records))
+    spec = pair_parameters(model, ParameterCatalog(parameters=tags, initial_values=initial), resources)
+    apply_parameters(model,spec,resources)
     for path, family in model._model_language_variables.items():
         if path in steady:
             for v in family.values():
@@ -117,7 +117,7 @@ def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, sghp="ag
                   for v,d in zip(variables,derivatives,strict=True)),default=0)
         set_scaling_factor(c,1/norm if norm else 1)
     export_scaling(model)
-    return model,information,spec,steady,inventories
+    return model,resources,spec,steady,inventories
 
 
 def run(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, prefix=None, sghp='aggregate', pressure_rise=None):
@@ -133,7 +133,7 @@ def run(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, prefix=None, sg
     if any(structure.values()):
         print('unmatched variables',[v.name for v in vp.unmatched],flush=True)
         print('unmatched equations',[v.name for v in cp.unmatched],flush=True)
-        raise RuntimeError('Dynamic specification is not closed')
+        raise RuntimeError('Dynamic parameters is not closed')
     result=get_solver('ipopt',options={'max_iter':500,'tol':1e-8,'max_cpu_time':120,
         'nlp_scaling_method':'user-scaling','linear_system_scaling':'none'}).solve(model,tee=True,load_solutions=False)
     report=dict(sghp=sghp,pressure_rise_Pa=pressure_rise,structure=structure,termination=str(result.solver.termination_condition),
@@ -150,14 +150,14 @@ def run(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, prefix=None, sg
                'sghp.performance.hot_water_duty','hot_tank.inventory.mass','source_tank.inventory.mass']
         report['trajectory']=[dict(time_s=float(t),**{p:get_variable(model,p)[t].value for p in paths}) for t in model.fs.time]
     report['solved']=bool(report['termination']=='optimal' and report.get('max_scaled_violation',1)<1e-6)
-    (HERE/f'{prefix}_information.json').write_text(info.model_dump_json(indent=2)+'\n')
-    (HERE/f'{prefix}_specification.json').write_text(spec.model_dump_json(indent=2)+'\n')
+    (HERE/f'{prefix}_resources.json').write_text(info.model_dump_json(indent=2)+'\n')
+    (HERE/f'{prefix}_parameters.json').write_text(spec.model_dump_json(indent=2)+'\n')
     (HERE/f'{prefix}_report.json').write_text(json.dumps(report,indent=2)+'\n')
     snapshot=export_results(model,status='optimal' if report['solved'] else 'failed',solver='ipopt',
-        termination_condition=report['termination'],specification=spec,
+        termination_condition=report['termination'],parameters=spec,
         message=f'Three initial 100-litre water inventories; aggregate PHNIX, {sghp} SGHP; constant circulation and algebraic flash.')
     snapshot.write_json(HERE/f'{prefix}_results.json')
-    WorkspaceDocument.from_results(snapshot,info).write_json(HERE/f'{prefix}_workspace.json')
+    WorkspaceCatalog.from_results(snapshot,info).write_json(HERE/f'{prefix}_workspace.json')
     print(json.dumps(report,indent=2),flush=True)
     return report
 

@@ -1,0 +1,110 @@
+{
+  "id": "phase_mixture",
+  "description": "Mass-weighted phase enthalpy mixing. At zero total flow, use the supplied fallback phase enthalpy; this defines an empty port state without changing energy flux.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "phases": {
+      "direction": "input",
+      "variables": {
+        "liquid_flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          },
+          "scale": 1,
+          "default": 1
+        },
+        "vapor_flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          },
+          "scale": 1,
+          "default": 0
+        },
+        "liquid_enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        },
+        "vapor_enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 2706000
+        },
+        "fallback_vapor": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0,
+            "max": 1
+          },
+          "scale": 1,
+          "default": 0
+        }
+      }
+    },
+    "stream": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          },
+          "scale": 1,
+          "default": 1
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    }
+  },
+  "formulations": {
+    "mix": {
+      "external": {
+        "provider": "standard.phase_mixture",
+        "dependencies": {
+          "stream.flow": [
+            "phases.liquid_flow",
+            "phases.vapor_flow"
+          ],
+          "stream.enthalpy": [
+            "phases.liquid_flow",
+            "phases.vapor_flow",
+            "phases.liquid_enthalpy",
+            "phases.vapor_enthalpy",
+            "phases.fallback_vapor"
+          ]
+        }
+      }
+    }
+  }
+}

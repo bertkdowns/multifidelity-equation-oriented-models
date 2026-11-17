@@ -1,5 +1,5 @@
-export function layoutKey(model, relationship, view) {
-  return `multifidelity:layout:v1:${JSON.stringify([model, relationship, view])}`;
+export function layoutKey(model, formulation, view) {
+  return `multifidelity:layout:v1:${JSON.stringify([model, formulation, view])}`;
 }
 
 export function restorePositions(nodes, key, storage) {

@@ -1,7 +1,7 @@
-"""Typed definition documents, independent of reference resolution and Pyomo.
+"""Typed definition catalogs, independent of reference resolution and Pyomo.
 
-These types mirror the JSON vocabulary. ModelDocument references retain IDs rather than
-expanding reusable definitions into a tree. Parsing checks document shape; the
+These types mirror the JSON vocabulary. BlockCatalog references retain IDs rather than
+expanding reusable definitions into a tree. Parsing checks catalog shape; the
 builder still owns scope, interface, determination and equation validation.
 """
 
@@ -104,29 +104,29 @@ class Connection(Definition):
     to: str
 
 
-class ModelParameter(Definition):
+class BlockSlot(Definition):
     """Minimum public struct interface required of a generic argument."""
 
     requires: dict[Name, Struct] = Field(default_factory=dict)
 
 
-class ConcreteModelReference(Definition):
-    model: str
-    model_arguments: dict[Name, "ModelReference"] = Field(default_factory=dict)
+class ConcreteBlockReference(Definition):
+    block: str
+    block_arguments: dict[Name, "BlockReference"] = Field(default_factory=dict)
     domain_bindings: dict[Name, Name] = Field(default_factory=dict)
 
 
-class ParameterModelReference(Definition):
-    model_parameter: str
+class SlotBlockReference(Definition):
+    block_slot: str
     domain_bindings: dict[Name, Name] = Field(default_factory=dict)
 
 
 # Separate variants enforce exactly one reference kind. Parameter references
 # cannot override arguments that were already supplied by the containing model.
-type ModelReference = ConcreteModelReference | ParameterModelReference
+type BlockReference = ConcreteBlockReference | SlotBlockReference
 
 
-class ExternalRelationship(Definition):
+class ExternalFormulation(Definition):
     """A registered symbolic provider and its authored public dependencies."""
 
     provider: str = Field(min_length=1)
@@ -134,33 +134,33 @@ class ExternalRelationship(Definition):
     dependencies: dict[str, list[str]]
 
 
-class Relationship(Definition):
-    models: dict[Name, ModelReference] = Field(default_factory=dict)
+class Formulation(Definition):
+    blocks: dict[Name, BlockReference] = Field(default_factory=dict)
     constraints: dict[Name, Constraint] = Field(default_factory=dict)
     connections: dict[Name, Connection] = Field(default_factory=dict)
     derivatives: dict[Name, Derivative] = Field(default_factory=dict)
-    external: ExternalRelationship | None = None
+    external: ExternalFormulation | None = None
 
     @model_validator(mode="after")
-    def separate_external_implementation(self):
+    def separate_external_model_catalog(self):
         if self.external is not None and (
-            self.models or self.constraints or self.connections or self.derivatives
+            self.blocks or self.constraints or self.connections or self.derivatives
         ):
             raise ValueError(
-                "An external relationship cannot also define models, constraints, connections, or derivatives; use a JSON wrapper"
+                "An external formulation cannot also define blocks, constraints, connections, or derivatives; use a JSON wrapper"
             )
         return self
 
 
-class ModelDocument(Definition):
+class BlockCatalog(Definition):
     id: str
     description: str | None = None
     domains: dict[Name, Domain] = Field(default_factory=dict)
-    model_parameters: dict[Name, ModelParameter] = Field(default_factory=dict)
+    block_slots: dict[Name, BlockSlot] = Field(default_factory=dict)
     structs: dict[Name, Struct]
-    relationships: dict[Name, Relationship]
+    formulations: dict[Name, Formulation]
 
 
-ConcreteModelReference.model_rebuild()
-Relationship.model_rebuild()
-ModelDocument.model_rebuild()
+ConcreteBlockReference.model_rebuild()
+Formulation.model_rebuild()
+BlockCatalog.model_rebuild()

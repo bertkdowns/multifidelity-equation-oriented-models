@@ -1,0 +1,27 @@
+{
+  "id": "helmholtz_water_state_block",
+  "description": "A single stream state block using helmholtz_water_ph.",
+  "structs": {},
+  "formulations": {
+    "evaluate": {
+      "blocks": {
+        "states": {
+          "block": "state_block",
+          "block_arguments": {
+            "FluidProperties": {
+              "block": "helmholtz_water_ph"
+            }
+          },
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

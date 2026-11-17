@@ -1,4 +1,4 @@
-"""Attempt the complete aggregate plant with explicit specifications and no guesses.
+"""Attempt the complete aggregate plant with explicit parameters and no guesses.
 
 Run from the repository root with:
     .venv/bin/python examples/steam_generating_heat_pump_system/attempt_solve.py
@@ -11,7 +11,7 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from idaes.core.util.model_statistics import degrees_of_freedom
 from multifidelity.model_language import (
-    InformationDocument, Library, SpecificationDocument, apply_specification,
+    ResourceCatalog, BlockLibrary, ParameterCatalog, apply_parameters,
     build_model, register_standard_providers,
 )
 
@@ -19,13 +19,13 @@ HERE = Path(__file__).resolve().parent
 
 
 def build_attempt():
-    library = Library()
+    library = BlockLibrary()
     register_standard_providers(library)
     model = build_model('steam_generating_heat_pump_system',
                         HERE / 'aggregate_aggregate.json', library=library)
-    apply_specification(model,
-                        SpecificationDocument.load_json(HERE / 'attempt_specification.json'),
-                        InformationDocument.load_json(HERE / 'attempt_information.json'))
+    apply_parameters(model,
+                        ParameterCatalog.load_json(HERE / 'attempt_parameters.json'),
+                        ResourceCatalog.load_json(HERE / 'attempt_resources.json'))
     return model
 
 

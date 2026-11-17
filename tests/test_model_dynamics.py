@@ -1,4 +1,4 @@
-"""Derivative ownership, initial specifications, and real tank simulations."""
+"""Derivative ownership, initial parameters, and real tank simulations."""
 
 from copy import deepcopy
 from pathlib import Path
@@ -14,27 +14,27 @@ from pyomo.util.check_units import assert_units_consistent
 
 from examples.dynamic_tank.run import specify_tank, set_initial_guesses, make_tank, simulate
 from multifidelity.model_language import (
-    Library, build_model, required_initial_values, required_inputs,
-    InformationDocument, apply_specification, get_variable,
+    BlockLibrary, build_model, required_initial_values, required_inputs,
+    ResourceCatalog, apply_parameters, get_variable,
 )
-from multifidelity.model_language.definitions import ModelDocument
+from multifidelity.model_language.definitions import BlockCatalog
 
 TANK_SELECTION = Path("examples/model_language/tank_mixed.json")
 
 
 def with_initial_values(model, entries):
-    """Test convenience: create information records and apply their IDs."""
+    """Test convenience: create resource records and apply their IDs."""
     records = []
     for index, entry in enumerate(entries):
         path = entry["variable_path"]
         unit = entry.get("unit", str(pyo.units.get_units(get_variable(model, path))))
         records.append({
-            "id": f"initial_{index}",
-            "information_type": "assumption", "trust_rank": 5,
+            "tag": f"initial_{index}",
+            "resource_type": "assumption", "trust_rank": 5,
             **entry, "unit": unit,
         })
-    information = InformationDocument(records)
-    apply_specification(model, {"initial_values": [r.id for r in information.records]}, information)
+    resources = ResourceCatalog(records)
+    apply_parameters(model, {"initial_values": [r.tag for r in resources.records]}, resources)
     return model
 
 
@@ -50,7 +50,7 @@ def integration_definition(*, differentiate=False):
                 "rate": {"unit": "m/s", "dimensions": ["time"]},
             }},
         },
-        "relationships": {"integrate": {"derivatives": {
+        "formulations": {"integrate": {"derivatives": {
             "evolution": {
                 "state": "state.level", "rate": "signal.rate",
                 "with_respect_to": "time",
@@ -62,18 +62,18 @@ def integration_definition(*, differentiate=False):
 
 def make_library(tmp_path, definition):
     (tmp_path / 'model.json').write_text(json.dumps(definition))
-    return Library(tmp_path)
+    return BlockLibrary(tmp_path)
 
 
 def build_integrator(tmp_path, definition=None, **kwargs):
     definition = definition or integration_definition()
     return build_model(
-        "integrator", {"relationship": "integrate"},
+        "integrator", {"formulation": "integrate"},
         library=make_library(tmp_path, definition), **kwargs,
     )
 
 
-def test_tank_construction_and_specification_discovery():
+def test_tank_construction_and_parameters_discovery():
     assert set(required_initial_values("tank_flowsheet", TANK_SELECTION)) == {
         "tank.inventory.mass", "tank.inventory.energy",
     }
@@ -82,8 +82,8 @@ def test_tank_construction_and_specification_discovery():
     assert isinstance(m.fs.time, ContinuousSet)
     derivatives = list(m.component_objects(DerivativeVar))
     assert len(derivatives) == 2
-    assert derivatives[0].get_state_var() is m.fs.root.relationship.models.tank.structs.inventory.mass
-    b = m.fs.root.relationship.models.tank.structs
+    assert derivatives[0].get_state_var() is m.fs.root.formulation.blocks.tank.structs.inventory.mass
+    b = m.fs.root.formulation.blocks.tank.structs
     assert not b.inventory.level[0].fixed
     assert not b.inventory.energy[0].fixed
     specify_tank(m)
@@ -102,11 +102,11 @@ def test_discretization_expands_every_equation_and_preserves_units():
         m, wrt=m.fs.time, nfe=4, scheme='BACKWARD',
     )
     assert list(m.fs.time) == [0, 25, 50, 75, 100]
-    r = m.fs.root.relationship.models.tank.relationship
+    r = m.fs.root.formulation.blocks.tank.formulation
     assert len(r.constraints.energy_balance) == 5
     assert len(r.derivatives.energy.equation) == 5
     assert len(r.derivatives.energy.coordinate_rate_disc_eq) == 4
-    assert not m.fs.root.relationship.models.tank.structs.inventory.energy[25].fixed
+    assert not m.fs.root.formulation.blocks.tank.structs.inventory.energy[25].fixed
     assert_units_consistent(m)
 
 
@@ -117,19 +117,19 @@ def test_tank_steady_rebuild_has_zero_rates_and_no_initial_fixes():
     steady = make_tank(mode='steady')
     assert not isinstance(steady.fs.time, ContinuousSet)
     assert not list(steady.component_objects(DerivativeVar))
-    b = steady.fs.root.relationship.models.tank.structs
+    b = steady.fs.root.formulation.blocks.tank.structs
     assert not b.inventory.level[0].fixed
     assert not b.inventory.energy[0].fixed
-    assert dynamic.fs.root.relationship.models.tank.structs.inventory.level[0].fixed
+    assert dynamic.fs.root.formulation.blocks.tank.structs.inventory.level[0].fixed
     b.rates.energy[0].set_value(0)
-    assert pyo.value(steady.fs.root.relationship.models.tank.relationship.derivatives.energy.equation[0].body) == 0
+    assert pyo.value(steady.fs.root.formulation.blocks.tank.formulation.derivatives.energy.equation[0].body) == 0
     assert_units_consistent(steady)
 
 
 
 def test_tank_implicit_simulation_matches_discrete_solution(solver):
     m = simulate(make_tank(), nfe=100)
-    b = m.fs.root.relationship.models.tank.structs
+    b = m.fs.root.formulation.blocks.tank.structs
     expected = 333.15 - 30 / (1 + 10 / 997) ** 100
     assert pyo.value(b.inventory.level[1000]) == pytest.approx(1, abs=1e-7)
     assert pyo.value(b.inventory.temperature[1000]) == pytest.approx(expected, abs=1e-5)
@@ -148,7 +148,7 @@ def test_filling_tank_conserves_mass_and_energy(solver):
     specify_tank(m, inflow=1.2, outflow=0.8, loss=1000)
     set_initial_guesses(m, outflow=0.8)
     pyo.assert_optimal_termination(solver.solve(m))
-    b = m.fs.root.relationship.models.tank.structs
+    b = m.fs.root.formulation.blocks.tank.structs
     energy = 997*(104920.1198085+4180*5)-101325
     for t in list(m.fs.time)[1:]:
         mass = 997 + 0.4 * t
@@ -163,7 +163,7 @@ def test_tank_steady_solve_calculates_withdrawal_and_temperature(solver):
     specify_tank(m, loss=4180)
     set_initial_guesses(m)
     pyo.assert_optimal_termination(solver.solve(m))
-    b = m.fs.root.relationship.models.tank.structs
+    b = m.fs.root.formulation.blocks.tank.structs
     assert pyo.value(b.withdrawal.flow[0]) == pytest.approx(1)
     assert pyo.value(b.inventory.temperature[0]) == pytest.approx(332.15)
     assert pyo.value(b.rates.energy[0]) == pytest.approx(0)
@@ -176,8 +176,8 @@ def test_initial_temperature_can_replace_energy(solver):
                         {'variable_path': 'tank.inventory.temperature', 'value': 303.15, 'unit': 'K'},
                     ])
     simulate(m, nfe=10, initial_values=[])
-    assert not m.fs.root.relationship.models.tank.structs.inventory.energy[0].fixed
-    assert pyo.value(m.fs.root.relationship.models.tank.structs.inventory.energy[0]) == pytest.approx(997*(104920.1198085+4180*5)-101325)
+    assert not m.fs.root.formulation.blocks.tank.structs.inventory.energy[0].fixed
+    assert pyo.value(m.fs.root.formulation.blocks.tank.structs.inventory.energy[0]) == pytest.approx(997*(104920.1198085+4180*5)-101325)
 
 
 
@@ -187,7 +187,7 @@ def test_tank_petsc_integration(solver):
     if not petsc_available():
         pytest.skip('IDAES PETSc executable is required')
     m = simulate(make_tank(), backend='petsc', nfe=1)
-    b = m.fs.root.relationship.models.tank.structs
+    b = m.fs.root.formulation.blocks.tank.structs
     assert pyo.value(b.inventory.level[1000]) == pytest.approx(1, abs=1e-6)
     assert pyo.value(b.inventory.temperature[1000]) == pytest.approx(
         333.15 - 30 * math.exp(-1000/997), abs=1e-3,
@@ -218,7 +218,7 @@ def test_time_and_rate_unit_scaling(tmp_path, solver, time_unit, rate_unit, rate
 def test_differentiation_direction_and_uncovered_endpoint(tmp_path, solver):
     definition = integration_definition(differentiate=True)
     library = make_library(tmp_path, definition)
-    selection = {'relationship': 'integrate'}
+    selection = {'formulation': 'integrate'}
     assert set(required_initial_values('integrator', selection, library=library)) == {'signal.rate'}
     m = with_initial_values(build_integrator(tmp_path, definition, mode='dynamic', domain_values={'time': [0, 10]}), [{'variable_path': 'signal.rate', 'value': 7}])
     pyo.TransformationFactory('dae.finite_difference').apply_to(
@@ -242,7 +242,7 @@ def test_differentiation_direction_and_uncovered_endpoint(tmp_path, solver):
 ])
 def test_bad_derivative_definitions(tmp_path, change, message):
     d = integration_definition()
-    r = d['relationships']['integrate']
+    r = d['formulations']['integrate']
     relation = r['derivatives']['evolution']
     if change == 'target':
         relation['determines'] = 'other.x'
@@ -278,7 +278,7 @@ def test_derivative_units_validated_in_both_modes(tmp_path, mode):
 
 def test_missing_evolution_fails_output_coverage(tmp_path):
     d = integration_definition()
-    d['relationships']['integrate']['derivatives'].clear()
+    d['formulations']['integrate']['derivatives'].clear()
     with pytest.raises(ValueError, match='missing output determinations'):
         build_integrator(tmp_path, d)
 
@@ -298,7 +298,7 @@ def test_initial_values_are_optional_during_construction_and_overlap_is_rejected
     m = build_integrator(tmp_path, mode='dynamic', domain_values={'time': [0, 1]})
     assert not m.fs.root.structs.state.level[0].fixed
     spec = {'variable_path': 'state.level', 'value': 1}
-    with pytest.raises(ValueError, match='Multiple information records'):
+    with pytest.raises(ValueError, match='Multiple resource records'):
         with_initial_values(build_integrator(tmp_path, mode='dynamic', domain_values={'time': [0, 1]}), [spec, spec])
     spec['value'] = float('nan')
     with pytest.raises(ValidationError):
@@ -306,8 +306,8 @@ def test_initial_values_are_optional_during_construction_and_overlap_is_rejected
 
 
 def test_bundled_tank_round_trips():
-    tank = Library().get('tank')
-    assert ModelDocument.model_validate_json(tank.model_dump_json(by_alias=True)) == tank
+    tank = BlockLibrary().get('tank')
+    assert BlockCatalog.model_validate_json(tank.model_dump_json(by_alias=True)) == tank
 
 
 def test_initial_profiles_with_time_as_second_axis(tmp_path, solver):
@@ -335,8 +335,8 @@ def test_nested_derivative_and_initial_paths(tmp_path):
     child = integration_definition()
     parent = deepcopy(child)
     parent['id'] = 'parent'
-    parent['relationships'] = {'wrap': {
-        'models': {'integrator': {'model': 'integrator', 'domain_bindings': {'time': 'time'}}},
+    parent['formulations'] = {'wrap': {
+        'blocks': {'integrator': {'block': 'integrator', 'domain_bindings': {'time': 'time'}}},
         'connections': {
             'rate': {'from': 'signal', 'to': 'integrator.signal'},
             'level': {'from': 'integrator.state', 'to': 'state'},
@@ -344,8 +344,8 @@ def test_nested_derivative_and_initial_paths(tmp_path):
     }}
     (tmp_path / 'parent.json').write_text(json.dumps(parent))
     library = make_library(tmp_path, child)
-    selection = {'relationship': 'wrap', 'submodels': {
-        'integrator': {'relationship': 'integrate'},
+    selection = {'formulation': 'wrap', 'subblocks': {
+        'integrator': {'formulation': 'integrate'},
     }}
     assert set(required_initial_values('parent', selection, library=library)) == {
         'integrator.state.level',
@@ -354,14 +354,14 @@ def test_nested_derivative_and_initial_paths(tmp_path):
                     domain_values={'time': [0, 10]}), [
                         {'variable_path': 'integrator.state.level', 'value': 2},
                     ])
-    nested = m.fs.root.relationship.models.integrator
+    nested = m.fs.root.formulation.blocks.integrator
     assert nested.structs.state.level.index_set() is m.fs.time
     assert nested.structs.state.level[0].fixed
     pyo.TransformationFactory('dae.finite_difference').apply_to(
         m, wrt=m.fs.time, nfe=2, scheme='BACKWARD',
     )
-    assert len(nested.relationship.derivatives.evolution.equation) == 3
-    assert len(m.fs.root.relationship.connections.level.level) == 3
+    assert len(nested.formulation.derivatives.evolution.equation) == 3
+    assert len(m.fs.root.formulation.connections.level.level) == 3
 
 
 @pytest.mark.parametrize('spec,message', [

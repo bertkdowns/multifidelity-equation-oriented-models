@@ -1,0 +1,22 @@
+{
+  "parameters": [
+    "replay_reference_sghp_source_inlet_flow",
+    "replay_reference_sghp_source_inlet_pressure",
+    "replay_reference_sghp_hot_inlet_flow",
+    "replay_reference_sghp_hot_inlet_pressure",
+    "replay_reference_sghp_warm_inlet_flow",
+    "replay_reference_sghp_warm_inlet_pressure",
+    "replay_reference_sghp_performance_electrical_power",
+    "replay_reference_sghp_performance_warm_water_duty",
+    "replay_calibrated_cop",
+    "replay_source_inlet_temperature",
+    "replay_hot_inlet_temperature",
+    "replay_warm_inlet_temperature"
+  ],
+  "replacements": {
+    "replay_source_inlet_temperature": "source_inlet.enthalpy",
+    "replay_hot_inlet_temperature": "hot_inlet.enthalpy",
+    "replay_warm_inlet_temperature": "warm_inlet.enthalpy"
+  },
+  "initial_values": []
+}

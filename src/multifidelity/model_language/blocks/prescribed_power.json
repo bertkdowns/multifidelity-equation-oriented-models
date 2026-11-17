@@ -1,0 +1,53 @@
+{
+  "id": "prescribed_power",
+  "description": "Prescribed electrical power for an aggregate formulation.",
+  "structs": {
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "electrical_power": {
+          "unit": "W",
+          "default": 1000,
+          "dimensions": [
+            "time"
+          ],
+          "scale": 0.0001
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "electrical_power": {
+          "unit": "W",
+          "default": 1000,
+          "dimensions": [
+            "time"
+          ],
+          "scale": 0.0001
+        }
+      }
+    }
+  },
+  "formulations": {
+    "specified": {
+      "blocks": {},
+      "constraints": {
+        "power": {
+          "lhs": "performance.electrical_power[t]",
+          "rhs": "parameters.electrical_power[t]",
+          "determines": "performance.electrical_power[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

@@ -7,20 +7,20 @@ from pathlib import Path
 import pint
 
 from .definitions import (
-    ModelDocument,
-    ModelParameter,
-    ModelReference,
-    ParameterModelReference,
-    Relationship,
+    BlockCatalog,
+    BlockSlot,
+    BlockReference,
+    SlotBlockReference,
+    Formulation,
 )
-from .providers import Initializer, Provider, Scaler
+from .providers import Initializer, SymbolicProvider, Scaler
 
 
 # Unit compatibility is a property of definitions, not of the Pyomo backend.
 _UNITS = pint.UnitRegistry()
 
 
-def _check_interface(definition: ModelDocument, requirement: ModelParameter, path: str):
+def _check_interface(definition: BlockCatalog, requirement: BlockSlot, path: str):
     for struct_id, expected in requirement.requires.items():
         actual = definition.structs.get(struct_id)
         if actual is None or actual.direction != expected.direction:
@@ -48,22 +48,22 @@ def _check_interface(definition: ModelDocument, requirement: ModelParameter, pat
                 raise ValueError(f"{path}: incompatible units for {struct_id}.{name}")
 
 
-class Library:
-    """An ID-indexed library of typed documents with resolved navigation views."""
+class BlockLibrary:
+    """An ID-indexed library of typed catalogs with resolved navigation views."""
 
     def __init__(self, directory=None):
-        directory = Path(directory) if directory else Path(__file__).parent / "models"
-        self.models: dict[str, ModelDocument] = {}
-        self._providers: dict[str, Provider] = {}
+        directory = Path(directory) if directory else Path(__file__).parent / "blocks"
+        self.blocks: dict[str, BlockCatalog] = {}
+        self._providers: dict[str, SymbolicProvider] = {}
         self._initializers: dict[str, Initializer] = {}
         self._scalers: dict[str, Scaler] = {}
         for path in sorted(directory.glob("*.json")):
-            document = ModelDocument.load_json(path)
-            if document.id in self.models:
-                raise ValueError(f"Duplicate model ID: {document.id}")
-            self.models[document.id] = document
+            catalog = BlockCatalog.load_json(path)
+            if catalog.id in self.blocks:
+                raise ValueError(f"Duplicate model ID: {catalog.id}")
+            self.blocks[catalog.id] = catalog
 
-    def register_provider(self, name: str, provider: Provider, *,
+    def register_provider(self, name: str, provider: SymbolicProvider, *,
                           initializer: Initializer | None = None,
                           scaler: Scaler | None = None) -> None:
         """Register trusted Python code; definitions only store its stable name."""
@@ -82,67 +82,67 @@ class Library:
         """Optional numerical callback, separate from symbolic construction."""
         return self._initializers.get(name)
 
-    def get_provider(self, name: str) -> Provider:
-        """Resolve a provider only when its external relationship is built."""
+    def get_provider(self, name: str) -> SymbolicProvider:
+        """Resolve a provider only when its external formulation is built."""
         try:
             return self._providers[name]
         except KeyError:
             raise ValueError(f"Unknown provider: {name}") from None
 
-    def get(self, name: str) -> ModelDocument:
+    def get(self, name: str) -> BlockCatalog:
         try:
-            return self.models[name]
+            return self.blocks[name]
         except KeyError:
             raise ValueError(f"Unknown model: {name}") from None
 
-    def resolve(self, name: str) -> "ModelView":
+    def resolve(self, name: str) -> "BlockView":
         """Open a concrete root; resolve descendants automatically as accessed.
 
         Each call creates a fresh navigation view. Treat definitions as unchanged
-        while using that view; open a new view after editing library documents.
+        while using that view; open a new view after editing library catalogs.
         """
         definition = self.get(name)
-        if definition.model_parameters:
+        if definition.block_slots:
             raise ValueError(
-                "Root generic models are not supported; use a concrete wrapper"
+                "Root generic blocks are not supported; use a concrete wrapper"
             )
-        return ModelView(definition, {}, self, name)
+        return BlockView(definition, {}, self, name)
 
     def _reference(
-        self, reference: ModelReference, parameters, path: str
-    ) -> "ModelView":
-        if isinstance(reference, ParameterModelReference):
-            name = reference.model_parameter
+        self, reference: BlockReference, parameters, path: str
+    ) -> "BlockView":
+        if isinstance(reference, SlotBlockReference):
+            name = reference.block_slot
             if name not in parameters:
-                raise ValueError(f"{path}: unknown model parameter {name!r}")
+                raise ValueError(f"{path}: unknown block slot {name!r}")
             argument = parameters[name]
-            return ModelView(
-                argument.definition, argument.model_arguments, self, path,
+            return BlockView(
+                argument.definition, argument.block_arguments, self, path,
                 dict(reference.domain_bindings),
             )
-        definition = self.get(reference.model)
-        declarations = definition.model_parameters
-        if set(reference.model_arguments) != set(declarations):
+        definition = self.get(reference.block)
+        declarations = definition.block_slots
+        if set(reference.block_arguments) != set(declarations):
             raise ValueError(
-                f"{path}: model arguments must be exactly {sorted(declarations)}"
+                f"{path}: block arguments must be exactly {sorted(declarations)}"
             )
         arguments = {}
         for name, requirement in declarations.items():
             argument = self._reference(
-                reference.model_arguments[name], parameters, f"{path}<{name}>"
+                reference.block_arguments[name], parameters, f"{path}<{name}>"
             )
             _check_interface(argument.definition, requirement, f"{path}<{name}>")
             arguments[name] = argument
-        return ModelView(definition, arguments, self, path, dict(reference.domain_bindings))
+        return BlockView(definition, arguments, self, path, dict(reference.domain_bindings))
 
 
 @dataclass(eq=False)
-class ModelView:
+class BlockView:
     """A shared definition viewed in one generic-argument and reference context."""
 
-    definition: ModelDocument
-    model_arguments: dict[str, "ModelView"]
-    _library: Library
+    definition: BlockCatalog
+    block_arguments: dict[str, "BlockView"]
+    _library: BlockLibrary
     path: str
     domain_bindings: dict[str, str] = field(default_factory=dict)
 
@@ -155,19 +155,19 @@ class ModelView:
         return self.definition.structs
 
     @cached_property
-    def relationships(self) -> dict[str, "RelationshipView"]:
+    def formulations(self) -> dict[str, "FormulationView"]:
         # Do not traverse descendants eagerly: alternatives can contain cycles
-        # or references that are irrelevant to the selected implementation.
+        # or references that are irrelevant to the selected model.
         return {
-            name: RelationshipView(relationship, self)
-            for name, relationship in self.definition.relationships.items()
+            name: FormulationView(formulation, self)
+            for name, formulation in self.definition.formulations.items()
         }
 
 
 @dataclass(eq=False)
-class RelationshipView:
-    definition: Relationship
-    _parent: ModelView
+class FormulationView:
+    definition: Formulation
+    _parent: BlockView
 
     @property
     def constraints(self):
@@ -182,13 +182,13 @@ class RelationshipView:
         return self.definition.derivatives
 
     @cached_property
-    def models(self) -> dict[str, ModelView]:
+    def blocks(self) -> dict[str, BlockView]:
         parent = self._parent
         children = {
             alias: parent._library._reference(
-                reference, parent.model_arguments, f"{parent.path}.{alias}"
+                reference, parent.block_arguments, f"{parent.path}.{alias}"
             )
-            for alias, reference in self.definition.models.items()
+            for alias, reference in self.definition.blocks.items()
         }
         for child in children.values():
             for local, source in child.domain_bindings.items():

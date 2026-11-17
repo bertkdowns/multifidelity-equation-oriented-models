@@ -1,7 +1,7 @@
 # Algorithm ideas and recursive model representations
 
 These are exploratory research directions, not established novelty claims or
-implementation commitments. See [research purpose](README.md) for the current
+model commitments. See [research purpose](README.md) for the current
 aims. The model-language definitions and glossary provide the current shared contracts.
 
 ## Working research direction
@@ -20,15 +20,15 @@ as appropriate. This is a direction to develop, not a finalized experiment.
 
 ### First planned experiment: predicting electrical consumption
 
-**Research outcome to revisit: measurement-based model specification.** Develop
+**Research outcome to revisit: measurement-based block slots.** Develop
 a method to map available measurements to a well-posed prediction or estimation
 problem: distinguish fixed inputs, noisy observations, unknown states, estimable
-parameters, and explicit assumptions; identify missing or redundant information.
+parameters, and explicit assumptions; identify missing or redundant resources.
 Study this both with and without multi-fidelity selection. It is a research
 outcome in its own right, not just preprocessing for fidelity selection. The
-[trust-ranked DM specification proposal](information-directed-specification.md)
+[trust-ranked DM parameters proposal](resources-directed-parameters.md)
 now gives an initial algorithm and separate experiment outlines for fixed-fidelity
-specification and measurement-directed selection.
+parameters and measurement-directed selection.
 
 Model selection is the primary aim. Flowsheet initialization is deferred to
 later work; initially use established initialization routines and record solve
@@ -67,7 +67,7 @@ total calibration/selection/solve cost. Allow the selector to report that no
 candidate supports the requested reliability instead of forcing a selection.
 
 Open design choices are the operating envelope, available data source and
-measurement locations, independently known equipment information, candidate
+measurement locations, independently known equipment resources, candidate
 hierarchy, and engineering tolerance. Synthetic data can support an initial
 controlled experiment, with its generating assumptions stated explicitly.
 Later experiments can vary measurement availability and change the target
@@ -92,7 +92,7 @@ advantage on cases that already solve readily.
 1. **Adaptive fidelity-path initialization:** choose a sequence of equipment,
    property, and structural changes that reaches a specified target model
    reliably. Compare fixed sequences with adaptive choices, rollback after
-   failure, and physics-informed transfer of solution information.
+   failure, and physics-informed transfer of solution resources.
 2. **Goal- and data-informed selective refinement:** choose a representation
    that provides useful predictions or decisions at acceptable computational
    cost. Joint equipment/property selection is part of this direction, rather
@@ -121,10 +121,10 @@ versus distributed exchangers, and alternative property formulations.
 The representation hierarchy is a tree of choices; the expanded physical
 flowsheet is a network with a refrigerant recycle. A selected model can have
 different depths in different branches. Structural expansion introduces private
-variables and potentially additional specifications and parameters, so the
+variables and potentially additional parameters and parameters, so the
 current fixed-public-DOF switching contract cannot simply be assumed to apply.
 Preserve external physical meanings and explicitly define each representation's
-required information and specification contract.
+required resources and parameters contract.
 
 ## Two proposed policies for opening a detailed representation
 
@@ -138,14 +138,14 @@ can then help construct guesses for external flow rates and refrigerant states.
 COP, work, and temperature lift generally do not uniquely determine all these
 quantities. Record every extra assumption and its role.
 
-Distinguish initial guesses from fixed specifications and uncertain model
+Distinguish initial guesses from fixed parameters and uncertain model
 parameters. A guess can help a determined nonlinear system converge; it cannot
 make an underdetermined system determined. Release temporary initialization
 targets before solving the final intended formulation.
 
-### Information-gated expansion
+### Resource-gated expansion
 
-Permit expansion only when measurements or independently known specifications
+Permit expansion only when measurements or independently known parameters
 and parameters support the detailed model. Otherwise retain the aggregate
 representation. This is an exploratory policy, not a requirement that every
 private variable must be measured: equations can determine unmeasured states.
@@ -158,9 +158,9 @@ alone is insufficient.
 
 ### Hybrid policy
 
-Use known specifications and data to establish whether expansion is supportable,
+Use known parameters and data to establish whether expansion is supportable,
 then use physics-informed reconstruction to initialize the supported model.
-Where assumptions supply missing information, report their effect on prediction
+Where assumptions supply missing resources, report their effect on prediction
 uncertainty. Compare this policy against both extremes above.
 
 ## Candidate algorithms
@@ -186,8 +186,8 @@ uncertainty. Compare this policy against both extremes above.
    staged expansion using established unit routines in both. Vary recycle
    coupling and operating conditions; assess whole-flowsheet success and total
    effort. Within this experiment, test whether balance-based reconstruction
-   improves structural expansion under identical final specifications.
-2. What information is sufficient to open a representation? Vary measurement
+   improves structural expansion under identical final parameters.
+2. What resources is sufficient to open a representation? Vary measurement
    location, uncertainty, operating-condition coverage, and independently known
    parameters; assess identifiability and held-out prediction.
 3. Should the best representation depend on the engineering question? Compare

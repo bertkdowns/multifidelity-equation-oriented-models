@@ -14,7 +14,7 @@
     "candidates": []
   },
   "initial_max_scaled_constraint_violation": 25.750000000000004,
-  "operating_specifications_changed": false,
+  "operating_parameters_changed": false,
   "solver_status": "error",
   "termination_condition": "internalSolverError",
   "solver_message": "Ipopt 3.13.2\\x3a Restoration Phase Failed.",

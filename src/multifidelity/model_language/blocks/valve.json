@@ -1,0 +1,114 @@
+{
+  "id": "valve",
+  "description": "Time-indexed illustrative equations, not a numerical reproduction of the existing property-package blocks.",
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "pressure_drop": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 0
+        }
+      }
+    }
+  },
+  "formulations": {
+    "isenthalpic": {
+      "blocks": {},
+      "constraints": {
+        "mass_balance": {
+          "lhs": "outlet.flow[t]",
+          "rhs": "inlet.flow[t]",
+          "determines": "outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "enthalpy_balance": {
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "pressure_balance": {
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t] - parameters.pressure_drop[t]",
+          "determines": "outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

@@ -1,35 +1,35 @@
-"""Derive required input specifications from explicit relationship selections."""
+"""Derive required input parameters from explicit formulation selections."""
 
 from pathlib import Path
 from typing import TextIO
 import sys
 
 from .definitions import Variable
-from .implementation import ImplementationDocument
+from .model_selection import ModelCatalog
 from .indexing import derivative_variables
-from .resolution import Library
-from ._traversal import _walk_implementation
+from .resolution import BlockLibrary
+from ._traversal import _walk_model
 
 
-def _selected_occurrences(model_id, implementation, library):
-    library = library or Library()
+def _selected_occurrences(block_id, model_catalog, library):
+    library = library or BlockLibrary()
     occurrences = []
 
     def collect(occurrence, parent, alias):
         occurrences.append((
-            occurrence.model, occurrence.relationship,
+            occurrence.block, occurrence.formulation,
             occurrence.prefix, occurrence.supplied,
         ))
 
-    _walk_implementation(library.resolve(model_id), implementation, collect)
+    _walk_model(library.resolve(block_id), model_catalog, collect)
     return occurrences
 
 
 def required_inputs(
-    model_id: str,
-    implementation: ImplementationDocument | dict | str | Path,
+    block_id: str,
+    model_catalog: ModelCatalog | dict | str | Path,
     *,
-    library: Library | None = None,
+    library: BlockLibrary | None = None,
 ) -> dict[str, Variable]:
     """Return required input families, retaining dimensions, by root-relative path.
 
@@ -37,7 +37,7 @@ def required_inputs(
     declaration coverage, not solvability or initial-state requirements.
     """
     required = {}
-    for model, _, prefix, supplied in _selected_occurrences(model_id, implementation, library):
+    for model, _, prefix, supplied in _selected_occurrences(block_id, model_catalog, library):
         for struct_id, struct in model.structs.items():
             if struct.direction == "input":
                 for name, variable in struct.variables.items():
@@ -48,19 +48,19 @@ def required_inputs(
 
 
 def required_initial_values(
-    model_id: str,
-    implementation: ImplementationDocument | dict | str | Path,
+    block_id: str,
+    model_catalog: ModelCatalog | dict | str | Path,
     *,
-    library: Library | None = None,
+    library: BlockLibrary | None = None,
 ) -> dict[str, Variable]:
-    """Default dynamic initial specifications: the output of each derivative.
+    """Default dynamic initial parameters: the output of each derivative.
 
     A family with other indices needs a starting profile. This is the authoring
-    convention, not proof that all specifications are independent in a DAE.
+    convention, not proof that all parameters are independent in a DAE.
     """
     required = {}
-    for model, relationship, prefix, _ in _selected_occurrences(model_id, implementation, library):
-        for derivative in relationship.derivatives.values():
+    for model, formulation, prefix, _ in _selected_occurrences(block_id, model_catalog, library):
+        for derivative in formulation.derivatives.values():
             state, rate = derivative_variables(model, derivative)
             required[prefix + derivative.determines] = (
                 state if derivative.determines == derivative.state else rate
@@ -69,15 +69,15 @@ def required_initial_values(
 
 
 def print_required_inputs(
-    model_id: str,
-    implementation,
+    block_id: str,
+    model_catalog,
     *,
-    library: Library | None = None,
+    library: BlockLibrary | None = None,
     file: TextIO | None = None,
 ) -> None:
     """Print one required variable path and declared unit per line."""
     for path, variable in required_inputs(
-        model_id, implementation, library=library
+        block_id, model_catalog, library=library
     ).items():
         print(
             f"{path} [{variable.unit}]", file=file if file is not None else sys.stdout

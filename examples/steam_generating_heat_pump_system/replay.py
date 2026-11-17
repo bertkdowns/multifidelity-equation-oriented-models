@@ -13,21 +13,21 @@ from idaes.core.util.model_statistics import degrees_of_freedom
 from pyomo.environ import Var, assert_optimal_termination, value
 
 from multifidelity.model_language import (
-    InformationDocument, SpecificationDocument, apply_specification,
-    build_model, get_variable, Library, register_standard_providers, pair_specification, export_workspace,
+    ResourceCatalog, ParameterCatalog, apply_parameters,
+    build_model, get_variable, BlockLibrary, register_standard_providers, pair_parameters, export_workspace,
 )
 
 HERE = Path(__file__).resolve().parent
 
 
 def replay(solver=None):
-    implementation = json.loads((HERE / 'aggregate_aggregate.json').read_text())
-    library = Library()
+    model_catalog = json.loads((HERE / 'aggregate_aggregate.json').read_text())
+    library = BlockLibrary()
     register_standard_providers(library)
-    model = build_model('steam_generating_heat_pump_unit', implementation['submodels']['sghp'], library=library)
-    information = InformationDocument.load_json(HERE / 'sghp_replay_information.json')
-    specification = SpecificationDocument.load_json(HERE / 'sghp_replay_specification.json')
-    apply_specification(model, specification, information)
+    model = build_model('steam_generating_heat_pump_unit', model_catalog['subblocks']['sghp'], library=library)
+    resources = ResourceCatalog.load_json(HERE / 'sghp_replay_resources.json')
+    parameters = ParameterCatalog.load_json(HERE / 'sghp_replay_parameters.json')
+    apply_parameters(model, parameters, resources)
     if degrees_of_freedom(model) != 0:
         raise RuntimeError('The captured SGHP unit replay must have zero degrees of freedom')
     # Numerical guesses only; none of the outlet reference values is fixed.
@@ -38,15 +38,15 @@ def replay(solver=None):
     from pyomo.environ import units as u
     from pyomo.util.calc_var_value import calculate_variable_from_constraint
     for side in ['source', 'hot', 'warm']:
-        state_block = getattr(model.fs.root.relationship.models, side + '_inlet_state')
-        fluid = state_block.relationship.models.fluid
-        provider = fluid.relationship.slices[0].provider
+        state_block = getattr(model.fs.root.formulation.blocks, side + '_inlet_state')
+        fluid = state_block.formulation.blocks.fluid
+        provider = fluid.formulation.slices[0].provider
         pressure = value(get_variable(model, f'{side}_inlet.pressure')[0])
         temperature = value(get_variable(model, f'{side}_inlet_state.properties.temperature')[0])
         expressions = HelmholtzThermoExpressions(provider, provider.parameters, amount_basis=AmountBasis.MASS)
         guess_h = value(expressions.h(T=temperature * u.K, p=pressure * u.Pa, x=0))
         # TP is used only to seed PH variables; temperature remains the actual
-        # fixed specification and the solver determines enthalpy.
+        # fixed parameters and the solver determines enthalpy.
         for path, guess in [(f'{side}_inlet.enthalpy', guess_h),
                             (f'{side}_inlet_state.state.flow', value(get_variable(model, f'{side}_inlet.flow')[0])),
                             (f'{side}_inlet_state.state.pressure', pressure),
@@ -91,37 +91,37 @@ def replay_flash(sghp_outputs, solver=None, *, workspace_path=None, phase_fracti
     Helmholtz calculates phase enthalpies; specified per-phase routing sends
     liquid to condensate and vapor to steam. The surrounding recycle is open.
     """
-    library = Library()
+    library = BlockLibrary()
     register_standard_providers(library)
-    library.get('flash_flowsheet').relationships['flowsheet'].models['flash_separator'].model_arguments['FluidProperties'].model = property_model
+    library.get('flash_flowsheet').formulations['flowsheet'].blocks['flash_separator'].block_arguments['FluidProperties'].block = property_model
     model = build_model('flash_flowsheet', HERE.parent / 'model_language/flash_flowsheet.json', library=library)
-    information = InformationDocument.load_json(HERE / 'flash_replay_information.json')
+    resources = ResourceCatalog.load_json(HERE / 'flash_replay_resources.json')
     if phase_fractions is not None:
         replacements = dict(zip(['flash_separator.parameters.liquid_to_liquid',
                                  'flash_separator.parameters.vapor_to_liquid'],
                                 phase_fractions, strict=True))
-        information = InformationDocument.model_validate([
+        resources = ResourceCatalog.model_validate([
             {**r.model_dump(), 'value': replacements.get(r.variable_path, r.value)}
-            for r in information.records
+            for r in resources.records
         ])
     for field in ['flow', 'enthalpy']:
-        information.add({
-            'id': f'solved_hot_outlet_{field}',
-            'information_type': 'assumption', 'variable_path': f'flash_separator.inlet.{field}',
+        resources.add({
+            'tag': f'solved_hot_outlet_{field}',
+            'resource_type': 'assumption', 'variable_path': f'flash_separator.inlet.{field}',
             'value': sghp_outputs[f'hot_outlet.{field}'],
             'unit': 'kg/s' if field == 'flow' else 'J/kg', 'trust_rank': 2,
         })
-    specification = pair_specification(model, {"specifications": [r.id for r in information.records]}, information)
-    apply_specification(model, specification, information)
+    parameters = pair_parameters(model, {"parameters": [r.tag for r in resources.records]}, resources)
+    apply_parameters(model, parameters, resources)
     if degrees_of_freedom(model) != 0:
         raise RuntimeError('The flash replay must have zero degrees of freedom')
-    flash = model.fs.root.relationship.models.flash_separator
+    flash = model.fs.root.formulation.blocks.flash_separator
     inlet = flash.structs.inlet
     pressure, enthalpy, flow = (value(getattr(inlet, f)[0]) for f in ['pressure', 'enthalpy', 'flow'])
     from pyomo.util.calc_var_value import calculate_variable_from_constraint
 
     def seed(state, h):
-        provider = state.relationship.slices[0].provider
+        provider = state.formulation.slices[0].provider
         state.structs.state.pressure[0].set_value(pressure)
         state.structs.state.enthalpy[0].set_value(h)
         provider.states[0].pressure.set_value(pressure)
@@ -131,8 +131,8 @@ def replay_flash(sghp_outputs, solver=None, *, workspace_path=None, phase_fracti
             calculate_variable_from_constraint(variable, getattr(provider, field + '_equation'))
             getattr(state.structs.properties, field)[0].set_value(value(variable))
 
-    seed(flash.relationship.models.inlet_state, enthalpy)
-    props = flash.relationship.models.inlet_state.structs.properties
+    seed(flash.formulation.blocks.inlet_state, enthalpy)
+    props = flash.formulation.blocks.inlet_state.structs.properties
     x = value(props.vapor_fraction[0])
     phase_flows = [flow * (1-x), flow*x]
     phase_enthalpies = [value(props.enthalpy_liquid[0]), value(props.enthalpy_vapor[0])]
@@ -144,8 +144,8 @@ def replay_flash(sghp_outputs, solver=None, *, workspace_path=None, phase_fracti
         outlet_flow = sum(routed)
         fallback = 0 if outlet == 'liquid' else 1
         outlet_h = sum(m*h for m,h in zip(routed, phase_enthalpies)) / outlet_flow if outlet_flow else phase_enthalpies[fallback]
-        mixture = getattr(flash.relationship.models, outlet + '_mixture')
-        mixture_provider = mixture.relationship.slices[0].provider
+        mixture = getattr(flash.formulation.blocks, outlet + '_mixture')
+        mixture_provider = mixture.formulation.slices[0].provider
         for field, guess in [('liquid_flow', routed[0]), ('vapor_flow', routed[1]),
                              ('liquid_enthalpy', phase_enthalpies[0]),
                              ('vapor_enthalpy', phase_enthalpies[1]), ('fallback_vapor', fallback)]:
@@ -156,7 +156,7 @@ def replay_flash(sghp_outputs, solver=None, *, workspace_path=None, phase_fracti
             getattr(mixture_provider, field).set_value(guess)
         for field, guess in [('flow', outlet_flow), ('enthalpy', outlet_h), ('pressure', pressure)]:
             getattr(getattr(flash.structs, outlet), field)[0].set_value(guess)
-        state = getattr(flash.relationship.models, outlet + '_state')
+        state = getattr(flash.formulation.blocks, outlet + '_state')
         seed(state, outlet_h)
         for field in ['temperature', 'vapor_fraction']:
             getattr(getattr(flash.structs, outlet + '_properties'), field)[0].set_value(
@@ -171,9 +171,9 @@ def replay_flash(sghp_outputs, solver=None, *, workspace_path=None, phase_fracti
         'condensate_flow_kg_s': value(get_variable(model, 'flash_separator.liquid.flow')[0]),
     }
     if workspace_path is not None:
-        export_workspace(model, information, status='optimal', solver='ipopt',
+        export_workspace(model, resources, status='optimal', solver='ipopt',
                          termination_condition=str(result.solver.termination_condition),
-                         specification=specification).write_json(workspace_path)
+                         parameters=parameters).write_json(workspace_path)
     return model, result, outputs
 
 
@@ -182,9 +182,9 @@ if __name__ == '__main__':
     parser.add_argument('--with-flash', action='store_true')
     args = parser.parse_args()
     model, result, outputs = replay()
-    export_workspace(model, HERE / 'sghp_replay_information.json', status='optimal', solver='ipopt',
+    export_workspace(model, HERE / 'sghp_replay_resources.json', status='optimal', solver='ipopt',
                      termination_condition=str(result.solver.termination_condition),
-                     specification=HERE / 'sghp_replay_specification.json').write_json(HERE / 'replay_workspace.json')
+                     parameters=HERE / 'sghp_replay_parameters.json').write_json(HERE / 'replay_workspace.json')
     report = {
         'purpose': 'calibrated replay with source-pressure override; not predictive validation',
         'termination_condition': str(result.solver.termination_condition),

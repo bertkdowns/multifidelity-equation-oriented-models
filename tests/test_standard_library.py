@@ -11,7 +11,7 @@ from pyomo.util.calc_var_value import calculate_variable_from_constraint
 from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import (
-    Library,
+    BlockLibrary,
     build_model,
     register_standard_providers,
     required_inputs,
@@ -37,11 +37,11 @@ def test_registration_and_inspection_do_not_construct_optional_providers(monkeyp
     import multifidelity.model_language.standard as standard
 
     def forbidden(*args, **kwargs):
-        raise AssertionError("Registration/inspection must not construct models")
+        raise AssertionError("Registration/inspection must not construct blocks")
 
     for name in ("build_compressor_map", "build_helmholtz_ph", "build_humid_air"):
         monkeypatch.setattr(standard, name, forbidden)
-    library = Library()
+    library = BlockLibrary()
     register_standard_providers(library)
     assert library.get_provider("standard.humid_air") is forbidden
     assert set(
@@ -63,7 +63,7 @@ def test_registration_and_inspection_do_not_construct_optional_providers(monkeyp
 
 def test_richer_helmholtz_interface_satisfies_existing_state_block():
     require_helmholtz()
-    library = Library()
+    library = BlockLibrary()
     register_standard_providers(library)
     selection = choose("helmholtz_water_state_block")
     model = build_model("helmholtz_water_state_block", selection, library=library)
@@ -77,7 +77,7 @@ def test_richer_helmholtz_interface_satisfies_existing_state_block():
         == 3
     )
     # Saturation is part of the common thermodynamic projection; transport is not.
-    pair = model.fs.root.relationship.models.states
+    pair = model.fs.root.formulation.blocks.states
     assert hasattr(pair.structs.properties, "temperature_dew")
     assert not hasattr(pair.structs.properties, "viscosity")
     assert (
@@ -87,13 +87,13 @@ def test_richer_helmholtz_interface_satisfies_existing_state_block():
 
 
 def test_mapped_compressor_rejects_property_model_without_saturation():
-    library = Library()
+    library = BlockLibrary()
     reference = (
         library.get("mapped_propane_compressor")
-        .relationships["evaluate"]
-        .models["compressor"]
+        .formulations["evaluate"]
+        .blocks["compressor"]
     )
-    reference.model_arguments["FluidProperties"].model = "water_property_package"
+    reference.block_arguments["FluidProperties"].block = "water_property_package"
     del library.get("water_property_package").structs["properties"].variables["temperature_bubble"]
     with pytest.raises(
         ValueError, match="missing required variable properties.temperature_bubble"
@@ -106,7 +106,7 @@ def test_mapped_compressor_rejects_property_model_without_saturation():
 
 
 def test_affine_water_exposes_liquid_fraction_and_saturation_temperatures():
-    library = Library()
+    library = BlockLibrary()
     assert (
         "temperature_dew"
         in library.get("water_property_package").structs["properties"].variables
@@ -147,7 +147,7 @@ def test_cli_input_inspection_does_not_need_providers(monkeypatch, capsys):
 
     def forbidden(*args):
         raise AssertionError(
-            "Input inspection must not register or construct providers"
+            "Input inspection must not register or construct feeds"
         )
 
     monkeypatch.setattr(cli, "register_standard_providers", forbidden)
@@ -176,12 +176,12 @@ def test_cli_input_inspection_does_not_need_providers(monkeypatch, capsys):
         ("mapped_propane_compressor", 4),
     ],
 )
-def test_standard_documents_build_with_only_declared_operating_inputs(name, inputs):
+def test_standard_catalogs_build_with_only_declared_operating_inputs(name, inputs):
     if "helmholtz" in name or name == "mapped_propane_compressor":
         require_helmholtz()
     if name == "humid_air_state":
         pytest.importorskip("ahuora_property_packages")
-    library = Library()
+    library = BlockLibrary()
     register_standard_providers(library)
     model = build_model(name, choose(name), library=library)
     assert_units_consistent(model)
@@ -216,15 +216,15 @@ def test_composed_compressor_matches_source_rating_and_energy_balance():
         AmountBasis,
     )
 
-    library = Library()
+    library = BlockLibrary()
     register_standard_providers(library)
     model = build_model(
         "mapped_propane_compressor",
         choose("mapped_propane_compressor"),
         library=library,
     )
-    compressor = model.fs.root.relationship.models.compressor
-    inlet_provider = compressor.relationship.models.inlet_state.relationship.models.fluid.relationship.slices[0].provider
+    compressor = model.fs.root.formulation.blocks.compressor
+    inlet_provider = compressor.formulation.blocks.inlet_state.formulation.blocks.fluid.formulation.slices[0].provider
     thermo = HelmholtzThermoExpressions(
         inlet_provider, inlet_provider.parameters, amount_basis=AmountBasis.MASS
     )

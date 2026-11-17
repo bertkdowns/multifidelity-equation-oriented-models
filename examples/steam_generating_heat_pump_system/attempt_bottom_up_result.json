@@ -1,7 +1,7 @@
 {
-  "implementation": "aggregate_aggregate",
-  "specification": "attempt_specification.json",
-  "information": "attempt_information.json",
+  "model_catalog": "aggregate_aggregate",
+  "parameters": "attempt_parameters.json",
+  "resources": "attempt_resources.json",
   "success": true,
   "stages": [
     {
@@ -310,7 +310,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.sghp.formulation.blocks.source_inlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -516,7 +516,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.sghp.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -751,7 +751,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.sghp.formulation.blocks.warm_inlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -1451,7 +1451,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.phnix.formulation.blocks.source_inlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -1686,7 +1686,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.phnix.formulation.blocks.source_outlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -1921,7 +1921,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.phnix.relationship.models.sink_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.phnix.formulation.blocks.sink_inlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -2127,7 +2127,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.phnix.formulation.blocks.sink_outlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -3300,7 +3300,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -3535,7 +3535,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.hot_outlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -3770,7 +3770,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_inlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.cold_inlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -4005,7 +4005,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.cold_outlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -5083,7 +5083,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.flash_tank.relationship.models.inlet_state.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.flash_tank.formulation.blocks.inlet_state.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -5182,7 +5182,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.flash_tank.relationship.models.liquid_state.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.flash_tank.formulation.blocks.liquid_state.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -5281,7 +5281,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.flash_tank.relationship.models.vapor_state.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.flash_tank.formulation.blocks.vapor_state.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -6135,7 +6135,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.source_pump.relationship.models.outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.source_pump.formulation.blocks.outlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -6506,7 +6506,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.warm_water_pump.relationship.models.outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.warm_water_pump.formulation.blocks.outlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -6877,7 +6877,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.hot_water_pump.relationship.models.outlet_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.hot_water_pump.formulation.blocks.outlet_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -7584,7 +7584,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.makeup_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.makeup_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -7716,7 +7716,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.phnix_source_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -7848,7 +7848,7 @@
       "unresolved_variables": [],
       "overconstrained_constraints": [],
       "missing_starting_values": [
-        "fs.root.relationship.models.cooling_water_state.relationship.models.fluid.structs.properties.viscosity[0.0]"
+        "fs.root.formulation.blocks.cooling_water_state.formulation.blocks.fluid.structs.properties.viscosity[0.0]"
       ],
       "invalid_starting_values": [],
       "invalid_result_values": [],
@@ -8164,7 +8164,7 @@
       "error": null
     }
   ],
-  "starting_value_record_ids": [
+  "starting_value_record_tags": [
     "config_sghp_hot_inlet_state_temperature",
     "config_phnix_sink_inlet_flow",
     "config_warm_water_splitter_parameters_fraction",
@@ -8187,26 +8187,26 @@
   ],
   "failed_model": null,
   "scaling_callbacks": [
-    "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.sghp.relationship.models.warm_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.phnix.relationship.models.sink_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.phnix.relationship.models.sink_outlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_inlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.flash_tank.relationship.models.inlet_state.relationship.slices[0.0]",
-    "fs.root.relationship.models.flash_tank.relationship.models.liquid_state.relationship.slices[0.0]",
-    "fs.root.relationship.models.flash_tank.relationship.models.vapor_state.relationship.slices[0.0]",
-    "fs.root.relationship.models.source_pump.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.warm_water_pump.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.hot_water_pump.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.makeup_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0]",
-    "fs.root.relationship.models.cooling_water_state.relationship.models.fluid.relationship.slices[0.0]"
+    "fs.root.formulation.blocks.sghp.formulation.blocks.source_inlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.sghp.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.sghp.formulation.blocks.warm_inlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.phnix.formulation.blocks.source_inlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.phnix.formulation.blocks.source_outlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.phnix.formulation.blocks.sink_inlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.phnix.formulation.blocks.sink_outlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.hot_outlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.cold_inlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.cold_outlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.flash_tank.formulation.blocks.inlet_state.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.flash_tank.formulation.blocks.liquid_state.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.flash_tank.formulation.blocks.vapor_state.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.source_pump.formulation.blocks.outlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.warm_water_pump.formulation.blocks.outlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.hot_water_pump.formulation.blocks.outlet_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.makeup_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.phnix_source_state.formulation.blocks.fluid.formulation.slices[0.0]",
+    "fs.root.formulation.blocks.cooling_water_state.formulation.blocks.fluid.formulation.slices[0.0]"
   ],
   "fallback_variable_scales": [],
   "full_model_max_scaled_violation": 6.764242425560952e-10,

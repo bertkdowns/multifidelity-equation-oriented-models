@@ -34,14 +34,14 @@ def validate_domains(model):
                 raise ValueError(f"{model.path}: unknown variable domains {sorted(unknown)}")
 
 
-def variable_dimensions(model, relationship, reference):
+def variable_dimensions(model, formulation, reference):
     """Express an immediate child's dimensions in its parent's namespace."""
     parts = reference.split(".")
     if len(parts) == 2:
         owner = model
         bindings = {name: name for name in model.definition.domains}
-    elif len(parts) == 3 and parts[0] in relationship.models:
-        owner = relationship.models[parts.pop(0)]
+    elif len(parts) == 3 and parts[0] in formulation.blocks:
+        owner = formulation.blocks[parts.pop(0)]
         bindings = owner.domain_bindings
     else:
         raise ValueError(f"{model.path}: unknown variable {reference!r}")
@@ -54,12 +54,12 @@ def variable_dimensions(model, relationship, reference):
         ) from None
 
 
-def equation_target(model, relationship, equation):
+def equation_target(model, formulation, equation):
     target, indices = target_reference(equation.determines)
     unknown = set(equation.for_each.values()) - model.definition.domains.keys()
     if unknown:
         raise ValueError(f"{model.path}: unknown for_each domains {sorted(unknown)}")
-    dimensions = variable_dimensions(model, relationship, target)
+    dimensions = variable_dimensions(model, formulation, target)
     # Requiring exactly the target's dimensions prevents partial coverage and
     # accidentally repeating a scalar determination across an extra domain.
     if (

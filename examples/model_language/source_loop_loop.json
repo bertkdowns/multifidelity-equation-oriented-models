@@ -1,20 +1,20 @@
 {
-  "relationship": "loop",
-  "submodels": {
+  "formulation": "loop",
+  "subblocks": {
     "valve": {
-      "relationship": "isenthalpic"
+      "formulation": "isenthalpic"
     },
     "pump": {
-      "relationship": "incompressible",
-      "submodels": {
+      "formulation": "incompressible",
+      "subblocks": {
         "outlet_state": {
-          "relationship": "evaluate",
-          "submodels": {
+          "formulation": "evaluate",
+          "subblocks": {
             "fluid": {
-              "relationship": "constant_properties",
-              "submodels": {
+              "formulation": "constant_properties",
+              "subblocks": {
                 "water": {
-                  "relationship": "constant_properties"
+                  "formulation": "constant_properties"
                 }
               }
             }
@@ -23,13 +23,13 @@
       }
     },
     "evaporator": {
-      "relationship": "energy_balance"
+      "formulation": "energy_balance"
     },
     "heater": {
-      "relationship": "energy_balance"
+      "formulation": "energy_balance"
     },
     "tank": {
-      "relationship": "energy_balance"
+      "formulation": "energy_balance"
     }
   }
 }

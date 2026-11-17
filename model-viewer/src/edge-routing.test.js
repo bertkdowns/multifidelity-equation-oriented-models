@@ -24,7 +24,7 @@ test('summary replacements use top/bottom and remain orthogonal under every unit
   const {summaryPortGeometry} = await import('./edge-routing.js');
   const axis = side => ['top','bottom'].includes(side) ? 'vertical' : 'horizontal';
   for (const flipped of [false,true]) for (const rotation of [0,1,2,3]) {
-    const data = {kind:'model',flipped,rotation};
+    const data = {kind:'block',flipped,rotation};
     for (const type of ['source','target']) {
       const process=summaryPortGeometry({type,top:'30%'},data);
       const feedback=summaryPortGeometry({type,top:'30%',replacement:true},data);
@@ -37,5 +37,5 @@ test('summary replacements use top/bottom and remain orthogonal under every unit
     assert.equal(start.side,end.side);
     assert.notDeepEqual(start.style,end.style);
   }
-  assert.deepEqual(summaryPortGeometry({type:'source',top:'30%',replacement:true},{kind:'model',rotation:1}),{side:'right',style:{top:'30%'}});
+  assert.deepEqual(summaryPortGeometry({type:'source',top:'30%',replacement:true},{kind:'block',rotation:1}),{side:'right',style:{top:'30%'}});
 });

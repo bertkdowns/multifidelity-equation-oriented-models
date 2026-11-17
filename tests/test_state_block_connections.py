@@ -6,28 +6,28 @@ import pytest
 from pyomo.environ import Var, assert_optimal_termination, value
 from pyomo.util.check_units import assert_units_consistent
 
-from multifidelity.model_language import Library, build_model, get_variable, required_inputs
-from multifidelity.model_language.definitions import Connection, ModelDocument
+from multifidelity.model_language import BlockLibrary, build_model, get_variable, required_inputs
+from multifidelity.model_language.definitions import Connection, BlockCatalog
 
 
 @pytest.fixture
 def state_example():
-    library = Library()
+    library = BlockLibrary()
     output = library.get('state_block').structs['state'].model_dump()
     output['direction'] = 'output'
-    library.models['state_example'] = ModelDocument.model_validate({
+    library.blocks['state_example'] = BlockCatalog.model_validate({
         'id': 'state_example',
         'domains': {'time': {'kind': 'time'}},
         'structs': {'state': output},
-        'relationships': {'flowsheet': {
-            'models': {
+        'formulations': {'flowsheet': {
+            'blocks': {
                 'source': {
-                    'model': 'state_block',
+                    'block': 'state_block',
                     'domain_bindings': {'time': 'time'},
-                    'model_arguments': {'FluidProperties': {'model': 'water_property_package'}},
+                    'block_arguments': {'FluidProperties': {'block': 'water_property_package'}},
                 },
-                'first': {'model': 'valve', 'domain_bindings': {'time': 'time'}},
-                'second': {'model': 'valve', 'domain_bindings': {'time': 'time'}},
+                'first': {'block': 'valve', 'domain_bindings': {'time': 'time'}},
+                'second': {'block': 'valve', 'domain_bindings': {'time': 'time'}},
             },
             'connections': {
                 'first_feed': {'from': 'source.state', 'to': 'first.inlet'},
@@ -36,21 +36,21 @@ def state_example():
             },
         }},
     })
-    implementation = {'relationship': 'flowsheet', 'submodels': {
-        'source': {'relationship': 'evaluate', 'submodels': {
-            'fluid': {'relationship': 'constant_properties', 'submodels': {
-                'water': {'relationship': 'constant_properties'},
+    model_catalog = {'formulation': 'flowsheet', 'subblocks': {
+        'source': {'formulation': 'evaluate', 'subblocks': {
+            'fluid': {'formulation': 'constant_properties', 'subblocks': {
+                'water': {'formulation': 'constant_properties'},
             }},
         }},
-        'first': {'relationship': 'isenthalpic'},
-        'second': {'relationship': 'isenthalpic'},
+        'first': {'formulation': 'isenthalpic'},
+        'second': {'formulation': 'isenthalpic'},
     }}
-    return library, implementation
+    return library, model_catalog
 
 
 def test_child_input_can_supply_multiple_inputs_and_parent_output(state_example):
-    library, implementation = state_example
-    assert set(required_inputs('state_example', implementation, library=library)) == {
+    library, model_catalog = state_example
+    assert set(required_inputs('state_example', model_catalog, library=library)) == {
         'source.state.flow',
         'source.state.pressure',
         'source.state.enthalpy',
@@ -58,19 +58,19 @@ def test_child_input_can_supply_multiple_inputs_and_parent_output(state_example)
         'second.parameters.pressure_drop',
     }
     # Using a source does not mark it supplied; only connection destinations are supplied.
-    model = build_model('state_example', implementation, library=library,
+    model = build_model('state_example', model_catalog, library=library,
                         domain_values={'time': [0, 10]})
     assert_units_consistent(model)
     assert list(get_variable(model, 'source.state.pressure')) == [0, 10]
     assert not get_variable(model, 'source.state.pressure')[0].fixed
 
 
-@pytest.mark.parametrize('specification_path', ['source.state', 'state'])
-def test_direct_state_temperature_specification_determines_connected_enthalpy(state_example, solver, specification_path):
-    library, implementation = state_example
-    model = build_model('state_example', implementation, library=library)
-    get_variable(model, specification_path + '.flow')[0].fix(2)
-    get_variable(model, specification_path + '.pressure')[0].fix(200000)
+@pytest.mark.parametrize('parameters_path', ['source.state', 'state'])
+def test_direct_state_temperature_parameters_determines_connected_enthalpy(state_example, solver, parameters_path):
+    library, model_catalog = state_example
+    model = build_model('state_example', model_catalog, library=library)
+    get_variable(model, parameters_path + '.flow')[0].fix(2)
+    get_variable(model, parameters_path + '.pressure')[0].fix(200000)
     get_variable(model, 'source.properties.temperature')[0].fix(330.15)
     for valve in ['first', 'second']:
         get_variable(model, valve + '.parameters.pressure_drop')[0].fix(1000)
@@ -92,9 +92,9 @@ def test_direct_state_temperature_specification_determines_connected_enthalpy(st
 @pytest.mark.parametrize('operation', [build_model, required_inputs])
 @pytest.mark.parametrize('change', ['child_output_target', 'parent_input_target', 'duplicate', 'self'])
 def test_readable_child_inputs_preserve_connection_validation(state_example, operation, change):
-    library, implementation = state_example
+    library, model_catalog = state_example
     definition = library.get('state_example')
-    connections = definition.relationships['flowsheet'].connections
+    connections = definition.formulations['flowsheet'].connections
     expected = 'invalid connection direction'
     if change == 'child_output_target':
         connections['first_feed'].to = 'first.outlet'
@@ -110,11 +110,11 @@ def test_readable_child_inputs_preserve_connection_validation(state_example, ope
         connections['self'] = Connection(from_='source.state', to='source.state')
         expected = 'connection endpoints must differ'
     with pytest.raises(ValueError, match=expected):
-        operation('state_example', implementation, library=library)
+        operation('state_example', model_catalog, library=library)
 
 
 def test_parent_output_is_readable_as_a_connection_source(state_example):
-    library, implementation = state_example
-    library.get('state_example').relationships['flowsheet'].connections['first_feed'].from_ = 'state'
-    build_model('state_example', implementation, library=library)
-    assert 'source.state.enthalpy' in required_inputs('state_example', implementation, library=library)
+    library, model_catalog = state_example
+    library.get('state_example').formulations['flowsheet'].connections['first_feed'].from_ = 'state'
+    build_model('state_example', model_catalog, library=library)
+    assert 'source.state.enthalpy' in required_inputs('state_example', model_catalog, library=library)

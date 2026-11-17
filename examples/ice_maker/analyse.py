@@ -16,10 +16,10 @@ from idaes.models.properties.general_helmholtz import (
 )
 
 from multifidelity.model_language import (
-    InformationDocument,
-    Library,
-    SpecificationDocument,
-    apply_specification,
+    ResourceCatalog,
+    BlockLibrary,
+    ParameterCatalog,
+    apply_parameters,
     build_model,
     export_workspace,
     get_variable,
@@ -78,26 +78,26 @@ def window(log, limits):
 
 def fit_response(grid, data, *, water_only, workspace_path=None):
     model = build_model(
-        "suction_response", {"relationship": "lumped"},
+        "suction_response", {"formulation": "lumped"},
         mode="dynamic", domain_values={"time": grid.tolist()},
     )
     pyo.TransformationFactory("dae.finite_difference").apply_to(
         model, wrt=model.fs.time, nfe=len(grid) - 1, scheme="BACKWARD",
     )
     paths = {"water": "boundary.water", "ambient": "boundary.ambient", "suction": "state.suction"}
-    information = InformationDocument([
-        dict(id=name, information_type="sensor_reading",
+    resources = ResourceCatalog([
+        dict(tag=name, resource_type="sensor_reading",
              variable_path=paths[name], type="series", value=data[:, channel - 1] + KELVIN,
              unit="K", trust_rank=5)
         for name, channel in (("water", 6), ("ambient", 5), ("suction", 1))
     ])
-    information.add(dict(id="initial", information_type="sensor_reading",
+    resources.add(dict(tag="initial", resource_type="sensor_reading",
                          variable_path=paths["suction"], value=data[0, 0] + KELVIN,
                          unit="K", trust_rank=5))
-    specification = SpecificationDocument(specifications=("water", "ambient"), initial_values=("initial",))
-    apply_specification(model, specification, information)
+    parameters = ParameterCatalog(parameters=("water", "ambient"), initial_values=("initial",))
+    apply_parameters(model, parameters, resources)
     suction = get_variable(model, paths["suction"])
-    target = information.get("suction").values_for(suction)
+    target = resources.get("suction").values_for(suction)
     for time, measurement in target.items():
         suction[time].set_value(measurement)
     parameters = [get_variable(model, f"parameters.{name}") for name in ("tau", "water_weight", "offset")]
@@ -108,7 +108,7 @@ def fit_response(grid, data, *, water_only, workspace_path=None):
     pyo.assert_optimal_termination(result)
     if workspace_path is not None:
         export_workspace(
-            model, information, status="optimal", solver="ipopt", specification=specification,
+            model, resources, status="optimal", solver="ipopt", parameters=parameters,
             termination_condition=str(result.solver.termination_condition),
             message="Hot-run water and ambient fit on the selected training window.",
         ).write_json(workspace_path)
@@ -172,24 +172,24 @@ def saturation(thermo, celsius):
 
 
 def export_cycle_workspace(values, pressure_enthalpy, efficiency, densities, workspace_path):
-    library = Library()
+    library = BlockLibrary()
     register_standard_providers(library)
-    helmholtz = {"relationship": "helmholtz"}
-    state_block = {"relationship": "evaluate", "submodels": {"fluid": helmholtz}}
-    pipe_with_state = {"relationship": "pass_through_with_state", "submodels": {"state": state_block}}
+    helmholtz = {"formulation": "helmholtz"}
+    state_block = {"formulation": "evaluate", "subblocks": {"fluid": helmholtz}}
+    pipe_with_state = {"formulation": "pass_through_with_state", "subblocks": {"state": state_block}}
     model = build_model(
         "ice_maker_refrigeration_loop",
-        {"relationship": "capillary_cycle",
-         "submodels": {
+        {"formulation": "capillary_cycle",
+         "subblocks": {
              "compressor": {
-                 "relationship": "isentropic",
-                 "submodels": {"inlet_state": state_block, "outlet_state": state_block,
+                 "formulation": "isentropic",
+                 "subblocks": {"inlet_state": state_block, "outlet_state": state_block,
                                "isentropic_state": helmholtz},
              },
-             "condenser_cooler": {"relationship": "energy_balance"},
-             "capillary_valve": {"relationship": "isenthalpic"},
-             "evaporator_heater": {"relationship": "energy_balance"},
-             "refrigerant_mass_recycle": {"relationship": "define"},
+             "condenser_cooler": {"formulation": "energy_balance"},
+             "capillary_valve": {"formulation": "isenthalpic"},
+             "evaporator_heater": {"formulation": "energy_balance"},
+             "refrigerant_mass_recycle": {"formulation": "define"},
              "pre_capillary": pipe_with_state,
              "post_capillary": pipe_with_state,
          }},
@@ -215,13 +215,13 @@ def export_cycle_workspace(values, pressure_enthalpy, efficiency, densities, wor
         "inventory_inputs.high_liquid_density": (high_liquid, "kg/m**3"),
         "inventory_inputs.high_vapour_density": (high_vapour, "kg/m**3"),
     }
-    information = InformationDocument([
-        dict(id=path, information_type="equipment_specification" if path == "inventory_inputs.charge" else "assumption",
+    resources = ResourceCatalog([
+        dict(tag=path, resource_type="equipment_parameter" if path == "inventory_inputs.charge" else "assumption",
              variable_path=path, value=value, unit=unit, trust_rank=8 if path == "inventory_inputs.charge" else 3)
         for path, (value, unit) in inputs.items()
     ])
-    specification = SpecificationDocument(
-        specifications=tuple(inputs),
+    parameters = ParameterCatalog(
+        parameters=tuple(inputs),
         replacements={
             "compressor.inlet.pressure": "capillary_valve.parameters.pressure_drop",
             "compressor.outlet.pressure": "compressor.parameters.pressure_rise",
@@ -229,14 +229,14 @@ def export_cycle_workspace(values, pressure_enthalpy, efficiency, densities, wor
             "condenser_cooler.outlet.enthalpy": "condenser_cooler.parameters.heat_duty",
         },
     )
-    apply_specification(model, specification, information)
+    apply_parameters(model, parameters, resources)
     time = model.fs.time.first()
     probes = ("compressor.inlet_state", "compressor.outlet_state",
               "pre_capillary.state", "post_capillary.state")
     for channel, alias in enumerate(probes, start=1):
-        information.add(dict(
-            id=f"channel_{channel}",
-            information_type="sensor_reading", variable_path=f"{alias}.properties.temperature",
+        resources.add(dict(
+            tag=f"channel_{channel}",
+            resource_type="sensor_reading", variable_path=f"{alias}.properties.temperature",
             value=values[channel - 1] + KELVIN, unit="K", trust_rank=5,
         ))
     # Start the native PH states on the expected branches, including the
@@ -253,7 +253,7 @@ def export_cycle_workspace(values, pressure_enthalpy, efficiency, densities, wor
     result = get_solver("ipopt").solve(model)
     pyo.assert_optimal_termination(result)
     export_workspace(
-        model, information, status="optimal", solver="ipopt", specification=specification,
+        model, resources, status="optimal", solver="ipopt", parameters=parameters,
         termination_condition=str(result.solver.termination_condition),
         message=("Conditional hot-peak capillary case. Unit powers use a 1 kg/s reference flow. "
                  "The observed post-capillary temperature is an overlay."),

@@ -9,7 +9,7 @@
     "captured_at": "2026-11-03T21:03:27.819523Z",
     "url": "https://ahuoratech.app/project/2450/flowsheet",
     "kind": "current_configuration_snapshot",
-    "note": "Stored current values, not immutable SolveRun results or live plant measurements. Enabled flags alone do not identify fixed specifications: control replacements and formulas also matter. value and displayValue are retained separately; displayValue may be stale."
+    "note": "Stored current values, not immutable SolveRun results or live plant measurements. Enabled flags alone do not identify fixed parameters: control replacements and formulas also matter. value and displayValue are retained separately; displayValue may be stale."
   },
   "trust_policy": "Ranks 8 (independent configuration) and 2 (captured manipulated outputs and replay assumptions) are local bookkeeping judgments, not probabilities or sensor quality assessments. Missing uncertainty remains unknown.",
   "records": {
@@ -143,12 +143,12 @@
       "original_value": 0.919638254787468,
       "original_unit": "dimensionless",
       "source_tag": null,
-      "basis": "Captured fraction for outlet_1, the cooling-exchanger return branch. The platform manipulates the split to meet another specification.",
+      "basis": "Captured fraction for outlet_1, the cooling-exchanger return branch. The platform manipulates the split to meet another parameters.",
       "source_property_value_ids": [
         630044
       ]
     },
-    "config_phnix_power_model_parameters_electrical_power": {
+    "config_phnix_power_block_slots_electrical_power": {
       "source_object_id": 1671781,
       "source_object": "PHNIX HP",
       "source_property": "work_mechanical",
@@ -156,12 +156,12 @@
       "original_value": 27.3281092732687,
       "original_unit": "kW",
       "source_tag": null,
-      "basis": "Captured PHNIX work, manipulated to meet the sink-temperature specification, not an independently configured power or plant electrical measurement. Mechanical work is treated as aggregate electrical input without an additional motor-loss model.",
+      "basis": "Captured PHNIX work, manipulated to meet the sink-temperature parameters, not an independently configured power or plant electrical measurement. Mechanical work is treated as aggregate electrical input without an additional motor-loss model.",
       "source_property_value_ids": [
         630770
       ]
     },
-    "config_phnix_cop_model_parameters_cop": {
+    "config_phnix_cop_block_slots_cop": {
       "source_object_id": 1671781,
       "source_object": "PHNIX HP",
       "source_property": "coefficient_of_performance",
@@ -169,7 +169,7 @@
       "original_value": 2,
       "original_unit": "dimensionless",
       "source_tag": null,
-      "basis": "COP is the platform structural replacement setpoint; Carnot efficiency is manipulated. This is a modelling specification, not a measured COP.",
+      "basis": "COP is the platform structural replacement setpoint; Carnot efficiency is manipulated. This is a modelling parameters, not a measured COP.",
       "source_property_value_ids": [
         630773
       ]

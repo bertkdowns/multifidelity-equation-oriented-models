@@ -1,20 +1,20 @@
-"""Starting guesses and explicit custom initialisation; no specification choices."""
+"""Starting guesses and explicit custom initialisation; no parameter choices."""
 
 from copy import deepcopy
 import math
 from pathlib import Path
 
-from .information import InformationDocument
-from .specification import SpecificationDocument
+from .resources import ResourceCatalog
+from .parameters import ParameterCatalog
 
 
-def apply_starting_values(model, information: InformationDocument, specification=None,
-                          *, excluded_record_ids=()):
-    """Seed free public entries from unused information, without fixing them.
+def apply_starting_values(model, resources: ResourceCatalog, parameters=None,
+                          *, excluded_record_tags=()):
+    """Seed free public entries from unused resources, without fixing them.
 
-    Highest trust wins (ID breaks ties). Unknown paths belong to other selected
-    implementations and are ignored. Explicit exclusions support held-out data.
-    Selected specification/initial-condition records are excluded. Validate all
+    Highest trust wins (tag breaks ties). Unknown paths belong to other selected
+    modelCatalogs and are ignored. Explicit exclusions support held-out data.
+    Selected parameters/initial-condition records are excluded. Validate all
     applicable guesses before writing; return the IDs actually used.
     """
     from pyomo.environ import units
@@ -23,20 +23,20 @@ def apply_starting_values(model, information: InformationDocument, specification
     registry = getattr(model, '_model_language_variables', None)
     if registry is None:
         raise ValueError('Model must be constructed by model_language.build_model')
-    if not isinstance(information, InformationDocument):
-        raise TypeError('information must be an InformationDocument')
-    excluded = set(excluded_record_ids)
-    if specification is not None:
-        if isinstance(specification, (str, Path)):
-            specification = SpecificationDocument.load_json(specification)
-        elif not isinstance(specification, SpecificationDocument):
-            specification = SpecificationDocument.model_validate(specification)
-        excluded.update(specification.specifications + specification.initial_values)
+    if not isinstance(resources, ResourceCatalog):
+        raise TypeError('resources must be an ResourceCatalog')
+    excluded = set(excluded_record_tags)
+    if parameters is not None:
+        if isinstance(parameters, (str, Path)):
+            parameters = ParameterCatalog.load_json(parameters)
+        elif not isinstance(parameters, ParameterCatalog):
+            parameters = ParameterCatalog.model_validate(parameters)
+        excluded.update(parameters.parameters + parameters.initial_values)
     prepared, used = [], []
     for path, component in registry.items():
         if all(v.fixed for v in component.values()):
             continue
-        candidates = [r for r in information.candidates(path) if r.id not in excluded]
+        candidates = [r for r in resources.candidates(path) if r.tag not in excluded]
         if not candidates:
             continue
         record = candidates[0]
@@ -53,9 +53,9 @@ def apply_starting_values(model, information: InformationDocument, specification
                 ) or (variable.ub is not None and converted > variable.ub):
                     raise ValueError('starting value must be finite and within bounds')
                 prepared.append((variable, converted))
-            used.append(record.id)
+            used.append(record.tag)
         except Exception as error:
-            raise ValueError(f'{path} ({record.id}): {error}') from error
+            raise ValueError(f'{path} ({record.tag}): {error}') from error
     previous = [(v, v.value) for v, _ in prepared]
     try:
         for variable, guess in prepared:
@@ -71,7 +71,7 @@ def initialize_custom_models(model):
     """Run registered callbacks on constructed provider slices, in tree order.
 
     Callbacks receive (native_block, config). Public input guesses and fixed
-    specifications are transferred in native units first. Free public values
+    parameters are transferred in native units first. Free public values
     are refreshed from native results afterwards. Callback fixes and constraint
     activation changes are restored; failure also restores starting values.
     This is a provider hook runner; initialize_model orchestrates recursive DM
@@ -107,7 +107,7 @@ def initialize_custom_models(model):
                 if variable.fixed:
                     native[name].fix()
             callback(active.provider, deepcopy(config))
-            # A callback must not change a pre-existing native specification.
+            # A callback must not change a pre-existing native parameters.
             # Restore these values before exposing its results to public ports.
             for variable, guess, fixed in old:
                 if fixed:

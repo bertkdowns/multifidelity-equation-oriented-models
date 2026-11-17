@@ -1,18 +1,18 @@
-"""Trust-ranked structural specification for a fixed numerical implementation."""
+"""Trust-ranked structural parameters for a fixed numerical model_catalog."""
 
 from dataclasses import dataclass
 
-from .information import InformationDocument
-from .specification import SpecificationDocument, _prepare
-from .replacement import pair_specification, audit_fixations
+from .resources import ResourceCatalog
+from .parameters import ParameterCatalog, _prepare
+from .replacement import pair_parameters, audit_fixations
 from .variables import get_variable
 
 
 @dataclass
-class SpecificationSelection:
-    """Specification choices and separate structural diagnostics (not a solve)."""
+class ParameterSelection:
+    """Parameter choices and separate structural diagnostics (not a solve)."""
 
-    specification: SpecificationDocument
+    parameters: ParameterCatalog
     complete: bool
     initial_deficiency: int
     remaining_deficiency: int
@@ -36,20 +36,20 @@ def _partition(model):
     )
 
 
-def select_specification(model, information: InformationDocument, *,
-                         prediction_targets=(), excluded_record_ids=(),
-                         achieved_setpoint_ids=()) -> SpecificationSelection:
+def select_parameters(model, resources: ResourceCatalog, *,
+                         prediction_targets=(), excluded_record_tags=(),
+                         achieved_setpoint_tags=()) -> ParameterSelection:
     """Choose independent whole-family fixations using trust-ranked DM trials.
 
     The original model is unchanged. Existing fixations are mandatory context.
-    Finalize the grid before calling. Target paths and excluded record IDs are
+    Finalize the grid before calling. Target paths and excluded record tags are
     reserved; control setpoints require explicit achieved-setpoint authorization.
     Other physical/operating applicability must be filtered by the caller.
     Initial conditions, inequalities, numerical rank and solving are outside
-    this structural policy. Apply the returned document separately.
+    this structural policy. Apply the returned catalog separately.
     """
-    if not isinstance(information, InformationDocument):
-        raise TypeError("information must be an InformationDocument")
+    if not isinstance(resources, ResourceCatalog):
+        raise TypeError("resources must be an ResourceCatalog")
     if not hasattr(model, "_model_language_variables"):
         raise ValueError("Model must be constructed by model_language.build_model")
     audit_fixations(model)
@@ -57,31 +57,31 @@ def select_specification(model, information: InformationDocument, *,
     targets = set(prediction_targets)
     for path in targets:
         get_variable(work, path)  # Catch misspelled prediction targets.
-    excluded = set(excluded_record_ids)
-    achieved = set(achieved_setpoint_ids)
+    excluded = set(excluded_record_tags)
+    achieved = set(achieved_setpoint_tags)
     vp, cp = _partition(work)
     initial = len(vp.unmatched)
     selected = []
     decisions = []
-    records = sorted(information.records, key=lambda r: (-r.trust_rank, r.id))
+    records = sorted(resources.records, key=lambda r: (-r.trust_rank, r.tag))
     for record in records:
         reason = None
         before = len(vp.unmatched)
         if cp.unmatched or cp.overconstrained:
             reason = "overconstrained system"
-        elif record.id in excluded:
+        elif record.tag in excluded:
             reason = "excluded record"
         elif record.variable_path in targets:
             reason = "reserved prediction target"
-        elif (record.information_type == "control_setpoint"
-              and record.id not in achieved):
+        elif (record.resource_type == "control_setpoint"
+              and record.tag not in achieved):
             reason = "setpoint not explicitly assumed achieved"
-        elif record.variable_path in {information.get(i).variable_path for i in selected}:
+        elif record.variable_path in {resources.get(i).variable_path for i in selected}:
             reason = "lower-ranked alternative"
         else:
-            document = SpecificationDocument(specifications=[record.id])
+            catalog = ParameterCatalog(parameters=[record.tag])
             try:
-                prepared = _prepare(work, document, information)
+                prepared = _prepare(work, catalog, resources)
             except (ValueError, TypeError) as error:
                 reason = str(error)
             else:
@@ -103,29 +103,29 @@ def select_specification(model, information: InformationDocument, *,
                             and not trial_cp.unmatched and not trial_cp.overconstrained):
                         for variable, target in prepared:
                             variable.fix(target)
-                        selected.append(record.id)
+                        selected.append(record.tag)
                         vp, cp = trial_vp, trial_cp
                     else:
                         reason = "trial does not reduce deficiency without overconstraint"
         decisions.append({
-            "record_id": record.id, "variable_path": record.variable_path,
+            "record_tag": record.tag, "variable_path": record.variable_path,
             "trust_rank": record.trust_rank, "value": record.value, "unit": record.unit,
-            "information_type": record.information_type,
+            "resource_type": record.resource_type,
             "standard_deviation": record.standard_deviation,
             "selected": reason is None, "reason": reason,
             "deficiency_before": before, "deficiency_after": len(vp.unmatched),
         })
-    specification = SpecificationDocument(specifications=selected)
+    parameters = ParameterCatalog(parameters=selected)
     pairing_error = None
     try:
-        specification = pair_specification(model, specification, information)
+        parameters = pair_parameters(model, parameters, resources)
     except ValueError as error:
         pairing_error = str(error)
     for decision in decisions:
         if decision['selected']:
-            decision['replaces'] = specification.replacements.get(decision['record_id'])
-    return SpecificationSelection(
-        specification=specification,
+            decision['replaces'] = parameters.replacements.get(decision['record_tag'])
+    return ParameterSelection(
+        parameters=parameters,
         pairing_error=pairing_error,
         complete=not vp.unmatched and not cp.unmatched and not cp.overconstrained and pairing_error is None,
         initial_deficiency=initial, remaining_deficiency=len(vp.unmatched),

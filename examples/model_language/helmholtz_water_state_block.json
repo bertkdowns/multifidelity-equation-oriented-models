@@ -1,11 +1,11 @@
 {
-  "relationship": "evaluate",
-  "submodels": {
+  "formulation": "evaluate",
+  "subblocks": {
     "states": {
-      "relationship": "evaluate",
-      "submodels": {
+      "formulation": "evaluate",
+      "subblocks": {
         "fluid": {
-          "relationship": "helmholtz"
+          "formulation": "helmholtz"
         }
       }
     }

@@ -1,0 +1,74 @@
+[
+  {
+    "tag": "tank_area",
+    "resource_type": "assumption",
+    "variable_path": "tank.parameters.area",
+    "value": 1,
+    "unit": "m**2",
+    "trust_rank": 5
+  },
+  {
+    "tag": "inlet_flow",
+    "resource_type": "assumption",
+    "variable_path": "tank.inlet.flow",
+    "value": 1,
+    "unit": "kg/s",
+    "trust_rank": 5
+  },
+  {
+    "tag": "inlet_temperature",
+    "resource_type": "assumption",
+    "variable_path": "tank.inlet_state.properties.temperature",
+    "value": 333.15,
+    "unit": "K",
+    "trust_rank": 5
+  },
+  {
+    "tag": "heat_loss",
+    "resource_type": "assumption",
+    "variable_path": "tank.loss.heat",
+    "value": 0,
+    "unit": "W",
+    "trust_rank": 5
+  },
+  {
+    "tag": "withdrawal_flow",
+    "resource_type": "assumption",
+    "variable_path": "tank.withdrawal.flow",
+    "value": 1,
+    "unit": "kg/s",
+    "trust_rank": 5
+  },
+  {
+    "tag": "tank_level",
+    "resource_type": "assumption",
+    "variable_path": "tank.inventory.level",
+    "value": 1,
+    "unit": "m",
+    "trust_rank": 5
+  },
+  {
+    "tag": "starting_energy",
+    "resource_type": "assumption",
+    "variable_path": "tank.inventory.energy",
+    "value": 125341334.4490745,
+    "unit": "J",
+    "trust_rank": 5
+  },
+  {
+    "tag": "inlet_pressure",
+    "resource_type": "assumption",
+    "variable_path": "tank.inlet.pressure",
+    "value": 101325,
+    "unit": "Pa",
+    "trust_rank": 5
+  },
+  {
+    "tag": "tank_pressure",
+    "resource_type": "assumption",
+    "variable_path": "tank.parameters.pressure",
+    "value": 101325,
+    "unit": "Pa",
+    "trust_rank": 5
+  }
+]

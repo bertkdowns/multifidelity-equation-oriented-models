@@ -6,25 +6,25 @@ from pyomo.environ import Constraint, Var
 from pyomo.opt import SolverStatus, TerminationCondition
 
 from multifidelity.model_language import (
-    InformationDocument, Library, ModelDocument,
-    build_model, get_variable, initialize_model, apply_specification, pair_specification,
+    ResourceCatalog, BlockLibrary, BlockCatalog,
+    build_model, get_variable, initialize_model, apply_parameters, pair_parameters,
 )
 
 
 def specify(model, path, value):
-    info = InformationDocument([dict(id=path, variable_path=path, value=value,
-                                    unit='dimensionless', information_type='assumption', trust_rank=5)])
-    spec = pair_specification(model, {'specifications': [path]}, info)
-    apply_specification(model, spec, info)
+    info = ResourceCatalog([dict(tag=path, variable_path=path, value=value,
+                                    unit='dimensionless', resource_type='assumption', trust_rank=5)])
+    spec = pair_parameters(model, {'parameters': [path]}, info)
+    apply_parameters(model, spec, info)
 
 
 def tiny_library(tmp_path, *, recycle=False):
-    library = Library(tmp_path)
-    library.models['leaf'] = ModelDocument.model_validate({
+    library = BlockLibrary(tmp_path)
+    library.blocks['leaf'] = BlockCatalog.model_validate({
         'id': 'leaf', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 1}}},
             'outlet': {'direction': 'output', 'variables': {'y': {}}},
-        }, 'relationships': {'linear': {'constraints': {
+        }, 'formulations': {'linear': {'constraints': {
             'balance': {'lhs': 'outlet.y', 'rhs': '0.5 * inlet.x + 1' if recycle else '2 * inlet.x',
                         'determines': 'outlet.y'},
         }}},
@@ -37,12 +37,12 @@ def tiny_library(tmp_path, *, recycle=False):
         'feed': {'lhs': 'a.inlet.x', 'rhs': 'b.outlet.y + inlet.x' if recycle else 'inlet.x',
                  'determines': 'a.inlet.x'},
     }
-    library.models['plant'] = ModelDocument.model_validate({
+    library.blocks['plant'] = BlockCatalog.model_validate({
         'id': 'plant', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 3}}},
             'outlet': {'direction': 'output', 'variables': {'y': {}}},
-        }, 'relationships': {'flowsheet': {
-            'models': {'a': {'model': 'leaf'}, 'b': {'model': 'leaf'}},
+        }, 'formulations': {'flowsheet': {
+            'blocks': {'a': {'block': 'leaf'}, 'b': {'block': 'leaf'}},
             'connections': connections, 'constraints': equations,
         }},
     })
@@ -50,8 +50,8 @@ def tiny_library(tmp_path, *, recycle=False):
 
 
 def build_plant(tmp_path, *, recycle=False):
-    return build_model('plant', {'relationship': 'flowsheet', 'submodels': {
-        'a': {'relationship': 'linear'}, 'b': {'relationship': 'linear'},
+    return build_model('plant', {'formulation': 'flowsheet', 'subblocks': {
+        'a': {'formulation': 'linear'}, 'b': {'formulation': 'linear'},
     }}, library=tiny_library(tmp_path, recycle=recycle))
 
 
@@ -99,13 +99,13 @@ def test_solver_failure_restores_stage_values_and_flags(tmp_path):
     class FailingSolver:
         def solve(self, block, **kwargs):
             block.structs.outlet.y.set_value(999)
-            block.relationship.constraints.balance.deactivate()
+            block.formulation.constraints.balance.deactivate()
             raise RuntimeError('deliberate failure')
     result = initialize_model(model, solver=FailingSolver())
     assert result.stages[0].status == 'error'
     assert 'deliberate failure' in result.stages[0].error
     assert all(v.value == old and v.fixed == fixed for v, old, fixed in before)
-    assert model.fs.root.relationship.models.a.relationship.constraints.balance.active
+    assert model.fs.root.formulation.blocks.a.formulation.constraints.balance.active
 
 
 def test_nonoptimal_termination_is_failure_and_rolls_back(tmp_path):
@@ -144,34 +144,34 @@ def test_hierarchy_metadata_follows_cloning(tmp_path, solver):
     assert not get_variable(original, 'inlet.x').fixed
 
 
-def test_dm_recomputed_after_each_fix_and_information_rank_is_used(tmp_path, solver):
-    library = Library(tmp_path)
-    library.models['sum'] = ModelDocument.model_validate({
+def test_dm_recomputed_after_each_fix_and_resources_rank_is_used(tmp_path, solver):
+    library = BlockLibrary(tmp_path)
+    library.blocks['sum'] = BlockCatalog.model_validate({
         'id': 'sum', 'structs': {
             'inlet': {'direction': 'input', 'variables': {
                 'x': {'default': 1}, 'y': {'default': 1}, 'z': {'default': 1}}},
             'outlet': {'direction': 'output', 'variables': {'total': {}}},
-        }, 'relationships': {'sum': {'constraints': {
+        }, 'formulations': {'sum': {'constraints': {
             'sum': {'lhs': 'outlet.total', 'rhs': 'inlet.x + inlet.y + inlet.z',
                     'determines': 'outlet.total'}}}},
     })
-    library.models['plant'] = ModelDocument.model_validate({
+    library.blocks['plant'] = BlockCatalog.model_validate({
         'id': 'plant', 'structs': {'feed': {'direction': 'input', 'variables': {
             'x': {'default': 7}, 'y': {'default': 1}}}},
-        'relationships': {'sum': {'models': {'child': {'model': 'sum'}}, 'constraints': {
+        'formulations': {'sum': {'blocks': {'child': {'block': 'sum'}}, 'constraints': {
             'x': {'lhs': 'child.inlet.x', 'rhs': 'feed.x', 'determines': 'child.inlet.x'},
             'y': {'lhs': 'child.inlet.y', 'rhs': 'feed.y', 'determines': 'child.inlet.y'},
         }}},
     })
-    model = build_model('plant', {'relationship': 'sum', 'submodels': {
-        'child': {'relationship': 'sum'}}}, library=library)
+    model = build_model('plant', {'formulation': 'sum', 'subblocks': {
+        'child': {'formulation': 'sum'}}}, library=library)
     get_variable(model, 'feed.x').fix(7)
     get_variable(model, 'feed.y').fix(1)
     specify(model, 'child.outlet.total', 10)
-    info = InformationDocument([dict(
-        id='z_guess', variable_path='child.inlet.z', value=8,
-        unit='dimensionless', information_type='assumption', trust_rank=8)])
-    result = initialize_model(model, solver=solver, information=info)
+    info = ResourceCatalog([dict(
+        tag='z_guess', variable_path='child.inlet.z', value=8,
+        unit='dimensionless', resource_type='assumption', trust_rank=8)])
+    result = initialize_model(model, solver=solver, resources=info)
     assert result.success
     stage = result.stages[0]
     assert stage.initial_deficiency == 2
@@ -187,8 +187,8 @@ def test_dm_recomputed_after_each_fix_and_information_rank_is_used(tmp_path, sol
 def test_overconstraint_is_reported_without_adding_fixes(tmp_path, solver):
     model = build_plant(tmp_path)
     # Duplicate physical equations remain an overconstraint diagnostic even
-    # though unmanaged output fixes are no longer a valid specification.
-    block = model.fs.root.relationship.models.a
+    # though unmanaged output fixes are no longer a valid parameters.
+    block = model.fs.root.formulation.blocks.a
     block.duplicate = Constraint(expr=block.structs.outlet.y == 2 * block.structs.inlet.x)
     block.duplicate2 = Constraint(expr=block.structs.outlet.y == 3 * block.structs.inlet.x)
     result = initialize_model(model, solver=solver)
@@ -199,9 +199,9 @@ def test_overconstraint_is_reported_without_adding_fixes(tmp_path, solver):
 
 def test_custom_hooks_run_once_per_occurrence_before_parent_solve(tmp_path, solver):
     library = tiny_library(tmp_path)
-    library.models['leaf'].relationships['linear'].constraints = {}
-    from multifidelity.model_language.definitions import ExternalRelationship
-    library.models['leaf'].relationships['linear'].external = ExternalRelationship(
+    library.blocks['leaf'].formulations['linear'].constraints = {}
+    from multifidelity.model_language.definitions import ExternalFormulation
+    library.blocks['leaf'].formulations['linear'].external = ExternalFormulation(
         provider='linear', dependencies={'outlet.y': ['inlet.x']})
     calls = []
     def provider(block, config):
@@ -214,8 +214,8 @@ def test_custom_hooks_run_once_per_occurrence_before_parent_solve(tmp_path, solv
         assert block.x.fixed
         block.y.set_value(2 * block.x.value)
     library.register_provider('linear', provider, initializer=callback)
-    model = build_model('plant', {'relationship': 'flowsheet', 'submodels': {
-        'a': {'relationship': 'linear'}, 'b': {'relationship': 'linear'}}}, library=library)
+    model = build_model('plant', {'formulation': 'flowsheet', 'subblocks': {
+        'a': {'formulation': 'linear'}, 'b': {'formulation': 'linear'}}}, library=library)
     get_variable(model, 'inlet.x').fix(4)
     result = initialize_model(model, solver=solver)
     assert result.success and len(calls) == 2
@@ -226,9 +226,9 @@ def test_custom_hooks_run_once_per_occurrence_before_parent_solve(tmp_path, solv
 
 
 def test_dynamic_initialisation_is_explicitly_out_of_scope():
-    model = build_model('valve', {'relationship': 'isenthalpic'}, mode='dynamic',
+    model = build_model('valve', {'formulation': 'isenthalpic'}, mode='dynamic',
                         domain_values={'time': [0, 1]})
-    with pytest.raises(ValueError, match='steady models only'):
+    with pytest.raises(ValueError, match='steady blocks only'):
         initialize_model(model)
 
 
@@ -252,22 +252,22 @@ def test_failed_parent_retains_successful_child_values(tmp_path, solver):
 
 def test_steady_indexed_inputs_are_closed_entry_by_entry(tmp_path, solver):
     library = tiny_library(tmp_path)
-    for model in library.models.values():
-        document = model.model_dump()
-        document['domains'] = {'time': {'kind': 'time'}}
-        for struct in document['structs'].values():
+    for model in library.blocks.values():
+        catalog = model.model_dump()
+        catalog['domains'] = {'time': {'kind': 'time'}}
+        for struct in catalog['structs'].values():
             for variable in struct['variables'].values():
                 variable['dimensions'] = ['time']
-        for relationship in document['relationships'].values():
-            for reference in relationship['models'].values():
+        for formulation in catalog['formulations'].values():
+            for reference in formulation['blocks'].values():
                 reference['domain_bindings'] = {'time': 'time'}
-            for equation in relationship['constraints'].values():
+            for equation in formulation['constraints'].values():
                 equation['for_each'] = {'t': 'time'}
                 for side in ['lhs', 'rhs', 'determines']:
                     equation[side] = equation[side].replace('inlet.x', 'inlet.x[t]').replace('outlet.y', 'outlet.y[t]')
-        library.models[model.id] = ModelDocument.model_validate(document)
-    model = build_model('plant', {'relationship': 'flowsheet', 'submodels': {
-        'a': {'relationship': 'linear'}, 'b': {'relationship': 'linear'}}},
+        library.blocks[model.id] = BlockCatalog.model_validate(catalog)
+    model = build_model('plant', {'formulation': 'flowsheet', 'subblocks': {
+        'a': {'formulation': 'linear'}, 'b': {'formulation': 'linear'}}},
         library=library, domain_values={'time': [0, 10]})
     get_variable(model, 'inlet.x')[0].fix(3)
     get_variable(model, 'inlet.x')[10].fix(4)
@@ -280,10 +280,10 @@ def test_steady_indexed_inputs_are_closed_entry_by_entry(tmp_path, solver):
 
 def test_hidden_internal_freedom_is_reported_instead_of_arbitrarily_fixed(tmp_path):
     library = tiny_library(tmp_path)
-    from multifidelity.model_language.definitions import ExternalRelationship
-    relationship = library.models['leaf'].relationships['linear']
-    relationship.constraints = {}
-    relationship.external = ExternalRelationship(
+    from multifidelity.model_language.definitions import ExternalFormulation
+    formulation = library.blocks['leaf'].formulations['linear']
+    formulation.constraints = {}
+    formulation.external = ExternalFormulation(
         provider='orphan', dependencies={'outlet.y': ['inlet.x']})
     def provider(block, config):
         block.x = Var()
@@ -292,8 +292,8 @@ def test_hidden_internal_freedom_is_reported_instead_of_arbitrarily_fixed(tmp_pa
         block.eq = Constraint(expr=block.y == 2 * block.x)
         return {'inlet.x': block.x, 'outlet.y': block.y}
     library.register_provider('orphan', provider)
-    model = build_model('plant', {'relationship': 'flowsheet', 'submodels': {
-        'a': {'relationship': 'linear'}, 'b': {'relationship': 'linear'}}}, library=library)
+    model = build_model('plant', {'formulation': 'flowsheet', 'subblocks': {
+        'a': {'formulation': 'linear'}, 'b': {'formulation': 'linear'}}}, library=library)
     result = initialize_model(model)
     assert result.failed_model == 'a'
     stage = result.stages[0]
@@ -304,41 +304,41 @@ def test_hidden_internal_freedom_is_reported_instead_of_arbitrarily_fixed(tmp_pa
 
 
 def nested_open_input_plant(tmp_path, *, define_bias=False):
-    library = Library(tmp_path)
-    library.models['leaf'] = ModelDocument.model_validate({
+    library = BlockLibrary(tmp_path)
+    library.blocks['leaf'] = BlockCatalog.model_validate({
         'id': 'leaf', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 1}}},
             'parameters': {'direction': 'input', 'variables': {'bias': {'default': 3}}},
             'outlet': {'direction': 'output', 'variables': {'y': {}}},
-        }, 'relationships': {'eq': {'constraints': {
+        }, 'formulations': {'eq': {'constraints': {
             'eq': {'lhs': 'outlet.y', 'rhs': '2 * inlet.x + parameters.bias', 'determines': 'outlet.y'}}}},
     })
     middle = {
         'id': 'middle', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 1}}},
             'outlet': {'direction': 'output', 'variables': {'y': {}}},
-        }, 'relationships': {'eq': {'models': {'leaf': {'model': 'leaf'}},
+        }, 'formulations': {'eq': {'blocks': {'leaf': {'block': 'leaf'}},
             'connections': {
                 'input': {'from': 'inlet', 'to': 'leaf.inlet'},
                 'output': {'from': 'leaf.outlet', 'to': 'outlet'},
             }}},
     }
     if define_bias:
-        middle['relationships']['eq']['constraints'] = {
+        middle['formulations']['eq']['constraints'] = {
             'bias': {'lhs': 'leaf.parameters.bias', 'rhs': '3', 'determines': 'leaf.parameters.bias'}}
-    library.models['middle'] = ModelDocument.model_validate(middle)
-    library.models['root'] = ModelDocument.model_validate({
+    library.blocks['middle'] = BlockCatalog.model_validate(middle)
+    library.blocks['root'] = BlockCatalog.model_validate({
         'id': 'root', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 5}}},
             'outlet': {'direction': 'output', 'variables': {'y': {}}},
-        }, 'relationships': {'eq': {'models': {'middle': {'model': 'middle'}},
+        }, 'formulations': {'eq': {'blocks': {'middle': {'block': 'middle'}},
             'connections': {
                 'input': {'from': 'inlet', 'to': 'middle.inlet'},
                 'output': {'from': 'middle.outlet', 'to': 'outlet'},
             }}},
     })
-    return build_model('root', {'relationship': 'eq', 'submodels': {'middle': {
-        'relationship': 'eq', 'submodels': {'leaf': {'relationship': 'eq'}}}}}, library=library)
+    return build_model('root', {'formulation': 'eq', 'subblocks': {'middle': {
+        'formulation': 'eq', 'subblocks': {'leaf': {'formulation': 'eq'}}}}}, library=library)
 
 
 def test_unsupplied_descendant_inputs_close_parent_and_survive_cloning(tmp_path, solver):
@@ -394,7 +394,7 @@ def test_failed_parent_releases_descendant_input_fixes(tmp_path, solver):
     model = nested_open_input_plant(tmp_path)
     get_variable(model, 'inlet.x').fix(5)
     specify(model, 'outlet.y', 13)
-    middle = model.fs.root.relationship.models.middle
+    middle = model.fs.root.formulation.blocks.middle
     class FailAtMiddle:
         def solve(self, block, **kwargs):
             if block is middle:

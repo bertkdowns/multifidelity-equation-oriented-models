@@ -1,27 +1,27 @@
 {
-  "relationship": "evaluate",
-  "submodels": {
+  "formulation": "evaluate",
+  "subblocks": {
     "compressor": {
-      "relationship": "mapped",
-      "submodels": {
+      "formulation": "mapped",
+      "subblocks": {
         "inlet_state": {
-          "relationship": "evaluate",
-          "submodels": {
+          "formulation": "evaluate",
+          "subblocks": {
             "fluid": {
-              "relationship": "helmholtz"
+              "formulation": "helmholtz"
             }
           }
         },
         "outlet_state": {
-          "relationship": "evaluate",
-          "submodels": {
+          "formulation": "evaluate",
+          "subblocks": {
             "fluid": {
-              "relationship": "helmholtz"
+              "formulation": "helmholtz"
             }
           }
         },
         "map": {
-          "relationship": "cooling_60rps"
+          "formulation": "cooling_60rps"
         }
       }
     }

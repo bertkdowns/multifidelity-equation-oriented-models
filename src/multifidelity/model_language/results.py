@@ -1,4 +1,4 @@
-"""Portable numerical snapshots, separate from information and specifications."""
+"""Portable numerical snapshots, separate from resources and parameters."""
 from datetime import datetime, timezone
 import math
 from pathlib import Path
@@ -7,8 +7,8 @@ from uuid import uuid4
 
 from pydantic import AwareDatetime, Field, StrictBool, StrictFloat, StrictInt, StrictStr, model_validator
 from .definitions import Definition
-from .implementation import ImplementationDocument
-from .specification import SpecificationDocument
+from .model_selection import ModelCatalog
+from .parameters import ParameterCatalog
 
 Text = Annotated[str, Field(min_length=1)]
 Number = Annotated[float, Field(strict=True, allow_inf_nan=False)]
@@ -55,16 +55,16 @@ class SolveMetadata(Definition):
     message: str | None = None
 
 
-class ResultsDocument(Definition):
+class ResultsCatalog(Definition):
     schema_version: Literal[1] = 1
     run_id: Text = Field(default_factory=lambda: str(uuid4()))
     created_at: AwareDatetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    model_id: Text
-    implementation: ImplementationDocument
+    block_id: Text
+    model_catalog: ModelCatalog
     mode: Literal['steady', 'dynamic']
     time_unit: Text
     solve: SolveMetadata
-    specification: SpecificationDocument | None = None
+    parameters: ParameterCatalog | None = None
     variables: tuple[VariableResult, ...]
 
     @model_validator(mode='after')
@@ -79,17 +79,17 @@ class ResultsDocument(Definition):
 
 
 def export_results(model, *, status='not_solved', termination_condition=None,
-                   solver=None, message=None, specification=None):
+                   solver=None, message=None, parameters=None):
     """Snapshot every declared public variable after solving/loading values.
 
     Status is explicit: this function does not solve, infer convergence, validate
-    physical applicability or modify values. Native implementation internals are
+    physical applicability or modify values. Native model_catalog internals are
     excluded. Coordinates follow declared dimension order and include the actual
     post-discretization grid. Missing/nonfinite values are represented explicitly.
     Units are the numerical model's units; no display conversion is performed.
     """
     from pyomo.environ import units
-    if not hasattr(model, '_model_language_model_id'):
+    if not hasattr(model, '_model_language_block_id'):
         raise ValueError('Model must be constructed by model_language.build_model')
     variables = []
     for path, family in sorted(model._model_language_variables.items()):
@@ -105,16 +105,16 @@ def export_results(model, *, status='not_solved', termination_condition=None,
                                        fixed=variable.fixed, issue=issue))
         variables.append(VariableResult(variable_path=path, unit=str(units.get_units(family)),
                                         dimensions=dimensions, entries=entries))
-    if specification is not None:
-        if isinstance(specification, (str, Path)):
-            specification = SpecificationDocument.load_json(specification)
+    if parameters is not None:
+        if isinstance(parameters, (str, Path)):
+            parameters = ParameterCatalog.load_json(parameters)
         else:
-            specification = SpecificationDocument.model_validate(specification).model_copy(deep=True)
-    return ResultsDocument(
-        model_id=model._model_language_model_id,
-        implementation=model._model_language_implementation.model_copy(deep=True),
+            parameters = ParameterCatalog.model_validate(parameters).model_copy(deep=True)
+    return ResultsCatalog(
+        block_id=model._model_language_block_id,
+        model_catalog=model._model_language_model_catalog.model_copy(deep=True),
         mode='dynamic' if model.fs.config.dynamic else 'steady',
         time_unit=str(model.fs.config.time_units),
         solve=SolveMetadata(status=status, termination_condition=termination_condition,
                             solver=solver, message=message),
-        specification=specification, variables=variables)
+        parameters=parameters, variables=variables)

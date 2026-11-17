@@ -1,12 +1,12 @@
 {
-  "implementation": {
-    "relationship": "lumped",
-    "submodels": {}
+  "model_catalog": {
+    "formulation": "lumped",
+    "subblocks": {}
   },
-  "information": [
+  "resources": [
     {
-      "id": "water",
-      "information_type": "sensor_reading",
+      "tag": "water",
+      "resource_type": "sensor_reading",
       "variable_path": "boundary.water",
       "type": "series",
       "value": [
@@ -123,8 +123,8 @@
       "trust_rank": 5
     },
     {
-      "id": "ambient",
-      "information_type": "sensor_reading",
+      "tag": "ambient",
+      "resource_type": "sensor_reading",
       "variable_path": "boundary.ambient",
       "type": "series",
       "value": [
@@ -241,8 +241,8 @@
       "trust_rank": 5
     },
     {
-      "id": "suction",
-      "information_type": "sensor_reading",
+      "tag": "suction",
+      "resource_type": "sensor_reading",
       "variable_path": "state.suction",
       "type": "series",
       "value": [
@@ -359,8 +359,8 @@
       "trust_rank": 5
     },
     {
-      "id": "initial",
-      "information_type": "sensor_reading",
+      "tag": "initial",
+      "resource_type": "sensor_reading",
       "variable_path": "state.suction",
       "type": "constant",
       "value": 297.29651424407956,
@@ -373,10 +373,10 @@
     "schema_version": 1,
     "run_id": "f8bf40a8-d8d1-43d8-b943-33e6d809138e",
     "created_at": "2026-11-10T21:11:11.421570Z",
-    "model_id": "suction_response",
-    "implementation": {
-      "relationship": "lumped",
-      "submodels": {}
+    "block_id": "suction_response",
+    "model_catalog": {
+      "formulation": "lumped",
+      "subblocks": {}
     },
     "mode": "dynamic",
     "time_unit": "s",
@@ -386,8 +386,8 @@
       "solver": "ipopt",
       "message": "Hot-run water and ambient fit on the selected training window."
     },
-    "specification": {
-      "specifications": [
+    "parameters": {
+      "parameters": [
         "water",
         "ambient"
       ],

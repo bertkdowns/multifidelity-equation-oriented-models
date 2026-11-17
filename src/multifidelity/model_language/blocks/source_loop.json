@@ -1,0 +1,74 @@
+{
+  "id": "source_loop",
+  "description": "Source-loop topology from case_studies/sghp/source_loop.py; inputs remain unspecified.",
+  "structs": {},
+  "formulations": {
+    "loop": {
+      "blocks": {
+        "valve": {
+          "block": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "pump": {
+          "block": "pump",
+          "block_arguments": {
+            "FluidProperties": {
+              "block": "water_property_package"
+            }
+          },
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "evaporator": {
+          "block": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "heater": {
+          "block": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "tank": {
+          "block": "thermal_conditioner",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {},
+      "connections": {
+        "link_1": {
+          "from": "valve.outlet",
+          "to": "pump.inlet"
+        },
+        "link_2": {
+          "from": "pump.outlet",
+          "to": "evaporator.inlet"
+        },
+        "link_3": {
+          "from": "evaporator.outlet",
+          "to": "heater.inlet"
+        },
+        "link_4": {
+          "from": "heater.outlet",
+          "to": "tank.inlet"
+        },
+        "link_5": {
+          "from": "tank.outlet",
+          "to": "valve.inlet"
+        }
+      }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

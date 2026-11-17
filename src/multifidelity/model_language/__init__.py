@@ -1,45 +1,50 @@
-"""Load declarative model definitions and build explicitly selected IDAES structures."""
+"""Load declarative block definitions and build explicitly selected IDAES structures."""
 
-from .definitions import ModelDocument
-from .implementation import ImplementationDocument, ImplementationSelection
-from .resolution import Library, ModelView, RelationshipView
+from .definitions import BlockCatalog
+from .model_selection import ModelCatalog, FormulationSelection
+from .resolution import BlockLibrary, BlockView, FormulationView
 from .requirements import required_inputs, print_required_inputs, required_initial_values
-from .information import InformationRecord, InformationDocument, InformationType
-from .specification import (
-    SpecificationDocument,
-    apply_specification,
+from .resources import Resource, ResourceCatalog, ResourceType
+from .feeds import Feed, FeedRegistry, FeedCatalog, FeedDescription
+from .parameters import (
+    ParameterCatalog,
+    apply_parameters,
 )
-from .selection import SpecificationSelection, select_specification
-from .replacement import canonical_inputs, pair_specification, specification_slots, audit_fixations
+from .selection import ParameterSelection, select_parameters
+from .replacement import canonical_inputs, pair_parameters, parameter_slots, audit_fixations
 from .variables import get_variable
 from .initialization import apply_starting_values, initialize_custom_models
 from .hierarchical_initialization import initialize_model, InitializationResult, InitializationStage
 from .scaling import apply_scaling, ScalingReport
-from .reconciliation import relax_specifications, SpecificationRelaxation
-from .results import ResultsDocument, export_results
-from .workspace import WorkspaceDocument, export_workspace
+from .reconciliation import relax_parameters, ParameterRelaxation
+from .results import ResultsCatalog, export_results
+from .workspace import WorkspaceCatalog, export_workspace
 from .standard import register_standard_providers
 
 
-def build_model(model_id, implementation, *, library=None, domain_values=None,
+def build_model(block_id, model_catalog, *, library=None, domain_values=None,
                 mode="steady", time_unit="s"):
-    """Convert a selected implementation using the Pyomo backend on demand."""
+    """Convert a selected model using the Pyomo backend on demand."""
     from .builder import build_model as build
 
-    return build(model_id, implementation, library=library, domain_values=domain_values,
+    return build(block_id, model_catalog, library=library, domain_values=domain_values,
                  mode=mode, time_unit=time_unit)
 
 
 __all__ = [
-    "Library",
-    "ModelDocument",
-    "ImplementationDocument",
-    "ImplementationSelection",
-    "InformationRecord",
-    "InformationDocument",
-    "InformationType",
-    "SpecificationDocument",
-    "apply_specification",
+    "BlockLibrary",
+    "BlockCatalog",
+    "ModelCatalog",
+    "FormulationSelection",
+    "Resource",
+    "ResourceCatalog",
+    "ResourceType",
+    "Feed",
+    "FeedRegistry",
+    "FeedCatalog",
+    "FeedDescription",
+    "ParameterCatalog",
+    "apply_parameters",
     "apply_starting_values",
     "initialize_custom_models",
     "initialize_model",
@@ -47,21 +52,21 @@ __all__ = [
     "InitializationStage",
     "apply_scaling",
     "ScalingReport",
-    "relax_specifications",
-    "SpecificationRelaxation",
-    "SpecificationSelection",
-    "select_specification",
+    "relax_parameters",
+    "ParameterRelaxation",
+    "ParameterSelection",
+    "select_parameters",
     "canonical_inputs",
-    "pair_specification",
-    "specification_slots",
+    "pair_parameters",
+    "parameter_slots",
     "audit_fixations",
-    "ModelView",
-    "RelationshipView",
+    "BlockView",
+    "FormulationView",
     "build_model",
     "get_variable",
-    "ResultsDocument",
+    "ResultsCatalog",
     "export_results",
-    "WorkspaceDocument",
+    "WorkspaceCatalog",
     "export_workspace",
     "required_inputs",
     "required_initial_values",

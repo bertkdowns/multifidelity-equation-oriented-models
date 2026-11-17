@@ -1,12 +1,12 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {parseResults,indexResults,resultNumber,resultPreview,sameImplementation,fixedFirst} from './results.js';
-const fixture=()=>({schema_version:1,run_id:'run-1',created_at:'2026-11-05T00:00:00Z',model_id:'valve',implementation:{relationship:'isenthalpic',submodels:{}},mode:'steady',time_unit:'s',solve:{status:'optimal',termination_condition:'optimal'},variables:[{variable_path:'inlet.pressure',unit:'Pa',dimensions:['time'],entries:[{index:[0],value:200000,fixed:true,issue:null}]}]});
+import {parseResults,indexResults,resultNumber,resultPreview,sameModel,fixedFirst} from './results.js';
+const fixture=()=>({schema_version:1,run_id:'run-1',created_at:'2026-11-05T00:00:00Z',block_id:'valve',model_catalog:{formulation:'isenthalpic',subblocks:{}},mode:'steady',time_unit:'s',solve:{status:'optimal',termination_condition:'optimal'},variables:[{variable_path:'inlet.pressure',unit:'Pa',dimensions:['time'],entries:[{index:[0],value:200000,fixed:true,issue:null}]}]});
 
 test('actual Python SGHP export loads with occurrence paths and fixed/free values',()=>{
   const doc=parseResults(readFileSync(new URL('../../examples/steam_generating_heat_pump_system/results.json',import.meta.url),'utf8'));
-  assert.equal(doc.model_id,'steam_generating_heat_pump_system');
+  assert.equal(doc.block_id,'steam_generating_heat_pump_system');
   assert.equal(doc.solve.status,'optimal');
   const index=indexResults(doc);
   assert.equal(index.get('sghp.cop_model.parameters.cop').entries[0].value,4);
@@ -27,16 +27,16 @@ test('coordinates retain types and multidimensional entries are not flattened',(
 });
 
 test('malformed snapshots and diagnostic-report files are rejected',()=>{
-  const mutations=[d=>d.schema_version=2,d=>d.model_id='',d=>d.created_at='yesterday',d=>d.solve.status='probably good',d=>d.variables.push(d.variables[0]),d=>d.variables[0].entries.push(d.variables[0].entries[0]),d=>d.variables[0].entries[0].index=[true],d=>d.variables[0].entries[0].index=[],d=>d.variables[0].entries[0].value='3',d=>d.variables[0].entries[0].value=null,d=>d.variables[0].entries[0].fixed='yes',d=>d.variables[0].entries[0].issue='unset',d=>d.extra='unexpected',d=>d.variables[0].dimensions=['time','time']];
+  const mutations=[d=>d.schema_version=2,d=>d.block_id='',d=>d.created_at='yesterday',d=>d.solve.status='probably good',d=>d.variables.push(d.variables[0]),d=>d.variables[0].entries.push(d.variables[0].entries[0]),d=>d.variables[0].entries[0].index=[true],d=>d.variables[0].entries[0].index=[],d=>d.variables[0].entries[0].value='3',d=>d.variables[0].entries[0].value=null,d=>d.variables[0].entries[0].fixed='yes',d=>d.variables[0].entries[0].issue='unset',d=>d.extra='unexpected',d=>d.variables[0].dimensions=['time','time']];
   for(const mutate of mutations){const doc=fixture();mutate(doc);assert.throws(()=>parseResults(JSON.stringify(doc)));}
   assert.throws(()=>parseResults(JSON.stringify({success:true,stages:[]})));
 });
 
-test('failed snapshots stay failed and implementation comparison ignores object ordering',()=>{
+test('failed snapshots stay failed and model_catalog comparison ignores object ordering',()=>{
   const doc=fixture();doc.solve.status='failed';assert.equal(parseResults(JSON.stringify(doc)).solve.status,'failed');
-  assert.ok(sameImplementation({relationship:'r',submodels:{a:{relationship:'x'},b:{relationship:'y'}}},{relationship:'r',submodels:{b:{relationship:'y',submodels:{}},a:{relationship:'x'}}}));
-  assert.ok(!sameImplementation({relationship:'r'},{relationship:'x'}));
-  assert.ok(!sameImplementation({relationship:'r'},{relationship:'r',submodels:{a:{relationship:'x'}}}));
+  assert.ok(sameModel({formulation:'r',subblocks:{a:{formulation:'x'},b:{formulation:'y'}}},{formulation:'r',subblocks:{b:{formulation:'y',subblocks:{}},a:{formulation:'x'}}}));
+  assert.ok(!sameModel({formulation:'r'},{formulation:'x'}));
+  assert.ok(!sameModel({formulation:'r'},{formulation:'r',subblocks:{a:{formulation:'x'}}}));
 });
 
 
@@ -54,13 +54,13 @@ test('tables show fixed then mixed then free, preserving order within groups and
 
 test('replacement pairs survive result loading and malformed pair maps are rejected', () => {
   const doc=fixture();
-  doc.specification={specifications:['temperature'],replacements:{temperature:'state.enthalpy'},initial_values:[]};
-  assert.deepEqual(parseResults(JSON.stringify(doc)).specification.replacements,{temperature:'state.enthalpy'});
+  doc.parameters={parameters:['temperature'],replacements:{temperature:'state.enthalpy'},initial_values:[]};
+  assert.deepEqual(parseResults(JSON.stringify(doc)).parameters.replacements,{temperature:'state.enthalpy'});
   for (const replacements of [null,[],{missing:'state.enthalpy'},{temperature:''},{temperature:3}]) {
-    doc.specification.replacements=replacements;
+    doc.parameters.replacements=replacements;
     assert.throws(()=>parseResults(JSON.stringify(doc)));
   }
-  doc.specification.specifications=['a','b'];
-  doc.specification.replacements={a:'state.enthalpy',b:'state.enthalpy'};
+  doc.parameters.parameters=['a','b'];
+  doc.parameters.replacements={a:'state.enthalpy',b:'state.enthalpy'};
   assert.throws(()=>parseResults(JSON.stringify(doc)));
 });

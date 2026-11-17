@@ -1,4 +1,4 @@
-"""Compile JSON equations or call explicitly registered symbolic providers."""
+"""Compile JSON equations or call explicitly registered symbolic feeds."""
 
 import ast
 import operator
@@ -11,9 +11,9 @@ from pyomo.core.base.var import VarData
 from pyomo.environ import Block, ConcreteModel, Constraint, ConstraintList, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
-from .resolution import Library
+from .resolution import BlockLibrary
 from ._validation import connection_endpoints
-from ._traversal import _walk_implementation
+from ._traversal import _walk_model
 from .domains import BuildDomains
 from .dynamics import build_derivatives
 from .indexing import dotted_name, variable_dimensions
@@ -36,7 +36,7 @@ def _build_external_slice(active, external, variables, library, path):
         mapping = provider(active.provider, deepcopy(external.config))
         if not isinstance(mapping, Mapping) or set(mapping) != set(variables):
             raise ValueError(
-                "Provider mapping must contain exactly the public variable paths"
+                "SymbolicProvider mapping must contain exactly the public variable paths"
             )
         active.bindings = ConstraintList()
         for name, public in variables.items():
@@ -120,24 +120,24 @@ def _expression(text, resolve, indices=None, index_domains=None):
     return visit(ast.parse(text, mode="eval").body)
 
 
-def build_model(model_id, implementation, *, library=None, domain_values=None,
+def build_model(block_id, model_catalog, *, library=None, domain_values=None,
                 mode="steady", time_unit="s"):
     """Construct a steady or dynamic tree without solving or fixing operating inputs.
 
-    implementation is an ImplementationDocument, dict or JSON file path. Every selected relationship must
-    specify exactly its declared submodels, recursively. Recursive definitions
+    model_catalog is a ModelCatalog, dict or JSON file path. Every selected formulation must
+    specify exactly its declared subblocks, recursively. Recursive definitions
     are permitted only when the supplied selection terminates. All values and
     fixations, including initial conditions, are applied separately. Declared
     defaults supply unfixed starting guesses during construction.
     """
-    from .implementation import ImplementationDocument
+    from .model_selection import ModelCatalog
     from pathlib import Path
-    if isinstance(implementation, (str, Path)):
-        implementation = ImplementationDocument.load_json(implementation)
-    elif not isinstance(implementation, ImplementationDocument):
-        implementation = ImplementationDocument.model_validate(implementation)
-    library = library or Library()
-    root = library.resolve(model_id)
+    if isinstance(model_catalog, (str, Path)):
+        model_catalog = ModelCatalog.load_json(model_catalog)
+    elif not isinstance(model_catalog, ModelCatalog):
+        model_catalog = ModelCatalog.model_validate(model_catalog)
+    library = library or BlockLibrary()
+    root = library.resolve(block_id)
     build_domains = BuildDomains(root, domain_values, mode)
 
     def parse_unit(text):
@@ -155,16 +155,16 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
 
     def enter(occurrence, parent, alias):
         """Create this occurrence's variables before visiting its children."""
-        resolved = occurrence.model
+        resolved = occurrence.block
         definition = resolved.definition
         path = resolved.path
-        relationship = occurrence.relationship
+        formulation = occurrence.formulation
         if parent is None:
             block, parent_domains = model.fs.root, None
         else:
             parent_block, _, parent_domains = parent
             block = Block()
-            parent_block.relationship.models.add_component(alias, block)
+            parent_block.formulation.blocks.add_component(alias, block)
         domains = build_domains.populate(block, resolved, parent_domains, model.fs.time)
         block.structs = Block()
         variables = {}
@@ -188,22 +188,22 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                     set_scaling_factor(var, variable.scale)
                 variables[f"{struct_id}.{variable_id}"] = var
                 registry[occurrence.prefix + f"{struct_id}.{variable_id}"] = var
-        block.relationship = Block()
-        active = block.relationship
-        external = relationship.definition.external
+        block.formulation = Block()
+        active = block.formulation
+        external = formulation.definition.external
         if external is not None:
             _build_external(
                 active, external, variables, library,
-                f"{path}.{occurrence.relationship_id}",
+                f"{path}.{occurrence.formulation_id}",
             )
         else:
-            active.models = Block()
+            active.blocks = Block()
         return block, variables, domains
 
     def leave(occurrence, context, children):
         """Compile equations after child interfaces exist."""
-        resolved = occurrence.model
-        relationship = occurrence.relationship
+        resolved = occurrence.block
+        formulation = occurrence.formulation
         path = resolved.path
         block, variables, domains = context
         inputs = {
@@ -218,20 +218,20 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
             name: variable for name, variable in inputs.items()
             if name[len(occurrence.prefix):] not in occurrence.supplied
         }
-        if relationship.definition.external is None:
-            for child in block.relationship.models.component_objects(Block, descend_into=False):
+        if formulation.definition.external is None:
+            for child in block.formulation.blocks.component_objects(Block, descend_into=False):
                 inherited = child._model_language_open_initialization_inputs
                 inputs.update(inherited)
                 open_inputs.update(inherited)
         block._model_language_open_initialization_inputs = open_inputs
-        initialization_order.append((occurrence.prefix.rstrip('.') or model_id, block, inputs))
-        active = block.relationship
-        if relationship.definition.external is not None:
+        initialization_order.append((occurrence.prefix.rstrip('.') or block_id, block, inputs))
+        active = block.formulation
+        if formulation.definition.external is not None:
             return variables
 
         def resolve(reference, index_values=None, index_domains=None):
-            # A relationship sees its parent's structs and its immediate
-            # children's structs, but cannot reach into child relationships.
+            # A formulation sees its parent's structs and its immediate
+            # children's structs, but cannot reach into child formulations.
             component = None
             if reference in variables:
                 component = variables[reference]
@@ -242,7 +242,7 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                 if component.is_indexed():
                     if index_values is None or len(index_values) != component.index_set().dimen:
                         raise ValueError(f"{path}: {reference!r} requires explicit indices matching its dimensions")
-                    if tuple(index_domains) != variable_dimensions(resolved, relationship, reference):
+                    if tuple(index_domains) != variable_dimensions(resolved, formulation, reference):
                         raise ValueError(f"{path}: index domains do not match {reference!r}")
                     return component[tuple(index_values)]
                 if index_values is not None:
@@ -260,11 +260,11 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
             raise ValueError(f"{path}: unknown or inaccessible variable {reference!r}")
 
         # Pure definition checks are shared with required-input discovery.
-        build_derivatives(active, resolved, relationship, variables, domains,
+        build_derivatives(active, resolved, formulation, variables, domains,
                           mode, time_units)
 
         active.constraints = Block()
-        for name, equation in relationship.constraints.items():
+        for name, equation in formulation.constraints.items():
             def rule(b, *index_values, equation=equation, name=name):
                 if not equation.for_each:
                     index_values = ()
@@ -281,9 +281,9 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
         active.connections = Block()
         # Connections are shorthand for field-by-field equality constraints;
         # no Arc objects, variable aliases, or arc expansion are involved.
-        for name, connection in relationship.connections.items():
+        for name, connection in formulation.connections.items():
             source, target = connection_endpoints(
-                resolved, relationship, connection, f"{path}.{name}"
+                resolved, formulation, connection, f"{path}.{name}"
             )
             connection_block = Block()
             active.connections.add_component(name, connection_block)
@@ -305,21 +305,21 @@ def build_model(model_id, implementation, *, library=None, domain_values=None,
                     field, Constraint(*(a.index_set().subsets() if a.is_indexed() else ()), rule=connect),
                 )
         # Export only this model's interface, preserving encapsulation when the
-        # containing relationship resolves references to this occurrence.
+        # containing formulation resolves references to this occurrence.
         return variables
 
-    _walk_implementation(root, implementation, enter, leave)
+    _walk_model(root, model_catalog, enter, leave)
     build_domains.check_unused()
     # Check the complete equation tree without fixing values or calling a solver.
     assert_units_consistent(model)
-    # Retain the same occurrence-path lookup for later specification application.
+    # Retain the same occurrence-path lookup for later parameters application.
     # Components stay live as discretization adds entries to indexed variables.
-    model._model_language_model_id = model_id
-    model._model_language_implementation = implementation.model_copy(deep=True)
+    model._model_language_block_id = block_id
+    model._model_language_model_catalog = model_catalog.model_copy(deep=True)
     model._model_language_variables = registry
     model._model_language_initialization_order = initialization_order
     model._model_language_canonical_inputs = tuple(sorted(
         model.fs.root._model_language_open_initialization_inputs))
-    model._model_language_specification_slots = {}
+    model._model_language_parameter_slots = {}
     model._model_language_initial_fixations = set()
     return model

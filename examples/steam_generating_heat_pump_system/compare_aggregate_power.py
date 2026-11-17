@@ -5,46 +5,46 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from idaes.core.util.model_statistics import degrees_of_freedom
 from multifidelity.model_language import (
-    InformationDocument, SpecificationDocument, apply_specification,
-    pair_specification, get_variable, export_results, WorkspaceDocument,
+    ResourceCatalog, ParameterCatalog, apply_parameters,
+    pair_parameters, get_variable, export_results, WorkspaceCatalog,
 )
 from multifidelity.model_language.scaling import apply_scaling, scaled_jacobian, export_scaling, rank_inputs
 from multifidelity.model_language.selection import _partition
 from build import build
 from saved_state_guesses import seed_snapshot, refresh_properties
-from diagnose_specifications import physical_residuals
+from diagnose_parameters import physical_residuals
 
 HERE = Path(__file__).resolve().parent
 
 if __name__ == '__main__':
     cycle = json.loads((HERE / 'cycle_results.json').read_text())
     cycle_values = {r['variable_path']: r['entries'][0]['value'] for r in cycle['variables']}
-    base_info = InformationDocument.load_json(HERE / 'attempt_information.json')
-    cycle_info = InformationDocument.load_json(HERE / 'cycle_attempt_information.json')
+    base_info = ResourceCatalog.load_json(HERE / 'attempt_resources.json')
+    cycle_info = ResourceCatalog.load_json(HERE / 'cycle_attempt_resources.json')
     power = cycle_info.get('attempt_sghp_operating_power')
-    base_spec = SpecificationDocument.load_json(HERE / 'attempt_specification.json')
+    base_spec = ParameterCatalog.load_json(HERE / 'attempt_parameters.json')
     reports = []
     for label, cop in [('cop4', 4.0), ('matched_cop', cycle_values['sghp.performance.cop']),
                        ('cycle_point', cycle_values['sghp.performance.cop'])]:
         model = build('aggregate', 'aggregate')
-        records = [r.model_copy(update={'value': cop}) if r.id == 'attempt_sghp_operating_cop' else r
+        records = [r.model_copy(update={'value': cop}) if r.tag == 'attempt_sghp_operating_cop' else r
                    for r in base_info.records]
-        information = InformationDocument(root=(*records, power))
-        ids = [i for i in base_spec.specifications if i != 'attempt_makeup_mass_flow'] + [power.id]
+        resources = ResourceCatalog(root=(*records, power))
+        tags = [i for i in base_spec.parameters if i != 'attempt_makeup_mass_flow'] + [power.tag]
         pairing_error = None
         try:
-            specification = pair_specification(model, SpecificationDocument(specifications=ids), information)
+            parameters = pair_parameters(model, ParameterCatalog(parameters=tags), resources)
         except ValueError as error:
             pairing_error = str(error)
-            # Diagnostic only: apply the admissible partial specification, then
+            # Diagnostic only: apply the admissible partial parameters, then
             # impose the rejected power fixation explicitly to inspect its DM
-            # partition and equations. This is not an accepted specification.
-            specification = pair_specification(model, SpecificationDocument(
-                specifications=[i for i in ids if i != power.id]), information)
+            # partition and equations. This is not an accepted parameters.
+            parameters = pair_parameters(model, ParameterCatalog(
+                parameters=[i for i in tags if i != power.tag]), resources)
         prefix = f'aggregate_power_{label}'
-        (HERE / f'{prefix}_information.json').write_text(information.model_dump_json(indent=2)+'\n')
-        (HERE / f'{prefix}_specification.json').write_text(specification.model_dump_json(indent=2)+'\n')
-        apply_specification(model, specification, information)
+        (HERE / f'{prefix}_resources.json').write_text(resources.model_dump_json(indent=2)+'\n')
+        (HERE / f'{prefix}_parameters.json').write_text(parameters.model_dump_json(indent=2)+'\n')
+        apply_parameters(model, parameters, resources)
         if pairing_error is not None:
             get_variable(model, power.variable_path)[0].fix(power.value * 1000)
         seed_snapshot(model, HERE / 'cycle_results.json')
@@ -70,7 +70,7 @@ if __name__ == '__main__':
                       structural_unmatched_variables=len(vp.unmatched),
                       structural_unmatched_constraints=len(cp.unmatched),
                       starting_snapshot='cycle_results.json',
-                      accepted_specification=pairing_error is None, pairing_error=pairing_error,
+                      accepted_parameters=pairing_error is None, pairing_error=pairing_error,
                       underconstrained_variables=len(vp.underconstrained),
                       overconstrained_constraints=len(cp.overconstrained))
         solver = get_solver('ipopt', options={
@@ -99,10 +99,10 @@ if __name__ == '__main__':
         report['jacobian'].pop('candidates', None)
         report['solved'] = bool(solved and pairing_error is None and report['jacobian']['numerical_rank'] == report['jacobian']['columns'])
         snapshot = export_results(model, status='optimal' if report['solved'] else 'feasible' if solved else 'failed', solver='ipopt',
-                       termination_condition=report['termination'], specification=specification if pairing_error is None else None,
-                       message='Diagnostic only: rejected specification pattern; compatible COP leaves heat allocation undetermined. Cycle snapshot used only as starting values.' if pairing_error else 'Aggregate comparison.')
+                       termination_condition=report['termination'], parameters=parameters if pairing_error is None else None,
+                       message='Diagnostic only: rejected parameters pattern; compatible COP leaves heat allocation undetermined. Cycle snapshot used only as starting values.' if pairing_error else 'Aggregate comparison.')
         snapshot.write_json(HERE / f'{prefix}_results.json')
-        WorkspaceDocument.from_results(snapshot, information).write_json(HERE / f'{prefix}_workspace.json')
+        WorkspaceCatalog.from_results(snapshot, resources).write_json(HERE / f'{prefix}_workspace.json')
         (HERE / f'{prefix}_report.json').write_text(json.dumps(report, indent=2)+'\n')
         reports.append(report)
     (HERE / 'aggregate_power_comparison.json').write_text(json.dumps(reports, indent=2)+'\n')

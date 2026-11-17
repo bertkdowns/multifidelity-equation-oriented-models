@@ -1,0 +1,18 @@
+{
+  "parameters": [
+    "tank_area",
+    "inlet_flow",
+    "inlet_temperature",
+    "heat_loss",
+    "withdrawal_flow",
+    "inlet_pressure",
+    "tank_pressure"
+  ],
+  "replacements": {
+    "inlet_temperature": "tank.inlet.enthalpy"
+  },
+  "initial_values": [
+    "tank_level",
+    "starting_energy"
+  ]
+}

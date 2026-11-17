@@ -1,7 +1,7 @@
 // Semantic colours shared by the canvas, CSS, legend and minimap.
 export const diagramColors = Object.freeze({
   input: '#148577', inputSurface: '#e8f5f1',
-  model: '#748296', modelSurface: '#f3f5f8',
+  block: '#748296', blockSurface: '#f3f5f8',
   constraint: '#917da5', constraintSurface: '#f4f0f7',
   output: '#829bb2', outputSurface: '#ffffff',
   specified: '#216b48', specifiedSurface: '#e5f3e9',

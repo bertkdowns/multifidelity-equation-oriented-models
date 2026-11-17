@@ -34,7 +34,7 @@ class InitializationStage:
 class InitializationResult:
     success: bool = False
     stages: list[InitializationStage] = field(default_factory=list)
-    starting_value_record_ids: list[str] = field(default_factory=list)
+    starting_value_record_tags: list[str] = field(default_factory=list)
     failed_model: str | None = None
     scaling_callbacks: list[str] = field(default_factory=list)
     fallback_variable_scales: list[str] = field(default_factory=list)
@@ -70,19 +70,19 @@ def _constraint_violation(block, *, scaled=False):
     return maximum
 
 
-def initialize_model(model, *, solver=None, information=None, specification=None,
-                     excluded_record_ids=(), residual_tolerance=1e-6,
+def initialize_model(model, *, solver=None, resources=None, parameters=None,
+                     excluded_record_tags=(), residual_tolerance=1e-6,
                      rank_tolerance=1e-10, tee=False):
     """Initialise a steady selected hierarchy, stopping at the first failed stage.
 
-    Apply operating specifications before calling. Optional unused information
-    supplies guesses, never new specifications. Only inputs on the current
+    Apply operating parameters before calling. Optional unused resources
+    supplies guesses, never new parameters. Only inputs on the current
     occurrence's boundary, plus descendant public inputs not supplied by their
     parent equations/connections, can be temporarily fixed. Their finite, in-bounds
     values are trialled one entry at a time, ranked by scaled null-space
     participation (trust then path/index break numerical ties). Recompute DM
     and the Jacobian after every accepted fix. The root is never closed
-    artificially: it must be determined under the original specification.
+    artificially: it must be determined under the original parameters.
 
     Missing free-variable guesses are reported; derived unknowns may be found by
     the solver. Missing/invalid boundary guesses cannot be used for closure.
@@ -99,7 +99,7 @@ def initialize_model(model, *, solver=None, information=None, specification=None
     if not order:
         raise ValueError('Model must be constructed by model_language.build_model')
     if model.fs.config.dynamic:
-        raise ValueError('Bottom-up initialisation currently supports steady models only')
+        raise ValueError('Bottom-up initialisation currently supports steady blocks only')
     if not math.isfinite(residual_tolerance) or residual_tolerance < 0:
         raise ValueError('residual_tolerance must be finite and nonnegative')
     if not math.isfinite(rank_tolerance) or not 0 < rank_tolerance < 1:
@@ -107,13 +107,13 @@ def initialize_model(model, *, solver=None, information=None, specification=None
     audit_fixations(model)
     result = InitializationResult()
     trust = {}
-    if information is not None:
-        result.starting_value_record_ids = apply_starting_values(
-            model, information, specification, excluded_record_ids=excluded_record_ids)
-        trust = {information.get(i).variable_path: information.get(i).trust_rank
-                 for i in result.starting_value_record_ids}
-    elif specification is not None:
-        raise ValueError('specification requires information for starting-value selection')
+    if resources is not None:
+        result.starting_value_record_tags = apply_starting_values(
+            model, resources, parameters, excluded_record_tags=excluded_record_tags)
+        trust = {resources.get(i).variable_path: resources.get(i).trust_rank
+                 for i in result.starting_value_record_tags}
+    elif parameters is not None:
+        raise ValueError('parameters requires resources for starting-value selection')
     solver = solver if solver is not None else get_solver(
         'ipopt', options={'max_iter': 500, 'tol': 1e-8})
     try:
@@ -142,7 +142,7 @@ def initialize_model(model, *, solver=None, information=None, specification=None
             stage.remaining_deficiency = len(vp.unmatched)
             is_root = position == len(order) - 1
             local_ids = {id(v) for v in active_variables}
-            slots = model._model_language_specification_slots
+            slots = model._model_language_parameter_slots
             occupied = {
                 slot for slot, entry in slots.items()
                 if slot != entry['variable_path']
@@ -209,15 +209,15 @@ def initialize_model(model, *, solver=None, information=None, specification=None
                 stage.status = 'overconstrained'
             elif stage.remaining_deficiency:
                 stage.status = 'underconstrained'
-                stage.error = ('Root requires additional operating specifications' if is_root else
+                stage.error = ('Root requires additional operating parameters' if is_root else
                                'No eligible public input guess closes the remaining freedom')
             elif stage.invalid_starting_values:
                 stage.status = 'invalid_starting_values'
             else:
                 # JSON parents must not rerun callbacks belonging to children
                 # that have already been initialised in earlier stages.
-                if not hasattr(block.relationship, 'models'):
-                    stage.callbacks = initialize_custom_models(block.relationship)
+                if not hasattr(block.formulation, 'blocks'):
+                    stage.callbacks = initialize_custom_models(block.formulation)
                 # Re-evaluate row scales at the closed local problem. Public
                 # variable identities, equations and physical units stay intact.
                 _, diagnostic = rank_inputs(block, [], 0, rank_tolerance=rank_tolerance)

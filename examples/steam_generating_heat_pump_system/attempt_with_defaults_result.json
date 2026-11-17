@@ -1,5 +1,5 @@
 {
-  "implementation": "aggregate_aggregate",
+  "model_catalog": "aggregate_aggregate",
   "conditions_SI": {
     "source_tank.parameters.heat_duty": 0,
     "steam_outlet.pressure": 100000,
@@ -8,8 +8,8 @@
     "makeup_state.state.flow": 0.015552777777777778
   },
   "degrees_of_freedom": 0,
-  "initialization": "Declared defaults plus unused information guesses; no recursive initialization or replay helpers.",
-  "starting_value_record_ids": [
+  "initialization": "Declared defaults plus unused resources guesses; no recursive initialization or replay helpers.",
+  "starting_value_record_tags": [
     "config_phnix_sink_inlet_flow",
     "config_warm_water_splitter_parameters_fraction"
   ],

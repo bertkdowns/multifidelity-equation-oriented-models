@@ -5,7 +5,7 @@
   "structural_unmatched_variables": 1,
   "structural_unmatched_constraints": 1,
   "starting_snapshot": "cycle_results.json",
-  "accepted_specification": false,
+  "accepted_parameters": false,
   "pairing_error": "sghp.performance.electrical_power (attempt_sghp_operating_power): cannot assign replacement: no structurally admissible input with matching index domains",
   "underconstrained_variables": 234,
   "overconstrained_constraints": 64,
@@ -13,61 +13,61 @@
   "max_scaled_violation": 0.0017531002907520588,
   "largest_scaled_residuals": [
     {
-      "name": "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.temperature_equation",
+      "name": "fs.root.formulation.blocks.sghp.formulation.blocks.source_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.temperature_equation",
       "violation": 0.5259300872256176,
       "unit": "K",
       "scaled_violation": 0.0017531002907520588
     },
     {
-      "name": "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].bindings[6]",
+      "name": "fs.root.formulation.blocks.sghp.formulation.blocks.source_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].bindings[6]",
       "violation": 0.4754913783928032,
       "unit": "K",
       "scaled_violation": 0.001584971261309344
     },
     {
-      "name": "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.constraints.temperature[0.0]",
+      "name": "fs.root.formulation.blocks.sghp.formulation.blocks.source_inlet_state.formulation.constraints.temperature[0.0]",
       "violation": 0.45420969562616165,
       "unit": "K",
       "scaled_violation": 0.0015140323187538723
     },
     {
-      "name": "fs.root.relationship.connections.source_valve_feed.enthalpy[0.0]",
+      "name": "fs.root.formulation.connections.source_valve_feed.enthalpy[0.0]",
       "violation": 39.023364842520095,
       "unit": "J/kg",
       "scaled_violation": 0.000390233648425201
     },
     {
-      "name": "fs.root.relationship.models.source_valve.relationship.constraints.enthalpy_balance[0.0]",
+      "name": "fs.root.formulation.blocks.source_valve.formulation.constraints.enthalpy_balance[0.0]",
       "violation": 38.93728540209122,
       "unit": "J/kg",
       "scaled_violation": 0.00038937285402091223
     },
     {
-      "name": "fs.root.relationship.connections.source_pump_feed.enthalpy[0.0]",
+      "name": "fs.root.formulation.connections.source_pump_feed.enthalpy[0.0]",
       "violation": 38.894051925919484,
       "unit": "J/kg",
       "scaled_violation": 0.0003889405192591949
     },
     {
-      "name": "fs.root.relationship.connections.source_tank_feed.enthalpy[0.0]",
+      "name": "fs.root.formulation.connections.source_tank_feed.enthalpy[0.0]",
       "violation": 0.22894870961317793,
       "unit": "J/kg",
       "scaled_violation": 2.2894870961317793e-06
     },
     {
-      "name": "fs.root.relationship.connections.phnix_sink_feed.enthalpy[0.0]",
+      "name": "fs.root.formulation.connections.phnix_sink_feed.enthalpy[0.0]",
       "violation": 0.22894867759896442,
       "unit": "J/kg",
       "scaled_violation": 2.2894867759896443e-06
     },
     {
-      "name": "fs.root.relationship.models.phnix.relationship.models.sink_inlet_state.relationship.models.fluid.relationship.slices[0.0].bindings[6]",
+      "name": "fs.root.formulation.blocks.phnix.formulation.blocks.sink_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].bindings[6]",
       "violation": 1.595045188196309e-05,
       "unit": "K",
       "scaled_violation": 5.316817293987697e-08
     },
     {
-      "name": "fs.root.relationship.models.phnix.relationship.models.sink_inlet_state.relationship.constraints.temperature[0.0]",
+      "name": "fs.root.formulation.blocks.phnix.formulation.blocks.sink_inlet_state.formulation.constraints.temperature[0.0]",
       "violation": 1.595045182511967e-05,
       "unit": "K",
       "scaled_violation": 5.316817275039891e-08

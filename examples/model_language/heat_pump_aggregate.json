@@ -1,66 +1,66 @@
 {
-  "relationship": "flowsheet",
-  "submodels": {
+  "formulation": "flowsheet",
+  "subblocks": {
     "heat_pump": {
-      "relationship": "aggregate",
-      "submodels": {
+      "formulation": "aggregate",
+      "subblocks": {
         "cop_model": {
-          "relationship": "specified"
+          "formulation": "specified"
         },
         "source_inlet_state": {
-          "relationship": "evaluate",
-          "submodels": {
+          "formulation": "evaluate",
+          "subblocks": {
             "fluid": {
-              "relationship": "constant_properties",
-              "submodels": {
+              "formulation": "constant_properties",
+              "subblocks": {
                 "water": {
-                  "relationship": "constant_properties"
+                  "formulation": "constant_properties"
                 }
               }
             }
           }
         },
         "source_outlet_state": {
-          "relationship": "evaluate",
-          "submodels": {
+          "formulation": "evaluate",
+          "subblocks": {
             "fluid": {
-              "relationship": "constant_properties",
-              "submodels": {
+              "formulation": "constant_properties",
+              "subblocks": {
                 "water": {
-                  "relationship": "constant_properties"
+                  "formulation": "constant_properties"
                 }
               }
             }
           }
         },
         "sink_inlet_state": {
-          "relationship": "evaluate",
-          "submodels": {
+          "formulation": "evaluate",
+          "subblocks": {
             "fluid": {
-              "relationship": "constant_properties",
-              "submodels": {
+              "formulation": "constant_properties",
+              "subblocks": {
                 "water": {
-                  "relationship": "constant_properties"
+                  "formulation": "constant_properties"
                 }
               }
             }
           }
         },
         "sink_outlet_state": {
-          "relationship": "evaluate",
-          "submodels": {
+          "formulation": "evaluate",
+          "subblocks": {
             "fluid": {
-              "relationship": "constant_properties",
-              "submodels": {
+              "formulation": "constant_properties",
+              "subblocks": {
                 "water": {
-                  "relationship": "constant_properties"
+                  "formulation": "constant_properties"
                 }
               }
             }
           }
         },
         "power_model": {
-          "relationship": "specified"
+          "formulation": "specified"
         }
       }
     }

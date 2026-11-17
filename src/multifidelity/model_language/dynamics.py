@@ -6,10 +6,10 @@ from pyomo.environ import Block, Constraint, units
 from .indexing import derivative_variables
 
 
-def build_derivatives(active, resolved, relationship, variables, domains,
+def build_derivatives(active, resolved, formulation, variables, domains,
                       mode, time_unit):
     active.derivatives = Block()
-    for name, relation in relationship.derivatives.items():
+    for name, relation in formulation.derivatives.items():
         state_definition, _ = derivative_variables(resolved, relation)
         state, rate = variables[relation.state], variables[relation.rate]
         state_unit, rate_unit = units.get_units(state), units.get_units(rate)

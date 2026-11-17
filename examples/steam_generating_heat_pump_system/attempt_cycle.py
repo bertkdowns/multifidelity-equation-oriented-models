@@ -1,4 +1,4 @@
-"""Try detailed SGHP / aggregate PHNIX, preserving shared plant specifications."""
+"""Try detailed SGHP / aggregate PHNIX, preserving shared plant parameters."""
 
 import argparse
 import math
@@ -9,8 +9,8 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from idaes.core.util.model_statistics import degrees_of_freedom
 from multifidelity.model_language import (
-    InformationDocument, SpecificationDocument, apply_specification,
-    initialize_model, export_results, WorkspaceDocument, pair_specification,
+    ResourceCatalog, ParameterCatalog, apply_parameters,
+    initialize_model, export_results, WorkspaceCatalog, pair_parameters,
 )
 from build import build
 
@@ -24,46 +24,46 @@ if __name__ == '__main__':
     if args.power_kw is not None and (not math.isfinite(args.power_kw) or args.power_kw <= 0):
         parser.error('--power-kw must be finite and positive')
     model = build('cycle', 'aggregate')
-    information = InformationDocument.load_json(HERE / 'attempt_information.json')
-    observations = InformationDocument.load_json(HERE / 'reference_observations.json')
+    resources = ResourceCatalog.load_json(HERE / 'attempt_resources.json')
+    observations = ResourceCatalog.load_json(HERE / 'reference_observations.json')
     pressure_rise = observations.get('reference_sghp_compressor_parameters_pressure_rise')
     # A frozen captured output, explicitly used as an operating assumption here.
     power = observations.get('reference_sghp_performance_electrical_power')
     if args.power_kw is not None:
         power = power.model_copy(update={
-            'id': 'attempt_sghp_operating_power',
+            'tag': 'attempt_sghp_operating_power',
             'value': args.power_kw, 'unit': 'kW', 'trust_rank': 8,
         })
-    information = InformationDocument(root=(*information.records, pressure_rise, power))
-    information_path = HERE / 'cycle_attempt_information.json'
-    information_path.write_text(information.model_dump_json(indent=2) + '\n')
-    base = SpecificationDocument.load_json(HERE / 'attempt_specification.json')
+    resources = ResourceCatalog(root=(*resources.records, pressure_rise, power))
+    resources_path = HERE / 'cycle_attempt_resources.json'
+    resources_path.write_text(resources.model_dump_json(indent=2) + '\n')
+    base = ParameterCatalog.load_json(HERE / 'attempt_parameters.json')
     # COP is predicted by the cycle; replace the aggregate-only COP parameter
     # with captured exchanger conductances and compressor efficiency.
-    ids = [i for i in base.specifications if i not in {'attempt_sghp_operating_cop', 'attempt_makeup_mass_flow'}]
-    ids += [f'config_sghp_{name}_parameters_conductance'
+    tags = [i for i in base.parameters if i not in {'attempt_sghp_operating_cop', 'attempt_makeup_mass_flow'}]
+    tags += [f'config_sghp_{name}_parameters_conductance'
             for name in ('condenser', 'evaporator', 'subcooler', 'ihx')]
-    ids += ['config_sghp_compressor_parameters_efficiency',
+    tags += ['config_sghp_compressor_parameters_efficiency',
             'reference_sghp_compressor_parameters_pressure_rise',
-            power.id]
-    specification = pair_specification(model, SpecificationDocument(specifications=ids), information)
-    (HERE / 'cycle_attempt_specification.json').write_text(specification.model_dump_json(indent=2) + '\n')
-    apply_specification(model, specification, information)
+            power.tag]
+    parameters = pair_parameters(model, ParameterCatalog(parameters=tags), resources)
+    (HERE / 'cycle_attempt_parameters.json').write_text(parameters.model_dump_json(indent=2) + '\n')
+    apply_parameters(model, parameters, resources)
     print(f'Degrees of freedom: {degrees_of_freedom(model)}', flush=True)
     result = initialize_model(
-        model, information=information, specification=specification,
+        model, resources=resources, parameters=parameters,
         solver=get_solver('ipopt', options={
             'max_iter': 500, 'tol': 1e-8, 'max_cpu_time': 60,
             'linear_system_scaling': 'none',
         }),
     )
-    report = {'implementation': 'cycle_aggregate', 'degrees_of_freedom': degrees_of_freedom(model), **asdict(result)}
+    report = {'model_catalog': 'cycle_aggregate', 'degrees_of_freedom': degrees_of_freedom(model), **asdict(result)}
     (HERE / 'cycle_attempt_result.json').write_text(json.dumps(report, indent=2) + '\n')
     if not result.success:
         from multifidelity.model_language.hierarchical_initialization import _constraint_violation
         from saved_state_guesses import seed_snapshot, refresh_properties
         from multifidelity.model_language.scaling import scaled_jacobian, export_scaling
-        seed_path = HERE / 'cycle_specification_relaxation_coherent_results.json'
+        seed_path = HERE / 'cycle_parameters_relaxation_coherent_results.json'
         seed_snapshot(model, seed_path)
         refresh_properties(model)
         scaled_jacobian(model)
@@ -84,7 +84,7 @@ if __name__ == '__main__':
         except Exception as error:
             report['direct_error'] = str(error)
 
-    from diagnose_specifications import physical_residuals
+    from diagnose_parameters import physical_residuals
     from multifidelity.model_language import get_variable
     report['operating_values'] = {
         path: get_variable(model, path)[0].value for path in [
@@ -99,9 +99,9 @@ if __name__ == '__main__':
     (HERE / 'cycle_attempt_result.json').write_text(json.dumps(report, indent=2) + '\n')
     snapshot = export_results(model, status='optimal' if solved else 'failed',
                    solver='ipopt', termination_condition=report.get('direct_solver_termination', result.stages[-1].solver_termination),
-                   message=None if solved else result.stages[-1].error, specification=specification,
+                   message=None if solved else result.stages[-1].error, parameters=parameters,
                    )
     snapshot.write_json(HERE / 'cycle_results.json')
-    WorkspaceDocument.from_results(snapshot, information).write_json(HERE / 'cycle_workspace.json')
+    WorkspaceCatalog.from_results(snapshot, resources).write_json(HERE / 'cycle_workspace.json')
     print(json.dumps(report, indent=2), flush=True)
     raise SystemExit(0 if solved else 1)

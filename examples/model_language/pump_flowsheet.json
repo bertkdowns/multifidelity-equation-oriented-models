@@ -1,17 +1,17 @@
 {
-  "relationship": "flowsheet",
-  "submodels": {
+  "formulation": "flowsheet",
+  "subblocks": {
     "pump": {
-      "relationship": "incompressible",
-      "submodels": {
+      "formulation": "incompressible",
+      "subblocks": {
         "outlet_state": {
-          "relationship": "evaluate",
-          "submodels": {
+          "formulation": "evaluate",
+          "subblocks": {
             "fluid": {
-              "relationship": "constant_properties",
-              "submodels": {
+              "formulation": "constant_properties",
+              "subblocks": {
                 "water": {
-                  "relationship": "constant_properties"
+                  "formulation": "constant_properties"
                 }
               }
             }

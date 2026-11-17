@@ -1,0 +1,20 @@
+"""Map alternative resource records to a final grid without fixing values."""
+
+from pathlib import Path
+
+from pyomo.environ import TransformationFactory
+
+from multifidelity.model_language import ResourceCatalog, build_model, get_variable
+
+HERE = Path(__file__).parent
+model = build_model(
+    "tank_flowsheet", "examples/model_language/tank_mixed.json",
+    mode="dynamic", domain_values={"time": [0, 60]},
+)
+TransformationFactory("dae.finite_difference").apply_to(
+    model, wrt=model.fs.time, nfe=2, scheme="BACKWARD",
+)
+table = ResourceCatalog.load_json(HERE / "records.json")
+for record in table.candidates("tank.inlet_state.properties.temperature"):
+    values = record.values_for(get_variable(model, "tank.inlet_state.properties.temperature"))
+    print(f"{record.tag} ({record.type}): {values} [{record.unit}]")

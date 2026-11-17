@@ -1,0 +1,164 @@
+{
+  "id": "water_property_package",
+  "description": "Configured affine liquid-water PH package with enthalpy, temperature and entropy calculations. Coefficients are supplied internally by equations.",
+  "structs": {
+    "state": {
+      "direction": "input",
+      "variables": {
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "default": 200000,
+          "scale": 1e-05
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "default": 100000,
+          "scale": 1e-05
+        }
+      }
+    },
+    "properties": {
+      "direction": "output",
+      "variables": {
+        "density": {
+          "unit": "kg/m**3",
+          "dimensions": [
+            "time"
+          ],
+          "default": 1000,
+          "scale": 0.001
+        },
+        "heat_capacity": {
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ],
+          "default": 4200,
+          "scale": 0.001
+        },
+        "viscosity": {
+          "unit": "Pa*s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1000.0
+        },
+        "temperature": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ],
+          "default": 300,
+          "scale": 0.0033333333333333335
+        },
+        "entropy": {
+          "unit": "J/kg/K",
+          "dimensions": [
+            "time"
+          ],
+          "default": 1000,
+          "scale": 0.001
+        },
+        "vapor_fraction": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ],
+          "default": 0,
+          "scale": 1
+        },
+        "temperature_bubble": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ],
+          "default": 373.15,
+          "scale": 0.0033333333333333335
+        },
+        "temperature_dew": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ],
+          "default": 373.15,
+          "scale": 0.0033333333333333335
+        }
+      }
+    }
+  },
+  "formulations": {
+    "constant_properties": {
+      "blocks": {
+        "water": {
+          "block": "water_state_ph",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {
+        "reference_pressure": {
+          "lhs": "water.parameters.reference_pressure",
+          "rhs": "101325 * units.Pa",
+          "determines": "water.parameters.reference_pressure"
+        },
+        "reference_temperature": {
+          "lhs": "water.parameters.reference_temperature",
+          "rhs": "298.15 * units.K",
+          "determines": "water.parameters.reference_temperature"
+        },
+        "reference_enthalpy": {
+          "lhs": "water.parameters.reference_enthalpy",
+          "rhs": "104920.1198085 * units.J / units.kg",
+          "determines": "water.parameters.reference_enthalpy"
+        },
+        "heat_capacity": {
+          "lhs": "water.parameters.heat_capacity",
+          "rhs": "4180 * units.J / units.kg / units.K",
+          "determines": "water.parameters.heat_capacity"
+        },
+        "density": {
+          "lhs": "water.parameters.density",
+          "rhs": "997 * units.kg / units.m**3",
+          "determines": "water.parameters.density"
+        },
+        "viscosity": {
+          "lhs": "water.parameters.viscosity",
+          "rhs": "0.00089 * units.Pa * units.s",
+          "determines": "water.parameters.viscosity"
+        },
+        "reference_entropy": {
+          "lhs": "water.parameters.reference_entropy",
+          "rhs": "367.1996421 * units.J / units.kg / units.K",
+          "determines": "water.parameters.reference_entropy"
+        },
+        "thermal_expansion": {
+          "lhs": "water.parameters.thermal_expansion",
+          "rhs": "0.000257 / units.K",
+          "determines": "water.parameters.thermal_expansion"
+        }
+      },
+      "connections": {
+        "state": {
+          "from": "state",
+          "to": "water.state"
+        },
+        "properties": {
+          "from": "water.properties",
+          "to": "properties"
+        }
+      }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

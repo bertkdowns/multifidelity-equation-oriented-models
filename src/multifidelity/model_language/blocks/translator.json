@@ -1,0 +1,95 @@
+{
+  "id": "translator",
+  "description": "Topology scaffold: identity translation, no composition or property-basis conversion.",
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05
+        }
+      }
+    }
+  },
+  "formulations": {
+    "identity": {
+      "blocks": {},
+      "constraints": {
+        "mass_balance": {
+          "lhs": "outlet.flow[t]",
+          "rhs": "inlet.flow[t]",
+          "determines": "outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "pressure_balance": {
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "enthalpy_balance": {
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

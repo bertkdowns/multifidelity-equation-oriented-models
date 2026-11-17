@@ -1,5 +1,5 @@
 {
-  "implementation": "aggregate_aggregate",
+  "model_catalog": "aggregate_aggregate",
   "conditions_SI": {
     "source_tank.parameters.heat_duty": 0,
     "steam_outlet.pressure": 100000,
@@ -15,7 +15,7 @@
   "termination_condition": "internalSolverError",
   "iterations": 0,
   "diagnostic": "Error evaluating source_pump fluid_work: cannot compute 0/0. The equation divides by its outlet-state density, whose unset public variable starts at zero in the solver.",
-  "released_reference_record_ids": [
+  "released_reference_record_tags": [
     "config_warm_water_splitter_parameters_fraction"
   ],
   "steam_flow": "left free as a prediction; steady mass conservation requires equality with the specified 55.99 kg/h makeup flow",

@@ -1,0 +1,26 @@
+{
+  "id": "pump_flowsheet",
+  "structs": {},
+  "formulations": {
+    "flowsheet": {
+      "blocks": {
+        "pump": {
+          "block": "pump",
+          "block_arguments": {
+            "FluidProperties": {
+              "block": "liquid_density"
+            }
+          },
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

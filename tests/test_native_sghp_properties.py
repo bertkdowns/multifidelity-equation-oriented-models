@@ -8,7 +8,7 @@ from idaes.core.util.model_statistics import degrees_of_freedom
 from idaes.models.properties.general_helmholtz import AmountBasis, HelmholtzThermoExpressions
 from idaes.models.properties.general_helmholtz.components.parameters import get_parameter_path
 
-from multifidelity.model_language import Library, build_model, register_standard_providers
+from multifidelity.model_language import BlockLibrary, build_model, register_standard_providers
 from multifidelity.model_language.standard.thermo import _fluid_data
 
 
@@ -21,20 +21,20 @@ def test_native_refrigerant_isentropic_compression(
     fluid, package, temperature, pressure, outlet_pressure, efficiency, solver,
 ):
     original_path = get_parameter_path()
-    library = Library()
+    library = BlockLibrary()
     register_standard_providers(library)
-    ref = library.get('compressor_flowsheet').relationships['flowsheet'].models['compressor']
-    ref.model_arguments['FluidProperties'].model = package
-    selection = {'relationship': 'flowsheet', 'submodels': {'compressor': {
-        'relationship': 'isentropic', 'submodels': {
-            name: ({'relationship': 'helmholtz'} if name == 'isentropic_state' else
-                   {'relationship': 'evaluate', 'submodels': {'fluid': {'relationship': 'helmholtz'}}})
+    ref = library.get('compressor_flowsheet').formulations['flowsheet'].blocks['compressor']
+    ref.block_arguments['FluidProperties'].block = package
+    selection = {'formulation': 'flowsheet', 'subblocks': {'compressor': {
+        'formulation': 'isentropic', 'subblocks': {
+            name: ({'formulation': 'helmholtz'} if name == 'isentropic_state' else
+                   {'formulation': 'evaluate', 'subblocks': {'fluid': {'formulation': 'helmholtz'}}})
             for name in ['inlet_state', 'isentropic_state', 'outlet_state']
         },
     }}}
     model = build_model('compressor_flowsheet', selection, library=library)
-    compressor = model.fs.root.relationship.models.compressor
-    states = compressor.relationship.models
+    compressor = model.fs.root.formulation.blocks.compressor
+    states = compressor.formulation.blocks
     assert get_parameter_path() == original_path
     compressor.structs.inlet.flow[0].fix(.2)
     compressor.structs.inlet.pressure[0].fix(pressure)
@@ -42,7 +42,7 @@ def test_native_refrigerant_isentropic_compression(
     compressor.structs.parameters.pressure_rise[0].fix(outlet_pressure - pressure)
     compressor.structs.parameters.efficiency[0].fix(efficiency)
 
-    inlet_provider = states.inlet_state.relationship.models.fluid.relationship.slices[0].provider
+    inlet_provider = states.inlet_state.formulation.blocks.fluid.formulation.slices[0].provider
     # The inverse EOS is used for an initial guess only. No PS block or entropy
     # input is constructed: the actual reference is a free-enthalpy PH state.
     with _fluid_data(fluid):
@@ -58,8 +58,8 @@ def test_native_refrigerant_isentropic_compression(
                        ('isentropic_state', outlet_pressure, h_reference),
                        ('outlet_state', outlet_pressure, h_actual)]:
         state = getattr(states, name)
-        package = state.relationship.models.fluid if name != "isentropic_state" else state
-        provider = package.relationship.slices[0].provider
+        package = state.formulation.blocks.fluid if name != "isentropic_state" else state
+        provider = package.formulation.slices[0].provider
         package.structs.state.pressure[0].set_value(p)
         package.structs.state.enthalpy[0].set_value(h)
         if name != "isentropic_state": state.structs.state.flow[0].set_value(.2)
@@ -104,12 +104,12 @@ def test_native_refrigerant_isentropic_compression(
 
 
 def test_system_refrigerants_resolve_to_one_package_per_fluid():
-    library = Library()
-    assert set(library.get('compressor').model_parameters) == {'FluidProperties'}
-    system = library.resolve('steam_generating_heat_pump_system').relationships['flowsheet'].models
+    library = BlockLibrary()
+    assert set(library.get('compressor').block_slots) == {'FluidProperties'}
+    system = library.resolve('steam_generating_heat_pump_system').formulations['flowsheet'].blocks
     for name, package in [('sghp', 'helmholtz_butane_ph'), ('phnix', 'helmholtz_propane_ph')]:
-        states = system[name].relationships['cycle'].models['compressor'].relationships['isentropic'].models
+        states = system[name].formulations['cycle'].blocks['compressor'].formulations['isentropic'].blocks
         assert states['isentropic_state'].id == package
         for key in ['inlet_state', 'outlet_state']:
             assert states[key].id == 'state_block'
-            assert states[key].model_arguments['FluidProperties'].id == package
+            assert states[key].block_arguments['FluidProperties'].id == package

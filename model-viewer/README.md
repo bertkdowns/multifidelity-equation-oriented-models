@@ -9,15 +9,15 @@ npm run dev
 
 Open the URL printed by Vite (normally http://localhost:5173). `npm run build`
 creates a standalone static site in `dist`; `npm run preview` serves that build.
-`npm test` verifies graph construction against the real model library.
+`npm test` verifies graph construction against the real block library.
 
-The library is loaded directly from `../src/multifidelity/model_language/models/*.json`.
-Select any definition and one of its alternative relationships. Click a child model
+The library is loaded directly from `../src/multifidelity/model_language/blocks/*.json`.
+Select any definition and one of its alternative formulations. Click a child block
 to drill down; breadcrumb buttons return to ancestors. Each level remembers its
-relationship selection. Generic arguments propagate through concrete wrappers;
+formulation selection. Generic arguments propagate through concrete wrappers;
 opening a generic definition directly displays its required interface and a warning
-for unbound children. This browses definitions, rather than loading implementation
-selection documents or constructing solver objects.
+for unbound children. This browses definitions, rather than loading model
+selection catalogs or constructing solver objects.
 
 Input/output structs list all variables and units. Child model nodes expose their
 structs and variable handles. Teal arrows represent named struct connections;
@@ -28,7 +28,7 @@ pan/zoom, and use the minimap and fit-view control to navigate larger graphs.
 Click a struct header to collapse its variables, or the model's Structs toggle to
 collapse its entire interface list. Links remain attached to the collapsed header;
 expanding restores their individual variable endpoints. These toggles do not open
-the child model; click its model header to drill down.
+the child block; click its model header to drill down.
 
 React Flow handles follow the [official handle API](https://reactflow.dev/learn/customization/handles).
 
@@ -45,24 +45,24 @@ members, simulate trajectories, or choose steady/dynamic solver modes.
 See the [model-language glossary](../src/multifidelity/model_language/terminology.md) for the shared terminology.
 
 Dragged node positions (including group moves) are saved in browser local storage
-per model definition ID, relationship, and Summary/Detailed view. Opening the same
+per model definition ID, formulation, and Summary/Detailed view. Opening the same
 model through another parent or alias reuses its layout. Positions survive page
 reloads; newly added nodes retain their automatic positions. Storage is local to
 this browser and site origin. Summary rotations and flips are saved alongside positions. Previously saved position-only layouts remain compatible.
 
-### Information overlays
+### Resource overlays
 
-Open **Information** (or **Choose information** in the sidebar) and drop an
-information-record JSON array onto its upload area, or choose a `.json` file.
+Open **Resource** (or **Choose resources** in the sidebar) and drop an
+resources-record JSON array onto its upload area, or choose a `.json` file.
 The file attaches to the selected root definition, with paths relative to that
-root. Switching roots keeps each root's file separate. Uploaded information and
+root. Switching roots keeps each root's file separate. Uploaded resources and
 new records are saved in browser local storage and restored after reloading. Replace/Clear controls manage the active overlay.
 
 Detailed variable rows show the highest-trust record's preview in its original
 unit, with a count of alternatives. Clicking opens all candidate records, their
-source/tag, trust, uncertainty, full values and the model's declared unit. Ties
-use record ID order. Summary model sidebar rows show the same previews. These
-are information records, not computed values or selected specifications, and
+resource type, trust, uncertainty, full values and the model's declared unit. Ties
+use record tag order. Summary model sidebar rows show the same previews. These
+are resources records, not computed values or selected parameters, and
 values do not propagate along connections. Series show sample counts or array
 shape; no time coordinates are inferred. Paths preserve occurrence aliases when
 exploring children, independently of shared layout storage. Unmatched paths are
@@ -70,76 +70,76 @@ listed; paths found in another alternative remain available when browsing it.
 
 Loading validates record structure, unique IDs, finite scalar/rectangular numeric
 values and metadata. It does not validate physical applicability, convert units,
-check series against a solver grid, or apply `specification.json` selections.
+check series against a solver grid, or apply `parameters.json` selections.
 
-### Choosing an implementation
+### Choosing a model
 
-Open **Implementation** (or **Choose implementation** in the sidebar) to choose
-relationships recursively for the selected root. The live summary groups remaining
-input families by model occurrence and struct, excluding child inputs supplied by
+Open **Model** (or **Choose model** in the sidebar) to choose
+formulations recursively for the selected root. The live summary groups remaining
+input families by block occurrence and struct, excluding child inputs supplied by
 parent equations or struct connections. Partially supplied structs list only their
 remaining fields. Derivative initial-state families are listed separately.
 
-Changing a relationship replaces that occurrence's subtree with default choices
-for its newly selected children; siblings are preserved. Expand nested models to
+Changing a formulation replaces that occurrence's subtree with default choices
+for its newly selected children; siblings are preserved. Expand nested blocks to
 change deeper choices. **View diagram** opens that occurrence using its selected
-relationship. In the sidebar preview selector, the implementation choice is bold
-and marked `(implementation)`. Other relationships can be previewed without editing
-the implementation; **View selected implementation** returns to the chosen tree.
+formulation. In the sidebar preview selector, the model choice is bold
+and marked `(model_catalog)`. Other formulations can be previewed without editing
+the model; **View selected model** returns to the chosen tree.
 
-Upload/drop an existing implementation against the matching root, or download the
-current choices as JSON. Documents contain `relationship` and recursive `submodels`
-only (the root model ID is deliberately not embedded, matching the Python API).
+Upload/drop an existing model against the matching root, or download the
+current choices as JSON. Catalogs contain `formulation` and recursive `subblocks`
+only (the root block ID is deliberately not embedded, matching the Python API).
 Malformed or incompatible uploads leave current choices unchanged. Incomplete
 choices, unresolved generics and declaration coverage errors block export.
-Implementation choices are saved per root in browser local storage and restored
-across reloads; download keeps a portable copy. Layouts and information overlays remain separate.
+Model choices are saved per root in browser local storage and restored
+across reloads; download keeps a portable copy. Layouts and resources overlays remain separate.
 
 Input summaries follow the backend's declaration-coverage rules, including external
-providers' public interfaces. They do not compile equation expressions, establish
+feeds' public interfaces. They do not compile equation expressions, establish
 unit/generic compatibility or prove mathematical solvability. Final builds still
 perform the backend's complete validation.
 
-### Information table and new records
+### Resource table and new records
 
-The **Information** tab uses the same per-root document as the diagram overlay.
-Upload a document in that tab, filter the table by path/ID/tag/source/
+The **Resource** tab uses the same per-root catalog as the diagram overlay.
+Upload a catalog in that tab, filter the table by path/tag/source/
 unit, and expand series rows to inspect full arrays. Every candidate remains a
-separate row; the Preview badge follows trust rank and ID ordering. Path status
-indicates whether a variable is in the chosen implementation, another available
-relationship, or unmatched.
+separate row; the Preview badge follows trust rank and tag ordering. Path status
+indicates whether a variable is in the chosen model, another available
+formulation, or unmatched.
 
-Use **Add information record** to add a unique ID, tag, root-relative variable
+Use **Add resources record** to add a unique tag, root-relative variable
 path, source type, constant or JSON numeric array, unit, optional uncertainty and
-trust rank. Variable-path suggestions come from the selected implementation;
+trust rank. Variable-path suggestions come from the selected model;
 a recognized path initially suggests its declared unit, which can be overridden.
 Unknown paths are allowed and marked unmatched. Additions validate the complete
-document atomically and immediately update diagram previews. No units are converted,
-no values propagated and no solver specifications applied. Download the information
-JSON to save the updated document. Changes are saved in browser local storage and do not modify the uploaded source
+catalog atomically and immediately update diagram previews. No units are converted,
+no values propagated and no solver parameters applied. Download the resources
+JSON to save the updated catalog. Changes are saved in browser local storage and do not modify the uploaded source
 file.
 
 ### Results snapshots
 
-The **Results** tab accepts the version 1 `ResultsDocument` JSON format exported
+The **Results** tab accepts the version 1 `ResultsCatalog` JSON format exported
 by Python. Drop a file or choose it; its model ID selects the root. Results are
-saved per root in browser local storage, separately from information documents. Replace,
+saved per root in browser local storage, separately from resource catalogs. Replace,
 Clear and Download controls manage the snapshot without modifying the source
 file. Invalid uploads leave the current snapshot intact.
 
-The tab shows run identity/time, the saved implementation, solve status and
+The tab shows run identity/time, the saved model, solve status and
 termination, and a searchable table of every public variable family. Each value
 has units, explicit index coordinates and export-time fixed/free state. Indexed
 families expand to their full entries; unavailable values show `unset` or
 `nonfinite`. A failed/not-solved snapshot is labelled as unconverged. Solver
 status does not establish physical applicability of an operating point.
 
-If the saved implementation differs from the current choice, the tab offers
-**Use saved implementation**. Diagram previews stay hidden until the selections
-match, and are also hidden when previewing another relationship. Matching diagram
-rows show the saved value and units in blue when no green information value is
+If the saved model differs from the current choice, the tab offers
+**Use saved model**. Diagram previews stay hidden until the selections
+match, and are also hidden when previewing another formulation. Matching diagram
+rows show the saved value and units in blue when no green resources value is
 shown. Where both are available, show only the green value, preferring the record
-selected by the saved specification over an unselected alternative. Clicking a
+selected by the saved parameters over an unselected alternative. Clicking a
 result opens its coordinate/value/fixity details. Solve
 status is available in the tooltip and Results tab rather than repeated on each
 row. No values are propagated or units converted.
@@ -150,46 +150,46 @@ than this upload format. Current-library path checks identify unmatched paths;
 they do not prove that model definitions are identical to those used for the run.
 
 
-Implementation, information and results documents persist separately by root model,
-including uploaded filenames and information additions. Reloading also reopens the
-last root model. Clearing information or results removes its stored copy. Storage
+Model, resources and results catalogs persist separately by root block,
+including uploaded filenames and resources additions. Reloading also reopens the
+last root block. Clearing resources or results removes its stored copy. Storage
 is local to this browser and site origin; download JSON for portable backups.
-Invalid stored documents are skipped with a message, and full or disabled storage
-reports that the current document could not be saved. Incomplete implementation
+Invalid stored catalogs are skipped with a message, and full or disabled storage
+reports that the current catalog could not be saved. Incomplete model
 drafts can be restored and completed in the editor.
 
 ### Open/save a workspace
 
 **Open workspace** in the sidebar's model controls accepts one JSON bundle with
-exactly `implementation`, `information`, and `results`. It validates all three
+exactly `model_catalog`, `resources`, and `results`. It validates all three
 before applying them, selects the root using the results snapshot's existing
-`model_id`, and replaces the three documents for that root. Invalid or unknown-model
+`block_id`, and replaces the three catalogs for that root. Invalid or unknown-model
 bundles leave the current case unchanged. The existing local-storage persistence
-then saves each document as usual.
+then saves each catalog as usual.
 
 **Save workspace** downloads those three contents in one file, provided the results
-match the selected implementation. Information can be an empty record array. No
+match the selected model. Resource can be an empty record array. No
 extra model/root field, model definitions, layout positions, rotations, flips,
 current view or navigation state is included. Opening a bundle leaves local diagram
 preferences intact. Individual file uploads/downloads remain available in their
 tabs. Python can produce the identical format using `export_workspace` or
-`WorkspaceDocument.from_results`; see the SGHP example's workspace files.
+`WorkspaceCatalog.from_results`; see the SGHP example's workspace files.
 
 ### Replacement feedback arrows
 
-When matching results and information are loaded, saved replacement pairs appear
+When matching results and resources are loaded, saved replacement pairs appear
 as dotted orange arrows with open arrowheads in both diagram views. The arrow runs from the fixed
 variable toward the canonical input it replaces. Descendant variables attach to
 their containing visible model until you drill down; internal pairs form feedback
 loops on that model. In summary view, replacement ports use the top and bottom
-faces, perpendicular to the process inlet/outlet faces; this relationship is
+faces, perpendicular to the process inlet/outlet faces; this formulation is
 preserved when a unit is flipped or rotated. Click an arrow to inspect both full paths and the selected
-information-record ID. These annotations do not change the process layout.
+resources-record tag. These annotations do not change the process layout.
 
 The Results table has a **Replaces input** column for fixed variables, using the
 same saved pairs. Direct canonical fixes show **Direct input**; missing metadata
 shows **Not recorded**. Initial conditions remain a separate scope. Load the
-matching information file (or a complete workspace) to resolve specification IDs
+matching resources file (or a complete workspace) to resolve parameters IDs
 to fixed variable paths. Older snapshots with no saved pairs cannot show arrows
 until replacement metadata is added; the aggregate and cycle example workspaces
 now include that annotation without changing saved numerical values or run IDs.
@@ -210,15 +210,31 @@ Expanded variable details in Results include the same chart. The selected-model
 sidebar labels the saved snapshot status; failed snapshots remain failed.
 
 The canvas uses a shared semantic palette: saturated teal for input interfaces,
-neutral slate for models, violet for constraints, and muted blue for outputs.
+neutral slate for blocks, violet for constraints, and muted blue for outputs.
 In detailed view, input variable rows have teal accents and pale teal backgrounds;
 output rows have muted blue accents and white backgrounds. Struct titles stay neutral. Green value badges identify
-supplied information; muted blue badges identify solved values, independently of
+supplied resources; muted blue badges identify solved values, independently of
 interface direction. Connections are blue with filled arrowheads, equation
 references are violet with filled arrowheads, and replacements are orange with
 open arrowheads and dotted lines. The legend and minimap share the node palette.
 
 The canvas **Show arrows** controls independently toggle connections, constraint
 dependencies (including `determines` arrows), and replacements. Their settings
-are saved in browser local storage and shared across models and diagram views.
+are saved in browser local storage and shared across blocks and diagram views.
 Hiding arrows preserves node layout, orientations, and port positions.
+
+### Providers
+
+The **Providers** tab loads the JSON catalogue exported by Python's
+`FeedRegistry.describe().write_json(...)`. It lists registered modelCatalogs and
+supplied resources record tags, displays their model paths and units when the
+resources file is loaded, and provides an editor for JSON configuration. Tags
+are read-only snapshots of the provider's `get_tags()` result. Re-export and
+reload the catalogue from Python to refresh dynamic tags after configuration
+changes.
+The viewer validates JSON and unique assignments; the connector's Pydantic model
+validates its specific configuration fields in Python. It never imports or runs
+connectors. Settings are saved per root in browser storage and can be downloaded
+as catalogue JSON or bundled in a workspace's optional `feeds` field. Opening
+an older workspace clears any provider catalogue for that root. Output channels
+and a frontend execution service are not included.

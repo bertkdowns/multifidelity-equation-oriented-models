@@ -1,4 +1,4 @@
-"""Mass-basis Ahuora Helmholtz state providers."""
+"""Mass-basis Ahuora Helmholtz state symbolic providers."""
 
 from contextlib import contextmanager
 from pathlib import Path

@@ -1,799 +1,799 @@
 [
   {
-    "id": "reference_makeup_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_makeup_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "makeup_state.state.flow",
     "value": 0.055989163846980626,
     "unit": "t/h",
     "trust_rank": 2
   },
   {
-    "id": "reference_makeup_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_makeup_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "makeup_state.state.pressure",
     "value": 400.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_makeup_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_makeup_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "makeup_state.state.enthalpy",
     "value": 105.18874430647945,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_exchanger_hot_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_cooling_exchanger_hot_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "cooling_exchanger.hot_outlet.flow",
     "value": 0.17797915880617532,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_exchanger_hot_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_cooling_exchanger_hot_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "cooling_exchanger.hot_outlet.pressure",
     "value": 399.9929657079307,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_exchanger_hot_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_cooling_exchanger_hot_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "cooling_exchanger.hot_outlet.enthalpy",
     "value": 261.91086476060804,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_mixer_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_mixer_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "warm_water_mixer.outlet.flow",
     "value": 0.19353170431922506,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_mixer_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_mixer_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "warm_water_mixer.outlet.pressure",
     "value": 399.9929657079037,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_mixer_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_mixer_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "warm_water_mixer.outlet.enthalpy",
     "value": 249.31640164751335,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_exchanger_hot_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_cooling_exchanger_hot_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "cooling_exchanger.hot_inlet.flow",
     "value": 0.17797915880617574,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_exchanger_hot_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_cooling_exchanger_hot_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "cooling_exchanger.hot_inlet.pressure",
     "value": 399.99296570792444,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_exchanger_hot_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_cooling_exchanger_hot_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "cooling_exchanger.hot_inlet.enthalpy",
     "value": 356.25630927306696,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_splitter_branch_flow",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_splitter_branch_flow",
+    "resource_type": "assumption",
     "variable_path": "warm_water_splitter.branch.flow",
     "value": 0.015552545512989692,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_splitter_branch_pressure",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_splitter_branch_pressure",
+    "resource_type": "assumption",
     "variable_path": "warm_water_splitter.branch.pressure",
     "value": 399.9929657079224,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_splitter_branch_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_splitter_branch_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "warm_water_splitter.branch.enthalpy",
     "value": 356.25630927306355,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_hot_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_sghp_hot_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "sghp.hot_outlet.flow",
     "value": 0.830463850734013,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_hot_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_sghp_hot_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "sghp.hot_outlet.pressure",
     "value": 396.99324280996854,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_hot_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_sghp_hot_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "sghp.hot_outlet.enthalpy",
     "value": 558.4230399410425,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_warm_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_sghp_warm_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "sghp.warm_outlet.flow",
     "value": 696.7141355492115,
     "unit": "kg/h",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_warm_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_sghp_warm_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "sghp.warm_outlet.pressure",
     "value": 399.99296570792035,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_warm_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_sghp_warm_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "sghp.warm_outlet.enthalpy",
     "value": 356.25630927306145,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_source_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_sghp_source_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "sghp.source_outlet.flow",
     "value": 9.007633999999996,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_source_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_sghp_source_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "sghp.source_outlet.pressure",
     "value": 651751.6545786456,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_source_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_sghp_source_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "sghp.source_outlet.enthalpy",
     "value": 816.5403161450124,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_flash_tank_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_flash_tank_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "flash_tank.inlet.flow",
     "value": 0.830463850734013,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_flash_tank_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_flash_tank_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "flash_tank.inlet.pressure",
     "value": 200.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_flash_tank_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_flash_tank_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "flash_tank.inlet.enthalpy",
     "value": 558.4230399410409,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_hot_water_pump_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_hot_water_pump_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "hot_water_pump.outlet.flow",
     "value": 0.8101999266073179,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_hot_water_pump_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_hot_water_pump_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "hot_water_pump.outlet.pressure",
     "value": 400.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_hot_water_pump_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_hot_water_pump_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "hot_water_pump.outlet.enthalpy",
     "value": 504.9162687589948,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_hot_water_mixer_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_hot_water_mixer_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "hot_water_mixer.outlet.flow",
     "value": 0.825752472120307,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_hot_water_mixer_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_hot_water_mixer_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "hot_water_mixer.outlet.pressure",
     "value": 396.99324280996854,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_hot_water_mixer_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_hot_water_mixer_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "hot_water_mixer.outlet.enthalpy",
     "value": 502.1163488508814,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_flash_tank_vapor_flow",
-    "information_type": "assumption",
+    "tag": "reference_flash_tank_vapor_flow",
+    "resource_type": "assumption",
     "variable_path": "flash_tank.vapor.flow",
     "value": 72.95012685610243,
     "unit": "kg/h",
     "trust_rank": 2
   },
   {
-    "id": "reference_flash_tank_vapor_pressure",
-    "information_type": "assumption",
+    "tag": "reference_flash_tank_vapor_pressure",
+    "resource_type": "assumption",
     "variable_path": "flash_tank.vapor.pressure",
     "value": 200.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_flash_tank_vapor_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_flash_tank_vapor_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "flash_tank.vapor.enthalpy",
     "value": 2706.230741340135,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_steam_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_steam_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "steam_outlet.flow",
     "value": 72.95012685610243,
     "unit": "kg/h",
     "trust_rank": 2
   },
   {
-    "id": "reference_steam_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_steam_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "steam_outlet.pressure",
     "value": 200.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_steam_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_steam_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "steam_outlet.enthalpy",
     "value": 2706.230741340135,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_flash_tank_liquid_flow",
-    "information_type": "assumption",
+    "tag": "reference_flash_tank_liquid_flow",
+    "resource_type": "assumption",
     "variable_path": "flash_tank.liquid.flow",
     "value": 0.8101999266073179,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_flash_tank_liquid_pressure",
-    "information_type": "assumption",
+    "tag": "reference_flash_tank_liquid_pressure",
+    "resource_type": "assumption",
     "variable_path": "flash_tank.liquid.pressure",
     "value": 200.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_flash_tank_liquid_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_flash_tank_liquid_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "flash_tank.liquid.enthalpy",
     "value": 504.70418503798857,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_hot_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_sghp_hot_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "sghp.hot_inlet.flow",
     "value": 0.830463850734013,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_hot_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_sghp_hot_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "sghp.hot_inlet.pressure",
     "value": 396.99324280996854,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_hot_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_sghp_hot_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "sghp.hot_inlet.enthalpy",
     "value": 502.1163488508814,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_warm_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_sghp_warm_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "sghp.warm_inlet.flow",
     "value": 0.19353170431922537,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_warm_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_sghp_warm_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "sghp.warm_inlet.pressure",
     "value": 399.9929657079141,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_warm_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_sghp_warm_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "sghp.warm_inlet.enthalpy",
     "value": 249.3243091634494,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_pump_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_pump_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "warm_water_pump.inlet.flow",
     "value": 0.19353170431922534,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_pump_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_pump_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "warm_water_pump.inlet.pressure",
     "value": 392.99296570790995,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_pump_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_pump_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "warm_water_pump.inlet.enthalpy",
     "value": 249.31640164750806,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_hot_water_mixer_makeup_flow",
-    "information_type": "assumption",
+    "tag": "reference_hot_water_mixer_makeup_flow",
+    "resource_type": "assumption",
     "variable_path": "hot_water_mixer.makeup.flow",
     "value": 0.015552545512989187,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_hot_water_mixer_makeup_pressure",
-    "information_type": "assumption",
+    "tag": "reference_hot_water_mixer_makeup_pressure",
+    "resource_type": "assumption",
     "variable_path": "hot_water_mixer.makeup.pressure",
     "value": 396.99324280996865,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_hot_water_mixer_makeup_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_hot_water_mixer_makeup_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "hot_water_mixer.makeup.enthalpy",
     "value": 356.2563092730594,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_source_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_phnix_source_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "phnix_source_state.state.flow",
     "value": 9.007634000000001,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_source_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_phnix_source_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "phnix_source_state.state.pressure",
     "value": 100.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_source_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_phnix_source_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "phnix_source_state.state.enthalpy",
     "value": 83.99972230467748,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_source_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_phnix_source_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "phnix_source_outlet.flow",
     "value": 9.007634000000001,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_source_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_phnix_source_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "phnix_source_outlet.pressure",
     "value": 100.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_source_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_phnix_source_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "phnix_source_outlet.enthalpy",
     "value": 80.96583912589296,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_source_pump_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_source_pump_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "source_pump.inlet.flow",
     "value": 9.007633999999996,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_source_pump_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_source_pump_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "source_pump.inlet.pressure",
     "value": 651746.6545786456,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_source_pump_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_source_pump_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "source_pump.inlet.enthalpy",
     "value": 816.540316145013,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_source_pump_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_source_pump_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "source_pump.outlet.flow",
     "value": 9.007633999999996,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_source_pump_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_source_pump_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "source_pump.outlet.pressure",
     "value": 651751.6545786456,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_source_pump_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_source_pump_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "source_pump.outlet.enthalpy",
     "value": 816.5451286831303,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_sink_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_phnix_sink_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "phnix.sink_inlet.flow",
     "value": 9.007633999999996,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_sink_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_phnix_sink_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "phnix.sink_inlet.pressure",
     "value": 651751.6545786456,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_sink_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_phnix_sink_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "phnix.sink_inlet.enthalpy",
     "value": 816.5451286831361,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_source_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_sghp_source_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "sghp.source_inlet.flow",
     "value": 9.007633999999996,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_source_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_sghp_source_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "sghp.source_inlet.pressure",
     "value": 651751.6545786456,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_source_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_sghp_source_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "sghp.source_inlet.enthalpy",
     "value": 822.6128950407121,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_sink_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_phnix_sink_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "phnix.sink_outlet.flow",
     "value": 9.007633999999996,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_sink_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_phnix_sink_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "phnix.sink_outlet.pressure",
     "value": 651751.6545786456,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_sink_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_phnix_sink_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "phnix.sink_outlet.enthalpy",
     "value": 822.6128950407121,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_water_inlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_cooling_water_inlet_flow",
+    "resource_type": "assumption",
     "variable_path": "cooling_water_state.state.flow",
     "value": 0.26783324982654794,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_water_inlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_cooling_water_inlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "cooling_water_state.state.pressure",
     "value": 100.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_water_inlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_cooling_water_inlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "cooling_water_state.state.enthalpy",
     "value": 146.70763119827097,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_water_outlet_flow",
-    "information_type": "assumption",
+    "tag": "reference_cooling_water_outlet_flow",
+    "resource_type": "assumption",
     "variable_path": "cooling_water_outlet.flow",
     "value": 0.26783324982654794,
     "unit": "kg/s",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_water_outlet_pressure",
-    "information_type": "assumption",
+    "tag": "reference_cooling_water_outlet_pressure",
+    "resource_type": "assumption",
     "variable_path": "cooling_water_outlet.pressure",
     "value": 100.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_water_outlet_enthalpy",
-    "information_type": "assumption",
+    "tag": "reference_cooling_water_outlet_enthalpy",
+    "resource_type": "assumption",
     "variable_path": "cooling_water_outlet.enthalpy",
     "value": 209.40157551769602,
     "unit": "kJ/kg",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_performance_electrical_power",
-    "information_type": "assumption",
+    "tag": "reference_sghp_performance_electrical_power",
+    "resource_type": "assumption",
     "variable_path": "sghp.performance.electrical_power",
     "value": 12.755835603752978,
     "unit": "kW",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_performance_hot_water_duty",
-    "information_type": "assumption",
+    "tag": "reference_sghp_performance_hot_water_duty",
+    "resource_type": "assumption",
     "variable_path": "sghp.performance.hot_water_duty",
     "value": 46.760671504825304,
     "unit": "kW",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_performance_warm_water_duty",
-    "information_type": "assumption",
+    "tag": "reference_sghp_performance_warm_water_duty",
+    "resource_type": "assumption",
     "variable_path": "sghp.performance.warm_water_duty",
     "value": 20.69473222747439,
     "unit": "kW",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_performance_cooling_duty",
-    "information_type": "assumption",
+    "tag": "reference_sghp_performance_cooling_duty",
+    "resource_type": "assumption",
     "variable_path": "sghp.performance.cooling_duty",
     "value": 54.699568128545266,
     "unit": "kW",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_performance_cop",
-    "information_type": "assumption",
+    "tag": "reference_phnix_performance_cop",
+    "resource_type": "assumption",
     "variable_path": "phnix.performance.cop",
     "value": 2.0,
     "unit": "dimensionless",
     "trust_rank": 2
   },
   {
-    "id": "reference_phnix_performance_electrical_power",
-    "information_type": "assumption",
+    "tag": "reference_phnix_performance_electrical_power",
+    "resource_type": "assumption",
     "variable_path": "phnix.performance.electrical_power",
     "value": 27.3281092732687,
     "unit": "kW",
     "trust_rank": 2
   },
   {
-    "id": "reference_hot_water_pump_parameters_pressure_rise",
-    "information_type": "assumption",
+    "tag": "reference_hot_water_pump_parameters_pressure_rise",
+    "resource_type": "assumption",
     "variable_path": "hot_water_pump.parameters.pressure_rise",
     "value": 200.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_pump_parameters_pressure_rise",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_pump_parameters_pressure_rise",
+    "resource_type": "assumption",
     "variable_path": "warm_water_pump.parameters.pressure_rise",
     "value": 7.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_source_valve_parameters_pressure_drop",
-    "information_type": "assumption",
+    "tag": "reference_source_valve_parameters_pressure_drop",
+    "resource_type": "assumption",
     "variable_path": "source_valve.parameters.pressure_drop",
     "value": 5.0,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_water_valve_parameters_pressure_drop",
-    "information_type": "assumption",
+    "tag": "reference_warm_water_valve_parameters_pressure_drop",
+    "resource_type": "assumption",
     "variable_path": "warm_water_valve.parameters.pressure_drop",
     "value": 6.999999999997925,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_flash_valve_parameters_pressure_drop",
-    "information_type": "assumption",
+    "tag": "reference_flash_valve_parameters_pressure_drop",
+    "resource_type": "assumption",
     "variable_path": "flash_valve.parameters.pressure_drop",
     "value": 196.99324280996856,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_warm_makeup_valve_parameters_pressure_drop",
-    "information_type": "assumption",
+    "tag": "reference_warm_makeup_valve_parameters_pressure_drop",
+    "resource_type": "assumption",
     "variable_path": "warm_makeup_valve.parameters.pressure_drop",
     "value": 2.9997228979537063,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_compressor_parameters_pressure_rise",
-    "information_type": "assumption",
+    "tag": "reference_sghp_compressor_parameters_pressure_rise",
+    "resource_type": "assumption",
     "variable_path": "sghp.compressor.parameters.pressure_rise",
     "value": 2011.6863921285753,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_expansion_valve_parameters_pressure_drop",
-    "information_type": "assumption",
+    "tag": "reference_sghp_expansion_valve_parameters_pressure_drop",
+    "resource_type": "assumption",
     "variable_path": "sghp.expansion_valve.parameters.pressure_drop",
     "value": 2011.686392128575,
     "unit": "kPa",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_condenser_parameters_temperature_difference",
-    "information_type": "assumption",
+    "tag": "reference_sghp_condenser_parameters_temperature_difference",
+    "resource_type": "assumption",
     "variable_path": "sghp.condenser.driving_force.mean.temperature_difference",
     "value": 1.318612772490061,
     "unit": "K",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_evaporator_parameters_temperature_difference",
-    "information_type": "assumption",
+    "tag": "reference_sghp_evaporator_parameters_temperature_difference",
+    "resource_type": "assumption",
     "variable_path": "sghp.evaporator.driving_force.mean.temperature_difference",
     "value": 5.196345127755109,
     "unit": "K",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_subcooler_parameters_temperature_difference",
-    "information_type": "assumption",
+    "tag": "reference_sghp_subcooler_parameters_temperature_difference",
+    "resource_type": "assumption",
     "variable_path": "sghp.subcooler.driving_force.mean.temperature_difference",
     "value": 31.107776831374725,
     "unit": "K",
     "trust_rank": 2
   },
   {
-    "id": "reference_sghp_ihx_parameters_temperature_difference",
-    "information_type": "assumption",
+    "tag": "reference_sghp_ihx_parameters_temperature_difference",
+    "resource_type": "assumption",
     "variable_path": "sghp.ihx.driving_force.mean.temperature_difference",
     "value": 13.237137143958842,
     "unit": "K",
     "trust_rank": 2
   },
   {
-    "id": "reference_cooling_exchanger_parameters_temperature_difference",
-    "information_type": "assumption",
+    "tag": "reference_cooling_exchanger_parameters_temperature_difference",
+    "resource_type": "assumption",
     "variable_path": "cooling_exchanger.driving_force.mean.temperature_difference",
     "value": 31.09541268800357,
     "unit": "K",

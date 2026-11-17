@@ -1,0 +1,310 @@
+{
+  "id": "pipe_holdup",
+  "description": "Filled, mixed pipe volume with property-package density and internal-energy storage. Pressure follows the inlet. Density changes are accommodated by mass accumulation and outlet flow; no pressure dynamics, heat loss, wall energy or spatial transport.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          },
+          "scale": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "length": {
+          "unit": "m",
+          "bounds": {
+            "min": 1e-08
+          },
+          "scale": 1
+        },
+        "diameter": {
+          "unit": "m",
+          "bounds": {
+            "min": 1e-08
+          },
+          "scale": 1
+        }
+      }
+    },
+    "geometry": {
+      "direction": "output",
+      "variables": {
+        "volume": {
+          "unit": "m**3",
+          "bounds": {
+            "min": 0
+          },
+          "scale": 1
+        }
+      }
+    },
+    "inventory": {
+      "direction": "output",
+      "variables": {
+        "energy": {
+          "unit": "J",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-08
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05
+        },
+        "mass": {
+          "unit": "kg",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 1e-08
+          },
+          "scale": 0.001
+        }
+      }
+    },
+    "rates": {
+      "direction": "output",
+      "variables": {
+        "energy": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 0.0001
+        },
+        "mass": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          },
+          "scale": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05
+        }
+      }
+    }
+  },
+  "formulations": {
+    "mixed": {
+      "constraints": {
+        "volume": {
+          "lhs": "geometry.volume",
+          "rhs": "3.141592653589793 * parameters.diameter ** 2 * parameters.length / 4",
+          "determines": "geometry.volume"
+        },
+        "thermal_state": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "inventory.energy[t]",
+          "rhs": "inventory.mass[t] * inventory.enthalpy[t] - inlet.pressure[t] * geometry.volume",
+          "determines": "inventory.enthalpy[t]"
+        },
+        "energy_balance": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "rates.energy[t]",
+          "rhs": "inlet.flow[t] * inlet.enthalpy[t] - outlet.flow[t] * outlet.enthalpy[t]",
+          "determines": "rates.energy[t]"
+        },
+        "mass_state": {
+          "lhs": "inventory.mass[t]",
+          "rhs": "contents_state.properties.density[t] * geometry.volume",
+          "determines": "inventory.mass[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "mass_balance": {
+          "lhs": "rates.mass[t]",
+          "rhs": "inlet.flow[t] - outlet.flow[t]",
+          "determines": "outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "outlet_enthalpy": {
+          "lhs": "outlet.enthalpy[t]",
+          "rhs": "inventory.enthalpy[t]",
+          "determines": "outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "outlet_pressure": {
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "derivatives": {
+        "energy": {
+          "state": "inventory.energy",
+          "rate": "rates.energy",
+          "with_respect_to": "time",
+          "determines": "inventory.energy"
+        },
+        "mass": {
+          "state": "inventory.mass",
+          "rate": "rates.mass",
+          "with_respect_to": "time",
+          "determines": "rates.mass"
+        }
+      },
+      "blocks": {
+        "contents_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "FluidProperties"
+            }
+          }
+        }
+      },
+      "connections": {
+        "contents_state": {
+          "from": "outlet",
+          "to": "contents_state.state"
+        }
+      }
+    }
+  },
+  "block_slots": {
+    "FluidProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,7 +9,7 @@
     "captured_at": "2026-11-03T21:03:27.819523Z",
     "url": "https://ahuoratech.app/project/2450/flowsheet",
     "kind": "current_configuration_snapshot",
-    "note": "Stored current values, not immutable SolveRun results or live plant measurements. Enabled flags alone do not identify fixed specifications: control replacements and formulas also matter. value and displayValue are retained separately; displayValue may be stale."
+    "note": "Stored current values, not immutable SolveRun results or live plant measurements. Enabled flags alone do not identify fixed parameters: control replacements and formulas also matter. value and displayValue are retained separately; displayValue may be stale."
   },
   "status": "current stored values only; these differences are not attributed to a SolveRun or treated as proof of a model failure",
   "manual_return_cuts": [

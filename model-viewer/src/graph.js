@@ -6,29 +6,29 @@ export const variableLabel = (name, variable) => variable.dimensions?.length ? `
 const family = reference => reference.replace(/\[[^\]]*\]/g, '').trim();
 
 export function resolveReference(reference, bindings, library) {
-  if (reference.model_parameter) {
-    const argument = bindings[reference.model_parameter];
+  if (reference.block_slot) {
+    const argument = bindings[reference.block_slot];
     return argument ? { ...argument, domainBindings: reference.domain_bindings ?? {} } : {
-      definition: { id: `<${reference.model_parameter}>`, structs: {}, relationships: {} },
+      definition: { id: `<${reference.block_slot}>`, structs: {}, formulations: {} },
       bindings: {}, unresolved: true,
     };
   }
-  const definition = library[reference.model];
-  if (!definition) throw new Error(`Missing model definition: ${reference.model}`);
-  return { definition, domainBindings: reference.domain_bindings ?? {}, bindings: Object.fromEntries(Object.entries(reference.model_arguments ?? {})
+  const definition = library[reference.block];
+  if (!definition) throw new Error(`Missing block definition: ${reference.block}`);
+  return { definition, domainBindings: reference.domain_bindings ?? {}, bindings: Object.fromEntries(Object.entries(reference.block_arguments ?? {})
     .map(([name, argument]) => [name, resolveReference(argument, bindings, library)])) };
 }
 
-export function makeGraph(context, relationshipName, library, view = 'detailed', replacements = [], prefix = '') {
+export function makeGraph(context, formulationName, library, view = 'detailed', replacements = [], prefix = '') {
   const { definition, bindings = {} } = context;
-  const relationship = definition.relationships[relationshipName];
+  const formulation = definition.formulations[formulationName];
   const nodes = [], edges = [], warnings = [];
-  if (!relationship) return { nodes, edges, warnings };
+  if (!formulation) return { nodes, edges, warnings };
   const ports = new Map();
   function addNode(id, kind, title, structs, extra = {}) {
     const rows = [];
     for (const [name, struct] of Object.entries(structs)) {
-      const prefix = kind === 'model' ? `${title}.` : '';
+      const prefix = kind === 'block' ? `${title}.` : '';
       ports.set(prefix + name, { node: id, handle: name });
       rows.push({ name, direction: struct.direction, variables: struct.variables });
       for (const variable of Object.keys(struct.variables))
@@ -39,13 +39,13 @@ export function makeGraph(context, relationshipName, library, view = 'detailed',
   }
   for (const [name, struct] of Object.entries(definition.structs))
     addNode(`struct:${name}`, struct.direction, name, { [name]: struct });
-  for (const [alias, ref] of Object.entries(relationship.models ?? {})) {
+  for (const [alias, ref] of Object.entries(formulation.blocks ?? {})) {
     try {
       const child = resolveReference(ref, bindings, library);
-      const structs = child.unresolved ? definition.model_parameters?.[ref.model_parameter]?.requires ?? {} : child.definition.structs;
-      addNode(`model:${alias}`, 'model', alias, structs, { child, subtitle: child.definition.id, domains: child.definition.domains ?? {}, domainBindings: ref.domain_bindings ?? {} });
-      if (child.unresolved) warnings.push(`${alias}: generic ${ref.model_parameter} is unbound. Open a concrete wrapper to resolve it.`);
-    } catch (error) { warnings.push(error.message); addNode(`model:${alias}`, 'model', alias, {}, { subtitle: error.message }); }
+      const structs = child.unresolved ? definition.block_slots?.[ref.block_slot]?.requires ?? {} : child.definition.structs;
+      addNode(`block:${alias}`, 'block', alias, structs, { child, subtitle: child.definition.id, domains: child.definition.domains ?? {}, domainBindings: ref.domain_bindings ?? {} });
+      if (child.unresolved) warnings.push(`${alias}: generic ${ref.block_slot} is unbound. Open a concrete wrapper to resolve it.`);
+    } catch (error) { warnings.push(error.message); addNode(`block:${alias}`, 'block', alias, {}, { subtitle: error.message }); }
   }
   function link(id, from, to, label, kind) {
     if (!from || !to) { warnings.push(`Cannot resolve ${label}`); return; }
@@ -53,8 +53,8 @@ export function makeGraph(context, relationshipName, library, view = 'detailed',
       label, type: view === 'summary' ? 'smoothstep' : 'default', markerEnd: { type: 'arrowclosed', width: 24, height: 24, color: diagramColors[kind === 'connection' ? 'connection' : 'dependency'] }, style: { stroke: diagramColors[kind === 'connection' ? 'connection' : 'dependency'], strokeWidth: 2.2 },
       data: { kind }, labelStyle: { fontSize: 10 }, labelBgStyle: { fill: '#fff' } });
   }
-  const equations = { ...relationship.constraints };
-  for (const [name, derivative] of Object.entries(relationship.derivatives ?? {})) {
+  const equations = { ...formulation.constraints };
+  for (const [name, derivative] of Object.entries(formulation.derivatives ?? {})) {
     equations[`derivative:${name}`] = {
       lhs: `d(${derivative.state})/d(${derivative.with_respect_to})`, rhs: derivative.rate,
       determines: derivative.determines, derivative,
@@ -70,7 +70,7 @@ export function makeGraph(context, relationshipName, library, view = 'detailed',
     }
     link(`${id}:determines`, { node: id, handle: 'equation' }, ports.get(family(equation.determines)), equation.determines, 'determines');
   }
-  for (const [name, connection] of Object.entries(relationship.connections ?? {}))
+  for (const [name, connection] of Object.entries(formulation.connections ?? {}))
     link(`connection:${name}`, ports.get(connection.from), ports.get(connection.to), name, 'connection');
   // Project descendant variables onto their containing visible model. Their
   // full paths remain on the edge, so drilling down never changes the pair.
@@ -79,7 +79,7 @@ export function makeGraph(context, relationshipName, library, view = 'detailed',
     const local = prefix ? path.slice(prefix.length + 1) : path;
     if (ports.has(local)) return ports.get(local);
     const alias = local.split('.')[0];
-    const node = nodes.find(node => node.id === `model:${alias}`);
+    const node = nodes.find(node => node.id === `block:${alias}`);
     if (!node || node.data.child?.unresolved || local.split('.').length < 3) return null;
     const handle = `replacement:${local}`;
     return { node: node.id, handle };
@@ -96,7 +96,7 @@ export function makeGraph(context, relationshipName, library, view = 'detailed',
       if (!node.data.replacementPorts.includes(endpoint.handle)) node.data.replacementPorts.push(endpoint.handle);
     }
     edges.push({
-      id: `replacement:${pair.recordId}`, source: from.node, target: to.node,
+      id: `replacement:${pair.recordTag}`, source: from.node, target: to.node,
       sourceHandle: `${from.handle}:out`, targetHandle: `${to.handle}:in`,
       ariaLabel: `${pair.from} replaces ${pair.to}`, type: 'smoothstep',
       markerEnd: { type: 'arrow', width: 24, height: 24, color: diagramColors.replacement, strokeWidth: 2 },
@@ -141,7 +141,7 @@ export function makeGraph(context, relationshipName, library, view = 'detailed',
     const compact = node.data.summary && node.data.kind !== 'constraint';
     node.data.width = compact ? 180 : 300;
     if (node.data.summary && node.data.kind === 'constraint') node.data.height = 85;
-    if (compact) node.data.height = node.data.kind === 'model' ? 170 : 85;
+    if (compact) node.data.height = node.data.kind === 'block' ? 170 : 85;
     layout.setNode(node.id, { width: node.data.width, height: node.data.height });
   });
   // Feedback annotations must not change the underlying process layout.

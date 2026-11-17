@@ -14,7 +14,7 @@ from idaes.core.solvers import get_solver
 from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import (
-    InformationDocument, SpecificationDocument, apply_specification, build_model,
+    ResourceCatalog, ParameterCatalog, apply_parameters, build_model,
     get_variable, export_workspace,
 )
 
@@ -31,28 +31,28 @@ def make_tank(*, mode="dynamic", horizon=1000, time_unit="s", library=None):
 
 def specify_tank(model, *, inflow=1, outflow=1, loss=0,
                  initial_values=None):
-    """Apply operating and initial specifications together, after construction.
+    """Apply operating and initial parameters together, after construction.
 
     Experiments may override three operating assumptions or supply alternative
-    initial-record IDs. Passing [] omits the default initial conditions.
+    initial-record tags. Passing [] omits the default initial conditions.
     """
-    information = InformationDocument.load_json(HERE / "information.json")
+    resources = ResourceCatalog.load_json(HERE / "resources.json")
     overrides = {"inlet_flow": inflow, "withdrawal_flow": outflow, "heat_loss": loss}
-    information = InformationDocument([
-        {**record.model_dump(), "value": overrides.get(record.id, record.value)}
-        for record in information.records
+    resources = ResourceCatalog([
+        {**record.model_dump(), "value": overrides.get(record.tag, record.value)}
+        for record in resources.records
     ])
-    name = "specification.json" if model.fs.config.dynamic else "steady_specification.json"
-    specification = SpecificationDocument.load_json(HERE / name)
+    name = "parameters.json" if model.fs.config.dynamic else "steady_parameters.json"
+    parameters = ParameterCatalog.load_json(HERE / name)
     if initial_values is not None:
-        specification = SpecificationDocument.model_validate({
-            **specification.model_dump(), "initial_values": initial_values,
+        parameters = ParameterCatalog.model_validate({
+            **parameters.model_dump(), "initial_values": initial_values,
         })
-    apply_specification(model, specification, information)
+    apply_parameters(model, parameters, resources)
 
 
 def set_initial_guesses(model, *, outflow=1):
-    b = model.fs.root.relationship.models.tank.structs
+    b = model.fs.root.formulation.blocks.tank.structs
     # Guesses do not fix any additional states or derivatives.
     for variable in model.component_data_objects(pyo.Var):
         if variable.value is None:
@@ -65,12 +65,12 @@ def set_initial_guesses(model, *, outflow=1):
             for v in family.values():
                 if not v.fixed: v.set_value(125820.1198085)
     from multifidelity.model_language.standard.initialization import seed_affine_state
-    tank = model.fs.root.relationship.models.tank
+    tank = model.fs.root.formulation.blocks.tank
     pressure = 101325
     inlet_h = 104920.1198085 + 4180 * 35
     contents_h = 104920.1198085 + 4180 * 5
-    seed_affine_state(tank.relationship.models.inlet_state, pressure, inlet_h)
-    seed_affine_state(tank.relationship.models.contents_state, pressure, contents_h)
+    seed_affine_state(tank.formulation.blocks.inlet_state, pressure, inlet_h)
+    seed_affine_state(tank.formulation.blocks.contents_state, pressure, contents_h)
     for t in model.fs.time:
         for variable, guess in (
             (b.inventory.level[t], 1),
@@ -123,8 +123,8 @@ def main():
                        nfe=1 if args.backend == "petsc" else 100)
     for label, model in (("steady", steady), ("dynamic", dynamic)):
         export_workspace(
-            model, HERE / "information.json", status="optimal", solver=args.backend if label == "dynamic" else "ipopt",
-            specification=HERE / ("specification.json" if label == "dynamic" else "steady_specification.json"),
+            model, HERE / "resources.json", status="optimal", solver=args.backend if label == "dynamic" else "ipopt",
+            parameters=HERE / ("parameters.json" if label == "dynamic" else "steady_parameters.json"),
         ).write_json(HERE / f"{label}_workspace.json")
         t = model.fs.time.last()
         level = get_variable(model, "tank.inventory.level")[t]

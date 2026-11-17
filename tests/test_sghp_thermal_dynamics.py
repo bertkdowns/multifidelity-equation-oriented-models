@@ -50,7 +50,7 @@ def test_aggregate_power_step_accumulates_heat_with_initial_conditions_only(solv
     assert steam[600]==pytest.approx(steam[0],rel=1e-8)
 
 
-def test_detailed_relationship_turns_source_warming_into_extra_steam(solver, tmp_path):
+def test_detailed_formulation_turns_source_warming_into_extra_steam(solver, tmp_path):
     prefix=tmp_path/'cycle'
     completed=subprocess.run(
         [sys.executable,str(HERE/'examples/steam_generating_heat_pump_system/run_thermal_dynamics.py'),
@@ -59,13 +59,13 @@ def test_detailed_relationship_turns_source_warming_into_extra_steam(solver, tmp
     assert completed.returncode==0,completed.stdout[-4000:]+completed.stderr[-2000:]
     report=json.loads(Path(str(prefix)+'_report.json').read_text())
     result=json.loads(Path(str(prefix)+'_results.json').read_text())
-    spec=json.loads(Path(str(prefix)+'_specification.json').read_text())
+    spec=json.loads(Path(str(prefix)+'_parameters.json').read_text())
     assert report['solved'] and report['max_scaled_violation']<1e-6
     assert not any(report['structure'].values())
-    assert result['model_id']=='steam_generating_heat_pump_system_thermal'
-    assert result['implementation']['submodels']['sghp']['relationship']=='cycle'
-    assert 'thermal_sghp_cop' not in spec['specifications']
-    assert 'thermal_sghp_pressure_rise' in spec['specifications']
+    assert result['block_id']=='steam_generating_heat_pump_system_thermal'
+    assert result['model_catalog']['subblocks']['sghp']['formulation']=='cycle'
+    assert 'thermal_sghp_cop' not in spec['parameters']
+    assert 'thermal_sghp_pressure_rise' in spec['parameters']
     variables={r['variable_path']:r['entries'] for r in result['variables']}
     def values(path):
         return {e['index'][0]:e['value'] for e in variables[path]}

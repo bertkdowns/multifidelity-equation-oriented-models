@@ -1,4 +1,4 @@
-"""Library pipe fidelity selection and mixed-inventory response."""
+"""BlockLibrary pipe fidelity selection and mixed-inventory response."""
 import json
 import math
 from pathlib import Path
@@ -7,7 +7,7 @@ import pyomo.environ as pyo
 import pytest
 from pyomo.util.check_units import assert_units_consistent
 
-from multifidelity.model_language import build_model, required_initial_values, required_inputs, Library
+from multifidelity.model_language import build_model, required_initial_values, required_inputs, BlockLibrary
 
 EXAMPLES = Path(__file__).parents[1] / 'examples/model_language'
 
@@ -21,7 +21,7 @@ def test_ideal_pipe_has_no_inventory_or_geometry(solver):
     assert set(required_inputs('pipe_flowsheet', chosen)) == {'pipe.inlet.flow', 'pipe.inlet.pressure', 'pipe.inlet.enthalpy'}
     assert required_initial_values('pipe_flowsheet', chosen) == {}
     m = build_model('pipe_flowsheet', chosen)
-    b = m.fs.root.relationship.models.pipe.structs
+    b = m.fs.root.formulation.blocks.pipe.structs
     for field, value in [('flow', 2), ('pressure', 1e5), ('enthalpy', 1000)]:
         getattr(b.inlet, field).fix(value)
     pyo.assert_optimal_termination(solver.solve(m))
@@ -34,9 +34,9 @@ def test_ideal_pipe_has_no_inventory_or_geometry(solver):
 def test_lumped_pipe_geometry_and_thermal_response(mode, variable_density, solver):
     chosen = selection('lumped')
     assert set(required_initial_values('pipe_flowsheet', chosen)) == {'pipe.contents.inventory.energy', 'pipe.contents.rates.mass'}
-    library = Library()
+    library = BlockLibrary()
     if variable_density:
-        library.get('water_state_ph').relationships['constant_properties'].constraints['density'].rhs = (
+        library.get('water_state_ph').formulations['constant_properties'].constraints['density'].rhs = (
             'parameters.density * (1 - parameters.thermal_expansion * '
             '(properties.temperature[t] - parameters.reference_temperature))')
     initial_temperature = 298.15 + (1000 - 104920.1198085 - (1e5-101325)/997)/4180
@@ -44,8 +44,8 @@ def test_lumped_pipe_geometry_and_thermal_response(mode, variable_density, solve
     m = build_model('pipe_flowsheet', chosen, library=library, mode=mode, domain_values={'time': [0, 10]} if mode == 'dynamic' else None)
     if mode == 'dynamic':
         pyo.TransformationFactory('dae.finite_difference').apply_to(m, wrt=m.fs.time, nfe=100, scheme='BACKWARD')
-    b = m.fs.root.relationship.models.pipe.structs
-    c = m.fs.root.relationship.models.pipe.relationship.models.contents.structs
+    b = m.fs.root.formulation.blocks.pipe.structs
+    c = m.fs.root.formulation.blocks.pipe.formulation.blocks.contents.structs
     # One cubic metre, 997 kg water inventory; approximately 10 s residence time.
     c.parameters.length.fix(4 / math.pi)
     c.parameters.diameter.fix(1)
@@ -56,11 +56,11 @@ def test_lumped_pipe_geometry_and_thermal_response(mode, variable_density, solve
         c.inventory.energy[0].fix(mass*1000 - 1e5)
         c.rates.mass[0].fix(0)
     from multifidelity.model_language.standard.initialization import seed_affine_state
-    contents = m.fs.root.relationship.models.pipe.relationship.models.contents
+    contents = m.fs.root.formulation.blocks.pipe.formulation.blocks.contents
     for variable in m.component_data_objects(pyo.Var):
         if variable.value is None:
             variable.set_value(max(variable.lb or 1, 1))
-    seed_affine_state(contents.relationship.models.contents_state, 1e5, 1000, flow=100)
+    seed_affine_state(contents.formulation.blocks.contents_state, 1e5, 1000, flow=100)
     for t in m.fs.time:
         c.inventory.mass[t].set_value(mass)
         c.inventory.enthalpy[t].set_value(1000)

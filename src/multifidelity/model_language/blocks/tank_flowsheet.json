@@ -1,0 +1,27 @@
+{
+  "id": "tank_flowsheet",
+  "description": "Concrete water-package example of tank.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {},
+  "formulations": {
+    "flowsheet": {
+      "blocks": {
+        "tank": {
+          "block": "tank",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block": "water_property_package"
+            }
+          }
+        }
+      }
+    }
+  }
+}

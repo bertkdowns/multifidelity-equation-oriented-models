@@ -1,0 +1,29 @@
+{
+  "id": "pump_flowsheet",
+  "description": "Concrete water-package example for the generic pump.",
+  "structs": {},
+  "formulations": {
+    "flowsheet": {
+      "blocks": {
+        "pump": {
+          "block": "pump",
+          "block_arguments": {
+            "FluidProperties": {
+              "block": "water_property_package"
+            }
+          },
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {},
+      "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

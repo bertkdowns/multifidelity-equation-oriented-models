@@ -7,14 +7,14 @@ establish consistent operating conditions across a coupled flowsheet before we
 introduce the internal detail.
 
 There is some work to do before that. We need sensible starting values, and a
-way to initialise individual models and their parents. This note proposes a
+way to initialise individual blocks and their parents. This note proposes a
 bottom-up procedure using the model tree and Dulmage–Mendelsohn (DM) analysis.
 The bounded steady-state procedure is implemented by `initialize_model()`.
 Its broader use and aggregate-first extension remain research questions.
 
 The starting-value groundwork is now available: variable declarations accept an
-optional `default`, unused information can seed free variables, and custom
-providers can register an optional explicit initialisation callback. The recursive
+optional `default`, unused resources can seed free variables, and custom
+feeds can register an optional explicit initialisation callback. The recursive
 procedure builds on these pieces; aggregate-first transfer is not implemented.
 
 ## Starting values come first
@@ -34,19 +34,19 @@ property package had its own internal defaults. We need to initialise the
 public variables as well as the variables inside the provider.
 
 Starting values come from defaults on individual struct variable declarations,
-then from applicable information records not used to specify the model. There
-is no separate initial-guesses document. Information guesses override defaults;
+then from applicable resource records not used to specify the model. There
+is no separate initial-guesses catalog. Resource guesses override defaults;
 the highest trust rank wins between alternative records, with ID breaking ties.
-Fixed operating specifications are preserved, and held-out records can be
+Fixed operating parameters are preserved, and held-out records can be
 explicitly excluded. A previous solution could also supply values later.
-The package and model should provide physically reasonable defaults where information is
+The package and model should provide physically reasonable defaults where resources is
 missing. Units alone cannot determine a useful value: liquid-water density and
 refrigerant-vapour density are quite different despite having the same units.
 
 Keep three concepts separate:
 
 - A **starting value** is a guess that the solver may change.
-- An **operating specification** fixes a quantity for the requested problem.
+- An **operating parameters** fixes a quantity for the requested problem.
 - A **temporary initialisation fix** holds a guessed value during a local solve
   and is released afterwards.
 
@@ -56,15 +56,15 @@ separate modelling question.
 For example, a struct variable can declare
 `{"unit": "Pa", "default": 200000, "dimensions": ["time"]}`. The default
 broadcasts over the variable's indices without fixing any of them. Unused
-information then supplies more specific guesses, with the same unit conversion
-and grid-shape checks used for operating information. Information reserved as
+resources then supplies more specific guesses, with the same unit conversion
+and grid-shape checks used for operating resources. Resource reserved as
 held-out evidence should be excluded from this step.
 
-## Initialising custom models
+## Initialising custom blocks
 
 A custom Python provider builds its symbolic equations as before. It can also
 register an optional numerical initialisation callback, invoked explicitly after
-construction and specification. The callback can calculate internal guesses or
+construction and parameters. The callback can calculate internal guesses or
 delegate to an existing native initialiser. Providers without a callback remain
 available for a future generic DM procedure.
 
@@ -81,16 +81,16 @@ its leaves. It does not require every model to supply custom code.
 
 ## Proposed bottom-up procedure
 
-Start at the lowest-level models and work upwards through the tree. At each
+Start at the lowest-level blocks and work upwards through the tree. At each
 model, use its equations and the equations of its descendants, with the existing
-operating specifications retained. Initialise its children before attempting
+operating parameters retained. Initialise its children before attempting
 the model itself.
 
 For each local problem:
 
 1. Establish valid starting values for its variables, including property-package
    variables and their public projections.
-2. Preserve the quantities explicitly fixed by the operating specification.
+2. Preserve the quantities explicitly fixed by the operating parameters.
    A variable having a current value does not make it fixed. A quantity defined
    by an equation should continue to be determined by that equation.
 3. Run DM analysis on the active local equality system. Include isolated free
@@ -113,31 +113,31 @@ fixing every input in the original underconstrained set. For example, if a local
 equation is `x + y = 10`, fixing either variable closes the problem; fixing both
 can impose inconsistent values.
 
-The existing [information-directed specification procedure](information-directed-specification.md)
+The existing [resources-directed parameters procedure](resources-directed-parameters.md)
 already uses trial fixes and repeated DM analysis. We can reuse that structural
 idea, but the meaning and lifetime of the fixes differ. Here, guessed values
-close temporary local problems; they do not become new operating specifications
-or measured information.
+close temporary local problems; they do not become new operating parameters
+or measured resources.
 
 ## What belongs to a local problem?
 
 The model tree gives us an initialisation order, but it does not necessarily
-give us independent numerical problems. Sibling models can be coupled through
+give us independent numerical problems. Sibling blocks can be coupled through
 parent equations, and a recycle can cross several branches of the tree.
 
 A local solve needs a clear boundary: the equations in the selected subtree,
-the variables those equations use, and the applicable operating specifications.
+the variables those equations use, and the applicable operating parameters.
 Parent connection equations enter when we solve the parent. Independent child
 solutions may therefore disagree at a connection; the parent solve reconciles
 them using those values as guesses.
 
-Operating specifications on descendant variables must still be respected even
+Operating parameters on descendant variables must still be respected even
 when they were supplied at the top level. For example, if inlet temperature is
 specified through a state block, we cannot also fix its enthalpy arbitrarily
 and expect the property equations to remain consistent. Trial fixes should
-respect that existing temperature specification.
+respect that existing temperature parameters.
 
-For native property providers, the lowest useful initialisation boundary may
+For native property feeds, the lowest useful initialisation boundary may
 be the provider as a whole. We should make use of an existing provider
 initialiser where appropriate, rather than assuming every internal native
 block should be solved independently.
@@ -153,7 +153,7 @@ same restriction.
 
 The input interface defines the available boundary choices. The actual number
 of independent temporary fixes still comes from the equations, connections and
-existing specifications through DM analysis; it is not necessarily the raw
+existing parameters through DM analysis; it is not necessarily the raw
 number of declared input variables. For example, a specified temperature can
 remove one freedom from a pressure/enthalpy state.
 
@@ -179,7 +179,7 @@ enough: underconstrained and overconstrained parts can coexist.
 
 Even a complete structural matching does not prove numerical independence or
 physical feasibility. Redundant equations, poor scaling, invalid property
-states and incompatible operating specifications can still prevent a solve.
+states and incompatible operating parameters can still prevent a solve.
 The procedure needs to distinguish structural failure from numerical failure.
 
 ## Scaling and numerical selection of temporary inputs
@@ -187,7 +187,7 @@ The procedure needs to distinguish structural failure from numerical failure.
 Variable declarations now support an optional positive multiplicative `scale`,
 using the IDAES convention. For example, pressure in Pa with `scale: 1e-5` is
 multiplied by that factor; it is not divided by it. An omitted scale means factor
-1, independently of the variable's starting guess. Native providers can register
+1, independently of the variable's starting guess. Native feeds can register
 an optional scaling callback, with conversion of mapped public/native factors
 across units. Equations are automatically scaled by normalising Jacobian rows
 after applying the variable scales.
@@ -197,7 +197,7 @@ SVD of the scaled local Jacobian to identify its undetermined directions. Rank
 each eligible input by its squared participation across an orthonormal null-space
 basis, select one, and apply the existing structural trial check. Recompute after
 each accepted fix. Internal variables and outputs remain in the analysis but
-cannot be selected for fixing. Numerical ties use information trust then path
+cannot be selected for fixing. Numerical ties use resources trust then path
 and index; this is not a sequential-decomposition provenance preference.
 
 For a fixed-temperature water state, pressure should be preferred over enthalpy
@@ -220,10 +220,10 @@ Two alternative factorisations are future research directions:
 - **Direct constrained QR of the Jacobian:** retain internal variables and
   outputs as mandatory unknowns, and select only among eligible boundary inputs
   without explicitly constructing a null-space basis. Investigate sparse
-  implementations for larger coupled problems.
+  modelCatalogs for larger coupled problems.
 
 Compare these with the implemented method using the same final operating
-specifications and guesses. Include factorisation cost and numerical robustness;
+parameters and guesses. Include factorisation cost and numerical robustness;
 none of these methods should enumerate combinations of local solver attempts.
 
 ## Future interaction with sequential decomposition
@@ -237,13 +237,13 @@ connection before initialising the downstream model.
 This gives some downstream inputs values calculated from upstream equipment,
 while others still have declaration defaults or other guesses. We may want to
 prefer temporarily fixing inputs whose current values came from successfully
-initialised upstream models, leaving other eligible inputs free. That preference
+initialised upstream blocks, leaving other eligible inputs free. That preference
 is a research question, not a rule implemented by the current initializer.
 
 Questions to investigate include:
 
 - How should upstream-derived values be distinguished from defaults and other
-  information, and when does that provenance become stale after a model changes?
+  resources, and when does that provenance become stale after a model changes?
 - Should upstream provenance take priority over numerical conditioning, or only
   break ties between similarly conditioned choices? DM must still check the
   structural validity of each proposed fix.
@@ -253,14 +253,14 @@ Questions to investigate include:
   treated compared with values from upstream equipment in the current pass?
 
 An upstream-derived value remains an initialisation value, not a new permanent
-operating specification or independent measurement. It may need to change when
+operating parameters or independent measurement. It may need to change when
 the parent or complete recycle is solved. No new provenance data structure or
 fixed preference order is committed to here.
 
 ## Returning to the full system
 
 All temporary fixes must be tracked and released, including on a failed solve.
-The original operating specification and equation activation must be restored.
+The original operating parameters and equation activation must be restored.
 A successful initialisation supplies values for the final model; it must not
 quietly change the problem being solved.
 
@@ -269,12 +269,12 @@ system. Local initialisation success is not evidence that this final solve will
 succeed. In particular, tightly coupled recycles may need more than a single
 bottom-up pass.
 
-The implementation fixes only current-boundary inputs and unsupplied descendant
+The model fixes only current-boundary inputs and unsupplied descendant
 public inputs, never outputs or arbitrary internal variables. It reports missing guesses on derived
 unknowns but allows the solver to find them; a temporary boundary fix always
 requires an existing finite, in-bounds value. It stops at the first failed stage,
 restores that stage's values, and retains earlier successful child values.
-The root must already be structurally determined under the operating specification.
+The root must already be structurally determined under the operating parameters.
 
 Record which variables were temporarily fixed, their values and units, the
 structural deficiency before and after each accepted fix, and local solver
@@ -292,11 +292,11 @@ Once the baseline procedure works, we can investigate:
    where their meanings agree.
 4. Initialise the newly introduced internal states, then apply the bottom-up
    procedure to the detailed representation.
-5. Solve the full detailed system under the intended operating specification.
+5. Solve the full detailed system under the intended operating parameters.
 
 Transfer starting values, rather than copying temporary fixity. Check fluid,
-units and enthalpy-reference compatibility. A different implementation may also
-need a different set of independent specifications to express the same operating
+units and enthalpy-reference compatibility. A different model may also
+need a different set of independent parameters to express the same operating
 conditions.
 
 An aggregate heat-pump solution will not directly provide compressor suction
@@ -308,7 +308,7 @@ more reliable or less expensive.
 
 ## First experiments
 
-Keep the first implementation bounded to steady-state models and the current
+Keep the first model bounded to steady-state blocks and the current
 heat-pump system. Compare:
 
 - Direct solving with the current starting values.

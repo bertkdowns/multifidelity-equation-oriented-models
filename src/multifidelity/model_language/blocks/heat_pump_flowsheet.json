@@ -1,0 +1,35 @@
+{
+  "id": "heat_pump_flowsheet",
+  "description": "Concrete flowsheet supplying independent hot-side and cold-side water property blocks to a generic heat pump.",
+  "structs": {},
+  "formulations": {
+    "flowsheet": {
+      "blocks": {
+        "heat_pump": {
+          "block": "heat_pump",
+          "block_arguments": {
+            "HotSideProperties": {
+              "block": "water_property_package"
+            },
+            "ColdSideProperties": {
+              "block": "water_property_package"
+            },
+            "RefrigerantProperties": {
+              "block": "water_property_package"
+            }
+          },
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {},
+      "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

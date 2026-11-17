@@ -9,10 +9,10 @@ The current operating reference is
 content revision 13, captured 4 November 2026 NZDT. It replaces the earlier
 flowsheet 2384 reference.
 
-For the current comparison with identical operating specifications, run
+For the current comparison with identical operating parameters, run
 `compare_fidelities.py` and use the `common_*` artifacts described at the end of
-this document. The earlier attempt scripts and reports preserve the sequence of
-operating-specification experiments.
+this catalog. The earlier attempt scripts and reports preserve the sequence of
+operating-parameters experiments.
 
 The first dynamic thermal demonstration is also available: run
 `run_thermal_dynamics.py` and open `thermal_step_workspace.json`. It uses three
@@ -30,7 +30,7 @@ Run from the repository root:
 .venv/bin/python examples/steam_generating_heat_pump_system/build.py --sghp cycle --phnix cycle
 ```
 
-The scripts register the standard providers, construct equations, check units,
+The scripts register the standard feeds, construct equations, check units,
 and report forward input coverage. Native Helmholtz functions and the Ahuora
 property package dependency are required. The filename lists SGHP choice first,
 PHNIX second. Construction does not fix values or solve the whole plant.
@@ -52,12 +52,12 @@ For the existing CLI, add provider registration explicitly:
 | Steam | Flash vapor → steam valve → exported steam |
 
 The three-circuit `steam_generating_heat_pump_unit` preserves source, hot and
-warm stream interfaces across its aggregate and cycle relationships. Aggregate
+warm stream interfaces across its aggregate and cycle formulations. Aggregate
 heating duty includes condenser **and** subcooler heat. The detailed compressor
 now uses **n-butane Helmholtz PH properties** for its inlet, actual outlet and
 isentropic reference. PHNIX's cycle uses **propane Helmholtz PH properties**
 for the same three state occurrences. Water pumps and
-PHNIX water-side state models use Helmholtz water rather than affine coefficients.
+PHNIX water-side state blocks use Helmholtz water rather than affine coefficients.
 PHNIX's named “Air Source” boundary still uses water properties, matching the
 reference's explicit modelling assumption; no air-property model is implied.
 
@@ -82,12 +82,12 @@ blocks link to inlet pressure and enthalpy and expose temperature as a variable.
 **Fix temperature on that property block and leave enthalpy free.** The coupled
 Helmholtz equations then calculate enthalpy during the solve.
 
-For example, an information record for the SGHP source-water inlet is:
+For example, an resource record for the SGHP source-water inlet is:
 
 ```json
 {
-  "id": "source_temperature",
-  "information_type": "assumption",
+  "tag": "source_temperature",
+  "resource_type": "assumption",
   "variable_path": "sghp.source_inlet_state.properties.temperature",
   "value": 350.15,
   "unit": "K",
@@ -102,25 +102,25 @@ Other paths include `sghp.hot_inlet_state.properties.temperature`,
 These are direct state blocks: specify `makeup_state.state.pressure` and
 `makeup_state.properties.temperature`, and connect `makeup_state.state` to downstream
 equipment inputs. Reading a state input as a connection source does not supply it;
-the state still needs operating specifications. Separate top-level input structs
+the state still needs operating parameters. Separate top-level input structs
 and feed wrappers are unnecessary. Values are time-indexed, even for a single
 steady operating point.
 Use Kelvin in records; do not fix both temperature and enthalpy for the same
-pressure unless another specification is deliberately released. For a saturated
+pressure unless another parameters is deliberately released. For a saturated
 two-phase inlet, pressure and temperature alone do not determine enthalpy: use
 pressure and `properties.vapor_fraction` instead. Refrigerant compressor inlet
 temperatures are available at `sghp.compressor.inlet_state.properties.temperature`
 and `phnix.compressor.inlet_state.properties.temperature` in their cycle selections.
 
 `required_inputs()` still reports the forward PH declaration contract; it is
-not a requirement to fix enthalpy numerically. The specification selector uses
+not a requirement to fix enthalpy numerically. The parameters selector uses
 the actual equation structure and can select property temperature instead.
 
 ```bash
 .venv/bin/python examples/steam_generating_heat_pump_system/build.py --sghp cycle --apply-reference
 ```
 
-This applies a partial independent specification and reports missing information.
+This applies a partial independent parameters and reports missing resources.
 It reserves steam flow and total power for prediction. It does not fill missing
 closures or claim that the complete recirculating plant has been solved.
 
@@ -144,7 +144,7 @@ The outlet named `vapor` receives the complementary fractions. Both fractions
 are bounded from 0 to 1. Intermediate settings can send mixtures to both outlets;
 these are phase-routing fractions, not prescribed outlet vapor qualities.
 Calculated qualities and temperatures are exposed on `liquid_properties` and
-`vapor_properties`. No outlet enthalpy specification is needed. Empty outlets use
+`vapor_properties`. No outlet enthalpy parameters is needed. Empty outlets use
 the corresponding inlet phase enthalpy as a reporting convention, with zero mass
 and energy flux. Simple liquid-water approximations cannot supply two-phase
 enthalpies and are rejected as flash arguments.
@@ -158,7 +158,7 @@ enthalpies and are rejected as flash arguments.
 Requires IPOPT. The SGHP aggregate replay fixes inlet flows, pressures and
 **property-block temperatures**, captured work, warm-water duty and a COP
 calibrated from that same reference point. Inlet/outlet enthalpies remain free.
-Numerical guesses are set separately from specifications.
+Numerical guesses are set separately from parameters.
 
 The captured duties are 46.7606715 kW at the condenser and 20.6947322 kW at the
 subcooler, with 12.7558356 kW compressor work: total heating COP is 5.288200.
@@ -175,12 +175,12 @@ COP is calibrated at this point; agreement is not independent prediction validat
 
 ## Complete-system solve attempt without initialization
 
-`attempt_information.json` and `attempt_specification.json` capture the requested
+`attempt_resources.json` and `attempt_parameters.json` capture the requested
 aggregate/aggregate operating point: source tank duty zero, steam export 1 bar
 absolute, warm loop and warm makeup 2 bar absolute, and makeup 55.99 kg/h.
 Steam flow remains a prediction constrained by the steady mass balances. The
 captured splitter fraction is released because it becomes dependent on this
-specification. Other applicable reference specifications are retained.
+parameters. Other applicable reference parameters are retained.
 
 ```bash
 .venv/bin/python examples/steam_generating_heat_pump_system/attempt_solve.py
@@ -195,7 +195,7 @@ infeasibility of the requested operating conditions. Add `--diagnostic` to stop
 on the first invalid evaluation with the symbolic constraint name.
 
 Reusable declaration defaults now provide guesses during construction. A later
-attempt using these defaults and unused information moved past the 0/0 failure,
+attempt using these defaults and unused resources moved past the 0/0 failure,
 but reached the 500-iteration limit without convergence; see
 `attempt_with_defaults_result.json`. The original result remains historical
 evidence rather than the expected outcome of rerunning with current defaults.
@@ -206,10 +206,10 @@ evidence rather than the expected outcome of rerunning with current defaults.
 .venv/bin/python examples/steam_generating_heat_pump_system/attempt_bottom_up.py
 ```
 
-This applies the same saved operating specification, seeds unused information,
+This applies the same saved operating parameters, seeds unused resources,
 and invokes `initialize_model()`. It writes `attempt_bottom_up_result.json` and
 returns a nonzero exit status if a stage fails. No replay helpers, case-specific
-guesses, or changes to the operating specification are applied.
+guesses, or changes to the operating parameters are applied.
 
 The prescribed-COP model defaults to an unfixed guess of 3 and the prescribed-power
 model to 1000 W (1 kW). The thermal-conditioner model defaults to 1 kg/s,
@@ -242,7 +242,7 @@ stages. To avoid needing value propagation, the SGHP unit declares stream guesse
 of 1 kg/s, 200 kPa and 100 kJ/kg on its own inlet/outlet structs, plus coherent
 performance guesses: COP 3, electrical power 1 kW, heating/hot-water duty 3 kW,
 warm-water duty zero and cooling duty 2 kW. These are unfixed initial guesses,
-and operating specifications still take precedence.
+and operating parameters still take precedence.
 
 With this change, all SGHP child stages and the SGHP parent initialise successfully.
 The local SGHP closure uses its five independent inlet choices and the descendant
@@ -252,7 +252,7 @@ The aggregate heat-pump model now also declares stream guesses of 1 kg/s,
 and cooling duty 2 kW. The remaining loop equipment has reusable stream,
 phase-routing and performance guesses; exchanger guesses give positive terminal
 temperature differences. These guesses are unfixed and do not replace operating
-specifications.
+parameters.
 
 All 62 component stages now initialise. The final whole-plant stage has no missing
 starting values, but its scaled Jacobian has numerical rank 954 against expected
@@ -277,13 +277,13 @@ when no solver solution is available.
 - `ahuora_reference.json` retains current stored values, units, display text,
   formulas, replacements, ports and tags. These are not live measurements or
   immutable successful SolveRun results.
-- `information.json` contains applicable configuration, temperatures, phase routing
+- `resources.json` contains applicable configuration, temperatures, phase routing
   and explicitly labelled frozen manipulated/design values.
 - `reference_observations.json` keeps captured outputs separate for comparison;
   they are not automatically fixed by the selector.
 - `value_provenance.json` records source identities, transformations and overrides.
-- `sghp_replay_information.json` and `sghp_replay_specification.json` define the
-  temperature-based unit replay; `flash_replay_information.json` supplies pressure
+- `sghp_replay_resources.json` and `sghp_replay_parameters.json` define the
+  temperature-based unit replay; `flash_replay_resources.json` supplies pressure
   and routing fractions, not phase enthalpies.
 - `reference_checks.json` records the original return-cut comparisons.
 
@@ -291,7 +291,7 @@ Original source pressure 651751.6546 kPa remains in the raw capture for audit;
 the local override does not edit Ahuora. In the reference, the hot-water return
 is 0.8257525 kg/s while the independent condenser inlet is 0.8304639 kg/s.
 Makeup is about 55.9892 kg/h versus 72.9501 kg/h steam. A consistent complete
-steady operating specification is still needed to close that mismatch.
+steady operating parameters is still needed to close that mismatch.
 
 The reference has no holdup tank; its `Heater1` is a separate refrigerant state
 calculation. The local source tank remains, while the previously included inline
@@ -303,7 +303,7 @@ inventory, relief devices and control dynamics remain omitted or lumped.
 Using actual refrigerant properties improves the thermodynamics; it does not
 make the complete selected cycle a numerically validated plant model.
 
-## Scaling and specification diagnostics
+## Scaling and parameters diagnostics
 
 Run `inspect_scaling.py` to audit exported factors and inspect the raw AMPL primal
 vector after the failed root solve. This vector is diagnostic evidence, not an
@@ -325,8 +325,8 @@ retry with only `linear_system_scaling=none` removed the warning but retained th
 same large enthalpy residual and restoration failure. No general scaling policy
 has been changed by these experiments.
 
-`diagnose_specifications.py` uses the reusable `relax_specifications` method to
-soften all 31 selected information-table fixes on an independent clone. Physical
+`diagnose_parameters.py` uses the reusable `relax_parameters` method to
+soften all 31 selected resources-table fixes on an independent clone. Physical
 equations and bounds stay hard. The saved default attempt reached its CPU limit;
 its makeup-flow adjustment is provisional and does not identify a bad record.
 Run with `--vapor-enthalpy-scale 1e-5` for the controlled experiment replacing only
@@ -349,15 +349,15 @@ settled before treating the slack ranking as a diagnosis of conflicting data.
 
 ## Current attempt: prescribed flash outlet compositions
 
-The current `attempt_information.json` and `attempt_specification.json` replace
-phase-recovery specifications with outlet vapor fractions: 0.01 in the liquid
+The current `attempt_resources.json` and `attempt_parameters.json` replace
+phase-recovery parameters with outlet vapor fractions: 0.01 in the liquid
 outlet and 0.99 in the vapor outlet. These specify compositions, not recovery
 percentages or total outlet flow fractions. The two phase-routing variables are
-free. Captured reference information and the earlier diagnostic snapshots above
+free. Captured reference resources and the earlier diagnostic snapshots above
 retain their original settings.
 
-Unused information records provide two-phase enthalpy and routing guesses; they
-are not fixed operating specifications. The local flash Jacobian is full rank
+Unused resource records provide two-phase enthalpy and routing guesses; they
+are not fixed operating parameters. The local flash Jacobian is full rank
 after closure, but its solve fails with the initializer's temporary inlet-enthalpy
 and liquid-routing fixes. `attempt_outlet_quality.py` therefore also tries the
 complete plant without those temporary fixes. The initial root numerical rank
@@ -401,10 +401,10 @@ from `replay_calibrated_cop` in the earlier unit replay. It releases the capture
 hot-water inlet temperature, retaining that record as a starting guess. The new
 flash outlet compositions determine different return/mixing states, so fixing
 that old inlet temperature as well was inappropriate for this demonstration.
-The original captured `information.json` remains unchanged; active choices and
-guesses are in `attempt_information.json` and `attempt_specification.json`.
+The original captured `resources.json` remains unchanged; active choices and
+guesses are in `attempt_resources.json` and `attempt_parameters.json`.
 Additional phase-mixture flow/enthalpy guesses make the flash child stages
-consistent with two-phase outlet specifications during local initialization.
+consistent with two-phase outlet parameters during local initialization.
 
 The standard `attempt_bottom_up.py` run now succeeds through all 63 stages.
 The root Jacobian has 957 rows, 957 columns and numerical rank 957. Its complete
@@ -420,7 +420,7 @@ The current calibrated-COP assumption also predicts a two-phase warm-water
 outlet: the cooling exchanger hot inlet is 120.23252 degrees C with vapor
 fraction 0.336265. The equations are satisfied, but this is not a validated
 real-plant operating point. A liquid-only warm loop would require further
-operating-specification choices; no extra phase or temperature constraint has
+operating-parameter choices; no extra phase or temperature constraint has
 been silently imposed here.
 
 ## Current COP 4 trial
@@ -437,22 +437,22 @@ hot inlet is 124.84802 degrees C and entirely vapor. SGHP warm-water duty is
 73.60663 kW, whereas total heating duty is 72.93624 kW; the unconstrained
 aggregate hot-side duty is therefore -0.67039 kW. COP 4 alone does not select the
 intended heating operation. Fixing measured SGHP electrical power as well, while
-releasing PHNIX power, is a possible next operating-specification choice. Those
+releasing PHNIX power, is a possible next operating-parameters choice. Those
 additional changes have not been applied in this trial.
 
 ## Viewing the saved numerical solution
 
 `attempt_bottom_up.py` now also exports `results.json` using the reusable
-`ResultsDocument` format. It contains all 671 public variable families with
-values, units, coordinates and fixed/free state, the chosen implementation,
-specification IDs and explicit solve status. Upload it in the viewer's
+`ResultsCatalog` format. It contains all 671 public variable families with
+values, units, coordinates and fixed/free state, the chosen model,
+parameters IDs and explicit solve status. Upload it in the viewer's
 **Results** tab. The other result JSON files in this folder remain diagnostic
 reports and do not use the upload format.
 
 ## Detailed SGHP cycle trial before the refrigerant recycle cut
 
 Run `.venv/bin/python examples/steam_generating_heat_pump_system/attempt_cycle.py`
-to try `cycle_aggregate.json` with the current shared plant specifications.
+to try `cycle_aggregate.json` with the current shared plant parameters.
 The aggregate-only fixed COP is removed; four captured exchanger conductances
 and compressor efficiency 0.75 are fixed instead. COP is a cycle prediction.
 The resulting plant has zero structural degrees of freedom.
@@ -465,7 +465,7 @@ violation was approximately 1.09e7. These values are failed iterates, not an
 operating solution. The closed refrigerant continuity loop is a candidate
 source of exact redundancy and needs investigation before comparison.
 
-`cycle_attempt_specification.json`, `cycle_attempt_result.json`, and
+`cycle_attempt_parameters.json`, `cycle_attempt_result.json`, and
 `cycle_results.json` preserve the trial separately from the successful aggregate
 case. The results snapshot is explicitly marked failed.
 
@@ -482,8 +482,8 @@ The cut exposes one additional structural degree of freedom. For the saved
 retry, `attempt_cycle.py` freezes the captured compressor pressure rise at
 2011.6863921285753 kPa as an explicit trial operating assumption (reference
 property value 630426); it is not a live measurement.
-`cycle_attempt_information.json` contains this record alongside the shared
-operating information. The resulting complete plant again has zero structural
+`cycle_attempt_resources.json` contains this record alongside the shared
+operating resources. The resulting complete plant again has zero structural
 degrees of freedom. COP and compressor power remain predictions.
 
 The mass-continuity rank deficiency is removed: the unclosed SGHP Jacobian has
@@ -500,14 +500,14 @@ cycle operating point or meaningful COP comparison is available. The trial
 report and failed results snapshot are saved separately from the successful
 aggregate case.
 
-## Cycle specification-relaxation diagnosis
+## Cycle parameters-relaxation diagnosis
 
-`diagnose_cycle_specifications.py` uses the reusable `relax_specifications`
+`diagnose_cycle_parameters.py` uses the reusable `relax_parameters`
 method with variable scales and equal record weights. Run the successful
 diagnostic with:
 
 ```sh
-OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/diagnose_cycle_specifications.py --coherent-guesses
+OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/diagnose_cycle_parameters.py --coherent-guesses
 ```
 
 Default guesses and captured-butane guesses alone both reached iteration limits,
@@ -515,8 +515,8 @@ so their slack rankings are explicitly marked unusable. The coherent diagnostic
 uses the successful aggregate `results.json` for shared public starting values,
 captured butane PH states, and direct evaluation of native property definitions.
 These are diagnostic starting values, not a new library initialization procedure
-or additional fixed specifications. Existing aggregate results and operating
-information are unchanged.
+or additional fixed parameters. Existing aggregate results and operating
+resources are unchanged.
 
 The coherent relaxed optimization converges with maximum scaled violation
 3.76e-10 and maximum raw violation 3.76e-5 J/kg. No negative public flows,
@@ -530,7 +530,7 @@ unique erroneous measurement.
 
 Two controlled verification solves follow the relaxed solve:
 
-- Restore every original selected specification except makeup flow: IPOPT
+- Restore every original selected parameters except makeup flow: IPOPT
   converges at **70.3421766 kg/h steam/makeup**, COP **4.5839006**, maximum scaled
   violation 9.22e-10. Only makeup flow differs from its selected target.
 - Restore makeup flow to **55.99 kg/h** as well: IPOPT reports local infeasibility.
@@ -543,7 +543,7 @@ solution branch. It does not establish global mathematical infeasibility or
 prove that the user-supplied flow is wrong. Changing heat input rather than the
 steam target is another reconciliation option, not tested or applied here.
 
-`cycle_specification_relaxation_coherent_result.json` contains the converged
+`cycle_parameters_relaxation_coherent_result.json` contains the converged
 ranking and equation residuals; its companion `_results.json` can be uploaded
 in the viewer as a relaxed diagnostic snapshot. `cycle_relaxation_verification.json`
 contains both controlled checks. The fixed operating case remains unchanged.
@@ -551,8 +551,8 @@ contains both controlled checks. The fixed operating case remains unchanged.
 ## Fixed SGHP electrical power instead of makeup flow
 
 The current `attempt_cycle.py` replaces `attempt_makeup_mass_flow` with the
-SGHP electrical-power specification. Makeup flow is free and the 55.99 kg/h
-information record remains a starting guess. The initial power trial used the captured
+SGHP electrical-power parameters. Makeup flow is free and the 55.99 kg/h
+resource record remains a starting guess. The initial power trial used the captured
 12.755835603752978 kW (`reference_sghp_performance_electrical_power`). The working
 default is now 15.20 kW; an explicit `--power-kw` argument overrides it.
 Both PHNIX power and the previously captured compressor pressure rise remain
@@ -565,14 +565,14 @@ infeasibility. Its largest residual is a source-outlet enthalpy connection of
 That initial trial was explicitly marked failed.
 
 `check_cycle_power.py` performs a separate control at **15.2000544283 kW**,
-keeping all other selected specifications exact and leaving makeup flow free.
+keeping all other selected parameters exact and leaving makeup flow free.
 It converges with maximum scaled violation **6.26e-13**, steam/makeup
 **70.34350427 kg/h**, and COP **4.59881485**. DM analysis finds no unmatched or
 under/overconstrained sets. `cycle_power_control_result.json` and
 `cycle_power_control_results.json` save that control check. The user subsequently selected 15.20 kW for the working demonstration.
 
 The preceding flow-target diagnostic remains reproducible using preserved
-`cycle_flow_target_information.json` and `cycle_flow_target_specification.json`.
+`cycle_flow_target_resources.json` and `cycle_flow_target_parameters.json`.
 The example-only `saved_state_guesses.py` shares snapshot guesses and native
 property evaluation between these attempts; it changes no model equations or
 fixity and is not a new library initialization algorithm.
@@ -582,15 +582,15 @@ fixity and is not a new library initialization algorithm.
 The user selected fixed SGHP electrical power of **15.20 kW**, replacing the
 fixed 55.99 kg/h makeup flow. `attempt_cycle.py` now defaults to that value,
 represented by the explicit `attempt_sghp_operating_power` assumption in
-`cycle_attempt_information.json` and `cycle_attempt_specification.json`.
+`cycle_attempt_resources.json` and `cycle_attempt_parameters.json`.
 
 The direct solve converges using the previously converged relaxed snapshot as
 a starting guess: **70.3435064 kg/h** steam and makeup, COP **4.59882774**, source
 heat extraction **54.7021817 kW**, hot-water duty **44.3033767 kW**, and warm-water
 duty **25.5988049 kW**. Maximum scaled violation is **6.27e-13**.
 `cycle_results.json` is now an optimal snapshot for this fixed-power case, not
-a relaxed-specification diagnostic. Bottom-up initialization still fails at
-the SGHP, so the example retains its documented saved-state fallback.
+a relaxed-parameters diagnostic. Bottom-up initialization still fails at
+the SGHP, so the example retains its cataloged saved-state fallback.
 
 At the lower 12.7558356 kW power, the same source duty would require COP
 1 + 54.7021817/12.7558356 = **5.2884044**. The failed solve left a source-side
@@ -602,24 +602,24 @@ the attempted branch; it is not proof of a universal minimum compressor power.
 
 In the viewer's **Model controls & help**, use **Open workspace** to load one file.
 The checked-in/generated `workspace.json` bundles the aggregate snapshot from
-`results.json` and `attempt_information.json`; `cycle_workspace.json` bundles
-`cycle_results.json` and `cycle_attempt_information.json`. These preserve the
-snapshots' original run identity, solve status and specification metadata.
+`results.json` and `attempt_resources.json`; `cycle_workspace.json` bundles
+`cycle_results.json` and `cycle_attempt_resources.json`. These preserve the
+snapshots' original run identity, solve status and parameters metadata.
 
 Regenerate from saved files without solving again:
 
 ```bash
 .venv/bin/python examples/steam_generating_heat_pump_system/export_workspace.py
 .venv/bin/python examples/steam_generating_heat_pump_system/export_workspace.py \
-  --results cycle_results.json --information cycle_attempt_information.json \
+  --results cycle_results.json --resources cycle_attempt_resources.json \
   --output cycle_workspace.json
 ```
 
-The script accepts any saved results/information pair (relative paths are resolved
-against this directory). Use information from the same case, including overrides.
+The script accepts any saved results/resources pair (relative paths are resolved
+against this directory). Use resources from the same case, including overrides.
 
 `attempt_bottom_up.py`, `attempt_cycle.py`, `check_cycle_power.py`, and the cycle
-specification-relaxation diagnostic now write workspace files alongside their
+parameters-relaxation diagnostic now write workspace files alongside their
 existing result snapshots. Aggregate power comparisons also export a workspace
 for each case using their actual modified records. `replay.py` writes
 `replay_workspace.json` and, with `--with-flash`, `flash_replay_workspace.json`.
@@ -627,7 +627,7 @@ for each case using their actual modified records. `replay.py` writes
 constructs a model. These exports do not turn failed or diagnostic runs into solved
 cases.
 
-Workspaces include only choices, information records and a results snapshot. Model
+Workspaces include only choices, resource records and a results snapshot. Model
 definitions must already be present in the viewer; layouts and navigation are not
 part of the file. The results snapshot's existing model ID selects the root.
 
@@ -636,13 +636,13 @@ part of the file. The results snapshot's existing model ID selects the root.
 Run `OPENBLAS_NUM_THREADS=1 .venv/bin/python examples/steam_generating_heat_pump_system/compare_aggregate_power.py`.
 This keeps the aggregate PHNIX and all shared operating conditions, releases
 makeup flow, and attempts to fix SGHP power at 15.20 kW. The original operating
-documents and cycle results are not changed.
+catalogs and cycle results are not changed.
 
-Unlike the cycle case, the aggregate specification swap is rejected by
-`pair_specification`: no structurally admissible replacement exists. The script
-records that rejection, applies only the admissible partial specification, and
+Unlike the cycle case, the aggregate parameters swap is rejected by
+`pair_parameters`: no structurally admissible replacement exists. The script
+records that rejection, applies only the admissible partial parameters, and
 then manually fixes power solely to diagnose the rejected equation system. These
-are explicitly diagnostic results, not accepted simulation specifications.
+are explicitly diagnostic results, not accepted simulation parameters.
 Although simple equation counting gives zero DOF, actual DM analysis finds one
 unmatched variable and one unmatched equation (under/overconstrained parts).
 The scaled Jacobian has rank 956 of 957.
@@ -660,7 +660,7 @@ points with steam rates **63.9712** and **56.8878 kg/h**, respectively, despite
 identical selected numerical values. The second also has about 55.35% vapor in
 the warm outlet, so it is not the intended liquid warm-water operating regime.
 Both diagnostic snapshots are labelled `feasible`, not valid optimal simulation
-predictions; the reports have `accepted_specification=false` and `solved=false`.
+predictions; the reports have `accepted_parameters=false` and `solved=false`.
 This demonstrates why a solver's optimal termination alone is insufficient.
 
 A well-posed fixed-power aggregate comparison needs a heat-allocation condition
@@ -671,12 +671,12 @@ energy/water-loop consistency rather than independently validate its performance
 Choosing that additional operating closure has been left for discussion.
 
 `aggregate_power_comparison.json` contains all three diagnostic attempts,
-with individual information/specification/report/results artifacts under
-`aggregate_power_*`. The saved specification files deliberately contain only
+with individual resources/parameters/report/results artifacts under
+`aggregate_power_*`. The saved parameters files deliberately contain only
 the admissible partial fixes when the complete pattern is rejected; the extra
 manual power fixation and its rejection are recorded in each report.
 
-## Current common operating specifications for both fidelities
+## Current common operating parameters for both fidelities
 
 Run from the repository root:
 
@@ -694,11 +694,11 @@ also free in the cycle, replacing the previous fixed captured pressure rise
 with the warm-duty condition. Only the detailed cycle additionally uses its
 four captured exchanger conductances and compressor efficiency.
 
-Both specifications pass the normal canonical replacement validation and DM
+Both parameters pass the normal canonical replacement validation and DM
 checks with no unmatched or under/overconstrained sets. Both are square and
 numerically full rank: **957/957** aggregate and **1750/1750** cycle. Both
 IPOPT solves terminate optimal, with maximum scaled violations **4.75e-11**
-and **2.01e-11**, respectively. No equations are removed and no specifications
+and **2.01e-11**, respectively. No equations are removed and no parameters
 are relaxed. The saved cycle state is used only as a starting guess.
 
 | Quantity | Aggregate SGHP | Cycle SGHP |
@@ -722,9 +722,9 @@ electrical power determine aggregate COP, and the specified heat allocation was
 taken from the cycle reference. The detailed cycle still enforces refrigerant
 properties, exchanger laws and compressor physics absent from the aggregate.
 
-`common_operating_information.json` contains the shared information. Each
+`common_operating_resources.json` contains the shared resources. Each
 `common_aggregate_aggregate_*` / `common_cycle_aggregate_*` group contains its
-accepted specification, report, results snapshot and single-file workspace.
+accepted parameters, report, results snapshot and single-file workspace.
 Load the corresponding `_workspace.json` in the viewer to inspect that case.
 `common_fidelity_comparison.json` records the pairwise differences. Existing
 historical operating files remain available unchanged.
@@ -762,12 +762,12 @@ fixed. Area is 1 m², giving an initial level of 0.1 m. Volume/level may change
 with density and mass; 100 litres is the initial water inventory, not a fixed
 volume imposed throughout the transient.
 
-The former source- and warm-loop temperature specifications become initial
+The former source- and warm-loop temperature parameters become initial
 conditions, not temperature controllers. Circulation withdrawals, warm splitter
 fraction and makeup flow are held at their steady values. Tank pressures are
 fixed at source/warm **2 bar absolute**, hot **4 bar absolute**; source and warm
 valve pressure drops retain their steady values. External PHNIX source, makeup
-and cooling-water boundary temperatures retain their original specifications.
+and cooling-water boundary temperatures retain their original parameters.
 SGHP COP is **4.59882774**, power **15.20 kW**, warm-water duty **25.5988049 kW**;
 PHNIX COP is **2**. Dynamic initial conditions are six mass/energy records; no
 loop temperature is fixed across time.
@@ -804,16 +804,16 @@ and makeup/steam enthalpy fluxes, rather than only rechecking tank equations.
 timing, thermal accumulation and the expected unchanged downstream response.
 
 Open **`thermal_step_workspace.json`** in the viewer for the new model,
-information, selected initial/operating specifications and time-series results.
+resources, selected initial/operating parameters and time-series results.
 `thermal_step.csv` provides a compact trajectory; `thermal_response.png` shows
 the response. `thermal_verification.json` records the no-step, conservation and
 refinement checks. Corresponding `_no_step` and `_refined` artifacts preserve
 the other runs.
 
-## Detailed SGHP dynamic relationship
+## Detailed SGHP dynamic formulation
 
 The same `steam_generating_heat_pump_system_thermal` model can select the
-SGHP `cycle` relationship using `thermal_cycle.json`. Only the SGHP selection
+SGHP `cycle` formulation using `thermal_cycle.json`. Only the SGHP selection
 subtree differs from `thermal_aggregate.json`; PHNIX stays aggregate and all
 water inventories, topology, flow settings, initial states, pressures, powers,
 warm duty and PHNIX power-step settings are retained.
@@ -839,9 +839,9 @@ This is an algebraic refrigerant cycle coupled to dynamic water inventories;
 no refrigerant charge, compressor inertia or pressure-controller dynamics are
 introduced.
 
-All detailed cases pass the standard specification pairing and unit checks,
+All detailed cases pass the standard parameters pairing and unit checks,
 with zero DOF and no unmatched or under/overconstrained DM sets. No
-specifications are relaxed. The no-step run holds its initial equilibrium,
+parameters are relaxed. The no-step run holds its initial equilibrium,
 with temperature drift below **4e-12 K**. The step case's largest scaled
 violation is approximately **7.1e-11** on the 60 s grid.
 

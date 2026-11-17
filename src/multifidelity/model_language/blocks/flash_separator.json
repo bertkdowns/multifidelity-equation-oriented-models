@@ -1,0 +1,512 @@
+{
+  "id": "flash_separator",
+  "description": "Generic one-inlet two-outlet equilibrium phase router. FluidProperties supplies inlet vapor fraction and each phase enthalpy. The two fractions route liquid and vapor independently to the liquid-labelled outlet; vapor-labelled outlet receives the complements.",
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  },
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "liquid": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          },
+          "scale": 1,
+          "default": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "vapor": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0
+          },
+          "scale": 1,
+          "default": 0
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 2706000
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "liquid_to_liquid": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0,
+            "max": 1
+          },
+          "scale": 1,
+          "default": 1
+        },
+        "vapor_to_liquid": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0,
+            "max": 1
+          },
+          "scale": 1,
+          "default": 0
+        }
+      }
+    },
+    "liquid_properties": {
+      "direction": "output",
+      "variables": {
+        "temperature": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 0.0033333333333333335,
+          "default": 300
+        },
+        "vapor_fraction": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0,
+            "max": 1
+          },
+          "scale": 1,
+          "default": 0
+        }
+      }
+    },
+    "vapor_properties": {
+      "direction": "output",
+      "variables": {
+        "temperature": {
+          "unit": "K",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 0.0033333333333333335,
+          "default": 393.15
+        },
+        "vapor_fraction": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ],
+          "bounds": {
+            "min": 0,
+            "max": 1
+          },
+          "scale": 1,
+          "default": 1
+        }
+      }
+    }
+  },
+  "formulations": {
+    "phase_split": {
+      "blocks": {
+        "inlet_state": {
+          "block_slot": "FluidProperties",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "liquid_state": {
+          "block_slot": "FluidProperties",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "vapor_state": {
+          "block_slot": "FluidProperties",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "liquid_mixture": {
+          "block": "phase_mixture",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "vapor_mixture": {
+          "block": "phase_mixture",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {
+        "inlet_state_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "inlet_state.state.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "inlet_state.state.pressure[t]"
+        },
+        "inlet_state_enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "inlet_state.state.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "inlet_state.state.enthalpy[t]"
+        },
+        "liquid_state_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "liquid_state.state.pressure[t]",
+          "rhs": "liquid.pressure[t]",
+          "determines": "liquid_state.state.pressure[t]"
+        },
+        "liquid_state_enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "liquid_state.state.enthalpy[t]",
+          "rhs": "liquid.enthalpy[t]",
+          "determines": "liquid_state.state.enthalpy[t]"
+        },
+        "vapor_state_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "vapor_state.state.pressure[t]",
+          "rhs": "vapor.pressure[t]",
+          "determines": "vapor_state.state.pressure[t]"
+        },
+        "vapor_state_enthalpy": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "vapor_state.state.enthalpy[t]",
+          "rhs": "vapor.enthalpy[t]",
+          "determines": "vapor_state.state.enthalpy[t]"
+        },
+        "liquid_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "liquid.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "liquid.pressure[t]"
+        },
+        "liquid_temperature": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "liquid_properties.temperature[t]",
+          "rhs": "liquid_state.properties.temperature[t]",
+          "determines": "liquid_properties.temperature[t]"
+        },
+        "liquid_vapor_fraction": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "liquid_properties.vapor_fraction[t]",
+          "rhs": "liquid_state.properties.vapor_fraction[t]",
+          "determines": "liquid_properties.vapor_fraction[t]"
+        },
+        "vapor_pressure": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "vapor.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "vapor.pressure[t]"
+        },
+        "vapor_temperature": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "vapor_properties.temperature[t]",
+          "rhs": "vapor_state.properties.temperature[t]",
+          "determines": "vapor_properties.temperature[t]"
+        },
+        "vapor_vapor_fraction": {
+          "for_each": {
+            "t": "time"
+          },
+          "lhs": "vapor_properties.vapor_fraction[t]",
+          "rhs": "vapor_state.properties.vapor_fraction[t]",
+          "determines": "vapor_properties.vapor_fraction[t]"
+        },
+        "liquid_flow": {
+          "lhs": "liquid.flow[t]",
+          "rhs": "liquid_mixture.stream.flow[t]",
+          "determines": "liquid.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "liquid_enthalpy": {
+          "lhs": "liquid.enthalpy[t]",
+          "rhs": "liquid_mixture.stream.enthalpy[t]",
+          "determines": "liquid.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "liquid_mixture_liquid_flow": {
+          "lhs": "liquid_mixture.phases.liquid_flow[t]",
+          "rhs": "inlet.flow[t] * (1 - inlet_state.properties.vapor_fraction[t]) * parameters.liquid_to_liquid[t]",
+          "determines": "liquid_mixture.phases.liquid_flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "liquid_mixture_vapor_flow": {
+          "lhs": "liquid_mixture.phases.vapor_flow[t]",
+          "rhs": "inlet.flow[t] * inlet_state.properties.vapor_fraction[t] * parameters.vapor_to_liquid[t]",
+          "determines": "liquid_mixture.phases.vapor_flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "liquid_mixture_liquid_enthalpy": {
+          "lhs": "liquid_mixture.phases.liquid_enthalpy[t]",
+          "rhs": "inlet_state.properties.enthalpy_liquid[t]",
+          "determines": "liquid_mixture.phases.liquid_enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "liquid_mixture_vapor_enthalpy": {
+          "lhs": "liquid_mixture.phases.vapor_enthalpy[t]",
+          "rhs": "inlet_state.properties.enthalpy_vapor[t]",
+          "determines": "liquid_mixture.phases.vapor_enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "liquid_mixture_fallback_vapor": {
+          "lhs": "liquid_mixture.phases.fallback_vapor[t]",
+          "rhs": "0",
+          "determines": "liquid_mixture.phases.fallback_vapor[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "vapor_flow": {
+          "lhs": "vapor.flow[t]",
+          "rhs": "vapor_mixture.stream.flow[t]",
+          "determines": "vapor.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "vapor_enthalpy": {
+          "lhs": "vapor.enthalpy[t]",
+          "rhs": "vapor_mixture.stream.enthalpy[t]",
+          "determines": "vapor.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "vapor_mixture_liquid_flow": {
+          "lhs": "vapor_mixture.phases.liquid_flow[t]",
+          "rhs": "inlet.flow[t] * (1 - inlet_state.properties.vapor_fraction[t]) * (1 - parameters.liquid_to_liquid[t])",
+          "determines": "vapor_mixture.phases.liquid_flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "vapor_mixture_vapor_flow": {
+          "lhs": "vapor_mixture.phases.vapor_flow[t]",
+          "rhs": "inlet.flow[t] * inlet_state.properties.vapor_fraction[t] * (1 - parameters.vapor_to_liquid[t])",
+          "determines": "vapor_mixture.phases.vapor_flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "vapor_mixture_liquid_enthalpy": {
+          "lhs": "vapor_mixture.phases.liquid_enthalpy[t]",
+          "rhs": "inlet_state.properties.enthalpy_liquid[t]",
+          "determines": "vapor_mixture.phases.liquid_enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "vapor_mixture_vapor_enthalpy": {
+          "lhs": "vapor_mixture.phases.vapor_enthalpy[t]",
+          "rhs": "inlet_state.properties.enthalpy_vapor[t]",
+          "determines": "vapor_mixture.phases.vapor_enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "vapor_mixture_fallback_vapor": {
+          "lhs": "vapor_mixture.phases.fallback_vapor[t]",
+          "rhs": "1",
+          "determines": "vapor_mixture.phases.fallback_vapor[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {}
+    }
+  },
+  "block_slots": {
+    "FluidProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy_liquid": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy_vapor": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

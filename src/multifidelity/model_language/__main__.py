@@ -2,18 +2,18 @@
 
 import argparse
 
-from . import Library, build_model, print_required_inputs, register_standard_providers
+from . import BlockLibrary, build_model, print_required_inputs, register_standard_providers
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("model", help="Root model ID")
-    parser.add_argument("implementation", help="Implementation document with explicit recursive relationship choices")
-    parser.add_argument("--library", help="Directory containing model documents")
+    parser.add_argument("block", help="Root block ID")
+    parser.add_argument("model_catalog", help="Model catalog with explicit recursive formulation choices")
+    parser.add_argument("--library", help="Directory containing block catalogs")
     parser.add_argument(
         "--standard-providers",
         action="store_true",
-        help="Register bundled Helmholtz, humid-air, and compressor-map providers",
+        help="Register bundled Helmholtz, humid-air, and compressor-map symbolic providers",
     )
     parser.add_argument(
         "--required-inputs",
@@ -21,13 +21,13 @@ def main():
         help="List required variable paths and units instead of building Pyomo",
     )
     args = parser.parse_args()
-    library = Library(args.library)
+    library = BlockLibrary(args.library)
     if args.required_inputs:
-        print_required_inputs(args.model, args.implementation, library=library)
+        print_required_inputs(args.block, args.model_catalog, library=library)
         return
     if args.standard_providers:
         register_standard_providers(library)
-    model = build_model(args.model, args.implementation, library=library)
+    model = build_model(args.block, args.model_catalog, library=library)
     model.pprint()
 
 

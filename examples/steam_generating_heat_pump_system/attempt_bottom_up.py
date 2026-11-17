@@ -1,4 +1,4 @@
-"""Try bottom-up initialisation under the saved aggregate-plant specification.
+"""Try bottom-up initialisation under the saved aggregate-plant parameters.
 
 Run from the repository root:
     .venv/bin/python examples/steam_generating_heat_pump_system/attempt_bottom_up.py
@@ -11,7 +11,7 @@ from pathlib import Path
 
 from idaes.core.solvers import get_solver
 from multifidelity.model_language import (
-    InformationDocument, SpecificationDocument, get_variable, initialize_model, export_results, WorkspaceDocument,
+    ResourceCatalog, ParameterCatalog, get_variable, initialize_model, export_results, WorkspaceCatalog,
 )
 from attempt_solve import build_attempt
 
@@ -22,8 +22,8 @@ if __name__ == '__main__':
     model = build_attempt()
     result = initialize_model(
         model,
-        information=InformationDocument.load_json(HERE / 'attempt_information.json'),
-        specification=SpecificationDocument.load_json(HERE / 'attempt_specification.json'),
+        resources=ResourceCatalog.load_json(HERE / 'attempt_resources.json'),
+        parameters=ParameterCatalog.load_json(HERE / 'attempt_parameters.json'),
         solver=get_solver('ipopt', options={
             'max_iter': 500, 'tol': 1e-8, 'max_cpu_time': 60,
             'linear_system_scaling': 'none',
@@ -33,14 +33,14 @@ if __name__ == '__main__':
         model, status='optimal' if result.success else 'failed', solver='ipopt',
         termination_condition=result.stages[-1].solver_termination,
         message=result.stages[-1].error,
-        specification=HERE / 'attempt_specification.json',
+        parameters=HERE / 'attempt_parameters.json',
     )
     snapshot.write_json(HERE / 'results.json')
-    WorkspaceDocument.from_results(snapshot, HERE / 'attempt_information.json').write_json(HERE / 'workspace.json')
+    WorkspaceCatalog.from_results(snapshot, HERE / 'attempt_resources.json').write_json(HERE / 'workspace.json')
     report = {
-        'implementation': 'aggregate_aggregate',
-        'specification': 'attempt_specification.json',
-        'information': 'attempt_information.json',
+        'model_catalog': 'aggregate_aggregate',
+        'parameters': 'attempt_parameters.json',
+        'resources': 'attempt_resources.json',
         **asdict(result),
     }
     from multifidelity.model_language.hierarchical_initialization import _constraint_violation

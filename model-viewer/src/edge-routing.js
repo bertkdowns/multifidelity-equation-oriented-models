@@ -30,7 +30,7 @@ export function summaryPortGeometry(port, data) {
   const fraction = parseFloat(port.top) / 100;
   let [x, y] = {right: [1, fraction], bottom: [fraction, 1],
                 left: [0, fraction], top: [fraction, 0]}[side];
-  if (data.kind === 'model') {
+  if (data.kind === 'block') {
     if (data.flipped) {
       x = 1 - x;
       if (side === 'right') side = 'left';

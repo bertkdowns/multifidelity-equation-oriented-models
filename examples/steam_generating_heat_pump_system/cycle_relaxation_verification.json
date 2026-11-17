@@ -6,61 +6,61 @@
     "max_scaled_violation": 9.218965591503886e-10,
     "largest_scaled_residuals": [
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.condenser.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.condenser.formulation.blocks.hot_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 9.258519276045263e-05,
         "unit": "J/kg",
         "scaled_violation": 9.218965591503886e-10
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.subcooler.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.subcooler.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 9.258519276045263e-05,
         "unit": "J/kg",
         "scaled_violation": 9.218965591503886e-10
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.subcooler.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.subcooler.formulation.blocks.hot_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 5.4323303629644215e-05,
         "unit": "J/kg",
         "scaled_violation": 5.432330362964422e-10
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.ihx.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.ihx.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 5.4323303629644215e-05,
         "unit": "J/kg",
         "scaled_violation": 5.432330362964422e-10
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.ihx.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.ihx.formulation.blocks.hot_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 4.839876783080399e-05,
         "unit": "J/kg",
         "scaled_violation": 4.839876783080399e-10
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.subcooler.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.subcooler.formulation.blocks.cold_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 1.5632249414920807e-05,
         "unit": "J/kg",
         "scaled_violation": 1.563224941492081e-10
       },
       {
-        "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 1.56317837536335e-05,
         "unit": "J/kg",
         "scaled_violation": 1.56317837536335e-10
       },
       {
-        "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.cold_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 1.1939555406570435e-06,
         "unit": "J/kg",
         "scaled_violation": 1.1939555406570436e-11
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.compressor.relationship.models.outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.compressor.formulation.blocks.outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
         "violation": 1.1454540072008967e-06,
         "unit": "J/kg",
         "scaled_violation": 9.257447529242504e-12
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.condenser.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.condenser.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
         "violation": 1.1454540072008967e-06,
         "unit": "J/kg",
         "scaled_violation": 9.257447529242504e-12
@@ -68,7 +68,7 @@
     ],
     "deviations": [
       {
-        "record_id": "attempt_makeup_mass_flow",
+        "record_tag": "attempt_makeup_mass_flow",
         "variable_path": "makeup_state.state.flow",
         "index": 0.0,
         "target": 0.015552777777777778,
@@ -81,7 +81,7 @@
         "penalty": 1.5893902286376767e-05
       },
       {
-        "record_id": "attempt_source_tank_adiabatic",
+        "record_tag": "attempt_source_tank_adiabatic",
         "variable_path": "source_tank.parameters.heat_duty",
         "index": 0.0,
         "target": 0.0,
@@ -94,7 +94,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_export_steam_pressure",
+        "record_tag": "attempt_export_steam_pressure",
         "variable_path": "steam_outlet.pressure",
         "index": 0.0,
         "target": 100000.0,
@@ -107,7 +107,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_warm_water_pressure",
+        "record_tag": "attempt_warm_water_pressure",
         "variable_path": "warm_water_mixer.outlet.pressure",
         "index": 0.0,
         "target": 200000.0,
@@ -120,7 +120,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_warm_makeup_pressure",
+        "record_tag": "attempt_warm_makeup_pressure",
         "variable_path": "warm_makeup_valve.outlet.pressure",
         "index": 0.0,
         "target": 200000.0,
@@ -133,7 +133,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_sink_inlet_pressure",
+        "record_tag": "config_phnix_sink_inlet_pressure",
         "variable_path": "phnix.sink_inlet.pressure",
         "index": 0.0,
         "target": 200000.0,
@@ -146,7 +146,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_cooling_exchanger_parameters_conductance",
+        "record_tag": "config_cooling_exchanger_parameters_conductance",
         "variable_path": "cooling_exchanger.parameters.conductance",
         "index": null,
         "target": 540.0,
@@ -159,7 +159,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_cooling_water_inlet_flow",
+        "record_tag": "config_cooling_water_inlet_flow",
         "variable_path": "cooling_water_state.state.flow",
         "index": 0.0,
         "target": 0.26783324982654794,
@@ -172,7 +172,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_cooling_water_inlet_pressure",
+        "record_tag": "config_cooling_water_inlet_pressure",
         "variable_path": "cooling_water_state.state.pressure",
         "index": 0.0,
         "target": 100000.0,
@@ -185,7 +185,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_cooling_water_inlet_state_temperature",
+        "record_tag": "config_cooling_water_inlet_state_temperature",
         "variable_path": "cooling_water_state.properties.temperature",
         "index": 0.0,
         "target": 308.15000000000765,
@@ -198,7 +198,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_flash_liquid_outlet_quality",
+        "record_tag": "attempt_flash_liquid_outlet_quality",
         "variable_path": "flash_tank.liquid_properties.vapor_fraction",
         "index": 0.0,
         "target": 0.01,
@@ -211,7 +211,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_flash_tank_inlet_pressure",
+        "record_tag": "config_flash_tank_inlet_pressure",
         "variable_path": "flash_tank.inlet.pressure",
         "index": 0.0,
         "target": 200000.0,
@@ -224,7 +224,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_flash_vapor_outlet_quality",
+        "record_tag": "attempt_flash_vapor_outlet_quality",
         "variable_path": "flash_tank.vapor_properties.vapor_fraction",
         "index": 0.0,
         "target": 0.99,
@@ -237,7 +237,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_hot_water_pump_outlet_pressure",
+        "record_tag": "config_hot_water_pump_outlet_pressure",
         "variable_path": "hot_water_pump.outlet.pressure",
         "index": 0.0,
         "target": 400000.0,
@@ -250,7 +250,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_hot_water_pump_parameters_efficiency",
+        "record_tag": "config_hot_water_pump_parameters_efficiency",
         "variable_path": "hot_water_pump.parameters.efficiency",
         "index": 0.0,
         "target": 1.0,
@@ -263,7 +263,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_makeup_inlet_pressure",
+        "record_tag": "config_makeup_inlet_pressure",
         "variable_path": "makeup_state.state.pressure",
         "index": 0.0,
         "target": 400000.0,
@@ -276,7 +276,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_makeup_inlet_state_temperature",
+        "record_tag": "config_makeup_inlet_state_temperature",
         "variable_path": "makeup_state.properties.temperature",
         "index": 0.0,
         "target": 298.150000000004,
@@ -289,7 +289,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_cop_model_parameters_cop",
+        "record_tag": "config_phnix_cop_block_slots_cop",
         "variable_path": "phnix.cop_model.parameters.cop",
         "index": 0.0,
         "target": 2.0,
@@ -302,7 +302,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_sink_inlet_state_temperature",
+        "record_tag": "config_phnix_sink_inlet_state_temperature",
         "variable_path": "phnix.sink_inlet_state.properties.temperature",
         "index": 0.0,
         "target": 348.53367004961297,
@@ -315,7 +315,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_source_inlet_flow",
+        "record_tag": "config_phnix_source_inlet_flow",
         "variable_path": "phnix_source_state.state.flow",
         "index": 0.0,
         "target": 9.007634000000001,
@@ -328,7 +328,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_source_inlet_pressure",
+        "record_tag": "config_phnix_source_inlet_pressure",
         "variable_path": "phnix_source_state.state.pressure",
         "index": 0.0,
         "target": 100000.0,
@@ -341,7 +341,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_source_inlet_state_temperature",
+        "record_tag": "config_phnix_source_inlet_state_temperature",
         "variable_path": "phnix_source_state.properties.temperature",
         "index": 0.0,
         "target": 293.1499999999972,
@@ -354,7 +354,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_hot_inlet_flow",
+        "record_tag": "config_sghp_hot_inlet_flow",
         "variable_path": "sghp.hot_inlet.flow",
         "index": 0.0,
         "target": 0.830463850734013,
@@ -367,7 +367,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_source_inlet_state_temperature",
+        "record_tag": "config_sghp_source_inlet_state_temperature",
         "variable_path": "sghp.source_inlet_state.properties.temperature",
         "index": 0.0,
         "target": 350.15000000040436,
@@ -380,7 +380,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_warm_inlet_state_temperature",
+        "record_tag": "config_sghp_warm_inlet_state_temperature",
         "variable_path": "sghp.warm_inlet_state.properties.temperature",
         "index": 0.0,
         "target": 332.63462987445513,
@@ -393,7 +393,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_source_pump_parameters_efficiency",
+        "record_tag": "config_source_pump_parameters_efficiency",
         "variable_path": "source_pump.parameters.efficiency",
         "index": 0.0,
         "target": 0.9,
@@ -406,7 +406,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_source_pump_parameters_pressure_rise",
+        "record_tag": "config_source_pump_parameters_pressure_rise",
         "variable_path": "source_pump.parameters.pressure_rise",
         "index": 0.0,
         "target": 5000.0,
@@ -419,7 +419,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_warm_water_pump_parameters_efficiency",
+        "record_tag": "config_warm_water_pump_parameters_efficiency",
         "variable_path": "warm_water_pump.parameters.efficiency",
         "index": 0.0,
         "target": 0.9,
@@ -432,7 +432,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_warm_water_pump_parameters_pressure_rise",
+        "record_tag": "config_warm_water_pump_parameters_pressure_rise",
         "variable_path": "warm_water_pump.parameters.pressure_rise",
         "index": 0.0,
         "target": 7000.0,
@@ -445,7 +445,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_power_model_parameters_electrical_power",
+        "record_tag": "config_phnix_power_block_slots_electrical_power",
         "variable_path": "phnix.power_model.parameters.electrical_power",
         "index": 0.0,
         "target": 27328.109273268703,
@@ -458,7 +458,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_condenser_parameters_conductance",
+        "record_tag": "config_sghp_condenser_parameters_conductance",
         "variable_path": "sghp.condenser.parameters.conductance",
         "index": null,
         "target": 35462.01923747691,
@@ -471,7 +471,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_evaporator_parameters_conductance",
+        "record_tag": "config_sghp_evaporator_parameters_conductance",
         "variable_path": "sghp.evaporator.parameters.conductance",
         "index": null,
         "target": 10526.54640593055,
@@ -484,7 +484,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_subcooler_parameters_conductance",
+        "record_tag": "config_sghp_subcooler_parameters_conductance",
         "variable_path": "sghp.subcooler.parameters.conductance",
         "index": null,
         "target": 665.2591195974528,
@@ -497,7 +497,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_ihx_parameters_conductance",
+        "record_tag": "config_sghp_ihx_parameters_conductance",
         "variable_path": "sghp.ihx.parameters.conductance",
         "index": null,
         "target": 66.74409622462433,
@@ -510,7 +510,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_compressor_parameters_efficiency",
+        "record_tag": "config_sghp_compressor_parameters_efficiency",
         "variable_path": "sghp.compressor.parameters.efficiency",
         "index": 0.0,
         "target": 0.75,
@@ -523,7 +523,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "reference_sghp_compressor_parameters_pressure_rise",
+        "record_tag": "reference_sghp_compressor_parameters_pressure_rise",
         "variable_path": "sghp.compressor.parameters.pressure_rise",
         "index": 0.0,
         "target": 2011686.3921285754,
@@ -540,67 +540,67 @@
     "cop": 4.583900621332246
   },
   {
-    "case": "all_original_specifications_fixed",
+    "case": "all_original_parameters_fixed",
     "termination": "infeasible",
     "optimal": false,
     "max_scaled_violation": 0.003759044728938732,
     "largest_scaled_residuals": [
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.condenser.relationship.constraints.cold_mass_balance[0.0]",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.condenser.formulation.constraints.cold_mass_balance[0.0]",
         "violation": 0.003759044728938732,
         "unit": "kg/s",
         "scaled_violation": 0.003759044728938732
       },
       {
-        "name": "fs.root.relationship.models.hot_water_mixer.relationship.constraints.mass_balance[0.0]",
+        "name": "fs.root.formulation.blocks.hot_water_mixer.formulation.constraints.mass_balance[0.0]",
         "violation": 7.407385815838552e-10,
         "unit": "kg/s",
         "scaled_violation": 7.407385815838552e-10
       },
       {
-        "name": "fs.root.relationship.models.hot_water_pump.relationship.constraints.mass_balance[0.0]",
+        "name": "fs.root.formulation.blocks.hot_water_pump.formulation.constraints.mass_balance[0.0]",
         "violation": 6.977793898244045e-10,
         "unit": "kg/s",
         "scaled_violation": 6.977793898244045e-10
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.subcooler.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.subcooler.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 2.9651608201675117e-05,
         "unit": "J/kg",
         "scaled_violation": 2.956008877486678e-10
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.condenser.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.condenser.formulation.blocks.hot_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 2.9651419026777148e-05,
         "unit": "J/kg",
         "scaled_violation": 2.955990018385546e-10
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.ihx.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.ihx.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 1.5118464943952858e-05,
         "unit": "J/kg",
         "scaled_violation": 1.511846494395286e-10
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.subcooler.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.subcooler.formulation.blocks.hot_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 1.5102428733371198e-05,
         "unit": "J/kg",
         "scaled_violation": 1.51024287333712e-10
       },
       {
-        "name": "fs.root.relationship.models.sghp.relationship.models.ihx.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+        "name": "fs.root.formulation.blocks.sghp.formulation.blocks.ihx.formulation.blocks.hot_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
         "violation": 1.4217745047062635e-05,
         "unit": "J/kg",
         "scaled_violation": 1.4217745047062636e-10
       },
       {
-        "name": "fs.root.relationship.models.warm_water_pump.relationship.constraints.mass_balance[0.0]",
+        "name": "fs.root.formulation.blocks.warm_water_pump.formulation.constraints.mass_balance[0.0]",
         "violation": 8.599740364267916e-11,
         "unit": "kg/s",
         "scaled_violation": 8.599740364267916e-11
       },
       {
-        "name": "fs.root.relationship.models.warm_water_mixer.relationship.constraints.mass_balance[0.0]",
+        "name": "fs.root.formulation.blocks.warm_water_mixer.formulation.constraints.mass_balance[0.0]",
         "violation": 8.599737588710354e-11,
         "unit": "kg/s",
         "scaled_violation": 8.599737588710354e-11
@@ -608,7 +608,7 @@
     ],
     "deviations": [
       {
-        "record_id": "attempt_source_tank_adiabatic",
+        "record_tag": "attempt_source_tank_adiabatic",
         "variable_path": "source_tank.parameters.heat_duty",
         "index": 0.0,
         "target": 0.0,
@@ -621,7 +621,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_export_steam_pressure",
+        "record_tag": "attempt_export_steam_pressure",
         "variable_path": "steam_outlet.pressure",
         "index": 0.0,
         "target": 100000.0,
@@ -634,7 +634,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_warm_water_pressure",
+        "record_tag": "attempt_warm_water_pressure",
         "variable_path": "warm_water_mixer.outlet.pressure",
         "index": 0.0,
         "target": 200000.0,
@@ -647,7 +647,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_warm_makeup_pressure",
+        "record_tag": "attempt_warm_makeup_pressure",
         "variable_path": "warm_makeup_valve.outlet.pressure",
         "index": 0.0,
         "target": 200000.0,
@@ -660,7 +660,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_makeup_mass_flow",
+        "record_tag": "attempt_makeup_mass_flow",
         "variable_path": "makeup_state.state.flow",
         "index": 0.0,
         "target": 0.015552777777777778,
@@ -673,7 +673,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_sink_inlet_pressure",
+        "record_tag": "config_phnix_sink_inlet_pressure",
         "variable_path": "phnix.sink_inlet.pressure",
         "index": 0.0,
         "target": 200000.0,
@@ -686,7 +686,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_cooling_exchanger_parameters_conductance",
+        "record_tag": "config_cooling_exchanger_parameters_conductance",
         "variable_path": "cooling_exchanger.parameters.conductance",
         "index": null,
         "target": 540.0,
@@ -699,7 +699,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_cooling_water_inlet_flow",
+        "record_tag": "config_cooling_water_inlet_flow",
         "variable_path": "cooling_water_state.state.flow",
         "index": 0.0,
         "target": 0.26783324982654794,
@@ -712,7 +712,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_cooling_water_inlet_pressure",
+        "record_tag": "config_cooling_water_inlet_pressure",
         "variable_path": "cooling_water_state.state.pressure",
         "index": 0.0,
         "target": 100000.0,
@@ -725,7 +725,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_cooling_water_inlet_state_temperature",
+        "record_tag": "config_cooling_water_inlet_state_temperature",
         "variable_path": "cooling_water_state.properties.temperature",
         "index": 0.0,
         "target": 308.15000000000765,
@@ -738,7 +738,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_flash_liquid_outlet_quality",
+        "record_tag": "attempt_flash_liquid_outlet_quality",
         "variable_path": "flash_tank.liquid_properties.vapor_fraction",
         "index": 0.0,
         "target": 0.01,
@@ -751,7 +751,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_flash_tank_inlet_pressure",
+        "record_tag": "config_flash_tank_inlet_pressure",
         "variable_path": "flash_tank.inlet.pressure",
         "index": 0.0,
         "target": 200000.0,
@@ -764,7 +764,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "attempt_flash_vapor_outlet_quality",
+        "record_tag": "attempt_flash_vapor_outlet_quality",
         "variable_path": "flash_tank.vapor_properties.vapor_fraction",
         "index": 0.0,
         "target": 0.99,
@@ -777,7 +777,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_hot_water_pump_outlet_pressure",
+        "record_tag": "config_hot_water_pump_outlet_pressure",
         "variable_path": "hot_water_pump.outlet.pressure",
         "index": 0.0,
         "target": 400000.0,
@@ -790,7 +790,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_hot_water_pump_parameters_efficiency",
+        "record_tag": "config_hot_water_pump_parameters_efficiency",
         "variable_path": "hot_water_pump.parameters.efficiency",
         "index": 0.0,
         "target": 1.0,
@@ -803,7 +803,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_makeup_inlet_pressure",
+        "record_tag": "config_makeup_inlet_pressure",
         "variable_path": "makeup_state.state.pressure",
         "index": 0.0,
         "target": 400000.0,
@@ -816,7 +816,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_makeup_inlet_state_temperature",
+        "record_tag": "config_makeup_inlet_state_temperature",
         "variable_path": "makeup_state.properties.temperature",
         "index": 0.0,
         "target": 298.150000000004,
@@ -829,7 +829,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_cop_model_parameters_cop",
+        "record_tag": "config_phnix_cop_block_slots_cop",
         "variable_path": "phnix.cop_model.parameters.cop",
         "index": 0.0,
         "target": 2.0,
@@ -842,7 +842,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_sink_inlet_state_temperature",
+        "record_tag": "config_phnix_sink_inlet_state_temperature",
         "variable_path": "phnix.sink_inlet_state.properties.temperature",
         "index": 0.0,
         "target": 348.53367004961297,
@@ -855,7 +855,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_source_inlet_flow",
+        "record_tag": "config_phnix_source_inlet_flow",
         "variable_path": "phnix_source_state.state.flow",
         "index": 0.0,
         "target": 9.007634000000001,
@@ -868,7 +868,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_source_inlet_pressure",
+        "record_tag": "config_phnix_source_inlet_pressure",
         "variable_path": "phnix_source_state.state.pressure",
         "index": 0.0,
         "target": 100000.0,
@@ -881,7 +881,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_source_inlet_state_temperature",
+        "record_tag": "config_phnix_source_inlet_state_temperature",
         "variable_path": "phnix_source_state.properties.temperature",
         "index": 0.0,
         "target": 293.1499999999972,
@@ -894,7 +894,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_hot_inlet_flow",
+        "record_tag": "config_sghp_hot_inlet_flow",
         "variable_path": "sghp.hot_inlet.flow",
         "index": 0.0,
         "target": 0.830463850734013,
@@ -907,7 +907,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_source_inlet_state_temperature",
+        "record_tag": "config_sghp_source_inlet_state_temperature",
         "variable_path": "sghp.source_inlet_state.properties.temperature",
         "index": 0.0,
         "target": 350.15000000040436,
@@ -920,7 +920,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_warm_inlet_state_temperature",
+        "record_tag": "config_sghp_warm_inlet_state_temperature",
         "variable_path": "sghp.warm_inlet_state.properties.temperature",
         "index": 0.0,
         "target": 332.63462987445513,
@@ -933,7 +933,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_source_pump_parameters_efficiency",
+        "record_tag": "config_source_pump_parameters_efficiency",
         "variable_path": "source_pump.parameters.efficiency",
         "index": 0.0,
         "target": 0.9,
@@ -946,7 +946,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_source_pump_parameters_pressure_rise",
+        "record_tag": "config_source_pump_parameters_pressure_rise",
         "variable_path": "source_pump.parameters.pressure_rise",
         "index": 0.0,
         "target": 5000.0,
@@ -959,7 +959,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_warm_water_pump_parameters_efficiency",
+        "record_tag": "config_warm_water_pump_parameters_efficiency",
         "variable_path": "warm_water_pump.parameters.efficiency",
         "index": 0.0,
         "target": 0.9,
@@ -972,7 +972,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_warm_water_pump_parameters_pressure_rise",
+        "record_tag": "config_warm_water_pump_parameters_pressure_rise",
         "variable_path": "warm_water_pump.parameters.pressure_rise",
         "index": 0.0,
         "target": 7000.0,
@@ -985,7 +985,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_phnix_power_model_parameters_electrical_power",
+        "record_tag": "config_phnix_power_block_slots_electrical_power",
         "variable_path": "phnix.power_model.parameters.electrical_power",
         "index": 0.0,
         "target": 27328.109273268703,
@@ -998,7 +998,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_condenser_parameters_conductance",
+        "record_tag": "config_sghp_condenser_parameters_conductance",
         "variable_path": "sghp.condenser.parameters.conductance",
         "index": null,
         "target": 35462.01923747691,
@@ -1011,7 +1011,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_evaporator_parameters_conductance",
+        "record_tag": "config_sghp_evaporator_parameters_conductance",
         "variable_path": "sghp.evaporator.parameters.conductance",
         "index": null,
         "target": 10526.54640593055,
@@ -1024,7 +1024,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_subcooler_parameters_conductance",
+        "record_tag": "config_sghp_subcooler_parameters_conductance",
         "variable_path": "sghp.subcooler.parameters.conductance",
         "index": null,
         "target": 665.2591195974528,
@@ -1037,7 +1037,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_ihx_parameters_conductance",
+        "record_tag": "config_sghp_ihx_parameters_conductance",
         "variable_path": "sghp.ihx.parameters.conductance",
         "index": null,
         "target": 66.74409622462433,
@@ -1050,7 +1050,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "config_sghp_compressor_parameters_efficiency",
+        "record_tag": "config_sghp_compressor_parameters_efficiency",
         "variable_path": "sghp.compressor.parameters.efficiency",
         "index": 0.0,
         "target": 0.75,
@@ -1063,7 +1063,7 @@
         "penalty": 0.0
       },
       {
-        "record_id": "reference_sghp_compressor_parameters_pressure_rise",
+        "record_tag": "reference_sghp_compressor_parameters_pressure_rise",
         "variable_path": "sghp.compressor.parameters.pressure_rise",
         "index": 0.0,
         "target": 2011686.3921285754,

@@ -1,0 +1,29 @@
+{
+  "id": "water_state_block",
+  "description": "A single stream state block using water_property_package.",
+  "structs": {},
+  "formulations": {
+    "evaluate": {
+      "blocks": {
+        "states": {
+          "block": "state_block",
+          "block_arguments": {
+            "FluidProperties": {
+              "block": "water_property_package"
+            }
+          },
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {},
+      "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

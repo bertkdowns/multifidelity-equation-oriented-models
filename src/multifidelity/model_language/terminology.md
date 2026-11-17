@@ -1,108 +1,104 @@
 # Model-language terminology
 
-This is the authoritative glossary for the JSON model language. It applies to
-`model_language`, its examples, research proposals and model viewer. The older
-Python unit-model architecture has its own conventions in `docs/design.md`.
+This is the authoritative vocabulary for the Python API, JSON schemas, examples
+and viewer. Domain roles and portable representations use the same names across
+those surfaces. Pydantic and Pyomo/IDAES retain their framework terminology.
 
-A **document** is portable, validated data that can be serialized as JSON.
-A document is distinct from a live numerical object. Document filenames are not
-model identities: references use the `id` declared inside a model document.
-
-| Term | Definition / ownership | Python representation today |
+| Term | Meaning | Python representation |
 | --- | --- | --- |
-| Model definition | Reusable mathematical interface and its alternative formulations. | Contents of `ModelDocument` |
-| Model document | JSON representation of one model definition, owning structs, domains, model parameters and relationships. | `ModelDocument` |
-| Variable | Quantity declaration owned by one struct: units, bounds, value type and dimensions; no operating value or fixation. | `Variable` |
-| Struct | Named group of variables, wholly input or output, owned by a model definition. Direction does not mean fixed/free. | `Struct` |
-| Relationship | One alternative formulation, owning child references, constraints, connections and derivatives, or an external provider declaration. Owns no variables. | `Relationship` |
-| Constraint | Equality referring to existing variables, with a `determines` declaration for structural validation. | `Constraint` |
-| Connection | Struct link expanded into field-by-field equality equations; variables remain distinct. | `Connection` |
-| Domain | Declared indexing axis, such as time or a discrete domain. | `Domain` |
-| Derivative | Declared first derivative relating state and rate variable families. | `Derivative` |
-| Model reference | Named use of a reusable definition within a relationship. References do not own the referenced definition. | `ConcreteModelReference` / `ParameterModelReference` |
-| Model parameter | Required public interface for a replaceable model argument. | `ModelParameter` |
-| Model occurrence | One use of a definition at a particular hierarchy path; separate occurrences create separate numerical variables. | Context carried by `ModelView` |
-| Model library | Collection of model documents indexed by model ID, plus registered symbolic providers. | `Library` |
-| Model view | Navigable definition in a reference and generic-argument context. Exposes all relationship alternatives, without selecting one or building numerical objects. | `ModelView` / `RelationshipView` |
-| Implementation document | Recursive relationship choices for a separately supplied root model and exactly the children of each selected relationship. Contains no model IDs or operating values. | `ImplementationDocument`, containing `ImplementationSelection` entries |
-| Implementation | Selected model hierarchy obtained by interpreting an implementation document against a model library. One relationship participates per occurrence. | Shared internal traversal used by the builder and requirement queries; no separate public class |
-| Information record | One observation, equipment specification, parameter, setpoint or assumption, with variable path, value(s), units, trust rank and optional uncertainty. | `InformationRecord` |
-| Information table | Collection of available records for an operating case, retaining alternative records for the same variable. | Contents of `InformationDocument` |
-| Information document | Portable representation of an information table; the JSON format is an array of records. | `InformationDocument` |
-| Quantity of interest / prediction target | Variable whose value an analysis aims to predict. | Variable path |
-| Quantity-of-interest document | Prediction target paths, without target values or accuracy thresholds. | Proposed JSON shape: `{"quantities": [{"variable_path": "..."}]}`; no typed class yet |
-| Canonical input | Public input not supplied by a selected parent constraint, connection or derivative, relative to a solve scope. | `canonical_inputs(model)` |
-| Variable replacement | A chosen fixation occupies a canonical input's specification slot; that input remains free and equations stay intact. | `SpecificationDocument.replacements` |
-| Specification document | Chosen information-record IDs in `specifications` (whole families) and `initial_values` (first time slice), plus `replacements` mapping operating record IDs to canonical input paths. Records own target paths and values; context and diagnostics are separate. | `SpecificationDocument`; `apply_specification()` |
-| Specification plan | The decisions contained in a specification document; not a separate document type. | Same conceptual artifact as the specification document |
-| Initial condition | A fixed value or profile at the first time point, selected through `initial_values`; distinct from an unfixed solver initial guess. | Applied by `apply_specification()` |
-| Starting guess | An unfixed numerical value from a variable declaration's optional `default`, unused applicable information, or an initialisation callback. | `Variable.default`, `apply_starting_values()`, `initialize_custom_models()` |
-| Numerical instance | Live numerical equation system for an implementation with its specifications applied. Construction alone may leave it unspecified. | Pyomo `ConcreteModel` with IDAES `FlowsheetBlock`; no instance-document class |
-| Solve result | Outputs, solver status and provenance from one solve attempt, distinct from structural specification status. | `ResultsDocument`; `export_results()` |
+| Block | A reusable definition of a public variable interface and its available formulations. It has no operating values or selected formulation. | `BlockCatalog` |
+| Formulation | One mathematical representation of a block: constraints, connections, derivatives and child-block references, or an external symbolic provider. | `Formulation` |
+| Model | A root block with a formulation selected at every participating block occurrence. | A root block ID plus a `ModelCatalog` |
+| Model catalog | Portable recursive formulation choices for a separately supplied root block. Its fields are `formulation` and `subblocks`. | `ModelCatalog`, containing `FormulationSelection` entries |
+| Numerical instance | The live Pyomo/IDAES equation system constructed for a model. Construction alone neither selects parameter resources nor solves the equations. | Return value of `build_model()` |
+| Block library | Available block definitions indexed by block ID, together with registered symbolic builders. | `BlockLibrary` |
+| Block view | A navigable definition in a particular generic-argument and hierarchy context. It exposes alternative formulations without selecting one. | `BlockView` and `FormulationView` |
+| Block occurrence | One use of a definition at a hierarchy path. Different occurrences create distinct numerical variables. | Context carried by a `BlockView` |
+| Block slot | A replaceable generic block argument, constrained by a required public interface. It is not a numerical parameter. | `BlockSlot`; `block_slots` and `block_arguments` |
+| Resource | Available evidence about a model variable: an observation, assumption, setpoint, equipment value or reference value. It carries a tag, variable path, values, units, type, trust and optional uncertainty. | `Resource` |
+| Resource catalog | Available resources for an operating case. Several resources may describe the same variable; their tags are unique. | `ResourceCatalog` |
+| Tag | The sole resource identifier, used unchanged by feeds, lookup, parameter choices and diagnostics. A tag is separate from the model variable path. | `Resource.tag` |
+| Feed | An external source that discovers tags and supplies values. A registry materializes those values as fresh resources while retaining the resource metadata. | `Feed[C]`, with `get_config()`, `get_tags()` and `read(tags)` |
+| Feed registry | Live feed objects, indexed by their registration names. It discovers tags, routes bulk reads, validates responses and returns a new resource catalog. | `FeedRegistry` |
+| Feed description | Portable metadata for one feed: `name`, `provider_type`, discovered `tags` and JSON `config`. Tags are discovery snapshots, not separately configured assignments. | `FeedDescription` |
+| Feed catalog | A serializable snapshot describing the feeds in a registry. It contains no executable objects and does not fetch values. | `FeedCatalog` |
+| Provider type | A feed's qualified Python class name, recorded for inspection. Loading this string never imports code or creates a feed. | `FeedDescription.provider_type` |
+| Config | Settings belonging to a particular feed or symbolic builder. A feed defines its own Pydantic config type and exposes it through `get_config()`; the registry serializes it as JSON. Runtime clients and credentials stay outside exported config. | Feed-specific Pydantic models; symbolic-builder JSON options |
+| Symbolic provider | Trusted Python code that constructs the equations of an external formulation. This is distinct from a feed, which fetches operating data. | `SymbolicProvider`; `BlockLibrary.register_provider()` |
+| Parameter | A resource chosen to constrain a model variable. The resource supplies the value; the parameter catalog records the choice. This does not create a Pyomo `Param` or a new variable type. | A selected resource tag |
+| Parameter catalog | Chosen resource tags in `parameters` and `initial_values`, plus replacements mapping operating parameter tags to canonical input paths. Unselected resources remain available evidence. | `ParameterCatalog` |
+| Parameter selection | A parameter catalog together with structural completeness and diagnostic information. Completeness is not numerical convergence. | `ParameterSelection`, returned by `select_parameters()` |
+| Canonical input | A public input not supplied by the chosen parent equations, connections or derivatives, relative to a solve scope. | `canonical_inputs()` |
+| Variable replacement | A chosen operating parameter occupies a canonical input's slot. That input remains free and its equations remain intact. | `ParameterCatalog.replacements` |
+| Initial condition | A parameter applied at the first time point, distinct from an unfixed starting guess. | `ParameterCatalog.initial_values` |
+| Starting guess | An unfixed numerical value obtained from a variable default, unused applicable resources or an initialization callback. | `Variable.default`, `apply_starting_values()` |
+| Result snapshot | Saved public variable values, coordinates, fixation state and explicit solve status. It may represent a successful, failed or not-yet-solved model. | `ResultsCatalog` |
+| Solver result | The solver library's own response to a numerical solve, separate from the exported snapshot. | For example, the return value of `solver.solve(model)` |
+| Workspace catalog | A portable case containing `model_catalog`, `resources`, `results` and optionally `feeds`. The root block ID is in the result snapshot. | `WorkspaceCatalog` |
+| Catalog | A validated, JSON-serializable aggregate. It may describe one block, a selected model, a collection of resources or a saved case; it does not necessarily mean a list of unused options. | The public `*Catalog` types |
 
-## Layered architecture
+## How the concepts fit together
 
 ```text
-Model documents + Implementation document
-    → Implementation (root model supplied separately)
+Block catalog + root block ID + model catalog
+    -> selected model -> live numerical instance
 
-Implementation + Information document + Quantity-of-interest document
-    → Specification document
+Feed config + live feed objects
+    -> feed registry -> fresh resource catalog
 
-Implementation + Specification document + Information document
-    → Numerical instance
+Numerical instance + resource catalog
+    -> parameter selection -> parameter catalog
 
-Numerical instance + numerical solve
-    → Solve result
+Numerical instance + applied parameters + numerical solve
+    -> result snapshot
+
+Model catalog + resources + results + optional feed catalog
+    -> workspace catalog
 ```
 
-The first layer is implemented through library navigation, selected traversal and
-construction. Specification application and initial trust-ranked DM specification
-generation and result snapshots are implemented; the typed target artifact remains proposed. Structural algorithms may construct the numerical
-equations before generating a specification document; the diagram expresses data
-dependencies, not a mandatory construction order.
+The diagram describes responsibilities. Building a numerical instance before
+parameter selection allows structural algorithms to inspect its final grid and
+equations. A feed supplies evidence; fetching that evidence does not automatically
+make it a parameter. Applying parameters and solving are separate operations.
 
-Specification documents contain only specification choices. The caller supplies
-the implementation/model instance and information document separately; source
-identities, version fingerprints, structural status and unused-information audit
-records are not fields of a specification document. Structural completeness and
-numerical convergence are separate checks.
+## Public schemas and names
 
-Use “document” for portable data, “implementation” for the selected hierarchy, and
-“numerical instance” for live numerical objects. Reference resolution is an
-operation, not a name for an implementation. See
-[the specification proposal](../../../research-ideas/information-directed-specification.md)
-for the proposed algorithms and audit contents.
+- Block catalogs use `formulations`, child `blocks`, `block_slots`, and references
+  containing `block` or `block_slot`, with optional `block_arguments`.
+- Model catalogs use `formulation` and recursive `subblocks`. The root block is
+  supplied separately to `build_model(block_id, model_catalog)`.
+- Resources use `tag` and `resource_type`; a resource catalog is a JSON array.
+- Parameter catalogs use `parameters`, `replacements`, and `initial_values`.
+- Result snapshots use `block_id`, `model_catalog` and optional `parameters`.
+- Feed descriptions use `provider_type`; registry registration is
+  `register_feed(name, feed)`, with tags discovered by `feed.get_tags()`.
 
-## Python API naming changes
+These replace the former ModelDocument, ImplementationDocument,
+InformationDocument, SpecificationDocument, ResultsDocument and WorkspaceDocument
+names and their old schema keys. Old names are not retained as aliases. Bundled
+examples are migrated. External saved files must be migrated before loading.
 
-Python imports use the following names (old names are not retained as aliases):
+## Migration from the previous schema
 
-| Previous name | Current name |
+Names change, but tags, variable paths and numerical values retain their meaning.
+Update external files and Python imports together; there are no compatibility
+aliases for the previous public names.
+
+| Previous schema key | Current key / scope |
 | --- | --- |
-| `definitions.Model` | `ModelDocument` |
-| `implementation.Implementation` | `ImplementationDocument` |
-| `InformationTable` | `InformationDocument` |
-| `ResolvedModel` | `ModelView` |
-| `ResolvedRelationship` | `RelationshipView` |
+| `relationships` / `relationship` | `formulations` / `formulation` |
+| Child `models` / `submodels` | `blocks` / `subblocks` |
+| Block reference `model` | `block` |
+| `model_parameters` / `model_parameter` | `block_slots` / `block_slot` |
+| `model_arguments` | `block_arguments` |
+| `implementation` in results/workspaces | `model_catalog` |
+| `implementation` in an external-data provider description | `provider_type` |
+| `information` / `information_type` | `resources` / `resource_type` |
+| `specification` in results / `specifications` in parameter choices | `parameters` in both contexts |
+| `providers` in a workspace | `feeds` |
+| Root definition `model_id` in a result | `block_id` |
 
-These current types are also available from `multifidelity.model_language`.
-`ImplementationSelection` remains the name for nested selection entries.
-`Library.resolve()` remains the reference-navigation operation and returns a
-`ModelView`; it does not select an implementation.
-
-## Current document shapes
-
-- Model document: a Pydantic object containing the reusable definition and its `id`.
-- Implementation document: a Pydantic object with `relationship` and optional
-  recursive `submodels`. No model IDs; the root is supplied to the operation.
-- Information document: a Pydantic array of `InformationRecord` objects.
-- Specification document: a Pydantic object with `specifications`, an array of
-  selected information-record ID strings, `replacements` mapping selected operating
-  record IDs to canonical input paths, and `initial_values` for initial conditions.
-  The arrays default to empty and the mapping defaults to `{}`. No separate entry
-  wrapper type. Noncanonical operating fixations require explicit pairs, generated
-  automatically by `pair_specification()` or `select_specification()`.
-
-All support Pydantic validation/serialization plus `from_json()` and `load_json()`.
-`get_variable(model, path)` provides public access to numerical variable families.
+Definition JSON now lives in `model_language/blocks`. The runnable acquisition
+example is `examples/feeds/read_inputs.py`; resource and parameter examples live
+in `examples/resources` and `examples/parameters`. The Python modules are
+`resources`, `parameters`, `model_selection` and `feeds`.

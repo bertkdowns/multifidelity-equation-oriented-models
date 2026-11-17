@@ -1,0 +1,73 @@
+{
+  "id": "pump_core",
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "density": {
+          "unit": "kg/m**3",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "pressure_rise": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ]
+        },
+        "efficiency": {
+          "bounds": {
+            "min": 0.01,
+            "max": 1
+          },
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "work": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ]
+        }
+      }
+    }
+  },
+  "formulations": {
+    "python": {
+      "external": {
+        "provider": "example.pump",
+        "dependencies": {
+          "performance.work": [
+            "inlet.flow",
+            "inlet.density",
+            "parameters.pressure_rise",
+            "parameters.efficiency"
+          ]
+        }
+      }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

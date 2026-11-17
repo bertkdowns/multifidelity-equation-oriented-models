@@ -1,32 +1,32 @@
-import { parseImplementation } from './implementation.js';
+import { parseModel } from './model_selection.js';
 
 const object = x => x !== null && typeof x === 'object' && !Array.isArray(x);
 const text = x => typeof x === 'string' && x.length > 0;
 function keys(value, allowed, required = allowed) {
-  if (!object(value) || Object.keys(value).some(k => !allowed.includes(k)) || required.some(k => !(k in value))) throw Error('Unexpected or missing document fields.');
+  if (!object(value) || Object.keys(value).some(k => !allowed.includes(k)) || required.some(k => !(k in value))) throw Error('Unexpected or missing catalog fields.');
 }
 export function parseResults(source) {
   const doc = JSON.parse(source);
-  keys(doc, ['schema_version','run_id','created_at','model_id','implementation','mode','time_unit','solve','specification','variables'], ['schema_version','run_id','created_at','model_id','implementation','mode','time_unit','solve','variables']);
+  keys(doc, ['schema_version','run_id','created_at','block_id','model_catalog','mode','time_unit','solve','parameters','variables'], ['schema_version','run_id','created_at','block_id','model_catalog','mode','time_unit','solve','variables']);
   if (doc.schema_version !== 1) throw Error('Unsupported results schema version.');
-  if (![doc.run_id,doc.model_id,doc.time_unit].every(text)) throw Error('Missing run, model or time-unit identity.');
+  if (![doc.run_id,doc.block_id,doc.time_unit].every(text)) throw Error('Missing run, model or time-unit identity.');
   if (!text(doc.created_at) || !/(Z|[+-]\d{2}:\d{2})$/.test(doc.created_at) || !Number.isFinite(Date.parse(doc.created_at))) throw Error('created_at must be a timestamp with a timezone.');
   if (!['steady','dynamic'].includes(doc.mode)) throw Error('Invalid model mode.');
-  const implementation = parseImplementation(JSON.stringify(doc.implementation));
+  const model_catalog = parseModel(JSON.stringify(doc.model_catalog));
   keys(doc.solve, ['status','termination_condition','solver','message'], ['status']);
   if (!['optimal','feasible','failed','not_solved'].includes(doc.solve.status)) throw Error('Invalid solve status.');
   for (const key of ['termination_condition','solver','message']) if (doc.solve[key] != null && typeof doc.solve[key] !== 'string') throw Error(`Invalid solve ${key}.`);
-  if (doc.specification != null) {
-    keys(doc.specification,['specifications','replacements','initial_values'],[]);
-    const ids=[];
-    for (const key of ['specifications','initial_values']) {
-      const list=doc.specification[key] === undefined ? [] : doc.specification[key];
-      if (!Array.isArray(list) || !list.every(text)) throw Error('Invalid specification record IDs.');
-      ids.push(...list);
+  if (doc.parameters != null) {
+    keys(doc.parameters,['parameters','replacements','initial_values'],[]);
+    const tags=[];
+    for (const key of ['parameters','initial_values']) {
+      const list=doc.parameters[key] === undefined ? [] : doc.parameters[key];
+      if (!Array.isArray(list) || !list.every(text)) throw Error('Invalid parameters record tags.');
+      tags.push(...list);
     }
-    if (new Set(ids).size !== ids.length) throw Error('Duplicate specification record IDs.');
-    const replacements = 'replacements' in doc.specification ? doc.specification.replacements : {};
-    if (!object(replacements) || Object.entries(replacements).some(([id,path]) => !text(id) || !text(path) || !(doc.specification.specifications ?? []).includes(id))) throw Error('Invalid replacement record or input path.');
+    if (new Set(tags).size !== tags.length) throw Error('Duplicate parameters record tags.');
+    const replacements = 'replacements' in doc.parameters ? doc.parameters.replacements : {};
+    if (!object(replacements) || Object.entries(replacements).some(([id,path]) => !text(id) || !text(path) || !(doc.parameters.parameters ?? []).includes(id))) throw Error('Invalid replacement record or input path.');
     if (new Set(Object.values(replacements)).size !== Object.values(replacements).length) throw Error('Duplicate replacement input slots.');
   }
   if (!Array.isArray(doc.variables)) throw Error('Expected result variable families.');
@@ -50,14 +50,14 @@ export function parseResults(source) {
       } else if (typeof entry.value !== 'number' || !Number.isFinite(entry.value) || entry.issue != null) throw Error('Expected a finite value or an explicit unavailable entry.');
     }
   }
-  return {...doc, implementation};
+  return {...doc, model_catalog};
 }
-export function sameImplementation(a,b) {
-  if (!a || !b || a.relationship !== b.relationship) return false;
-  const ak=Object.keys(a.submodels ?? {}).sort(), bk=Object.keys(b.submodels ?? {}).sort();
-  return JSON.stringify(ak) === JSON.stringify(bk) && ak.every(k=>sameImplementation(a.submodels[k],b.submodels[k]));
+export function sameModel(a,b) {
+  if (!a || !b || a.formulation !== b.formulation) return false;
+  const ak=Object.keys(a.subblocks ?? {}).sort(), bk=Object.keys(b.subblocks ?? {}).sort();
+  return JSON.stringify(ak) === JSON.stringify(bk) && ak.every(k=>sameModel(a.subblocks[k],b.subblocks[k]));
 }
-export const indexResults = document => new Map((document?.variables ?? []).map(v=>[v.variable_path,v]));
+export const indexResults = catalog => new Map((catalog?.variables ?? []).map(v=>[v.variable_path,v]));
 export const resultNumber = entry => entry.value === null ? `Unavailable (${entry.issue})` : Number(entry.value.toPrecision(8)).toString();
 export const resultPreview = variable => variable.entries.length === 1 ? resultNumber(variable.entries[0]) : `${variable.entries.length} indexed values`;
 // Preserve existing order within fixed, mixed, and free groups.

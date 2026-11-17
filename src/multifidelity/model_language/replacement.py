@@ -4,7 +4,7 @@ from collections import deque
 
 
 def canonical_inputs(model):
-    """Return the selected implementation's unsupplied public input families."""
+    """Return the selected model's unsupplied public input families."""
     paths = getattr(model, '_model_language_canonical_inputs', None)
     if paths is None:
         raise ValueError('Model must be constructed by model_language.build_model')
@@ -100,18 +100,18 @@ class _ReplacementGraph:
         """
         registry = self.model._model_language_variables
         requested = requested if requested is not None else {}
-        state = getattr(self.model, '_model_language_specification_slots', {})
+        state = getattr(self.model, '_model_language_parameter_slots', {})
         used = set(state)
         fixed = self.fixed | self.canonical_ids
         for slot, entry in state.items():
             if slot != entry['variable_path']:
                 fixed -= _entries(self.canonical[slot])
-        # All direct selections are reserved first, so late information can move
+        # All direct selections are reserved first, so late resources can move
         # an earlier inferred pair to another input without losing either record.
-        for record_id, path in targets.items():
+        for record_tag, path in targets.items():
             if path in self.canonical:
-                if record_id in requested:
-                    raise ValueError(f'{record_id}: a canonical input must be specified directly')
+                if record_tag in requested:
+                    raise ValueError(f'{record_tag}: a canonical input must be specified directly')
                 if path in used:
                     raise ValueError(f'Canonical input {path!r} is already specified')
                 used.add(path)
@@ -134,20 +134,20 @@ class _ReplacementGraph:
         # User-specified pairs are a joint assignment, not an ordered history.
         # In particular, swapping two pairs must not depend on JSON key order.
         pinned = fixed.copy()
-        for record_id, slot in requested.items():
-            path = targets[record_id]
+        for record_tag, slot in requested.items():
+            path = targets[record_tag]
             error = check_partner(path, slot, self.distances(registry[path]))
             if error:
-                raise ValueError(f'{path} ({record_id}): cannot assign replacement: {error}')
+                raise ValueError(f'{path} ({record_tag}): cannot assign replacement: {error}')
             pinned = (pinned - _entries(self.canonical[slot])) | _entries(registry[path])
             used.add(slot)
-            result[record_id] = slot
+            result[record_tag] = slot
         pinned_signature = self.signature(pinned)
         if any(after > before for after, before in zip(pinned_signature, reference)):
             raise ValueError('Specified pairs are not a structurally admissible replacement assignment')
         fixed, reference = pinned, pinned_signature
-        for record_id, path in noncanonical.items():
-            if record_id in result:
+        for record_tag, path in noncanonical.items():
+            if record_tag in result:
                 continue
             target = registry[path]
             distances = self.distances(target)
@@ -163,57 +163,57 @@ class _ReplacementGraph:
                 signature = self.signature(trial)
                 if any(after > before for after, before in zip(signature, reference)):
                     continue
-                result[record_id] = slot
+                result[record_tag] = slot
                 used.add(slot)
                 fixed, reference = trial, signature
                 break
             else:
-                raise ValueError(f'{path} ({record_id}): cannot assign replacement: '
+                raise ValueError(f'{path} ({record_tag}): cannot assign replacement: '
                                  'no structurally admissible input with matching index domains')
         return result
 
 
-def _validate_slots(model, specification, information):
+def _validate_slots(model, parameters, resources):
     """Require explicit pairs and validate the complete exchange assignment."""
     canonical = canonical_inputs(model)
-    targets = {i: information.get(i).variable_path for i in specification.specifications}
-    for record_id, path in targets.items():
-        if path not in canonical and record_id not in specification.replacements:
-            raise ValueError(f'{path} ({record_id}): noncanonical fixation requires an explicit replacement input')
-    # Direct-only partial documents need no graph construction.
-    if not specification.replacements:
-        occupied = getattr(model, '_model_language_specification_slots', {})
+    targets = {i: resources.get(i).variable_path for i in parameters.parameters}
+    for record_tag, path in targets.items():
+        if path not in canonical and record_tag not in parameters.replacements:
+            raise ValueError(f'{path} ({record_tag}): noncanonical fixation requires an explicit replacement input')
+    # Direct-only partial catalogs need no graph construction.
+    if not parameters.replacements:
+        occupied = getattr(model, '_model_language_parameter_slots', {})
         for path in targets.values():
             if path in occupied:
                 raise ValueError(f'Canonical input {path!r} is already specified')
-        return {path: {'variable_path': path, 'record_id': i} for i, path in targets.items()}
-    pairs = _ReplacementGraph(model).assign(targets, requested=specification.replacements)
-    return {pairs.get(i, path): {'variable_path': path, 'record_id': i} for i, path in targets.items()}
+        return {path: {'variable_path': path, 'record_tag': i} for i, path in targets.items()}
+    pairs = _ReplacementGraph(model).assign(targets, requested=parameters.replacements)
+    return {pairs.get(i, path): {'variable_path': path, 'record_tag': i} for i, path in targets.items()}
 
 
-def pair_specification(model, specification, information):
-    """Return a document with automatically inferred, editable replacement pairs.
+def pair_parameters(model, parameters, resources):
+    """Return a catalog with automatically inferred, editable replacement pairs.
 
-    Selected information is unchanged. Existing explicit pairs are respected;
+    Selected resources is unchanged. Existing explicit pairs are respected;
     infer missing pairs using structural exchanges, hierarchy distance, equation
-    distance, and path tie-breaking. No model or information values are changed.
+    distance, and path tie-breaking. No model or resources values are changed.
     """
-    from .specification import _document, _prepare
-    specification = _document(specification)
-    _prepare(model, specification, information)  # Paths, units, bounds, fixity.
+    from .parameters import _catalog, _prepare
+    parameters = _catalog(parameters)
+    _prepare(model, parameters, resources)  # Paths, units, bounds, fixity.
     audit_fixations(model)
-    targets = {i: information.get(i).variable_path for i in specification.specifications}
+    targets = {i: resources.get(i).variable_path for i in parameters.parameters}
     if not any(path not in canonical_inputs(model) for path in targets.values()):
-        _validate_slots(model, specification, information)
-        return specification
-    pairs = _ReplacementGraph(model).assign(targets, requested=specification.replacements)
-    return specification.model_copy(update={'replacements': pairs})
+        _validate_slots(model, parameters, resources)
+        return parameters
+    pairs = _ReplacementGraph(model).assign(targets, requested=parameters.replacements)
+    return parameters.model_copy(update={'replacements': pairs})
 
 
-def specification_slots(model):
-    """Describe applied operating slots using paths, fixed targets and record IDs."""
+def parameter_slots(model):
+    """Describe applied operating slots using paths, fixed targets and record tags."""
     return [dict(canonical_input=slot, **entry)
-            for slot, entry in sorted(getattr(model, '_model_language_specification_slots', {}).items())]
+            for slot, entry in sorted(getattr(model, '_model_language_parameter_slots', {}).items())]
 
 
 def audit_fixations(model):
@@ -226,7 +226,7 @@ def audit_fixations(model):
     if registry is None:
         raise ValueError('Model must be constructed by model_language.build_model')
     canonical = canonical_inputs(model)
-    slots = getattr(model, '_model_language_specification_slots', {})
+    slots = getattr(model, '_model_language_parameter_slots', {})
     known = {entry['variable_path'] for entry in slots.values()}
     initial = getattr(model, '_model_language_initial_fixations', set())
     for path, family in registry.items():
@@ -238,6 +238,6 @@ def audit_fixations(model):
     for slot, entry in slots.items():
         target = registry[entry['variable_path']]
         if not all(v.fixed for v in target.values()):
-            raise ValueError(f'{slot}: specification target is no longer fixed')
+            raise ValueError(f'{slot}: parameters target is no longer fixed')
         if slot != entry['variable_path'] and any(v.fixed for v in canonical[slot].values()):
             raise ValueError(f'{slot}: replaced canonical input must remain free')

@@ -3,10 +3,10 @@
 This directory collects research aims and exploratory directions. See
 [algorithm ideas and recursive representations](algorithms-and-hierarchies.md)
 for adaptive initialization, selective refinement, and measurement-aware
-hierarchical heat-pump models.
+hierarchical heat-pump blocks.
 
 The [literature review](literature-review.md) connects these directions to
-goal-oriented model adaptation, data-supported thermal models, structural
+goal-oriented model adaptation, data-supported thermal blocks, structural
 analysis and initialization, with annotated sources and proposed applications.
 
 The [knowledge-base and model-execution literature review](knowledge-base-model-execution-literature-review.md)
@@ -24,41 +24,41 @@ The first planned experiment prioritizes **model selection for heat-pump
 electrical power prediction** at steady operating conditions. Flowsheet
 initialization algorithms are deferred. See the
 [experiment outline](algorithms-and-hierarchies.md#first-planned-experiment-predicting-electrical-consumption)
-for candidate models, evaluation principles, and remaining design choices.
+for candidate blocks, evaluation principles, and remaining design choices.
 
 The [initialisation proposal](initialisation.md) records the concrete work
 motivated by the steam-generating heat-pump solve: valid starting values,
 bottom-up local solves with DM-guided temporary input fixes, and subsequently
 aggregate-first initialisation of more detailed representations. It separates
-these proposed experiments from the existing specification-selection work.
+these proposed experiments from the existing parameters-selection work.
 
-The [information-directed specification and selection plan](information-directed-specification.md)
-separates two testable problems: choosing specifications for an already selected
-implementation using trust-ranked information and DM structure, and choosing
-fidelity using a fixed specification policy. It records independent experiment
-outlines, auditable specification documents, and future noisy-data and Jacobian-based
-specification-replacement studies.
+The [resources-directed parameters and selection plan](resources-directed-parameters.md)
+separates two testable problems: choosing parameters for an already selected
+model using trust-ranked resources and DM structure, and choosing
+fidelity using a fixed parameters policy. It records independent experiment
+outlines, auditable parameters catalogs, and future noisy-data and Jacobian-based
+parameters-replacement studies.
 
 The [canonical-variable replacement investigation](canonical-variable-replacement.md)
 examines `pyomo-replace`, treats unsupplied inputs as a candidate default
-specification interface, and records implemented, physically explainable pairs:
+parameters interface, and records implemented, physically explainable pairs:
 temperature instead of enthalpy, for example. Every fixation must either target
 an unsupplied input or name the input it replaces. The note describes how to
-store and enforce this rule in specification documents, automatic selection and
+store and enforce this rule in parameters catalogs, automatic selection and
 hierarchical initialisation; Jacobian studies are secondary future work.
 
 This is an academic research project investigating multi-fidelity process
-models. Its purpose is to explore algorithms and demonstrate research ideas,
-with clear, understandable implementations.
+blocks. Its purpose is to explore algorithms and demonstrate research ideas,
+with clear, understandable modelCatalogs.
 
 ## Primary aims
 
 1. **Initialization through fidelity changes.** Investigate whether solving
    simpler equipment and property formulations first can help initialize more
-   detailed flowsheet models. Study the sequence of fidelity changes, transfer
-   of useful solution information, and resulting convergence behavior.
+   detailed flowsheet blocks. Study the sequence of fidelity changes, transfer
+   of useful solution resources, and resulting convergence behavior.
 2. **Selective refinement.** Investigate when and where a flowsheet needs more
-   detailed equipment or property models. Refine the parts that matter to a
+   detailed equipment or property blocks. Refine the parts that matter to a
    chosen engineering result or constraint while retaining simpler formulations
    elsewhere. This includes using an explicitly chosen low-fidelity fallback
    to continue analysis when a detailed component model is not important to the
@@ -68,10 +68,10 @@ with clear, understandable implementations.
 
 A useful result does not always require every component to end at its highest
 fidelity. An inactive or noncritical valve may need only a basic hydraulic
-relationship to keep the wider analysis moving. A detailed characteristic can
+formulation to keep the wider analysis moving. A detailed characteristic can
 exclude low-flow operation that a coarse, shutoff-capable model admits. Treat
 this as an explicit change of modeling assumptions, with unchanged physical
-balances and specifications, rather than as successful initialization of the
+balances and parameters, rather than as successful initialization of the
 original detailed formulation.
 
 Record which components use fallback, why that choice is appropriate to the
@@ -100,7 +100,7 @@ and effects on relevant engineering outputs. Where the detailed model has no
 admissible solution, do not invent a detailed reference error; use independent
 balances and scenario requirements, and state the remaining validity limits.
 
-## Scope and implementation priorities
+## Scope and model priorities
 
 Prioritize changes that enable these experiments, clarify the modeling
 contracts, or make research results reproducible. Keep the code focused on
@@ -110,7 +110,7 @@ algorithms being studied.
 General robustness, production hardening, broad compatibility, and elaborate
 frameworks are not goals in themselves. Add them when a concrete research
 experiment requires them or when their absence would invalidate its results.
-Bounded operating domains, simple heuristics, and documented limitations are
+Bounded operating domains, simple heuristics, and cataloged limitations are
 acceptable at this stage.
 
 Tests should verify the main contracts and research-relevant outcomes through

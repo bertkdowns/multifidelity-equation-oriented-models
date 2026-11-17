@@ -1,0 +1,753 @@
+{
+  "id": "heat_pump",
+  "description": "Time-indexed illustrative equations, not a numerical reproduction of the existing property-package blocks.",
+  "structs": {
+    "source_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "source_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "sink_inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "sink_outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "heating_duty": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 0.0001,
+          "default": 3000
+        },
+        "cooling_duty": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 0.0001,
+          "default": 2000
+        },
+        "cop": {
+          "unit": "dimensionless",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 3
+        },
+        "electrical_power": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 0.0001,
+          "default": 1000
+        }
+      }
+    }
+  },
+  "formulations": {
+    "aggregate": {
+      "blocks": {
+        "cop_model": {
+          "block": "prescribed_cop",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "source_inlet_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "ColdSideProperties"
+            }
+          }
+        },
+        "source_outlet_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "ColdSideProperties"
+            }
+          }
+        },
+        "sink_inlet_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "HotSideProperties"
+            }
+          }
+        },
+        "sink_outlet_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "HotSideProperties"
+            }
+          }
+        },
+        "power_model": {
+          "block": "prescribed_power",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {
+        "heating_duty_from_cop": {
+          "lhs": "performance.heating_duty[t]",
+          "rhs": "cop_model.performance.cop[t] * performance.electrical_power[t]",
+          "determines": "performance.heating_duty[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "heat_balance": {
+          "lhs": "performance.cooling_duty[t]",
+          "rhs": "performance.heating_duty[t] - performance.electrical_power[t]",
+          "determines": "performance.cooling_duty[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "source_mass_balance": {
+          "lhs": "source_outlet.flow[t]",
+          "rhs": "source_inlet.flow[t]",
+          "determines": "source_outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "source_pressure_balance": {
+          "lhs": "source_outlet.pressure[t]",
+          "rhs": "source_inlet.pressure[t]",
+          "determines": "source_outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "source_heat_balance": {
+          "lhs": "source_outlet.flow[t] * source_outlet.enthalpy[t]",
+          "rhs": "source_inlet.flow[t] * source_inlet.enthalpy[t] - performance.cooling_duty[t]",
+          "determines": "source_outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "sink_mass_balance": {
+          "lhs": "sink_outlet.flow[t]",
+          "rhs": "sink_inlet.flow[t]",
+          "determines": "sink_outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "sink_pressure_balance": {
+          "lhs": "sink_outlet.pressure[t]",
+          "rhs": "sink_inlet.pressure[t]",
+          "determines": "sink_outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "sink_heat_balance": {
+          "lhs": "sink_outlet.flow[t] * sink_outlet.enthalpy[t]",
+          "rhs": "sink_inlet.flow[t] * sink_inlet.enthalpy[t] + performance.heating_duty[t]",
+          "determines": "sink_outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "cop": {
+          "lhs": "performance.cop[t]",
+          "rhs": "cop_model.performance.cop[t]",
+          "determines": "performance.cop[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "power": {
+          "lhs": "performance.electrical_power[t]",
+          "rhs": "power_model.performance.electrical_power[t]",
+          "determines": "performance.electrical_power[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {
+        "source_inlet_state": {
+          "from": "source_inlet",
+          "to": "source_inlet_state.state"
+        },
+        "source_outlet_state": {
+          "from": "source_outlet",
+          "to": "source_outlet_state.state"
+        },
+        "sink_inlet_state": {
+          "from": "sink_inlet",
+          "to": "sink_inlet_state.state"
+        },
+        "sink_outlet_state": {
+          "from": "sink_outlet",
+          "to": "sink_outlet_state.state"
+        }
+      }
+    },
+    "cycle": {
+      "blocks": {
+        "compressor": {
+          "block": "compressor",
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "RefrigerantProperties"
+            }
+          },
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "condenser": {
+          "block": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "HotSideProperties": {
+              "block_slot": "RefrigerantProperties"
+            },
+            "ColdSideProperties": {
+              "block_slot": "HotSideProperties"
+            }
+          }
+        },
+        "subcooler": {
+          "block": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "HotSideProperties": {
+              "block_slot": "RefrigerantProperties"
+            },
+            "ColdSideProperties": {
+              "block_slot": "HotSideProperties"
+            }
+          }
+        },
+        "ihx": {
+          "block": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "HotSideProperties": {
+              "block_slot": "RefrigerantProperties"
+            },
+            "ColdSideProperties": {
+              "block_slot": "RefrigerantProperties"
+            }
+          }
+        },
+        "expansion_valve": {
+          "block": "valve",
+          "domain_bindings": {
+            "time": "time"
+          }
+        },
+        "evaporator": {
+          "block": "heat_exchanger",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "HotSideProperties": {
+              "block_slot": "ColdSideProperties"
+            },
+            "ColdSideProperties": {
+              "block_slot": "RefrigerantProperties"
+            }
+          }
+        },
+        "source_inlet_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "ColdSideProperties"
+            }
+          }
+        },
+        "source_outlet_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "ColdSideProperties"
+            }
+          }
+        },
+        "sink_inlet_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "HotSideProperties"
+            }
+          }
+        },
+        "sink_outlet_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "HotSideProperties"
+            }
+          }
+        }
+      },
+      "constraints": {
+        "compressor_power_balance": {
+          "lhs": "performance.electrical_power[t]",
+          "rhs": "compressor.performance.work[t]",
+          "determines": "performance.electrical_power[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "sink_heat_balance": {
+          "lhs": "performance.heating_duty[t]",
+          "rhs": "sink_outlet.flow[t] * sink_outlet.enthalpy[t] - sink_inlet.flow[t] * sink_inlet.enthalpy[t]",
+          "determines": "performance.heating_duty[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "source_heat_balance": {
+          "lhs": "performance.cooling_duty[t]",
+          "rhs": "source_inlet.flow[t] * source_inlet.enthalpy[t] - source_outlet.flow[t] * source_outlet.enthalpy[t]",
+          "determines": "performance.cooling_duty[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "cop": {
+          "lhs": "performance.cop[t] * performance.electrical_power[t]",
+          "rhs": "performance.heating_duty[t]",
+          "determines": "performance.cop[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {
+        "link_1": {
+          "from": "compressor.outlet",
+          "to": "condenser.hot_inlet"
+        },
+        "link_2": {
+          "from": "condenser.hot_outlet",
+          "to": "subcooler.hot_inlet"
+        },
+        "link_3": {
+          "from": "subcooler.hot_outlet",
+          "to": "ihx.hot_inlet"
+        },
+        "link_4": {
+          "from": "ihx.hot_outlet",
+          "to": "expansion_valve.inlet"
+        },
+        "link_5": {
+          "from": "expansion_valve.outlet",
+          "to": "evaporator.cold_inlet"
+        },
+        "link_6": {
+          "from": "evaporator.cold_outlet",
+          "to": "ihx.cold_inlet"
+        },
+        "link_7": {
+          "from": "ihx.cold_outlet",
+          "to": "compressor.inlet"
+        },
+        "link_8": {
+          "from": "source_inlet",
+          "to": "evaporator.hot_inlet"
+        },
+        "link_9": {
+          "from": "evaporator.hot_outlet",
+          "to": "source_outlet"
+        },
+        "link_10": {
+          "from": "sink_inlet",
+          "to": "subcooler.cold_inlet"
+        },
+        "link_11": {
+          "from": "subcooler.cold_outlet",
+          "to": "condenser.cold_inlet"
+        },
+        "link_12": {
+          "from": "condenser.cold_outlet",
+          "to": "sink_outlet"
+        },
+        "source_inlet_state": {
+          "from": "source_inlet",
+          "to": "source_inlet_state.state"
+        },
+        "source_outlet_state": {
+          "from": "source_outlet",
+          "to": "source_outlet_state.state"
+        },
+        "sink_inlet_state": {
+          "from": "sink_inlet",
+          "to": "sink_inlet_state.state"
+        },
+        "sink_outlet_state": {
+          "from": "sink_outlet",
+          "to": "sink_outlet_state.state"
+        }
+      }
+    }
+  },
+  "block_slots": {
+    "HotSideProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ColdSideProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "RefrigerantProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

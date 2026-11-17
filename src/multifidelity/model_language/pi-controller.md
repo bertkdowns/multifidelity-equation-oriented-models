@@ -1,25 +1,25 @@
 # PI controller
 
-`pi_controller` has two interchangeable relationships. All three public signals
+`pi_controller` has two interchangeable formulations. All three public signals
 are dimensionless and indexed by time: `signals.setpoint`,
 `signals.process_variable`, and `output.value`. Normalize physical measurements
 and convert the manipulated output to physical actuator units in the containing
 model. Use the same normalization for setpoint and measurement.
 
-Select ideal tracking with `{"relationship": "ideal_tracking"}`. This imposes
+Select ideal tracking with `{"formulation": "ideal_tracking"}`. This imposes
 `process_variable = setpoint`. The manipulated output is implicit: the connected
 process must determine it. Users are responsible for controllability, a feasible
-setpoint, and consistent specifications. Do not also prescribe the actuator
+setpoint, and consistent parameters. Do not also prescribe the actuator
 output when the loop is intended to calculate it. In a dynamic process this
-relationship assumes instantaneous perfect tracking and requires consistent
+formulation assumes instantaneous perfect tracking and requires consistent
 initial conditions.
 
 Select PI with:
 
 ```json
 {
-  "relationship": "pi",
-  "submodels": {"integral": {"relationship": "integrate"}}
+  "formulation": "pi",
+  "subblocks": {"integral": {"formulation": "integrate"}}
 }
 ```
 
@@ -37,7 +37,7 @@ Gains are signed: choose their signs for the process's control action.
 There is no derivative action, output saturation, or anti-windup.
 
 In dynamic mode, specify `integral.state.integral` (seconds) at the initial
-point through the existing initial-condition specification API. For nonzero
+point through the existing initial-condition parameters API. For nonzero
 `ki`, `(initial_output - bias - kp * initial_error) / ki` gives an integral
 initial value consistent with the desired starting output. When `ki = 0`, the
 integral state still evolves but does not affect output.

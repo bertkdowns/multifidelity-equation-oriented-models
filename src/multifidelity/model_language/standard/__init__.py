@@ -1,6 +1,6 @@
-"""Optional symbolic providers; registration never constructs native models."""
+"""Optional symbolic symbolic providers; registration never constructs native blocks."""
 
-from ..resolution import Library
+from ..resolution import BlockLibrary
 from .compressor_map import build_compressor_map
 from .humid_air import build_humid_air
 from .thermo import build_helmholtz_ph, scale_helmholtz_ph
@@ -8,11 +8,11 @@ from .lmtd import build_lmtd
 from .phase_mixture import build_phase_mixture
 
 
-def register_standard_providers(library: Library) -> None:
-    """Register the bundled providers on an existing library.
+def register_standard_providers(library: BlockLibrary) -> None:
+    """Register the bundled symbolic providers on an existing library.
 
     Optional modelling dependencies and artifacts load only when a selected
-    relationship calls a provider. Duplicate names follow Library's usual error.
+    formulation calls a provider. Duplicate names follow BlockLibrary's usual error.
     """
     library.register_provider("standard.helmholtz_ph", build_helmholtz_ph,
                               scaler=scale_helmholtz_ph)

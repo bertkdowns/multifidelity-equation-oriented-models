@@ -1,0 +1,67 @@
+[
+  {
+    "tag": "inlet_flow",
+    "resource_type": "sensor_reading",
+    "variable_path": "inlet.flow",
+    "value": 2,
+    "unit": "kg/s",
+    "trust_rank": 10
+  },
+  {
+    "tag": "pressure_measurement",
+    "resource_type": "sensor_reading",
+    "variable_path": "inlet.pressure",
+    "value": 200,
+    "unit": "kPa",
+    "standard_deviation": 0.5,
+    "trust_rank": 10
+  },
+  {
+    "tag": "pressure_estimate",
+    "resource_type": "assumption",
+    "variable_path": "inlet.pressure",
+    "value": 190,
+    "unit": "kPa",
+    "trust_rank": 1
+  },
+  {
+    "tag": "inlet_enthalpy",
+    "resource_type": "parameter",
+    "variable_path": "inlet.enthalpy",
+    "value": 100,
+    "unit": "kJ/kg",
+    "trust_rank": 8
+  },
+  {
+    "tag": "valve_pressure_drop",
+    "resource_type": "equipment_parameter",
+    "variable_path": "parameters.pressure_drop",
+    "value": 25,
+    "unit": "kPa",
+    "trust_rank": 8
+  },
+  {
+    "tag": "outlet_flow_check",
+    "resource_type": "sensor_reading",
+    "variable_path": "outlet.flow",
+    "value": 2.1,
+    "unit": "kg/s",
+    "trust_rank": 6
+  },
+  {
+    "tag": "outlet_enthalpy_check",
+    "resource_type": "sensor_reading",
+    "variable_path": "outlet.enthalpy",
+    "value": 101,
+    "unit": "kJ/kg",
+    "trust_rank": 6
+  },
+  {
+    "tag": "outlet_pressure_check",
+    "resource_type": "sensor_reading",
+    "variable_path": "outlet.pressure",
+    "value": 174,
+    "unit": "kPa",
+    "trust_rank": 6
+  }
+]

@@ -1,6 +1,6 @@
 """Solve the aggregate plant with prescribed flash outlet compositions.
 
-Try the full operating specification directly if a local initialization stage
+Try the full operating parameters directly if a local initialization stage
 fails. A successful bottom-up root solve is retained without solving it twice.
 """
 import json
@@ -8,19 +8,19 @@ import json
 from idaes.core.solvers import get_solver
 from pyomo.environ import units
 from multifidelity.model_language import (
-    initialize_model, InformationDocument, SpecificationDocument, get_variable,
+    initialize_model, ResourceCatalog, ParameterCatalog, get_variable,
 )
 from multifidelity.model_language.scaling import rank_inputs, export_scaling
 from attempt_solve import build_attempt, HERE
-from diagnose_specifications import physical_residuals
+from diagnose_parameters import physical_residuals
 
 
 if __name__ == '__main__':
     model = build_attempt()
     initialization = initialize_model(
         model,
-        information=InformationDocument.load_json(HERE/'attempt_information.json'),
-        specification=SpecificationDocument.load_json(HERE/'attempt_specification.json'),
+        resources=ResourceCatalog.load_json(HERE/'attempt_resources.json'),
+        parameters=ParameterCatalog.load_json(HERE/'attempt_parameters.json'),
     )
     _, diagnostic = rank_inputs(model.fs.root, [], 0)
     report = dict(initialization_stop=initialization.failed_model,

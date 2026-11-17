@@ -1,23 +1,23 @@
 {
-  "relationship": "flowsheet",
-  "submodels": {
+  "formulation": "flowsheet",
+  "subblocks": {
     "flash_separator": {
-      "relationship": "phase_split",
-      "submodels": {
+      "formulation": "phase_split",
+      "subblocks": {
         "inlet_state": {
-          "relationship": "helmholtz"
+          "formulation": "helmholtz"
         },
         "liquid_state": {
-          "relationship": "helmholtz"
+          "formulation": "helmholtz"
         },
         "vapor_state": {
-          "relationship": "helmholtz"
+          "formulation": "helmholtz"
         },
         "liquid_mixture": {
-          "relationship": "mix"
+          "formulation": "mix"
         },
         "vapor_mixture": {
-          "relationship": "mix"
+          "formulation": "mix"
         }
       }
     }

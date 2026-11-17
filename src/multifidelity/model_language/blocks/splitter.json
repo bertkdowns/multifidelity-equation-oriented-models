@@ -1,0 +1,171 @@
+{
+  "id": "splitter",
+  "description": "Topology scaffold: prescribed flow split; no phase equilibrium or composition closure.",
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "main": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 0.5
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "branch": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 0.5
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 200000
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1e-05,
+          "default": 100000
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "fraction": {
+          "unit": "dimensionless",
+          "bounds": {
+            "min": 0,
+            "max": 1
+          },
+          "dimensions": [
+            "time"
+          ],
+          "scale": 1,
+          "default": 0.5
+        }
+      }
+    }
+  },
+  "formulations": {
+    "split": {
+      "blocks": {},
+      "constraints": {
+        "main_flow_split": {
+          "lhs": "main.flow[t]",
+          "rhs": "inlet.flow[t] * parameters.fraction[t]",
+          "determines": "main.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "branch_mass_balance": {
+          "lhs": "branch.flow[t]",
+          "rhs": "inlet.flow[t] - main.flow[t]",
+          "determines": "branch.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "main_pressure_balance": {
+          "lhs": "main.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "main.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "main_enthalpy_balance": {
+          "lhs": "main.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "main.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "branch_pressure_balance": {
+          "lhs": "branch.pressure[t]",
+          "rhs": "inlet.pressure[t]",
+          "determines": "branch.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "branch_enthalpy_balance": {
+          "lhs": "branch.enthalpy[t]",
+          "rhs": "inlet.enthalpy[t]",
+          "determines": "branch.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {}
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

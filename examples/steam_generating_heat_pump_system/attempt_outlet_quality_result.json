@@ -127,61 +127,61 @@
   },
   "largest_raw_residuals": [
     {
-      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "name": "fs.root.formulation.blocks.sghp.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
       "violation": 6.764242425560951e-05,
       "unit": "J/kg",
       "scaled_violation": 6.764242425560952e-10
     },
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 3.758841194212437e-05,
       "unit": "J/kg",
       "scaled_violation": 1.900019496805235e-10
     },
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "name": "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.hot_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
       "violation": 1.9385945051908493e-05,
       "unit": "J/kg",
       "scaled_violation": 1.9385945051908494e-10
     },
     {
-      "name": "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.phnix.formulation.blocks.source_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 3.659806679934263e-08,
       "unit": "J/kg",
       "scaled_violation": 3.6598066799342636e-13
     },
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.cold_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 1.2631062418222427e-08,
       "unit": "J/kg",
       "scaled_violation": 1.2631062418222425e-13
     },
     {
-      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.phnix.formulation.blocks.source_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 1.229636836796999e-08,
       "unit": "J/kg",
       "scaled_violation": 1.2296368367969989e-13
     },
     {
-      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.phnix_source_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 1.229636836796999e-08,
       "unit": "J/kg",
       "scaled_violation": 1.2296368367969989e-13
     },
     {
-      "name": "fs.root.relationship.models.sghp.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.sghp.formulation.blocks.source_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 8.789356797933578e-09,
       "unit": "J/kg",
       "scaled_violation": 8.789356797933579e-14
     },
     {
-      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "name": "fs.root.formulation.blocks.phnix.formulation.blocks.source_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
       "violation": 5.587935447692871e-09,
       "unit": "J/kg",
       "scaled_violation": 5.587935447692872e-14
     },
     {
-      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "name": "fs.root.formulation.blocks.phnix_source_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
       "violation": 5.587935447692871e-09,
       "unit": "J/kg",
       "scaled_violation": 5.587935447692872e-14
@@ -189,61 +189,61 @@
   ],
   "largest_scaled_residuals": [
     {
-      "name": "fs.root.relationship.models.sghp.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "name": "fs.root.formulation.blocks.sghp.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
       "violation": 6.764242425560951e-05,
       "unit": "J/kg",
       "scaled_violation": 6.764242425560952e-10
     },
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_vapor_equation",
+      "name": "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.hot_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_vapor_equation",
       "violation": 1.9385945051908493e-05,
       "unit": "J/kg",
       "scaled_violation": 1.9385945051908494e-10
     },
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 3.758841194212437e-05,
       "unit": "J/kg",
       "scaled_violation": 1.900019496805235e-10
     },
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.hot_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.viscosity_equation",
+      "name": "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.hot_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.viscosity_equation",
       "violation": 1.4345702360404888e-14,
       "unit": "Pa*s",
       "scaled_violation": 1.4345702360404888e-11
     },
     {
-      "name": "fs.root.relationship.models.phnix.relationship.models.source_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.phnix.formulation.blocks.source_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 3.659806679934263e-08,
       "unit": "J/kg",
       "scaled_violation": 3.6598066799342636e-13
     },
     {
-      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity_equation",
+      "name": "fs.root.formulation.blocks.phnix.formulation.blocks.source_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.heat_capacity_equation",
       "violation": 2.964952727779746e-10,
       "unit": "J/K/kg",
       "scaled_violation": 2.964952727779746e-13
     },
     {
-      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.heat_capacity_equation",
+      "name": "fs.root.formulation.blocks.phnix_source_state.formulation.blocks.fluid.formulation.slices[0.0].provider.heat_capacity_equation",
       "violation": 2.964952727779746e-10,
       "unit": "J/K/kg",
       "scaled_violation": 2.964952727779746e-13
     },
     {
-      "name": "fs.root.relationship.models.cooling_exchanger.relationship.models.cold_outlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.cooling_exchanger.formulation.blocks.cold_outlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 1.2631062418222427e-08,
       "unit": "J/kg",
       "scaled_violation": 1.2631062418222425e-13
     },
     {
-      "name": "fs.root.relationship.models.phnix.relationship.models.source_inlet_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.phnix.formulation.blocks.source_inlet_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 1.229636836796999e-08,
       "unit": "J/kg",
       "scaled_violation": 1.2296368367969989e-13
     },
     {
-      "name": "fs.root.relationship.models.phnix_source_state.relationship.models.fluid.relationship.slices[0.0].provider.enthalpy_liquid_equation",
+      "name": "fs.root.formulation.blocks.phnix_source_state.formulation.blocks.fluid.formulation.slices[0.0].provider.enthalpy_liquid_equation",
       "violation": 1.229636836796999e-08,
       "unit": "J/kg",
       "scaled_violation": 1.2296368367969989e-13

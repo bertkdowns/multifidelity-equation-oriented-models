@@ -10,7 +10,7 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from pyomo.environ import Var
 from pyomo.opt import check_optimal_termination
-from multifidelity.model_language import InformationDocument, SpecificationDocument, initialize_model
+from multifidelity.model_language import ResourceCatalog, ParameterCatalog, initialize_model
 from multifidelity.model_language.hierarchical_initialization import _constraint_violation, _valid_guess
 from multifidelity.model_language.scaling import export_scaling
 from attempt_solve import build_attempt
@@ -22,8 +22,8 @@ if __name__ == '__main__':
     solver = get_solver('ipopt', options={'max_iter': 500, 'tol': 1e-8, 'max_cpu_time': 60})
     initialized = initialize_model(
         model, solver=solver,
-        information=InformationDocument.load_json(HERE / 'attempt_information.json'),
-        specification=SpecificationDocument.load_json(HERE / 'attempt_specification.json'),
+        resources=ResourceCatalog.load_json(HERE / 'attempt_resources.json'),
+        parameters=ParameterCatalog.load_json(HERE / 'attempt_parameters.json'),
     )
     root = initialized.stages[-1]
     if (initialized.failed_model != 'steam_generating_heat_pump_system'
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         'initialized_component_stages': len(initialized.stages) - 1,
         'initial_rank_diagnostic': root.numerical_selections[-1],
         'initial_max_scaled_constraint_violation': _constraint_violation(model.fs.root, scaled=True),
-        'operating_specifications_changed': False,
+        'operating_parameters_changed': False,
     }
     export_scaling(model.fs.root)
     try:

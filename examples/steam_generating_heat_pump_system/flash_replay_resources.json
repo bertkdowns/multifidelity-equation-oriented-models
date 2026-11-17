@@ -1,0 +1,26 @@
+[
+  {
+    "tag": "flash_replay_reference_flash_tank_inlet_pressure",
+    "resource_type": "assumption",
+    "variable_path": "flash_separator.inlet.pressure",
+    "value": 200.0,
+    "unit": "kPa",
+    "trust_rank": 2
+  },
+  {
+    "tag": "flash_liquid_to_liquid",
+    "resource_type": "equipment_parameter",
+    "variable_path": "flash_separator.parameters.liquid_to_liquid",
+    "value": 1,
+    "unit": "dimensionless",
+    "trust_rank": 8
+  },
+  {
+    "tag": "flash_vapor_to_liquid",
+    "resource_type": "equipment_parameter",
+    "variable_path": "flash_separator.parameters.vapor_to_liquid",
+    "value": 0,
+    "unit": "dimensionless",
+    "trust_rank": 8
+  }
+]

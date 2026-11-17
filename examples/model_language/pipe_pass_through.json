@@ -1,8 +1,8 @@
 {
-  "relationship": "flowsheet",
-  "submodels": {
+  "formulation": "flowsheet",
+  "subblocks": {
     "pipe": {
-      "relationship": "pass_through"
+      "formulation": "pass_through"
     }
   }
 }

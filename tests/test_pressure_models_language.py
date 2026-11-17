@@ -5,10 +5,10 @@ from pathlib import Path
 import pytest
 from pyomo.environ import Constraint, value
 
-from multifidelity.model_language import build_model as _build_model, required_inputs, Library, register_standard_providers
+from multifidelity.model_language import build_model as _build_model, required_inputs, BlockLibrary, register_standard_providers
 
 def build_model(*args, **kwargs):
-    library = kwargs.pop("library", None) or Library()
+    library = kwargs.pop("library", None) or BlockLibrary()
     register_standard_providers(library)
     return _build_model(*args, library=library, **kwargs)
 
@@ -17,12 +17,12 @@ EXAMPLES = Path(__file__).parents[1] / "examples/model_language"
 
 def set_package(package, pressure, *, enthalpy=None, entropy=None):
     """Populate a configured affine PH state, optionally finding h from target entropy."""
-    wrapper = package if hasattr(package.relationship.models, "fluid") else None
+    wrapper = package if hasattr(package.formulation.blocks, "fluid") else None
     if wrapper is not None:
-        package = wrapper.relationship.models.fluid
-    water = package.relationship.models.water
+        package = wrapper.formulation.blocks.fluid
+    water = package.formulation.blocks.water
     coefficients = {}
-    for name, equation in package.relationship.constraints.component_map().items():
+    for name, equation in package.formulation.constraints.component_map().items():
         coefficients[name] = value(equation.lower)
         getattr(water.structs.parameters, name).set_value(coefficients[name])
     c = coefficients
@@ -66,7 +66,7 @@ def assert_balanced(block):
 @pytest.mark.parametrize('efficiency', [0.65, 1.0])
 def test_pump_matches_incompressible_efficiency_and_energy_balance(efficiency):
     model = build_model('pump_flowsheet', EXAMPLES / 'pump_flowsheet.json')
-    pump = model.fs.root.relationship.models.pump
+    pump = model.fs.root.formulation.blocks.pump
     flow, pressure, enthalpy, rise = 2, 300000, 140000, 200000
     work = flow * rise / 997 / efficiency
     pump.structs.parameters.pressure_rise[0].set_value(rise)
@@ -76,7 +76,7 @@ def test_pump_matches_incompressible_efficiency_and_energy_balance(efficiency):
         state.flow[0].set_value(flow)
         state.pressure[0].set_value(p)
         state.enthalpy[0].set_value(h)
-    set_package(pump.relationship.models.outlet_state, pressure + rise, enthalpy=enthalpy + work / flow)
+    set_package(pump.formulation.blocks.outlet_state, pressure + rise, enthalpy=enthalpy + work / flow)
     pump.structs.performance.work[0].set_value(work)
     pump.structs.performance.fluid_work[0].set_value(work * efficiency)
     assert_balanced(pump)
@@ -92,9 +92,9 @@ def test_pump_matches_incompressible_efficiency_and_energy_balance(efficiency):
 @pytest.mark.parametrize('efficiency', [0.65, 1.0])
 def test_compressor_matches_isentropic_efficiency_and_energy_balance(efficiency):
     model = build_model('compressor_flowsheet', EXAMPLES / 'compressor_flowsheet.json')
-    compressor = model.fs.root.relationship.models.compressor
+    compressor = model.fs.root.formulation.blocks.compressor
     flow, pressure, enthalpy, rise = 2, 300000, 140000, 200000
-    states = compressor.relationship.models
+    states = compressor.formulation.blocks
     inlet = set_package(states.inlet_state, pressure, enthalpy=enthalpy)
     reference = set_package(states.isentropic_state, pressure + rise, entropy=inlet['entropy'])
     isentropic_work = flow * (reference['enthalpy'] - enthalpy)
@@ -130,7 +130,7 @@ def test_heat_pump_power_is_calculated_and_aggregate_power_is_internal():
     assert 'heat_pump.power_model.parameters.electrical_power' in aggregate
 
 
-def test_milk_power_specification_can_determine_compressor_pressure_rise():
+def test_milk_power_parameters_can_determine_compressor_pressure_rise():
     """The target influences work through the validated child equations."""
     path = EXAMPLES / 'milk_evaporator_detailed.json'
     build_model('milk_evaporator', path)

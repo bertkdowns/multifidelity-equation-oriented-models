@@ -1,0 +1,16 @@
+{
+  "formulation": "flowsheet",
+  "subblocks": {
+    "pump": {
+      "formulation": "composed",
+      "subblocks": {
+        "properties": {
+          "formulation": "constant_python"
+        },
+        "core": {
+          "formulation": "python"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,291 @@
+{
+  "id": "compressor",
+  "description": "Adiabatic efficiency-based compressor. One PH FluidProperties model is instantiated for inlet, outlet and isentropic reference states. The reference entropy equals inlet entropy at outlet pressure; the equation-oriented solver determines reference enthalpy.",
+  "block_slots": {
+    "FluidProperties": {
+      "requires": {
+        "state": {
+          "direction": "input",
+          "variables": {
+            "pressure": {
+              "unit": "Pa",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "enthalpy": {
+              "unit": "J/kg",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        },
+        "properties": {
+          "direction": "output",
+          "variables": {
+            "density": {
+              "unit": "kg/m**3",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "heat_capacity": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "entropy": {
+              "unit": "J/kg/K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "vapor_fraction": {
+              "unit": "dimensionless",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_bubble": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            },
+            "temperature_dew": {
+              "unit": "K",
+              "dimensions": [
+                "time"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "structs": {
+    "inlet": {
+      "direction": "input",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "default": 1,
+          "scale": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "default": 200000,
+          "scale": 1e-05
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "default": 100000,
+          "scale": 1e-05
+        }
+      }
+    },
+    "outlet": {
+      "direction": "output",
+      "variables": {
+        "flow": {
+          "unit": "kg/s",
+          "dimensions": [
+            "time"
+          ],
+          "default": 1,
+          "scale": 1
+        },
+        "pressure": {
+          "unit": "Pa",
+          "dimensions": [
+            "time"
+          ],
+          "default": 200000,
+          "scale": 1e-05
+        },
+        "enthalpy": {
+          "unit": "J/kg",
+          "dimensions": [
+            "time"
+          ],
+          "default": 100000,
+          "scale": 1e-05
+        }
+      }
+    },
+    "parameters": {
+      "direction": "input",
+      "variables": {
+        "pressure_rise": {
+          "unit": "Pa",
+          "bounds": {
+            "min": 0
+          },
+          "dimensions": [
+            "time"
+          ],
+          "default": 100000,
+          "scale": 1e-05
+        },
+        "efficiency": {
+          "unit": "dimensionless",
+          "bounds": {
+            "min": 1e-06,
+            "max": 1
+          },
+          "dimensions": [
+            "time"
+          ],
+          "default": 0.8,
+          "scale": 1
+        }
+      }
+    },
+    "performance": {
+      "direction": "output",
+      "variables": {
+        "work": {
+          "unit": "W",
+          "bounds": {
+            "min": 0
+          },
+          "dimensions": [
+            "time"
+          ],
+          "scale": 0.0001
+        },
+        "isentropic_work": {
+          "unit": "W",
+          "dimensions": [
+            "time"
+          ],
+          "scale": 0.0001
+        }
+      }
+    }
+  },
+  "formulations": {
+    "isentropic": {
+      "blocks": {
+        "inlet_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "FluidProperties"
+            }
+          }
+        },
+        "outlet_state": {
+          "block": "state_block",
+          "domain_bindings": {
+            "time": "time"
+          },
+          "block_arguments": {
+            "FluidProperties": {
+              "block_slot": "FluidProperties"
+            }
+          }
+        },
+        "isentropic_state": {
+          "block_slot": "FluidProperties",
+          "domain_bindings": {
+            "time": "time"
+          }
+        }
+      },
+      "constraints": {
+        "mass_balance": {
+          "lhs": "outlet.flow[t]",
+          "rhs": "inlet.flow[t]",
+          "determines": "outlet.flow[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "pressure": {
+          "lhs": "outlet.pressure[t]",
+          "rhs": "inlet.pressure[t] + parameters.pressure_rise[t]",
+          "determines": "outlet.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "energy_balance": {
+          "lhs": "outlet.flow[t] * outlet.enthalpy[t]",
+          "rhs": "inlet.flow[t] * inlet.enthalpy[t] + performance.work[t]",
+          "determines": "outlet.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "isentropic_pressure": {
+          "lhs": "isentropic_state.state.pressure[t]",
+          "rhs": "outlet.pressure[t]",
+          "determines": "isentropic_state.state.pressure[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "isentropic_entropy": {
+          "lhs": "isentropic_state.properties.entropy[t]",
+          "rhs": "inlet_state.properties.entropy[t]",
+          "determines": "isentropic_state.state.enthalpy[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "isentropic_work": {
+          "lhs": "performance.isentropic_work[t]",
+          "rhs": "inlet.flow[t] * (isentropic_state.state.enthalpy[t] - inlet.enthalpy[t])",
+          "determines": "performance.isentropic_work[t]",
+          "for_each": {
+            "t": "time"
+          }
+        },
+        "efficiency": {
+          "lhs": "parameters.efficiency[t] * performance.work[t]",
+          "rhs": "performance.isentropic_work[t]",
+          "determines": "performance.work[t]",
+          "for_each": {
+            "t": "time"
+          }
+        }
+      },
+      "connections": {
+        "inlet_state": {
+          "from": "inlet",
+          "to": "inlet_state.state"
+        },
+        "outlet_state": {
+          "from": "outlet",
+          "to": "outlet_state.state"
+        }
+      }
+    }
+  },
+  "domains": {
+    "time": {
+      "kind": "time"
+    }
+  }
+}

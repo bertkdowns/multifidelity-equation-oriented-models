@@ -8,8 +8,8 @@ from pyomo.util.check_units import assert_units_consistent
 from multifidelity.model_language import build_model, required_inputs, required_initial_values
 
 
-IDEAL = {'relationship': 'ideal_tracking'}
-PI = {'relationship': 'pi', 'submodels': {'integral': {'relationship': 'integrate'}}}
+IDEAL = {'formulation': 'ideal_tracking'}
+PI = {'formulation': 'pi', 'subblocks': {'integral': {'formulation': 'integrate'}}}
 
 
 def test_ideal_tracking_has_implicit_output_and_no_tuning():
@@ -17,7 +17,7 @@ def test_ideal_tracking_has_implicit_output_and_no_tuning():
     root = model.fs.root
     root.structs.signals.setpoint[0].set_value(0.6)
     root.structs.signals.process_variable[0].set_value(0.6)
-    assert value(root.relationship.constraints.tracking[0].body) == pytest.approx(0)
+    assert value(root.formulation.constraints.tracking[0].body) == pytest.approx(0)
     assert not root.structs.output.value[0].fixed
     assert set(required_inputs('pi_controller', IDEAL)) == {
         'signals.setpoint', 'signals.process_variable'}
@@ -27,7 +27,7 @@ def test_ideal_tracking_has_implicit_output_and_no_tuning():
 def test_pi_steady_equilibrium_retains_integral_output():
     model = build_model('pi_controller', PI)
     root = model.fs.root
-    child = root.relationship.models.integral
+    child = root.formulation.blocks.integral
     root.structs.signals.setpoint[0].set_value(0.6)
     root.structs.signals.process_variable[0].set_value(0.6)
     child.structs.signal.error[0].set_value(0)
@@ -35,7 +35,7 @@ def test_pi_steady_equilibrium_retains_integral_output():
     child.structs.tuning.ki.set_value(0.5)
     child.structs.tuning.bias.set_value(0.1)
     child.structs.state.integral[0].set_value(0.8)
-    calculate_variable_from_constraint(root.structs.output.value[0], root.relationship.constraints.control[0])
+    calculate_variable_from_constraint(root.structs.output.value[0], root.formulation.constraints.control[0])
     assert value(root.structs.output.value[0]) == pytest.approx(0.5)
     assert set(required_initial_values('pi_controller', PI)) == {'integral.state.integral'}
     assert set(required_inputs('pi_controller', PI)) == {
@@ -49,7 +49,7 @@ def test_dynamic_pi_integrates_constant_error():
     model = build_model('pi_controller', PI, mode='dynamic', domain_values={'time': [0, 2]})
     TransformationFactory('dae.finite_difference').apply_to(model, wrt=model.fs.time, nfe=2, scheme='BACKWARD')
     root = model.fs.root
-    child = root.relationship.models.integral
+    child = root.formulation.blocks.integral
     child.structs.tuning.kp.set_value(2)
     child.structs.tuning.ki.set_value(0.5)
     child.structs.tuning.bias.set_value(0.1)
@@ -59,12 +59,12 @@ def test_dynamic_pi_integrates_constant_error():
         root.structs.signals.process_variable[t].set_value(0.4)
         child.structs.signal.error[t].set_value(0.2)
         child.structs.state.integral[t].set_value(0.2 * t)
-        calculate_variable_from_constraint(root.structs.output.value[t], root.relationship.constraints.control[t])
+        calculate_variable_from_constraint(root.structs.output.value[t], root.formulation.constraints.control[t])
         assert value(root.structs.output.value[t]) == pytest.approx(0.5 + 0.1 * t)
     # Validate the actual derivative bindings and discretization equations.
     from pyomo.environ import Constraint
     for t in model.fs.time:
-        child.relationship.derivatives.integral.coordinate_rate[t].set_value(0.2)
+        child.formulation.derivatives.integral.coordinate_rate[t].set_value(0.2)
     for constraint in model.component_data_objects(Constraint, active=True):
         assert value(constraint.body) == pytest.approx(value(constraint.lower), abs=1e-10)
     assert_units_consistent(model)

@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from pyomo.environ import ConcreteModel, Constraint, Expr_if, TransformationFactory, Var, units
 
 from multifidelity.model_language import (
-    Library, ModelDocument, apply_scaling, build_model, get_variable,
+    BlockLibrary, BlockCatalog, apply_scaling, build_model, get_variable,
     initialize_model, register_standard_providers,
 )
 from multifidelity.model_language.definitions import Variable
@@ -22,7 +22,7 @@ def test_scale_must_be_finite_positive(factor):
 
 
 def test_scales_survive_discretization_and_cloning_without_changing_values():
-    model = build_model('valve', {'relationship': 'isenthalpic'}, mode='dynamic',
+    model = build_model('valve', {'formulation': 'isenthalpic'}, mode='dynamic',
                         domain_values={'time': [0, 1]})
     TransformationFactory('dae.finite_difference').apply_to(model, wrt=model.fs.time, nfe=4)
     model = model.clone()
@@ -35,15 +35,15 @@ def test_scales_survive_discretization_and_cloning_without_changing_values():
 
 
 def native_model(tmp_path, *, declared=True):
-    library = Library(tmp_path)
+    library = BlockLibrary(tmp_path)
     variable = {'unit': 'Pa', 'default': 200000}
     if declared:
         variable['scale'] = 1e-5
-    library.models['native'] = ModelDocument.model_validate({
+    library.blocks['native'] = BlockCatalog.model_validate({
         'id': 'native', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'pressure': variable}},
             'outlet': {'direction': 'output', 'variables': {'pressure': {'unit': 'Pa'}}},
-        }, 'relationships': {'native': {'external': {
+        }, 'formulations': {'native': {'external': {
             'provider': 'test', 'dependencies': {'outlet.pressure': ['inlet.pressure']}}}},
     })
     calls = []
@@ -57,18 +57,18 @@ def native_model(tmp_path, *, declared=True):
         set_scaling_factor(block.p, 0.02)
         set_scaling_factor(block.q, 0.01)
     library.register_provider('test', provider, scaler=scaler)
-    return build_model('native', {'relationship': 'native'}, library=library), calls
+    return build_model('native', {'formulation': 'native'}, library=library), calls
 
 
 def test_native_scaler_unit_conversion_and_public_declaration_priority(tmp_path):
     model, calls = native_model(tmp_path)
     clone = model.clone()
     report = apply_scaling(clone)
-    native = clone.fs.root.relationship.provider
+    native = clone.fs.root.formulation.provider
     assert len(calls) == len(report.callbacks) == 1
     assert get_scaling_factor(native.p) == pytest.approx(0.01)
     assert get_scaling_factor(get_variable(clone, 'outlet.pressure')) == pytest.approx(1e-5)
-    assert get_scaling_factor(model.fs.root.relationship.provider.p) is None
+    assert get_scaling_factor(model.fs.root.formulation.provider.p) is None
     assert native.p.value == 200 and not native.p.fixed
 
 
@@ -137,21 +137,21 @@ def test_piecewise_derivative_uses_current_branch():
 
 
 def test_numerical_degeneracy_is_reported_without_extra_fixes(tmp_path):
-    library = Library(tmp_path)
-    library.models['singular'] = ModelDocument.model_validate({
+    library = BlockLibrary(tmp_path)
+    library.blocks['singular'] = BlockCatalog.model_validate({
         'id': 'singular', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 0}}},
             'outlet': {'direction': 'output', 'variables': {'y': {'default': 0}}},
-        }, 'relationships': {'eq': {'constraints': {
+        }, 'formulations': {'eq': {'constraints': {
             'eq': {'lhs': 'outlet.y ** 2', 'rhs': 'inlet.x ** 2', 'determines': 'outlet.y'}}}},
     })
-    library.models['wrapper'] = ModelDocument.model_validate({
-        'id': 'wrapper', 'structs': {}, 'relationships': {'eq': {
-            'models': {'child': {'model': 'singular'}}, 'constraints': {
+    library.blocks['wrapper'] = BlockCatalog.model_validate({
+        'id': 'wrapper', 'structs': {}, 'formulations': {'eq': {
+            'blocks': {'child': {'block': 'singular'}}, 'constraints': {
                 'input': {'lhs': 'child.inlet.x', 'rhs': '1', 'determines': 'child.inlet.x'}}}},
     })
-    model = build_model('wrapper', {'relationship': 'eq', 'submodels': {
-        'child': {'relationship': 'eq'}}}, library=library)
+    model = build_model('wrapper', {'formulation': 'eq', 'subblocks': {
+        'child': {'formulation': 'eq'}}}, library=library)
     result = initialize_model(model)
     assert not result.success
     stage = result.stages[0]
@@ -161,25 +161,25 @@ def test_numerical_degeneracy_is_reported_without_extra_fixes(tmp_path):
     assert all(not v.fixed for v in model.component_data_objects(Var))
 
 
-def test_helmholtz_temperature_specification_leaves_enthalpy_free(solver):
+def test_helmholtz_temperature_parameters_leaves_enthalpy_free(solver):
     from idaes.models.properties.general_helmholtz import helmholtz_available
     if not helmholtz_available():
         pytest.skip('Helmholtz functions unavailable')
-    library = Library()
+    library = BlockLibrary()
     register_standard_providers(library)
     from multifidelity.model_language.definitions import Constraint as ModelConstraint
-    library.models['helmholtz_water_state_block'].relationships['evaluate'].constraints['pressure'] = ModelConstraint(
+    library.blocks['helmholtz_water_state_block'].formulations['evaluate'].constraints['pressure'] = ModelConstraint(
         lhs='states.state.pressure[t]', rhs='200000 * units.Pa',
         determines='states.state.pressure[t]', for_each={'t': 'time'})
-    model = build_model('helmholtz_water_state_block', {'relationship': 'evaluate', 'submodels': {
-        'states': {'relationship': 'evaluate', 'submodels': {'fluid': {'relationship': 'helmholtz'}}},
+    model = build_model('helmholtz_water_state_block', {'formulation': 'evaluate', 'subblocks': {
+        'states': {'formulation': 'evaluate', 'subblocks': {'fluid': {'formulation': 'helmholtz'}}},
     }}, library=library)
-    from multifidelity.model_language import InformationDocument, apply_specification
-    information = InformationDocument([dict(
-        id='temperature', information_type='assumption',
+    from multifidelity.model_language import ResourceCatalog, apply_parameters
+    resources = ResourceCatalog([dict(
+        tag='temperature', resource_type='assumption',
         variable_path='states.properties.temperature', value=350.15, unit='K', trust_rank=5)])
-    apply_specification(model, {'specifications': ['temperature'],
-                                'replacements': {'temperature': 'states.state.enthalpy'}}, information)
+    apply_parameters(model, {'parameters': ['temperature'],
+                                'replacements': {'temperature': 'states.state.enthalpy'}}, resources)
     get_variable(model, 'states.state.flow')[0].fix(1)
     # The water leaf has its own PH guesses; the parent must invert enthalpy at
     # fixed temperature rather than freeze the leaf's 100 kJ/kg guess.

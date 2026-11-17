@@ -6,7 +6,7 @@ from multifidelity.model_language import build_model, get_variable
 
 
 def test_flow_comes_from_separate_struct_and_standard_inlet_flow_is_unused():
-    model = build_model('mass_recycle_definition', {'relationship': 'define'},
+    model = build_model('mass_recycle_definition', {'formulation': 'define'},
                         domain_values={'time': [0, 10]})
     assert_units_consistent(model)
     for t in model.fs.time:
@@ -17,7 +17,7 @@ def test_flow_comes_from_separate_struct_and_standard_inlet_flow_is_unused():
         }.items():
             get_variable(model, path)[t].set_value(number)
         unused = get_variable(model, 'inlet.flow')[t]
-        for c in model.fs.root.relationship.component_data_objects(Constraint):
+        for c in model.fs.root.formulation.component_data_objects(Constraint):
             assert all(v is not unused for v in identify_variables(c.body))
-    for c in model.fs.root.relationship.component_data_objects(Constraint):
+    for c in model.fs.root.formulation.component_data_objects(Constraint):
         assert value(c.body) == value(c.lower)

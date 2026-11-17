@@ -1,73 +1,73 @@
 {
-  "implementation": {
-    "relationship": "capillary_cycle",
-    "submodels": {
+  "model_catalog": {
+    "formulation": "capillary_cycle",
+    "subblocks": {
       "compressor": {
-        "relationship": "isentropic",
-        "submodels": {
+        "formulation": "isentropic",
+        "subblocks": {
           "inlet_state": {
-            "relationship": "evaluate",
-            "submodels": {
+            "formulation": "evaluate",
+            "subblocks": {
               "fluid": {
-                "relationship": "helmholtz",
-                "submodels": {}
+                "formulation": "helmholtz",
+                "subblocks": {}
               }
             }
           },
           "outlet_state": {
-            "relationship": "evaluate",
-            "submodels": {
+            "formulation": "evaluate",
+            "subblocks": {
               "fluid": {
-                "relationship": "helmholtz",
-                "submodels": {}
+                "formulation": "helmholtz",
+                "subblocks": {}
               }
             }
           },
           "isentropic_state": {
-            "relationship": "helmholtz",
-            "submodels": {}
+            "formulation": "helmholtz",
+            "subblocks": {}
           }
         }
       },
       "condenser_cooler": {
-        "relationship": "energy_balance",
-        "submodels": {}
+        "formulation": "energy_balance",
+        "subblocks": {}
       },
       "capillary_valve": {
-        "relationship": "isenthalpic",
-        "submodels": {}
+        "formulation": "isenthalpic",
+        "subblocks": {}
       },
       "evaporator_heater": {
-        "relationship": "energy_balance",
-        "submodels": {}
+        "formulation": "energy_balance",
+        "subblocks": {}
       },
       "refrigerant_mass_recycle": {
-        "relationship": "define",
-        "submodels": {}
+        "formulation": "define",
+        "subblocks": {}
       },
       "pre_capillary": {
-        "relationship": "pass_through_with_state",
-        "submodels": {
+        "formulation": "pass_through_with_state",
+        "subblocks": {
           "state": {
-            "relationship": "evaluate",
-            "submodels": {
+            "formulation": "evaluate",
+            "subblocks": {
               "fluid": {
-                "relationship": "helmholtz",
-                "submodels": {}
+                "formulation": "helmholtz",
+                "subblocks": {}
               }
             }
           }
         }
       },
       "post_capillary": {
-        "relationship": "pass_through_with_state",
-        "submodels": {
+        "formulation": "pass_through_with_state",
+        "subblocks": {
           "state": {
-            "relationship": "evaluate",
-            "submodels": {
+            "formulation": "evaluate",
+            "subblocks": {
               "fluid": {
-                "relationship": "helmholtz",
-                "submodels": {}
+                "formulation": "helmholtz",
+                "subblocks": {}
               }
             }
           }
@@ -75,10 +75,10 @@
       }
     }
   },
-  "information": [
+  "resources": [
     {
-      "id": "compressor.inlet.pressure",
-      "information_type": "assumption",
+      "tag": "compressor.inlet.pressure",
+      "resource_type": "assumption",
       "variable_path": "compressor.inlet.pressure",
       "type": "constant",
       "value": 401831.85094592976,
@@ -87,8 +87,8 @@
       "trust_rank": 3
     },
     {
-      "id": "compressor.outlet.pressure",
-      "information_type": "assumption",
+      "tag": "compressor.outlet.pressure",
+      "resource_type": "assumption",
       "variable_path": "compressor.outlet.pressure",
       "type": "constant",
       "value": 1560000.0000000005,
@@ -97,8 +97,8 @@
       "trust_rank": 3
     },
     {
-      "id": "evaporator_heater.outlet.enthalpy",
-      "information_type": "assumption",
+      "tag": "evaporator_heater.outlet.enthalpy",
+      "resource_type": "assumption",
       "variable_path": "evaporator_heater.outlet.enthalpy",
       "type": "constant",
       "value": -7433.02764743251,
@@ -107,8 +107,8 @@
       "trust_rank": 3
     },
     {
-      "id": "condenser_cooler.outlet.enthalpy",
-      "information_type": "assumption",
+      "tag": "condenser_cooler.outlet.enthalpy",
+      "resource_type": "assumption",
       "variable_path": "condenser_cooler.outlet.enthalpy",
       "type": "constant",
       "value": -207294.2262458776,
@@ -117,8 +117,8 @@
       "trust_rank": 3
     },
     {
-      "id": "refrigerant_mass_recycle.flow_definition.flow",
-      "information_type": "assumption",
+      "tag": "refrigerant_mass_recycle.flow_definition.flow",
+      "resource_type": "assumption",
       "variable_path": "refrigerant_mass_recycle.flow_definition.flow",
       "type": "constant",
       "value": 1.0,
@@ -127,8 +127,8 @@
       "trust_rank": 3
     },
     {
-      "id": "compressor.parameters.efficiency",
-      "information_type": "assumption",
+      "tag": "compressor.parameters.efficiency",
+      "resource_type": "assumption",
       "variable_path": "compressor.parameters.efficiency",
       "type": "constant",
       "value": 0.6005638196894006,
@@ -137,8 +137,8 @@
       "trust_rank": 3
     },
     {
-      "id": "inventory_inputs.charge",
-      "information_type": "equipment_specification",
+      "tag": "inventory_inputs.charge",
+      "resource_type": "equipment_parameter",
       "variable_path": "inventory_inputs.charge",
       "type": "constant",
       "value": 0.024,
@@ -147,8 +147,8 @@
       "trust_rank": 8
     },
     {
-      "id": "inventory_inputs.compressor_mass",
-      "information_type": "assumption",
+      "tag": "inventory_inputs.compressor_mass",
+      "resource_type": "assumption",
       "variable_path": "inventory_inputs.compressor_mass",
       "type": "constant",
       "value": 0.005,
@@ -157,8 +157,8 @@
       "trust_rank": 3
     },
     {
-      "id": "inventory_inputs.external_low_volume",
-      "information_type": "assumption",
+      "tag": "inventory_inputs.external_low_volume",
+      "resource_type": "assumption",
       "variable_path": "inventory_inputs.external_low_volume",
       "type": "constant",
       "value": 0.00003,
@@ -167,8 +167,8 @@
       "trust_rank": 3
     },
     {
-      "id": "inventory_inputs.high_volume",
-      "information_type": "assumption",
+      "tag": "inventory_inputs.high_volume",
+      "resource_type": "assumption",
       "variable_path": "inventory_inputs.high_volume",
       "type": "constant",
       "value": 0.00005,
@@ -177,8 +177,8 @@
       "trust_rank": 3
     },
     {
-      "id": "inventory_inputs.external_low_liquid_fraction",
-      "information_type": "assumption",
+      "tag": "inventory_inputs.external_low_liquid_fraction",
+      "resource_type": "assumption",
       "variable_path": "inventory_inputs.external_low_liquid_fraction",
       "type": "constant",
       "value": 0.02,
@@ -187,8 +187,8 @@
       "trust_rank": 3
     },
     {
-      "id": "inventory_inputs.low_liquid_density",
-      "information_type": "assumption",
+      "tag": "inventory_inputs.low_liquid_density",
+      "resource_type": "assumption",
       "variable_path": "inventory_inputs.low_liquid_density",
       "type": "constant",
       "value": 544.6366545817745,
@@ -197,8 +197,8 @@
       "trust_rank": 3
     },
     {
-      "id": "inventory_inputs.low_vapour_density",
-      "information_type": "assumption",
+      "tag": "inventory_inputs.low_vapour_density",
+      "resource_type": "assumption",
       "variable_path": "inventory_inputs.low_vapour_density",
       "type": "constant",
       "value": 10.407316024263343,
@@ -207,8 +207,8 @@
       "trust_rank": 3
     },
     {
-      "id": "inventory_inputs.high_liquid_density",
-      "information_type": "assumption",
+      "tag": "inventory_inputs.high_liquid_density",
+      "resource_type": "assumption",
       "variable_path": "inventory_inputs.high_liquid_density",
       "type": "constant",
       "value": 456.1746258033666,
@@ -217,8 +217,8 @@
       "trust_rank": 3
     },
     {
-      "id": "inventory_inputs.high_vapour_density",
-      "information_type": "assumption",
+      "tag": "inventory_inputs.high_vapour_density",
+      "resource_type": "assumption",
       "variable_path": "inventory_inputs.high_vapour_density",
       "type": "constant",
       "value": 42.31689675414861,
@@ -227,8 +227,8 @@
       "trust_rank": 3
     },
     {
-      "id": "channel_1",
-      "information_type": "sensor_reading",
+      "tag": "channel_1",
+      "resource_type": "sensor_reading",
       "variable_path": "compressor.inlet_state.properties.temperature",
       "type": "constant",
       "value": 302.8956836700439,
@@ -237,8 +237,8 @@
       "trust_rank": 5
     },
     {
-      "id": "channel_2",
-      "information_type": "sensor_reading",
+      "tag": "channel_2",
+      "resource_type": "sensor_reading",
       "variable_path": "compressor.outlet_state.properties.temperature",
       "type": "constant",
       "value": 365.7868255615234,
@@ -247,8 +247,8 @@
       "trust_rank": 5
     },
     {
-      "id": "channel_3",
-      "information_type": "sensor_reading",
+      "tag": "channel_3",
+      "resource_type": "sensor_reading",
       "variable_path": "pre_capillary.state.properties.temperature",
       "type": "constant",
       "value": 349.6489776611328,
@@ -257,8 +257,8 @@
       "trust_rank": 5
     },
     {
-      "id": "channel_4",
-      "information_type": "sensor_reading",
+      "tag": "channel_4",
+      "resource_type": "sensor_reading",
       "variable_path": "post_capillary.state.properties.temperature",
       "type": "constant",
       "value": 341.9339889526367,
@@ -271,76 +271,76 @@
     "schema_version": 1,
     "run_id": "3c008228-81c9-4fc7-8342-8ce452fa60e8",
     "created_at": "2026-11-10T23:03:51.899950Z",
-    "model_id": "ice_maker_refrigeration_loop",
-    "implementation": {
-      "relationship": "capillary_cycle",
-      "submodels": {
+    "block_id": "ice_maker_refrigeration_loop",
+    "model_catalog": {
+      "formulation": "capillary_cycle",
+      "subblocks": {
         "compressor": {
-          "relationship": "isentropic",
-          "submodels": {
+          "formulation": "isentropic",
+          "subblocks": {
             "inlet_state": {
-              "relationship": "evaluate",
-              "submodels": {
+              "formulation": "evaluate",
+              "subblocks": {
                 "fluid": {
-                  "relationship": "helmholtz",
-                  "submodels": {}
+                  "formulation": "helmholtz",
+                  "subblocks": {}
                 }
               }
             },
             "outlet_state": {
-              "relationship": "evaluate",
-              "submodels": {
+              "formulation": "evaluate",
+              "subblocks": {
                 "fluid": {
-                  "relationship": "helmholtz",
-                  "submodels": {}
+                  "formulation": "helmholtz",
+                  "subblocks": {}
                 }
               }
             },
             "isentropic_state": {
-              "relationship": "helmholtz",
-              "submodels": {}
+              "formulation": "helmholtz",
+              "subblocks": {}
             }
           }
         },
         "condenser_cooler": {
-          "relationship": "energy_balance",
-          "submodels": {}
+          "formulation": "energy_balance",
+          "subblocks": {}
         },
         "capillary_valve": {
-          "relationship": "isenthalpic",
-          "submodels": {}
+          "formulation": "isenthalpic",
+          "subblocks": {}
         },
         "evaporator_heater": {
-          "relationship": "energy_balance",
-          "submodels": {}
+          "formulation": "energy_balance",
+          "subblocks": {}
         },
         "refrigerant_mass_recycle": {
-          "relationship": "define",
-          "submodels": {}
+          "formulation": "define",
+          "subblocks": {}
         },
         "pre_capillary": {
-          "relationship": "pass_through_with_state",
-          "submodels": {
+          "formulation": "pass_through_with_state",
+          "subblocks": {
             "state": {
-              "relationship": "evaluate",
-              "submodels": {
+              "formulation": "evaluate",
+              "subblocks": {
                 "fluid": {
-                  "relationship": "helmholtz",
-                  "submodels": {}
+                  "formulation": "helmholtz",
+                  "subblocks": {}
                 }
               }
             }
           }
         },
         "post_capillary": {
-          "relationship": "pass_through_with_state",
-          "submodels": {
+          "formulation": "pass_through_with_state",
+          "subblocks": {
             "state": {
-              "relationship": "evaluate",
-              "submodels": {
+              "formulation": "evaluate",
+              "subblocks": {
                 "fluid": {
-                  "relationship": "helmholtz",
-                  "submodels": {}
+                  "formulation": "helmholtz",
+                  "subblocks": {}
                 }
               }
             }
@@ -356,8 +356,8 @@
       "solver": "ipopt",
       "message": "Conditional hot-peak capillary case. Unit powers use a 1 kg/s reference flow. The observed post-capillary temperature is an overlay."
     },
-    "specification": {
-      "specifications": [
+    "parameters": {
+      "parameters": [
         "compressor.inlet.pressure",
         "compressor.outlet.pressure",
         "evaporator_heater.outlet.enthalpy",
