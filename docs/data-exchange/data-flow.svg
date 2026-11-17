@@ -1,14 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1580" viewBox="0 0 1400 1580" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1400" viewBox="0 145 1400 1400" role="img" aria-labelledby="title desc">
 <title id="title">Model and data flow</title>
 <desc id="desc">The main workflow runs down the centre: external data sources, FeedCollection, fresh ResourceDocument, ParameterDocument, numerical instance, solve, and ResultsDocument. FeedRegistry and BlockRegistry supply platform capabilities from the left. FeedDocument, an existing ResourceDocument, and ModelDocument supply user configuration from the right. Selection and application appear as arrows; secondary validation dependencies are omitted. WorkspaceDocument bundles the saved artifacts.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 10 5 0 10z" fill="#62758b"/></marker></defs>
 <style>text{font-family:system-ui,sans-serif;fill:#23364a}.title{font-size:28px;font-weight:700}.column{font-size:13px;font-weight:700;letter-spacing:1px;fill:#526982;text-anchor:middle}.name{font-size:19px;font-weight:650;text-anchor:middle}.detail{font-size:14px;fill:#526982;text-anchor:middle}.label{font-size:14px;fill:#526982;paint-order:stroke;stroke:#f7f9fc;stroke-width:7;stroke-linejoin:round}.edge{fill:none;stroke:#62758b;stroke-width:2;marker-end:url(#arrow)}.artifact{fill:#edf3fc;stroke:#8ca8cc}.runtime{fill:#eaf5f0;stroke:#79aa97}.operation{fill:#fff;stroke:#9caebe}.platform{fill:#f0edf8;stroke:#a196bd}.box{stroke-width:1.5;rx:10}</style>
 <rect width="1400" height="1580" fill="#f7f9fc"/>
-<text x="40" y="49" class="title">How data reaches a model and becomes results</text>
-<text x="40" y="80" style="font-size:14px;fill:#526982">Main workflow shown; secondary validation dependencies omitted. Arrows label operations.</text>
-<text x="210" y="130" class="column">PLATFORM / POWER USER</text>
-<text x="700" y="130" class="column">MAIN WORKFLOW</text>
-<text x="1190" y="130" class="column">USER-SPECIFIED DOCUMENTS</text>
 
 <rect x="520" y="170" width="360" height="88" class="box operation"/>
 <text x="700.0" y="204" class="name">External data sources</text>
@@ -67,9 +62,7 @@
 <text x="393" y="923" class="label">available blocks</text>
 <path d="M1020 939 H880" class="edge"/>
 <text x="907" y="923" class="label">model choices</text>
-<text x="700" y="1393" class="detail">A snapshot can also be exported before solving or after a failed solve.</text>
-<rect x="40" y="1430" width="1320" height="115" rx="10" fill="#fff" stroke="#b8c6d5" stroke-dasharray="7 5"/>
+<rect x="40" y="1430" width="1320" height="90" rx="10" fill="#fff" stroke="#b8c6d5" stroke-dasharray="7 5"/>
 <text x="700" y="1465" class="name">WorkspaceDocument bundles saved artifacts</text>
 <text x="700" y="1494" class="detail">ModelDocument + ResourceDocument + ResultsDocument + optional FeedDocument</text>
-<text x="700" y="1523" class="detail">Registries and runtime objects stay in the application. Output publishing remains future work.</text>
 </svg>

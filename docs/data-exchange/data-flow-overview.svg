@@ -1,37 +1,62 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="570" viewBox="0 0 1200 570" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="910" viewBox="0 110 1000 910" role="img" aria-labelledby="title desc">
 <title id="title">From external data to model results</title>
-<desc id="desc">An external data source supplies values through a feed to an existing resource document. Selected resource values are applied as parameters to a numerical instance. Solving and exporting a snapshot produces a results document. Future publishing sends results to external systems.</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 10 5 0 10z" fill="#62758b"/></marker></defs>
-<style>text{font-family:system-ui,sans-serif;fill:#26354b}.title{font-size:25px;font-weight:700}.name{font-size:19px;font-weight:650;text-anchor:middle}.detail{font-size:14px;fill:#526982;text-anchor:middle}.label{font-size:15px;fill:#526982;text-anchor:middle}.box{fill:#edf3fc;stroke:#8ca8cc;stroke-width:1.5;rx:10}.edge{fill:none;stroke:#62758b;stroke-width:2;marker-end:url(#arrow)}.future{stroke-dasharray:7 6}</style>
-<rect width="1200" height="570" fill="#f7f9fc"/>
-<text x="40" y="50" class="title">Data flow</text>
-<rect x="40" y="130" width="245" height="100" class="box"/>
-<text x="162" y="174" class="name">External data source</text>
-<text x="162" y="202" class="detail">CSV, API, SQL, …</text>
-<rect x="465" y="130" width="270" height="100" class="box"/>
-<text x="600" y="174" class="name">ResourceDocument</text>
-<text x="600" y="202" class="detail">Evidence and its metadata</text>
-<rect x="915" y="130" width="245" height="100" class="box" style="fill:#eaf5f0;stroke:#79aa97"/>
-<text x="1037" y="174" class="name">Numerical instance</text>
-<text x="1037" y="202" class="detail">Live model equations</text>
-<path d="M285 180 H465" class="edge"/>
-<text x="375" y="151" class="label">Via feed</text>
-<text x="375" y="207" class="detail">Refresh values</text>
-<path d="M735 180 H915" class="edge"/>
-<text x="825" y="148" class="label">Select and apply</text>
-<text x="825" y="170" class="label">parameters</text>
-<rect x="915" y="355" width="245" height="100" class="box"/>
-<text x="1037" y="400" class="name">ResultsDocument</text>
-<text x="1037" y="428" class="detail">Numerical snapshot + status</text>
-<path d="M1037 230 V355" class="edge"/>
-<text x="1037" y="283" class="label">Solve, then</text>
-<text x="1037" y="307" class="label">export snapshot</text>
-<rect x="465" y="355" width="270" height="100" class="box future" style="fill:#fff"/>
-<text x="600" y="400" class="name">External systems</text>
-<text x="600" y="428" class="detail">Future work</text>
-<path d="M915 405 H735" class="edge future"/>
-<text x="825" y="374" class="label">Via publisher</text>
-<text x="825" y="435" class="detail">Future work</text>
-<text x="40" y="510" style="font-size:14px;fill:#526982">Feeds refresh existing resource records. Static resources can also be entered or loaded directly.</text>
-<text x="40" y="539" style="font-size:14px;fill:#526982">Model construction and configuration are omitted here. Parameter selection, application, solving and export are separate operations.</text>
+<desc id="desc">A vertical workflow: external data sources supply values via feeds to a ResourceDocument. Selected resource values are applied as parameters to a numerical instance. Solving and exporting produces a ResultsDocument. A dashed future publishing path leads to external systems.</desc>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 10 5 0 10z" fill="#74879b"/></marker>
+</defs>
+<style>
+  text{font-family:system-ui,sans-serif;fill:#26354b}
+  .title{font-size:29px;font-weight:700}
+  .subtitle{font-size:15px;fill:#708097}
+  .name{font-size:21px;font-weight:650;text-anchor:middle}
+  .detail{font-size:15px;fill:#62758b;text-anchor:middle}
+  .label{font-size:16px;font-weight:600;fill:#526982}
+  .note{font-size:14px;fill:#708097}
+  .box{stroke-width:1.5;rx:12}
+  .document{fill:#edf3fc;stroke:#9eb6d4}
+  .runtime{fill:#eaf5f0;stroke:#89b3a2}
+  .external{fill:#fff;stroke:#c2cdd9}
+  .edge{fill:none;stroke:#74879b;stroke-width:2;marker-end:url(#arrow)}
+  .future{stroke-dasharray:7 6}
+</style>
+<rect width="1000" height="1080" fill="#f7f9fc"/>
+
+<rect x="325" y="135" width="350" height="90" class="box external"/>
+<text x="500" y="174" class="name">External data sources</text>
+<text x="500" y="201" class="detail">CSV files, APIs and databases</text>
+
+<path d="M500 225 V315" class="edge"/>
+<text x="530" y="264" class="label">Via feeds</text>
+<text x="530" y="288" class="note">Refresh existing resource values</text>
+
+<rect x="325" y="315" width="350" height="90" class="box document"/>
+<text x="500" y="354" class="name">ResourceDocument</text>
+<text x="500" y="381" class="detail">Available evidence and metadata</text>
+
+<path d="M500 405 V495" class="edge"/>
+<text x="530" y="444" class="label">Select and apply parameters</text>
+<text x="530" y="468" class="note">Choose evidence, then apply its values</text>
+
+<rect x="325" y="495" width="350" height="90" class="box runtime"/>
+<text x="500" y="534" class="name">Numerical instance</text>
+<text x="500" y="561" class="detail">Live model equations</text>
+
+<path d="M500 585 V675" class="edge"/>
+<text x="530" y="624" class="label">Solve, then export</text>
+<text x="530" y="648" class="note">Record a snapshot and explicit status</text>
+
+<rect x="325" y="675" width="350" height="90" class="box document"/>
+<text x="500" y="714" class="name">ResultsDocument</text>
+<text x="500" y="741" class="detail">Numerical values and solve status</text>
+
+<rect x="50" y="850" width="900" height="155" rx="14" fill="#f1f4f8" stroke="#c2cdd9" stroke-dasharray="7 6"/>
+<text x="75" y="883" class="label">Future work</text>
+<path d="M500 765 V895" class="edge future"/>
+<text x="530" y="814" class="label">Via publisher</text>
+<text x="530" y="838" class="note">Deliver results to a destination</text>
+
+<rect x="325" y="895" width="350" height="80" class="box external future"/>
+<text x="500" y="929" class="name">External systems</text>
+<text x="500" y="954" class="detail">Storage, reporting and integrations</text>
+
 </svg>

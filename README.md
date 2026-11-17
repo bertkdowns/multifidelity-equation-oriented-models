@@ -1,16 +1,17 @@
 # Multifidelity model language
 
-This repository develops a JSON language for defining reusable process blocks, selecting their formulations recursively, recording available resources, and constructing symbolic IDAES/Pyomo equation hierarchies.
-
-The language is the primary modeling approach in this project. Its terminology and document concepts are defined in the [glossary](src/multifidelity/model_language/terminology.md). Model documents and examples are described in the [model language guide](src/multifidelity/model_language/README.md).
+This project connects external data to reusable process models. It keeps available
+evidence, parameter choices, live equations and recorded results separate, so a
+case can be inspected and rerun with explicit configuration.
 
 ## Model and data flow
 
+Read the diagram from top to bottom. Registries on the left provide application
+capabilities; documents on the right configure a particular case.
+
 ![Model and data flow](docs/data-exchange/data-flow.svg)
 
-[Open the full-size diagram](docs/data-exchange/data-flow.svg). The
-[data exchange proposal](docs/data-exchange/proposal.html) includes a simpler view
-of data acquisition, parameter application, results and future publishing.
+[Open the full-size diagram](docs/data-exchange/data-flow.svg).
 
 ## Explore the block registry
 
@@ -18,9 +19,8 @@ The [model viewer](model-viewer/README.md) browses the JSON definitions in `src/
 
 ## Examples
 
-- [`examples/feeds/`](examples/feeds/): typed feed configuration, dynamic tags, resource acquisition and document export.
-
-- [`examples/model_language/`](examples/model_language/): reusable model documents and model_document selections.
+- [`examples/feeds/`](examples/feeds/): plugin registration, typed configuration, dynamic tags and resource acquisition.
+- [`examples/model_language/`](examples/model_language/): formulation choices for reusable blocks.
 - [`examples/custom_blocks/`](examples/custom_blocks/): custom Python symbolic providers integrated with JSON model definitions.
 - [`examples/model_language/pipe_lumped.json`](examples/model_language/pipe_lumped.json): a pipe with cylindrical geometry and lumped thermal dynamics.
 - [`examples/resources/`](examples/resources/): resource documents and record inspection.

@@ -1,24 +1,74 @@
 # JSON block and model language
 
-This is the implementation of the model language discussed
-for recursive multifidelity modelling. It builds a selected equation hierarchy
-inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constraints.
-The builder does not solve; declared defaults supply unfixed starting guesses. Parameter documents can
-be applied separately to fix values from an resource document.
-Construction leaves all public variables free, with values only where defaults are declared. Operating
-parameters and initial conditions are both applied through `apply_parameters()`.
-Here "build" means creating Python modelling objects, not numerical initialization.
+The language keeps resource evidence, parameter choices, live equations and saved
+results separate. The diagram shows their main flow; the sections below describe
+the components in that order before covering the detailed model language.
 
-Formulations can also use registered Python feeds to construct symbolic
-Pyomo/IDAES blocks behind the same public structs. See the
-[custom-model how-to guide](custom-blocks.md) for registration, variable mappings,
-dependency declarations, and composition with replaceable property blocks. A
-runnable example is in [`examples/custom_blocks`](../../../examples/custom_blocks).
+## Model and data flow
 
-The [standard symbolic block registry](standard-blocks.md) supplies Helmholtz and
-humid-air property wrappers, an extracted EN 12900 compressor map, and a JSON
-compressor composition. Call `register_standard_providers(registry)` before building
-their external formulations, or use the CLI's `--standard-providers` option.
+![Model and data flow](../../../docs/data-exchange/data-flow.svg)
+
+[Open the full-size diagram](../../../docs/data-exchange/data-flow.svg).
+Registries on the left provide application capabilities. Documents on the right
+configure a case. The centre follows data from external sources to saved results.
+
+### External data sources and FeedCollection
+
+`FeedRegistry` registers available plugins. `FeedDocument` names configured
+instances and supplies their JSON settings. `registry.create_feeds(document)`
+validates those settings and constructs a `FeedCollection`. Its feeds discover
+resource tags through `get_tags()` and fetch values through `read(tags)`.
+See [feed configuration and acquisition](#input-data-feeds) for the API.
+
+### ResourceDocument
+
+`feeds.read(existing_resources)` returns fresh evidence while retaining record
+metadata and static values. Each resource carries a unique tag, model variable
+path, value, units, trust rank and optional uncertainty. Resources may also be
+loaded directly; multiple resources can describe the same variable.
+[Resource records](#resources) describe available evidence, not decisions to fix
+model variables.
+
+### ParameterDocument
+
+[Parameter documents](#parameter-documents) record selected resource tags,
+replacement pairs and initial conditions. Supply choices manually or call
+`select_parameters(instance, resources)`. Automatic selection examines the built
+equation structure, tries resources in trust order and returns choices with
+completeness diagnostics. It leaves the original instance unchanged.
+
+### Numerical instance
+
+`BlockRegistry` supplies reusable block definitions and symbolic builders;
+`ModelDocument` selects formulations. `build_model(root_block_id, document,
+registry=registry)` constructs the live Pyomo/IDAES equations. See
+[models and construction](#models-and-construction) for the selection format.
+`apply_parameters(instance, parameters, resources)` resolves chosen tags to
+resource values and fixes the corresponding variables.
+
+The diagram omits secondary dependencies for clarity. Build the instance before
+automatic selection so the selector can inspect its equations and final grid.
+Applying choices also requires the resource values. Construction, selection and
+application remain separate operations.
+
+### Solve and ResultsDocument
+
+A numerical solver updates the prepared instance. `export_results()` then records
+its values and explicit solve status in a `ResultsDocument`. Export does not run
+the solver or infer convergence; it can also capture unsolved and failed states.
+See [result snapshots](#resultsdocument-format) for the saved format.
+
+### WorkspaceDocument files
+
+A `WorkspaceDocument` bundles model choices, resources, results and optional feed
+configuration. Registries and live runtime objects remain in the application.
+See [workspace files](#workspacedocument-files) for export and viewer loading.
+Output publishing remains future work.
+
+For custom symbolic builders, see the [custom-block guide](custom-blocks.md).
+The [standard blocks](standard-blocks.md) cover property wrappers and compressor
+maps. Their numerical and property-package details are independent of this data
+flow. The [glossary](terminology.md) defines the shared vocabulary.
 
 ## Property-package configuration decision
 
@@ -37,12 +87,12 @@ still appear in solver equations until preprocessing eliminates them.
 A separate shared-binding mechanism is not needed to continue this integration.
 The Carnot-efficiency formulation remains future work.
 
-## Why a separate parameters language?
+## Why declarative block definitions?
 
 This language expresses reusable mathematical definitions as data, so a model's public interface can stay stable while alternative internal formulations are selected recursively.
 
-JSON is the source of truth: one file per reusable model, readable and reviewable
-in Git. Model IDs are independent of filenames. No database is required. A future
+JSON is the source of truth: one file per reusable block, readable and reviewable
+in Git. Block IDs are independent of filenames. No database is required. A future
 editor or SQLite index can operate on the same conceptual definitions.
 
 This language is the repository's primary modeling approach. Custom Python symbolic providers may supply equations behind the same JSON interfaces. The language uses the vocabulary and ownership below, including separate boundary variables joined by equations in composites.
@@ -52,7 +102,7 @@ This language is the repository's primary modeling approach. Custom Python symbo
 The authoritative [model-language glossary](terminology.md) defines all document,
 model, resources, parameters and numerical-instance terms.
 
-Models are reusable types. Two references to `heat_exchanger` do not copy its JSON
+Blocks are reusable definitions. Two references to `heat_exchanger` do not copy its JSON
 definition, but construction creates distinct variables for each occurrence.
 Only one formulation participates per occurrence. All block references within
 that selected formulation participate together. Unselected formulations create
@@ -62,10 +112,10 @@ Deleting a formulation deletes its owned references and equations, not the
 referenced block definitions. Deleting an owned struct deletes its variables.
 References never imply ownership.
 
-All structs on a model are public to its own formulations and to the containing
+All structs on a block are public to its own formulations and to the containing
 formulation. Internal blocks are encapsulated by the formulation containing
 them: callers cannot reach through a child to its grandchildren. Formulations
-own no variables. Extra internal quantities must be declared on a model's struct,
+own no variables. Extra internal quantities must be declared on a block's struct,
 possibly on a dedicated internal block referenced by the formulation.
 
 ## Typed block definitions
@@ -1195,12 +1245,10 @@ above. It does not establish numerical solvability of the full milk scaffold.
 
 ## Resources
 
-Record available evidence separately from the block definitions and from decisions
-about how to specify or estimate a particular instance. `resources.py` implements
-record validation, loading, insertion and trust-ordered candidate lookup. Applying
-records to model instances is supported by parameter documents; the
-initial trust-ranked DM parameters selector is implemented; further selection
-research remains proposed.
+`ResourceDocument` holds the available evidence for a case. A feed collection can
+refresh its values, or the application can load records directly. This document
+owns record metadata and values; `ParameterDocument` records which tags to apply.
+`resources.py` provides validation, loading, insertion and trust-ranked lookup.
 
 A `ResourceDocument` is a **list of records**, not a dictionary keyed by variable path.
 Multiple records may target the same variable: for example, a sensor reading,
@@ -1401,8 +1449,11 @@ not built by `build_model()` raise `ValueError`.
 
 ## Parameter documents
 
-A `ParameterDocument` selects resources-record tags and records which
-canonical input each noncanonical operating fixation replaces:
+A `ParameterDocument` records choices: resource tags in `parameters` and
+`initial_values`, and any `replacements` of canonical inputs. It contains no
+resource values or numerical objects. `select_parameters()` can generate it;
+`apply_parameters()` uses it with a resource document to update an instance.
+You can also write the choices directly:
 
 ```json
 {
@@ -1415,7 +1466,7 @@ canonical input each noncanonical operating fixation replaces:
 The resource document supplies paths, values, units, trust and uncertainty.
 In this example, `inlet_pressure` targets `state.pressure` directly, while
 `measured_temperature` targets `properties.temperature`. Fix temperature and leave
-`state.enthalpy` free. The model and its selected model supply the
+`state.enthalpy` free. The numerical instance supplies the
 equations and canonical inputs; none are embedded in this document.
 
 A **canonical input** is a public input not supplied by a selected parent
@@ -1427,8 +1478,8 @@ keys must be selected operating record tags; values are canonical variable paths
 not other record tags. Paired families must use the same index domains and grid.
 Physical equations, connection directions and `determines` remain unchanged.
 
-All three fields default to empty. Old direct-input documents remain valid;
-output or supplied-input fixations need pairs. Generate them without changing
+All three fields default to empty. Direct canonical-input fixations need no
+replacement entry; output or supplied-input fixations need pairs. Generate them without changing
 the chosen records using:
 
 ```python
@@ -1608,8 +1659,10 @@ been removed.
 
 `select_parameters(model, resources, prediction_targets=(),
 excluded_record_tags=(), achieved_setpoint_tags=())` implements the initial
-trust-ranked DM loop for a fixed model and finalized numerical grid.
-It works on a clone and leaves the supplied model unchanged.
+trust-ranked structural selection for a built numerical instance and finalized
+grid. It works on a clone and leaves the supplied instance unchanged. Its
+`ParameterSelection` result contains a `ParameterDocument` and diagnostics;
+application is a separate operation.
 
 ```python
 from multifidelity.model_language import select_parameters, apply_parameters
@@ -1749,7 +1802,7 @@ validation without requiring a solver to remove dependent equations. The SGHP
 plant uses it between the PHNIX sink outlet and SGHP source inlet, leaving the
 separate flow input free so the loop energy balances determine circulation.
 
-### Exporting numerical results
+## ResultsDocument format
 
 `export_results` takes a snapshot of all declared public variables, including
 nested block occurrences, after values have been loaded into a built model:
@@ -1772,7 +1825,7 @@ partial initialization states. Internal native-provider variables are excluded.
 
 The version 1 document includes a run ID, timezone-aware creation timestamp,
 root block ID, full model choice tree, steady/dynamic mode, time unit,
-solve metadata, optional parameters IDs, and variable families keyed by
+solve metadata, an optional parameter document, and variable families keyed by
 root-relative occurrence path. Each family records its numerical unit, declared
 dimension order, and entries with explicit index coordinates, value and fixed/free
 state. Scalars use an empty coordinate list; discretized variables include the
@@ -1786,14 +1839,15 @@ when model documents match, show saved values on diagram rows. The SGHP
 report. Model identity and model are recorded, but the document does
 not embed or fingerprint the registry's equation definitions.
 
-### Portable viewer workspaces
+## WorkspaceDocument files
 
 A `WorkspaceDocument` bundles the three required fields: `model_document`, `resources`
 (the resources-record array), and `results` (a complete `ResultsDocument`). It
 contains no separate root-model field, block definitions, layouts, rotations,
 flips, current view or navigation state. The existing `results.block_id` identifies
 the model when opening it in the viewer; that definition must be in the registry.
-The model must match the model already captured in the snapshot.
+The `ModelDocument` must match the choices captured in the snapshot. The optional
+`feeds` field contains a `FeedDocument`.
 
 ```python
 from multifidelity.model_language import export_workspace, WorkspaceDocument
@@ -1817,14 +1871,9 @@ preferences untouched.
 
 ## Input data feeds
 
-The [visual data-flow diagram](../../../docs/data-exchange/data-flow.svg) shows
-external sources feeding the resource document, parameters applied to the numerical
-instance, solving and result export. Publishing to external systems is future work.
-
-![Model and data flow](../../../docs/data-exchange/data-flow.svg)
-
-The [data exchange proposal](../../../docs/data-exchange/proposal.html) shows the
-simpler data acquisition and results flow.
+This is the acquisition stage at the top of the [workflow diagram](#model-and-data-flow).
+The `FeedCollection` fetches values; its registry and document supply the available
+plugins and case-specific configuration.
 
 `FeedRegistry` lists the trusted feed plugins available to an application.
 `FeedDocument` describes which configured instances a case uses. A plugin name
