@@ -180,7 +180,7 @@ def _validate_slots(model, parameters, resources):
     for record_tag, path in targets.items():
         if path not in canonical and record_tag not in parameters.replacements:
             raise ValueError(f'{path} ({record_tag}): noncanonical fixation requires an explicit replacement input')
-    # Direct-only partial catalogs need no graph construction.
+    # Direct-only partial documents need no graph construction.
     if not parameters.replacements:
         occupied = getattr(model, '_model_language_parameter_slots', {})
         for path in targets.values():
@@ -192,14 +192,14 @@ def _validate_slots(model, parameters, resources):
 
 
 def pair_parameters(model, parameters, resources):
-    """Return a catalog with automatically inferred, editable replacement pairs.
+    """Return a document with automatically inferred, editable replacement pairs.
 
     Selected resources is unchanged. Existing explicit pairs are respected;
     infer missing pairs using structural exchanges, hierarchy distance, equation
     distance, and path tie-breaking. No model or resources values are changed.
     """
-    from .parameters import _catalog, _prepare
-    parameters = _catalog(parameters)
+    from .parameters import _document, _prepare
+    parameters = _document(parameters)
     _prepare(model, parameters, resources)  # Paths, units, bounds, fixity.
     audit_fixations(model)
     targets = {i: resources.get(i).variable_path for i in parameters.parameters}

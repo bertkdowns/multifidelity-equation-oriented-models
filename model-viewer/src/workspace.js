@@ -6,12 +6,12 @@ import { parseResults, sameModel } from './results.js';
 export function parseWorkspace(text) {
   const value = JSON.parse(text);
   if (!value || typeof value !== 'object' || Array.isArray(value) ||
-      !['model_catalog,resources,results', 'feeds,model_catalog,resources,results'].includes(Object.keys(value).sort().join(',')))
-    throw Error('A workspace contains model_catalog, resources, results and optionally feeds.');
-  const model_catalog = parseModel(JSON.stringify(value.model_catalog));
+      !['model_document,resources,results', 'feeds,model_document,resources,results'].includes(Object.keys(value).sort().join(',')))
+    throw Error('A workspace contains model_document, resources, results and optionally feeds.');
+  const model_document = parseModel(JSON.stringify(value.model_document));
   const resources = parseResources(JSON.stringify(value.resources));
   const results = parseResults(JSON.stringify(value.results));
-  if (!sameModel(model_catalog, results.model_catalog))
-    throw Error('Workspace model_catalog must match its results snapshot.');
-  return { model_catalog, resources, results, ...(value.feeds != null ? { feeds: parseFeeds(JSON.stringify(value.feeds)) } : {}) };
+  if (!sameModel(model_document, results.model_document))
+    throw Error('Workspace model_document must match its results snapshot.');
+  return { model_document, resources, results, ...(value.feeds != null ? { feeds: parseFeeds(JSON.stringify(value.feeds)) } : {}) };
 }

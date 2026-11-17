@@ -3,7 +3,7 @@
   "run_id": "ee11bccd-3627-42f1-b06a-035ca2c9c4e4",
   "created_at": "2026-11-06T01:39:41.458065Z",
   "block_id": "steam_generating_heat_pump_system",
-  "model_catalog": {
+  "model_document": {
     "formulation": "flowsheet",
     "subblocks": {
       "sghp": {

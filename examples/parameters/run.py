@@ -8,7 +8,7 @@ from idaes.core.util.model_statistics import degrees_of_freedom
 from pyomo.environ import assert_optimal_termination, value
 
 from multifidelity.model_language import (
-    ModelCatalog, ResourceCatalog, select_parameters,
+    ModelDocument, ResourceDocument, select_parameters,
     apply_parameters, build_model, get_variable, export_workspace,
 )
 
@@ -16,9 +16,9 @@ HERE = Path(__file__).parent
 
 
 def run(solver=None):
-    model_catalog = ModelCatalog.load_json(HERE / "model_selection.json")
-    resources = ResourceCatalog.load_json(HERE / "resources.json")
-    model = build_model("valve", model_catalog)
+    model_document = ModelDocument.load_json(HERE / "model_selection.json")
+    resources = ResourceDocument.load_json(HERE / "resources.json")
+    model = build_model("valve", model_document)
     selection = select_parameters(model, resources)
     if not selection.complete:
         raise RuntimeError(f"Incomplete parameters: {selection}")

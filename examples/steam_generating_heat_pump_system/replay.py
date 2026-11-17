@@ -13,20 +13,20 @@ from idaes.core.util.model_statistics import degrees_of_freedom
 from pyomo.environ import Var, assert_optimal_termination, value
 
 from multifidelity.model_language import (
-    ResourceCatalog, ParameterCatalog, apply_parameters,
-    build_model, get_variable, BlockLibrary, register_standard_providers, pair_parameters, export_workspace,
+    ResourceDocument, ParameterDocument, apply_parameters,
+    build_model, get_variable, BlockRegistry, register_standard_providers, pair_parameters, export_workspace,
 )
 
 HERE = Path(__file__).resolve().parent
 
 
 def replay(solver=None):
-    model_catalog = json.loads((HERE / 'aggregate_aggregate.json').read_text())
-    library = BlockLibrary()
-    register_standard_providers(library)
-    model = build_model('steam_generating_heat_pump_unit', model_catalog['subblocks']['sghp'], library=library)
-    resources = ResourceCatalog.load_json(HERE / 'sghp_replay_resources.json')
-    parameters = ParameterCatalog.load_json(HERE / 'sghp_replay_parameters.json')
+    model_document = json.loads((HERE / 'aggregate_aggregate.json').read_text())
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    model = build_model('steam_generating_heat_pump_unit', model_document['subblocks']['sghp'], registry=registry)
+    resources = ResourceDocument.load_json(HERE / 'sghp_replay_resources.json')
+    parameters = ParameterDocument.load_json(HERE / 'sghp_replay_parameters.json')
     apply_parameters(model, parameters, resources)
     if degrees_of_freedom(model) != 0:
         raise RuntimeError('The captured SGHP unit replay must have zero degrees of freedom')
@@ -91,16 +91,16 @@ def replay_flash(sghp_outputs, solver=None, *, workspace_path=None, phase_fracti
     Helmholtz calculates phase enthalpies; specified per-phase routing sends
     liquid to condensate and vapor to steam. The surrounding recycle is open.
     """
-    library = BlockLibrary()
-    register_standard_providers(library)
-    library.get('flash_flowsheet').formulations['flowsheet'].blocks['flash_separator'].block_arguments['FluidProperties'].block = property_model
-    model = build_model('flash_flowsheet', HERE.parent / 'model_language/flash_flowsheet.json', library=library)
-    resources = ResourceCatalog.load_json(HERE / 'flash_replay_resources.json')
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    registry.get('flash_flowsheet').formulations['flowsheet'].blocks['flash_separator'].block_arguments['FluidProperties'].block = property_model
+    model = build_model('flash_flowsheet', HERE.parent / 'model_language/flash_flowsheet.json', registry=registry)
+    resources = ResourceDocument.load_json(HERE / 'flash_replay_resources.json')
     if phase_fractions is not None:
         replacements = dict(zip(['flash_separator.parameters.liquid_to_liquid',
                                  'flash_separator.parameters.vapor_to_liquid'],
                                 phase_fractions, strict=True))
-        resources = ResourceCatalog.model_validate([
+        resources = ResourceDocument.model_validate([
             {**r.model_dump(), 'value': replacements.get(r.variable_path, r.value)}
             for r in resources.records
         ])

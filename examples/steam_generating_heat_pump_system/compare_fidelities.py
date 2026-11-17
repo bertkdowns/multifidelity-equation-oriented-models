@@ -9,8 +9,8 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from idaes.core.util.model_statistics import degrees_of_freedom
 from multifidelity.model_language import (
-    ResourceCatalog, Resource, ParameterCatalog,
-    pair_parameters, apply_parameters, get_variable, export_results, WorkspaceCatalog,
+    ResourceDocument, Resource, ParameterDocument,
+    pair_parameters, apply_parameters, get_variable, export_results, WorkspaceDocument,
 )
 from multifidelity.model_language.scaling import apply_scaling, rank_inputs, scaled_jacobian, export_scaling
 from multifidelity.model_language.selection import _partition
@@ -26,7 +26,7 @@ CYCLE_EQUIPMENT += ['config_sghp_compressor_parameters_efficiency']
 
 def common_case():
     """Freeze the reference duty explicitly; later results cannot change it."""
-    resources = ResourceCatalog.load_json(HERE / 'attempt_resources.json')
+    resources = ResourceDocument.load_json(HERE / 'attempt_resources.json')
     power = Resource(
         tag='common_sghp_power',
         resource_type='assumption', variable_path='sghp.performance.electrical_power',
@@ -35,8 +35,8 @@ def common_case():
         tag='common_sghp_warm_duty',
         resource_type='assumption', variable_path='sghp.performance.warm_water_duty',
         value=25598.804912630734, unit='W', trust_rank=8)
-    resources = ResourceCatalog(root=(*resources.records, power, warm))
-    base = ParameterCatalog.load_json(HERE / 'attempt_parameters.json')
+    resources = ResourceDocument(root=(*resources.records, power, warm))
+    base = ParameterDocument.load_json(HERE / 'attempt_parameters.json')
     tags = [i for i in base.parameters if i not in {
         'attempt_makeup_mass_flow', 'attempt_sghp_operating_cop'}]
     return resources, tags + [power.tag, warm.tag]
@@ -45,7 +45,7 @@ def common_case():
 def run(sghp, resources, common_tags):
     model = build(sghp, 'aggregate')
     tags = common_tags + (CYCLE_EQUIPMENT if sghp == 'cycle' else [])
-    parameters = pair_parameters(model, ParameterCatalog(parameters=tags), resources)
+    parameters = pair_parameters(model, ParameterDocument(parameters=tags), resources)
     apply_parameters(model, parameters, resources)
     seed_snapshot(model, HERE / 'cycle_results.json')
     if sghp == 'aggregate':
@@ -107,7 +107,7 @@ def run(sghp, resources, common_tags):
     export_results(model, status='optimal' if report['solved'] else 'failed', solver='ipopt',
                    termination_condition=report['termination'], parameters=parameters,
                    message='Common fixed-power/fixed-warm-duty comparison.').write_json(HERE / f'{prefix}_results.json')
-    WorkspaceCatalog.from_results(HERE / f'{prefix}_results.json', resources).write_json(
+    WorkspaceDocument.from_results(HERE / f'{prefix}_results.json', resources).write_json(
         HERE / f'{prefix}_workspace.json')
     return report
 

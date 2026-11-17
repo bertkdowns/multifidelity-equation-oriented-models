@@ -1,7 +1,7 @@
 {
   "id": "pump",
   "description": "Efficiency-based steady pressure changer using property-model arguments; adiabatic energy balance, no kinetic or potential energy changes.",
-  "block_slots": {
+  "block_arguments": {
     "FluidProperties": {
       "requires": {
         "state": {
@@ -193,7 +193,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "FluidProperties"
+              "block_argument": "FluidProperties"
             }
           }
         }

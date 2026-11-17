@@ -4,41 +4,41 @@ from pathlib import Path
 
 from pydantic import Field, model_validator
 
-from .feeds import FeedCatalog
+from .feeds import FeedDocument
 from .definitions import Definition
-from .model_selection import ModelCatalog
-from .resources import ResourceCatalog
-from .results import ResultsCatalog, export_results
+from .model_selection import ModelDocument
+from .resources import ResourceDocument
+from .results import ResultsDocument, export_results
 
 
-class WorkspaceCatalog(Definition):
+class WorkspaceDocument(Definition):
     """No UI state or block definitions; root block identity stays in the snapshot."""
 
-    model_catalog: ModelCatalog
-    resources: ResourceCatalog
-    results: ResultsCatalog
-    feeds: FeedCatalog | None = Field(default=None, exclude_if=lambda value: value is None)
+    model_document: ModelDocument
+    resources: ResourceDocument
+    results: ResultsDocument
+    feeds: FeedDocument | None = Field(default=None, exclude_if=lambda value: value is None)
 
     @model_validator(mode="after")
-    def matching_model_catalog(self):
-        if self.model_catalog != self.results.model_catalog:
-            raise ValueError("Workspace model_catalog must match the results snapshot")
+    def matching_model_document(self):
+        if self.model_document != self.results.model_document:
+            raise ValueError("Workspace model_document must match the results snapshot")
         return self
 
     @classmethod
     def from_results(cls, results, resources, *, feeds=None):
-        """Bundle a snapshot and optional feed catalogue without changing run identity."""
+        """Bundle a snapshot and optional feed document without changing run identity."""
         if isinstance(results, (str, Path)):
-            results = ResultsCatalog.load_json(results)
+            results = ResultsDocument.load_json(results)
         else:
-            results = ResultsCatalog.model_validate(results).model_copy(deep=True)
+            results = ResultsDocument.model_validate(results).model_copy(deep=True)
         if isinstance(resources, (str, Path)):
-            resources = ResourceCatalog.load_json(resources)
+            resources = ResourceDocument.load_json(resources)
         else:
-            resources = ResourceCatalog.model_validate(resources).model_copy(deep=True)
-        return cls(model_catalog=results.model_catalog.model_copy(deep=True),
+            resources = ResourceDocument.model_validate(resources).model_copy(deep=True)
+        return cls(model_document=results.model_document.model_copy(deep=True),
                    resources=resources, results=results,
-                   feeds=FeedCatalog.model_validate(feeds).model_copy(deep=True)
+                   feeds=FeedDocument.model_validate(feeds).model_copy(deep=True)
                    if feeds is not None else None)
 
     def write_json(self, path):
@@ -53,5 +53,5 @@ def export_workspace(model, resources, *, feeds=None, **result_options):
     and optional parameters metadata. Resource is not inferred from fixed
     variables: pass the actual records used for this case, including overrides.
     """
-    return WorkspaceCatalog.from_results(export_results(model, **result_options), resources,
+    return WorkspaceDocument.from_results(export_results(model, **result_options), resources,
                                           feeds=feeds)

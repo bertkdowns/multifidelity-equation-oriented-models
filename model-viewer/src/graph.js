@@ -5,21 +5,21 @@ import { summaryPortSide } from './edge-routing.js';
 export const variableLabel = (name, variable) => variable.dimensions?.length ? `${name}[${variable.dimensions.join(', ')}]` : name;
 const family = reference => reference.replace(/\[[^\]]*\]/g, '').trim();
 
-export function resolveReference(reference, bindings, library) {
-  if (reference.block_slot) {
-    const argument = bindings[reference.block_slot];
+export function resolveReference(reference, bindings, registry) {
+  if (reference.block_argument) {
+    const argument = bindings[reference.block_argument];
     return argument ? { ...argument, domainBindings: reference.domain_bindings ?? {} } : {
-      definition: { id: `<${reference.block_slot}>`, structs: {}, formulations: {} },
+      definition: { id: `<${reference.block_argument}>`, structs: {}, formulations: {} },
       bindings: {}, unresolved: true,
     };
   }
-  const definition = library[reference.block];
+  const definition = registry[reference.block];
   if (!definition) throw new Error(`Missing block definition: ${reference.block}`);
   return { definition, domainBindings: reference.domain_bindings ?? {}, bindings: Object.fromEntries(Object.entries(reference.block_arguments ?? {})
-    .map(([name, argument]) => [name, resolveReference(argument, bindings, library)])) };
+    .map(([name, argument]) => [name, resolveReference(argument, bindings, registry)])) };
 }
 
-export function makeGraph(context, formulationName, library, view = 'detailed', replacements = [], prefix = '') {
+export function makeGraph(context, formulationName, registry, view = 'detailed', replacements = [], prefix = '') {
   const { definition, bindings = {} } = context;
   const formulation = definition.formulations[formulationName];
   const nodes = [], edges = [], warnings = [];
@@ -41,10 +41,10 @@ export function makeGraph(context, formulationName, library, view = 'detailed', 
     addNode(`struct:${name}`, struct.direction, name, { [name]: struct });
   for (const [alias, ref] of Object.entries(formulation.blocks ?? {})) {
     try {
-      const child = resolveReference(ref, bindings, library);
-      const structs = child.unresolved ? definition.block_slots?.[ref.block_slot]?.requires ?? {} : child.definition.structs;
+      const child = resolveReference(ref, bindings, registry);
+      const structs = child.unresolved ? definition.block_arguments?.[ref.block_argument]?.requires ?? {} : child.definition.structs;
       addNode(`block:${alias}`, 'block', alias, structs, { child, subtitle: child.definition.id, domains: child.definition.domains ?? {}, domainBindings: ref.domain_bindings ?? {} });
-      if (child.unresolved) warnings.push(`${alias}: generic ${ref.block_slot} is unbound. Open a concrete wrapper to resolve it.`);
+      if (child.unresolved) warnings.push(`${alias}: generic ${ref.block_argument} is unbound. Open a concrete wrapper to resolve it.`);
     } catch (error) { warnings.push(error.message); addNode(`block:${alias}`, 'block', alias, {}, { subtitle: error.message }); }
   }
   function link(id, from, to, label, kind) {

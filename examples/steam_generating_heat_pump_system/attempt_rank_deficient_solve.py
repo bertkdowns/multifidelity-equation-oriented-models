@@ -10,7 +10,7 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from pyomo.environ import Var
 from pyomo.opt import check_optimal_termination
-from multifidelity.model_language import ResourceCatalog, ParameterCatalog, initialize_model
+from multifidelity.model_language import ResourceDocument, ParameterDocument, initialize_model
 from multifidelity.model_language.hierarchical_initialization import _constraint_violation, _valid_guess
 from multifidelity.model_language.scaling import export_scaling
 from attempt_solve import build_attempt
@@ -22,8 +22,8 @@ if __name__ == '__main__':
     solver = get_solver('ipopt', options={'max_iter': 500, 'tol': 1e-8, 'max_cpu_time': 60})
     initialized = initialize_model(
         model, solver=solver,
-        resources=ResourceCatalog.load_json(HERE / 'attempt_resources.json'),
-        parameters=ParameterCatalog.load_json(HERE / 'attempt_parameters.json'),
+        resources=ResourceDocument.load_json(HERE / 'attempt_resources.json'),
+        parameters=ParameterDocument.load_json(HERE / 'attempt_parameters.json'),
     )
     root = initialized.stages[-1]
     if (initialized.failed_model != 'steam_generating_heat_pump_system'

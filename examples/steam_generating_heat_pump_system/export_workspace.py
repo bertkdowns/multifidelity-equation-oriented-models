@@ -10,7 +10,7 @@ Relative paths are resolved against this example directory.
 import argparse
 from pathlib import Path
 
-from multifidelity.model_language import WorkspaceCatalog
+from multifidelity.model_language import WorkspaceDocument
 
 HERE = Path(__file__).resolve().parent
 
@@ -21,7 +21,7 @@ def main():
     parser.add_argument('--resources', type=Path, default=Path('attempt_resources.json'))
     parser.add_argument('--output', type=Path, default=Path('workspace.json'))
     args = parser.parse_args()
-    workspace = WorkspaceCatalog.from_results(HERE / args.results, HERE / args.resources)
+    workspace = WorkspaceDocument.from_results(HERE / args.results, HERE / args.resources)
     output = HERE / args.output
     workspace.write_json(output)
     print(f'{output}: {workspace.results.solve.status}, {len(workspace.resources.records)} records')

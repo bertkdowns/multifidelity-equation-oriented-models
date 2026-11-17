@@ -36,7 +36,7 @@ The [resources-directed parameters and selection plan](resources-directed-parame
 separates two testable problems: choosing parameters for an already selected
 model using trust-ranked resources and DM structure, and choosing
 fidelity using a fixed parameters policy. It records independent experiment
-outlines, auditable parameters catalogs, and future noisy-data and Jacobian-based
+outlines, auditable parameter documents, and future noisy-data and Jacobian-based
 parameters-replacement studies.
 
 The [canonical-variable replacement investigation](canonical-variable-replacement.md)
@@ -44,12 +44,12 @@ examines `pyomo-replace`, treats unsupplied inputs as a candidate default
 parameters interface, and records implemented, physically explainable pairs:
 temperature instead of enthalpy, for example. Every fixation must either target
 an unsupplied input or name the input it replaces. The note describes how to
-store and enforce this rule in parameters catalogs, automatic selection and
+store and enforce this rule in parameter documents, automatic selection and
 hierarchical initialisation; Jacobian studies are secondary future work.
 
 This is an academic research project investigating multi-fidelity process
 blocks. Its purpose is to explore algorithms and demonstrate research ideas,
-with clear, understandable modelCatalogs.
+with clear, understandable model documents.
 
 ## Primary aims
 

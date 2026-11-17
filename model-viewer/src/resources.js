@@ -70,7 +70,7 @@ export function appendResource(records, draft) {
 
 // Resolve only the finite authored path, trying alternatives without expanding
 // recursive definitions. A definition browser has no selected model.
-export function findVariable(context, path, library) {
+export function findVariable(context, path, registry) {
   const parts = path.split('.');
   if (parts.length === 2) return context.definition.structs[parts[0]]?.variables[parts[1]];
   if (parts.length < 2) return undefined;
@@ -78,8 +78,8 @@ export function findVariable(context, path, library) {
     const reference = formulation.blocks?.[parts[0]];
     if (!reference) continue;
     try {
-      const child = resolveReference(reference, context.bindings ?? {}, library);
-      const variable = findVariable(child, parts.slice(1).join('.'), library);
+      const child = resolveReference(reference, context.bindings ?? {}, registry);
+      const variable = findVariable(child, parts.slice(1).join('.'), registry);
       if (variable) return variable;
     } catch { /* Another alternative may resolve this occurrence. */ }
   }

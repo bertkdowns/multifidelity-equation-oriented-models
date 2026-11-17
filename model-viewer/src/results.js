@@ -3,16 +3,16 @@ import { parseModel } from './model_selection.js';
 const object = x => x !== null && typeof x === 'object' && !Array.isArray(x);
 const text = x => typeof x === 'string' && x.length > 0;
 function keys(value, allowed, required = allowed) {
-  if (!object(value) || Object.keys(value).some(k => !allowed.includes(k)) || required.some(k => !(k in value))) throw Error('Unexpected or missing catalog fields.');
+  if (!object(value) || Object.keys(value).some(k => !allowed.includes(k)) || required.some(k => !(k in value))) throw Error('Unexpected or missing results document fields.');
 }
 export function parseResults(source) {
   const doc = JSON.parse(source);
-  keys(doc, ['schema_version','run_id','created_at','block_id','model_catalog','mode','time_unit','solve','parameters','variables'], ['schema_version','run_id','created_at','block_id','model_catalog','mode','time_unit','solve','variables']);
+  keys(doc, ['schema_version','run_id','created_at','block_id','model_document','mode','time_unit','solve','parameters','variables'], ['schema_version','run_id','created_at','block_id','model_document','mode','time_unit','solve','variables']);
   if (doc.schema_version !== 1) throw Error('Unsupported results schema version.');
   if (![doc.run_id,doc.block_id,doc.time_unit].every(text)) throw Error('Missing run, model or time-unit identity.');
   if (!text(doc.created_at) || !/(Z|[+-]\d{2}:\d{2})$/.test(doc.created_at) || !Number.isFinite(Date.parse(doc.created_at))) throw Error('created_at must be a timestamp with a timezone.');
   if (!['steady','dynamic'].includes(doc.mode)) throw Error('Invalid model mode.');
-  const model_catalog = parseModel(JSON.stringify(doc.model_catalog));
+  const model_document = parseModel(JSON.stringify(doc.model_document));
   keys(doc.solve, ['status','termination_condition','solver','message'], ['status']);
   if (!['optimal','feasible','failed','not_solved'].includes(doc.solve.status)) throw Error('Invalid solve status.');
   for (const key of ['termination_condition','solver','message']) if (doc.solve[key] != null && typeof doc.solve[key] !== 'string') throw Error(`Invalid solve ${key}.`);
@@ -50,7 +50,7 @@ export function parseResults(source) {
       } else if (typeof entry.value !== 'number' || !Number.isFinite(entry.value) || entry.issue != null) throw Error('Expected a finite value or an explicit unavailable entry.');
     }
   }
-  return {...doc, model_catalog};
+  return {...doc, model_document};
 }
 export function sameModel(a,b) {
   if (!a || !b || a.formulation !== b.formulation) return false;

@@ -4,8 +4,8 @@ from pyomo.util.check_units import assert_units_consistent
 from idaes.core.solvers import get_solver
 from pyomo.opt import check_optimal_termination
 from multifidelity.model_language import (
-    build_model, ResourceCatalog, Resource, apply_parameters,
-    relax_parameters, get_variable, BlockLibrary, BlockCatalog,
+    build_model, ResourceDocument, Resource, apply_parameters,
+    relax_parameters, get_variable, BlockRegistry, BlockDefinition,
 )
 
 
@@ -13,14 +13,14 @@ def setup_problem():
     # Two structurally independent parameters can still conflict with a
     # hard bound. Unlike fixing both ends of a continuity equality, this uses
     # distinct canonical slots and remains a valid replacement catalog.
-    library = BlockLibrary()
-    definition = library.get('valve').model_dump(by_alias=True)
+    registry = BlockRegistry()
+    definition = registry.get('valve').model_dump(by_alias=True)
     definition['structs']['parameters']['variables']['offset'] = {
         'unit': 'kg/s', 'dimensions': ['time'], 'bounds': {'min': 0, 'max': 0}}
     definition['formulations']['isenthalpic']['constraints']['mass_balance']['rhs'] = 'inlet.flow[t] + parameters.offset[t]'
-    library.blocks['valve'] = BlockCatalog.model_validate(definition)
-    model = build_model('valve', {'formulation': 'isenthalpic'}, library=library)
-    resources = ResourceCatalog([
+    registry.blocks['valve'] = BlockDefinition.model_validate(definition)
+    model = build_model('valve', {'formulation': 'isenthalpic'}, registry=registry)
+    resources = ResourceDocument([
         Resource(tag='in', variable_path='inlet.flow', value=2, unit='kg/s',
                           resource_type='sensor_reading', trust_rank=1),
         Resource(tag='out', variable_path='outlet.flow', value=3, unit='kg/s',
@@ -82,7 +82,7 @@ def test_declared_scales_change_normalized_penalties():
 
 def test_record_units_convert_and_bounds_are_retained():
     m,s,i=setup_problem()
-    info=ResourceCatalog([Resource(
+    info=ResourceDocument([Resource(
         tag='pressure',trust_rank=1,resource_type='sensor_reading',
         variable_path='outlet.pressure',value=200,unit='kPa')])
     get_variable(m, 'parameters.pressure_drop').unfix()

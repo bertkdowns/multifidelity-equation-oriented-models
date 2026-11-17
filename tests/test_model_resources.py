@@ -5,7 +5,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from multifidelity.model_language.resources import Resource, ResourceCatalog
+from multifidelity.model_language.resources import Resource, ResourceDocument
 
 
 def record(record_tag="measurement", **changes):
@@ -23,7 +23,7 @@ def record(record_tag="measurement", **changes):
 def test_load_json_add_and_lookup(tmp_path):
     path = tmp_path / "resources.json"
     path.write_text(json.dumps([record()]))
-    table = ResourceCatalog.load_json(path)
+    table = ResourceDocument.load_json(path)
     assert table.get("measurement").value == 323.15
     added = table.add(record("estimate", resource_type="assumption", trust_rank=1))
     assert isinstance(added, Resource)
@@ -32,7 +32,7 @@ def test_load_json_add_and_lookup(tmp_path):
 
 
 def test_candidates_keep_all_alternatives_and_order_by_trust_then_id():
-    table = ResourceCatalog.from_json(
+    table = ResourceDocument.from_json(
         json.dumps(
             [
                 record("z", trust_rank=9),
@@ -52,16 +52,16 @@ def test_candidates_keep_all_alternatives_and_order_by_trust_then_id():
 
 
 def test_duplicate_ids_rejected_without_overwriting():
-    table = ResourceCatalog([record()])
+    table = ResourceDocument([record()])
     with pytest.raises(ValueError, match="Duplicate"):
         table.add(record(value=999))
     assert table.get("measurement").value == 323.15
     with pytest.raises(ValueError, match="Duplicate"):
-        ResourceCatalog.from_json(json.dumps([record(), record()]))
+        ResourceDocument.from_json(json.dumps([record(), record()]))
 
 
 def test_unknown_record_and_storage_isolation():
-    table = ResourceCatalog([record()])
+    table = ResourceDocument([record()])
     table.records.clear()
     assert table.get("measurement").tag == "measurement"
     with pytest.raises(ValidationError):
@@ -117,11 +117,11 @@ def test_missing_and_zero_uncertainty_are_distinct():
         {"tag": ""},
         {"variable_path": ""},
         {"unexpected": "field"},
-        {"id": "legacy_id"},
+        {"id": "unsupported_id"},
     ],
 )
 def test_invalid_records_are_rejected(changes):
-    table = ResourceCatalog()
+    table = ResourceDocument()
     with pytest.raises(ValidationError):
         table.add(record(**changes))
     assert table.records == []
@@ -130,7 +130,7 @@ def test_invalid_records_are_rejected(changes):
 @pytest.mark.parametrize("text", ["{}", '[{"id": "incomplete"}]', "not json"])
 def test_invalid_json_batches_fail(text):
     with pytest.raises(ValidationError):
-        ResourceCatalog.from_json(text)
+        ResourceDocument.from_json(text)
 
 
 def test_constant_is_default_and_round_trips():
@@ -170,7 +170,7 @@ def test_ndarray_and_nested_arrays_are_copied_and_immutable():
 
 def test_input_lists_do_not_expose_mutable_record_storage():
     source = [[1, 2], [3, 4]]
-    table = ResourceCatalog([record(type='series', value=source)])
+    table = ResourceDocument([record(type='series', value=source)])
     source[0][0] = 99
     assert table.get('measurement').value[0][0] == 1
 
@@ -193,14 +193,14 @@ def test_input_lists_do_not_expose_mutable_record_storage():
     {'type': 'series', 'value': [1, 2], 'standard_deviation': [0.1, 0.2]},
 ])
 def test_invalid_constant_and_series_records(changes):
-    table = ResourceCatalog()
+    table = ResourceDocument()
     with pytest.raises(ValidationError):
         table.add(record(**changes))
     assert table.records == []
 
 
 def test_constant_and_series_are_alternatives_for_the_same_family():
-    table = ResourceCatalog.from_json(json.dumps([
+    table = ResourceDocument.from_json(json.dumps([
         record('fallback', type='constant', trust_rank=1),
         record('trajectory', type='series', value=[303, 305, 310], trust_rank=9),
     ]))
@@ -291,9 +291,9 @@ def test_values_for_rejects_ambiguous_index_domains():
 def test_resources_catalog_is_pydantic_and_round_trips_as_an_array():
     from pydantic import BaseModel
 
-    catalog = ResourceCatalog.model_validate([record()])
+    catalog = ResourceDocument.model_validate([record()])
     assert isinstance(catalog, BaseModel)
-    assert ResourceCatalog.from_json(catalog.model_dump_json()) == catalog
+    assert ResourceDocument.from_json(catalog.model_dump_json()) == catalog
     assert catalog.model_dump(mode="json")[0]["tag"] == "measurement"
     catalog.add(record("fallback", trust_rank=1))
     assert [r.tag for r in catalog.records] == ["measurement", "fallback"]

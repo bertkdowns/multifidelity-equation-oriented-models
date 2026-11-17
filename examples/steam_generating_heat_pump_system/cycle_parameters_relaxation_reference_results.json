@@ -3,7 +3,7 @@
   "run_id": "ec65ea00-a5fe-4b9d-a88c-7c096288e50c",
   "created_at": "2026-11-06T01:24:49.730106Z",
   "block_id": "steam_generating_heat_pump_system",
-  "model_catalog": {
+  "model_document": {
     "formulation": "flowsheet",
     "subblocks": {
       "sghp": {
@@ -510,7 +510,7 @@
       "config_hot_water_pump_parameters_efficiency",
       "config_makeup_inlet_pressure",
       "config_makeup_inlet_state_temperature",
-      "config_phnix_cop_block_slots_cop",
+      "config_phnix_cop_model_parameters_cop",
       "config_phnix_sink_inlet_state_temperature",
       "config_phnix_source_inlet_flow",
       "config_phnix_source_inlet_pressure",
@@ -522,7 +522,7 @@
       "config_source_pump_parameters_pressure_rise",
       "config_warm_water_pump_parameters_efficiency",
       "config_warm_water_pump_parameters_pressure_rise",
-      "config_phnix_power_block_slots_electrical_power",
+      "config_phnix_power_model_parameters_electrical_power",
       "config_sghp_condenser_parameters_conductance",
       "config_sghp_evaporator_parameters_conductance",
       "config_sghp_subcooler_parameters_conductance",

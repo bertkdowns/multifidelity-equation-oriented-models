@@ -1,7 +1,7 @@
-"""Typed definition catalogs, independent of reference resolution and Pyomo.
+"""Typed block definitions, independent of reference resolution and Pyomo.
 
-These types mirror the JSON vocabulary. BlockCatalog references retain IDs rather than
-expanding reusable definitions into a tree. Parsing checks catalog shape; the
+These types mirror the JSON vocabulary. BlockDefinition references retain IDs rather than
+expanding reusable definitions into a tree. Parsing checks definition shape; the
 builder still owns scope, interface, determination and equation validation.
 """
 
@@ -104,8 +104,8 @@ class Connection(Definition):
     to: str
 
 
-class BlockSlot(Definition):
-    """Minimum public struct interface required of a generic argument."""
+class BlockArgument(Definition):
+    """A named generic block argument with a required public struct interface."""
 
     requires: dict[Name, Struct] = Field(default_factory=dict)
 
@@ -116,14 +116,14 @@ class ConcreteBlockReference(Definition):
     domain_bindings: dict[Name, Name] = Field(default_factory=dict)
 
 
-class SlotBlockReference(Definition):
-    block_slot: str
+class ArgumentBlockReference(Definition):
+    block_argument: str
     domain_bindings: dict[Name, Name] = Field(default_factory=dict)
 
 
-# Separate variants enforce exactly one reference kind. Parameter references
+# Separate variants enforce exactly one reference kind. Argument references
 # cannot override arguments that were already supplied by the containing model.
-type BlockReference = ConcreteBlockReference | SlotBlockReference
+type BlockReference = ConcreteBlockReference | ArgumentBlockReference
 
 
 class ExternalFormulation(Definition):
@@ -142,7 +142,7 @@ class Formulation(Definition):
     external: ExternalFormulation | None = None
 
     @model_validator(mode="after")
-    def separate_external_model_catalog(self):
+    def separate_external_model_document(self):
         if self.external is not None and (
             self.blocks or self.constraints or self.connections or self.derivatives
         ):
@@ -152,15 +152,15 @@ class Formulation(Definition):
         return self
 
 
-class BlockCatalog(Definition):
+class BlockDefinition(Definition):
     id: str
     description: str | None = None
     domains: dict[Name, Domain] = Field(default_factory=dict)
-    block_slots: dict[Name, BlockSlot] = Field(default_factory=dict)
+    block_arguments: dict[Name, BlockArgument] = Field(default_factory=dict)
     structs: dict[Name, Struct]
     formulations: dict[Name, Formulation]
 
 
 ConcreteBlockReference.model_rebuild()
 Formulation.model_rebuild()
-BlockCatalog.model_rebuild()
+BlockDefinition.model_rebuild()

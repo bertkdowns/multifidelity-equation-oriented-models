@@ -20,7 +20,7 @@ as appropriate. This is a direction to develop, not a finalized experiment.
 
 ### First planned experiment: predicting electrical consumption
 
-**Research outcome to revisit: measurement-based block slots.** Develop
+**Research outcome to revisit: measurement-based parameter selection.** Develop
 a method to map available measurements to a well-posed prediction or estimation
 problem: distinguish fixed inputs, noisy observations, unknown states, estimable
 parameters, and explicit assumptions; identify missing or redundant resources.

@@ -13,9 +13,8 @@ The public API is `canonical_inputs()`, `pair_parameters()`,
 `apply_parameters()`, `parameter_slots()` and `audit_fixations()`.
 `select_parameters()` keeps its trust-ranked DM policy and adds automatic
 pairs to the returned catalog; an unresolved assignment appears in
-`pairing_error` and prevents `complete=True`. Examples have been migrated to
-explicit replacement mappings. The model viewer accepts those mappings in saved
-result parameters. Historical result snapshots retain their original metadata.
+`pairing_error` and prevents `complete=True`. Replacement mappings are saved
+with the chosen parameters and displayed by the model viewer.
 
 ## Purpose and core rule
 
@@ -113,13 +112,13 @@ as unused rather than presenting its replacement as a meaningful physical choice
 The rule makes parameter choices explicit; it does not repair missing or
 redundant physical equations, including recycle continuity problems.
 
-## Store the replacement in the parameters catalog
+## Store the replacement in the parameter document
 
 The replacement formulation must be required, portable parameters data. It
 cannot be merely an optional audit trace: otherwise a saved list of fixed
 measurements loses the physical explanation and cannot enforce the rule on reload.
-Keep values and units in the resources catalog; the chosen replacement belongs
-to the parameters catalog because it depends on how we use that resources.
+Keep values and units in the resource document; the chosen replacement belongs
+to the parameter document because it depends on how we use that resources.
 
 ### Implemented JSON format
 
@@ -163,7 +162,7 @@ other resource records.
 
 ### Resource supplied alongside the parameters
 
-The parameters above is used with an resources catalog such as:
+The parameters above is used with an resource document such as:
 
 ```json
 [
@@ -189,8 +188,8 @@ The parameters above is used with an resources catalog such as:
 ```
 
 The selected model supplies variables, equations and canonical-input discovery;
-the model catalog supplies the formulation choices. Neither is
-embedded in the parameters catalog. Together these inputs resolve to:
+the model document supplies the formulation choices. Neither is
+embedded in the parameter document. Together these inputs resolve to:
 
 | Canonical slot | Fixed target | Resource record | Action |
 | --- | --- | --- | --- |
@@ -198,7 +197,7 @@ embedded in the parameters catalog. Together these inputs resolve to:
 | `state.enthalpy` | `properties.temperature` | `measured_temperature` | Fix temperature to 350 K; leave enthalpy free. |
 
 This table is derived, not another saved field. Values, units, uncertainty and
-trust remain in the resources catalog. Pairing scores, alternatives, DM status
+trust remain in the resource document. Pairing scores, alternatives, DM status
 and solver results remain separate diagnostics. The parameters stores the
 chosen records and pairs, whether generated automatically or edited by the user.
 
@@ -221,20 +220,18 @@ Application semantics:
   silently exchange a scalar for a trajectory or a full trajectory for an initial
   slice. More general group exchanges can be added when an example requires them.
 
-An omitted `replacements` mapping defaults to empty. Existing catalogs selecting
-only canonical inputs remain valid. Existing catalogs fixing outputs or supplied
-inputs need explicit pair annotations; accepting them without annotations would
-break the proposed rule. Migration should run the same automatic pairing method
-used by selection, save the inferred pairs, and report any unresolved cases. It
-should not require users to annotate every existing output fixation manually.
+An omitted `replacements` mapping defaults to empty. Direct canonical inputs
+need no pair; fixations of outputs or supplied inputs require explicit pair
+annotations. `pair_parameters()` can infer admissible pairs and report unresolved
+assignments.
 
-This changes the earlier proposal: the final fixed set alone is insufficient.
-An optional audit can still record selection decisions and rejected alternatives,
-but the chosen replacement pairs are part of the parameters itself.
+The fixed set alone cannot explain which canonical inputs remain free. Saving
+replacement pairs makes that choice explicit and auditable. Selection decisions
+and rejected alternatives can be recorded separately as diagnostics.
 
 ## Apply and maintain the parameters
 
-[`ParameterCatalog` and `apply_parameters()`](../src/multifidelity/model_language/parameters.py)
+[`ParameterDocument` and `apply_parameters()`](../src/multifidelity/model_language/parameters.py)
 use the mapping above. Shared structural pairing and slot validation are in
 [`replacement.py`](../src/multifidelity/model_language/replacement.py). Manual
 application requires explicit pairs; `pair_parameters()` generates missing
@@ -254,7 +251,7 @@ pairs without changing the selected record tags or numerical instance.
 
 Ordinary `build_model()` should continue to build a free model. Discovering a
 canonical input does not fix it, and a declared default remains a starting guess.
-Partial parameters catalogs remain useful; the invariant applies to each
+Partial parameter documents remain useful; the invariant applies to each
 fixation without requiring all slots to be occupied.
 
 For a first model, apply the final catalog once to a clea model,
@@ -404,7 +401,7 @@ achieved-setpoint policy, prediction-target exclusions or unit/value checks.
 
 ### User overrides and explanations
 
-Save the generated pairs in the parameters catalog. The main report shows
+Save the generated pairs in the parameter document. The main report shows
 **what is fixed, which input it replaces, where both quantities belong, and which
 resource record supplies the value**. Separate diagnostics can record why the
 heuristic preferred that input and list alternative admissible partners.
@@ -466,8 +463,8 @@ of those initial conditions is deferred.
 - Automatic pairing after resources selection, with separate unresolved-pair diagnostics.
 - Slot reports and fixation audits, including protection of replaced inputs during
   local initialisation when their fixed targets are in the active subtree.
-- Migrated SGHP and tank examples, provider-backed replay parameters and
-  model-viewer support for the new parameters metadata.
+- SGHP and tank examples, feed-backed replay parameters and
+  viewer support for saved replacement metadata.
 - Generic algebraic tests for pairing, reassignment, invalid exchanges, scope,
   slot ownership, clone behaviour and save/reload.
 

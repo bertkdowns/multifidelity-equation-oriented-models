@@ -6,21 +6,21 @@ from pyomo.environ import Constraint, Var
 from pyomo.opt import SolverStatus, TerminationCondition
 
 from multifidelity.model_language import (
-    ResourceCatalog, BlockLibrary, BlockCatalog,
+    ResourceDocument, BlockRegistry, BlockDefinition,
     build_model, get_variable, initialize_model, apply_parameters, pair_parameters,
 )
 
 
 def specify(model, path, value):
-    info = ResourceCatalog([dict(tag=path, variable_path=path, value=value,
+    info = ResourceDocument([dict(tag=path, variable_path=path, value=value,
                                     unit='dimensionless', resource_type='assumption', trust_rank=5)])
     spec = pair_parameters(model, {'parameters': [path]}, info)
     apply_parameters(model, spec, info)
 
 
-def tiny_library(tmp_path, *, recycle=False):
-    library = BlockLibrary(tmp_path)
-    library.blocks['leaf'] = BlockCatalog.model_validate({
+def tiny_registry(tmp_path, *, recycle=False):
+    registry = BlockRegistry(tmp_path)
+    registry.blocks['leaf'] = BlockDefinition.model_validate({
         'id': 'leaf', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 1}}},
             'outlet': {'direction': 'output', 'variables': {'y': {}}},
@@ -37,7 +37,7 @@ def tiny_library(tmp_path, *, recycle=False):
         'feed': {'lhs': 'a.inlet.x', 'rhs': 'b.outlet.y + inlet.x' if recycle else 'inlet.x',
                  'determines': 'a.inlet.x'},
     }
-    library.blocks['plant'] = BlockCatalog.model_validate({
+    registry.blocks['plant'] = BlockDefinition.model_validate({
         'id': 'plant', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 3}}},
             'outlet': {'direction': 'output', 'variables': {'y': {}}},
@@ -46,13 +46,13 @@ def tiny_library(tmp_path, *, recycle=False):
             'connections': connections, 'constraints': equations,
         }},
     })
-    return library
+    return registry
 
 
 def build_plant(tmp_path, *, recycle=False):
     return build_model('plant', {'formulation': 'flowsheet', 'subblocks': {
         'a': {'formulation': 'linear'}, 'b': {'formulation': 'linear'},
-    }}, library=tiny_library(tmp_path, recycle=recycle))
+    }}, registry=tiny_registry(tmp_path, recycle=recycle))
 
 
 @pytest.mark.parametrize('recycle,feed,expected', [(False, 3, 12), (True, 1, 7/3)])
@@ -145,8 +145,8 @@ def test_hierarchy_metadata_follows_cloning(tmp_path, solver):
 
 
 def test_dm_recomputed_after_each_fix_and_resources_rank_is_used(tmp_path, solver):
-    library = BlockLibrary(tmp_path)
-    library.blocks['sum'] = BlockCatalog.model_validate({
+    registry = BlockRegistry(tmp_path)
+    registry.blocks['sum'] = BlockDefinition.model_validate({
         'id': 'sum', 'structs': {
             'inlet': {'direction': 'input', 'variables': {
                 'x': {'default': 1}, 'y': {'default': 1}, 'z': {'default': 1}}},
@@ -155,7 +155,7 @@ def test_dm_recomputed_after_each_fix_and_resources_rank_is_used(tmp_path, solve
             'sum': {'lhs': 'outlet.total', 'rhs': 'inlet.x + inlet.y + inlet.z',
                     'determines': 'outlet.total'}}}},
     })
-    library.blocks['plant'] = BlockCatalog.model_validate({
+    registry.blocks['plant'] = BlockDefinition.model_validate({
         'id': 'plant', 'structs': {'feed': {'direction': 'input', 'variables': {
             'x': {'default': 7}, 'y': {'default': 1}}}},
         'formulations': {'sum': {'blocks': {'child': {'block': 'sum'}}, 'constraints': {
@@ -164,11 +164,11 @@ def test_dm_recomputed_after_each_fix_and_resources_rank_is_used(tmp_path, solve
         }}},
     })
     model = build_model('plant', {'formulation': 'sum', 'subblocks': {
-        'child': {'formulation': 'sum'}}}, library=library)
+        'child': {'formulation': 'sum'}}}, registry=registry)
     get_variable(model, 'feed.x').fix(7)
     get_variable(model, 'feed.y').fix(1)
     specify(model, 'child.outlet.total', 10)
-    info = ResourceCatalog([dict(
+    info = ResourceDocument([dict(
         tag='z_guess', variable_path='child.inlet.z', value=8,
         unit='dimensionless', resource_type='assumption', trust_rank=8)])
     result = initialize_model(model, solver=solver, resources=info)
@@ -198,10 +198,10 @@ def test_overconstraint_is_reported_without_adding_fixes(tmp_path, solver):
 
 
 def test_custom_hooks_run_once_per_occurrence_before_parent_solve(tmp_path, solver):
-    library = tiny_library(tmp_path)
-    library.blocks['leaf'].formulations['linear'].constraints = {}
+    registry = tiny_registry(tmp_path)
+    registry.blocks['leaf'].formulations['linear'].constraints = {}
     from multifidelity.model_language.definitions import ExternalFormulation
-    library.blocks['leaf'].formulations['linear'].external = ExternalFormulation(
+    registry.blocks['leaf'].formulations['linear'].external = ExternalFormulation(
         provider='linear', dependencies={'outlet.y': ['inlet.x']})
     calls = []
     def provider(block, config):
@@ -213,9 +213,9 @@ def test_custom_hooks_run_once_per_occurrence_before_parent_solve(tmp_path, solv
         calls.append(block.name)
         assert block.x.fixed
         block.y.set_value(2 * block.x.value)
-    library.register_provider('linear', provider, initializer=callback)
+    registry.register_provider('linear', provider, initializer=callback)
     model = build_model('plant', {'formulation': 'flowsheet', 'subblocks': {
-        'a': {'formulation': 'linear'}, 'b': {'formulation': 'linear'}}}, library=library)
+        'a': {'formulation': 'linear'}, 'b': {'formulation': 'linear'}}}, registry=registry)
     get_variable(model, 'inlet.x').fix(4)
     result = initialize_model(model, solver=solver)
     assert result.success and len(calls) == 2
@@ -251,8 +251,8 @@ def test_failed_parent_retains_successful_child_values(tmp_path, solver):
 
 
 def test_steady_indexed_inputs_are_closed_entry_by_entry(tmp_path, solver):
-    library = tiny_library(tmp_path)
-    for model in library.blocks.values():
+    registry = tiny_registry(tmp_path)
+    for model in registry.blocks.values():
         catalog = model.model_dump()
         catalog['domains'] = {'time': {'kind': 'time'}}
         for struct in catalog['structs'].values():
@@ -265,10 +265,10 @@ def test_steady_indexed_inputs_are_closed_entry_by_entry(tmp_path, solver):
                 equation['for_each'] = {'t': 'time'}
                 for side in ['lhs', 'rhs', 'determines']:
                     equation[side] = equation[side].replace('inlet.x', 'inlet.x[t]').replace('outlet.y', 'outlet.y[t]')
-        library.blocks[model.id] = BlockCatalog.model_validate(catalog)
+        registry.blocks[model.id] = BlockDefinition.model_validate(catalog)
     model = build_model('plant', {'formulation': 'flowsheet', 'subblocks': {
         'a': {'formulation': 'linear'}, 'b': {'formulation': 'linear'}}},
-        library=library, domain_values={'time': [0, 10]})
+        registry=registry, domain_values={'time': [0, 10]})
     get_variable(model, 'inlet.x')[0].fix(3)
     get_variable(model, 'inlet.x')[10].fix(4)
     result = initialize_model(model, solver=solver)
@@ -279,9 +279,9 @@ def test_steady_indexed_inputs_are_closed_entry_by_entry(tmp_path, solver):
 
 
 def test_hidden_internal_freedom_is_reported_instead_of_arbitrarily_fixed(tmp_path):
-    library = tiny_library(tmp_path)
+    registry = tiny_registry(tmp_path)
     from multifidelity.model_language.definitions import ExternalFormulation
-    formulation = library.blocks['leaf'].formulations['linear']
+    formulation = registry.blocks['leaf'].formulations['linear']
     formulation.constraints = {}
     formulation.external = ExternalFormulation(
         provider='orphan', dependencies={'outlet.y': ['inlet.x']})
@@ -291,9 +291,9 @@ def test_hidden_internal_freedom_is_reported_instead_of_arbitrarily_fixed(tmp_pa
         block.orphan = Var(initialize=3)
         block.eq = Constraint(expr=block.y == 2 * block.x)
         return {'inlet.x': block.x, 'outlet.y': block.y}
-    library.register_provider('orphan', provider)
+    registry.register_provider('orphan', provider)
     model = build_model('plant', {'formulation': 'flowsheet', 'subblocks': {
-        'a': {'formulation': 'linear'}, 'b': {'formulation': 'linear'}}}, library=library)
+        'a': {'formulation': 'linear'}, 'b': {'formulation': 'linear'}}}, registry=registry)
     result = initialize_model(model)
     assert result.failed_model == 'a'
     stage = result.stages[0]
@@ -304,8 +304,8 @@ def test_hidden_internal_freedom_is_reported_instead_of_arbitrarily_fixed(tmp_pa
 
 
 def nested_open_input_plant(tmp_path, *, define_bias=False):
-    library = BlockLibrary(tmp_path)
-    library.blocks['leaf'] = BlockCatalog.model_validate({
+    registry = BlockRegistry(tmp_path)
+    registry.blocks['leaf'] = BlockDefinition.model_validate({
         'id': 'leaf', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 1}}},
             'parameters': {'direction': 'input', 'variables': {'bias': {'default': 3}}},
@@ -326,8 +326,8 @@ def nested_open_input_plant(tmp_path, *, define_bias=False):
     if define_bias:
         middle['formulations']['eq']['constraints'] = {
             'bias': {'lhs': 'leaf.parameters.bias', 'rhs': '3', 'determines': 'leaf.parameters.bias'}}
-    library.blocks['middle'] = BlockCatalog.model_validate(middle)
-    library.blocks['root'] = BlockCatalog.model_validate({
+    registry.blocks['middle'] = BlockDefinition.model_validate(middle)
+    registry.blocks['root'] = BlockDefinition.model_validate({
         'id': 'root', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 5}}},
             'outlet': {'direction': 'output', 'variables': {'y': {}}},
@@ -338,7 +338,7 @@ def nested_open_input_plant(tmp_path, *, define_bias=False):
             }}},
     })
     return build_model('root', {'formulation': 'eq', 'subblocks': {'middle': {
-        'formulation': 'eq', 'subblocks': {'leaf': {'formulation': 'eq'}}}}}, library=library)
+        'formulation': 'eq', 'subblocks': {'leaf': {'formulation': 'eq'}}}}}, registry=registry)
 
 
 def test_unsupplied_descendant_inputs_close_parent_and_survive_cloning(tmp_path, solver):

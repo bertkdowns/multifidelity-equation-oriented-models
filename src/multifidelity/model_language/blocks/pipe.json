@@ -104,7 +104,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "FluidProperties"
+              "block_argument": "FluidProperties"
             }
           }
         }
@@ -130,7 +130,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "FluidProperties"
+              "block_argument": "FluidProperties"
             }
           }
         }
@@ -179,7 +179,7 @@
       }
     }
   },
-  "block_slots": {
+  "block_arguments": {
     "FluidProperties": {
       "requires": {
         "state": {

@@ -23,8 +23,8 @@ import { defaultModel, analyzeModel } from './model_selection.js';
 
 for (const [name, color] of Object.entries(diagramColors)) document.documentElement.style.setProperty(`--diagram-${name}`, color);
 
-const catalogs = import.meta.glob('../../src/multifidelity/model_language/blocks/*.json', { eager: true, import: 'default' });
-const library = Object.fromEntries(Object.values(catalogs).map(model => [model.id, model]));
+const definitions = import.meta.glob('../../src/multifidelity/model_language/blocks/*.json', { eager: true, import: 'default' });
+const registry = Object.fromEntries(Object.values(definitions).map(model => [model.id, model]));
 const blockIcons = new Set(Object.keys(import.meta.glob('../public/block-icons/*.svg')).map(path => path.split('/').at(-1).replace(/\.svg$/, '')));
 
 const ResultsContext = createContext({index:new Map(),prefix:'',inspect:()=>{},status:'not_solved',specifiedTags:new Set()});
@@ -150,8 +150,8 @@ function SavedLayoutFlow({ graph, storageKey, arrowVisibility, children, ...prop
 }
 function App() {
   const [trail, setTrail] = useState(() => {
-    const root = loadActiveBlock(library, 'steam_generating_heat_pump_system');
-    return [{ definition: library[root], bindings: {}, alias: root }];
+    const root = loadActiveBlock(registry, 'steam_generating_heat_pump_system');
+    return [{ definition: registry[root], bindings: {}, alias: root }];
   });
   const current = trail.at(-1);
   const [choices, setChoices] = useState({});
@@ -160,13 +160,13 @@ function App() {
   useEffect(() => saveArrowVisibility(arrowVisibility), [arrowVisibility]);
   const path = trail.map(item => item.alias).join('/');
   const [mode, setMode] = useState('diagram');
-  const [modelCatalogs, setModels, model_catalogStorageErrors] = useStoredCatalogs('model_catalog');
+  const [modelDocuments, setModels, model_documentStorageErrors] = useStoredCatalogs('model_document');
   const rootId = trail[0].definition.id;
   useEffect(() => saveActiveBlock(rootId), [rootId]);
-  const defaultCatalog = useMemo(() => defaultModel(trail[0], library), [trail[0]]);
-  const model_catalog = modelCatalogs[rootId] ?? defaultCatalog;
-  const model_catalogAnalysis = useMemo(() => analyzeModel(trail[0], model_catalog, library), [trail[0], model_catalog]);
-  let selectedModel = model_catalog;
+  const defaultDocument = useMemo(() => defaultModel(trail[0], registry), [trail[0]]);
+  const model_document = modelDocuments[rootId] ?? defaultDocument;
+  const model_documentAnalysis = useMemo(() => analyzeModel(trail[0], model_document, registry), [trail[0], model_document]);
+  let selectedModel = model_document;
   for (let index = 0; index < trail.length - 1; index++) {
     const ancestorPath = trail.slice(0, index + 1).map(item => item.alias).join('/');
     if ((choices[ancestorPath] ?? selectedModel?.formulation) !== selectedModel?.formulation) { selectedModel = undefined; break; }
@@ -180,9 +180,9 @@ function App() {
   const resultFile=resultFiles[rootId];
   const [feedFiles, setFeedFiles, feedStorageErrors] = useStoredCatalogs('feeds');
   const feedFile = feedFiles[rootId];
-  const timeDomains = useMemo(() => timeDomainsByOccurrence(model_catalogAnalysis), [model_catalogAnalysis]);
+  const timeDomains = useMemo(() => timeDomainsByOccurrence(model_documentAnalysis), [model_documentAnalysis]);
   const resultIndex=useMemo(()=>indexResults(resultFile?.catalog),[resultFile]);
-  const showResults=resultFile && sameModel(model_catalog,resultFile.catalog.model_catalog) && selectedModel?.formulation===formulation && !model_catalogAnalysis.errors.length;
+  const showResults=resultFile && sameModel(model_document,resultFile.catalog.model_document) && selectedModel?.formulation===formulation && !model_documentAnalysis.errors.length;
   const prefix = trail.slice(1).map(item=>item.alias).join('.');
   const specifiedTags = useMemo(() => new Set(showResults ? [
     ...(resultFile.catalog.parameters?.parameters ?? []),
@@ -190,17 +190,17 @@ function App() {
   ] : []), [showResults, resultFile]);
   const replacements = useMemo(() => replacementPairs(showResults ? resultFile.catalog.parameters : null, resourcesFile?.records ?? []), [showResults, resultFile, resourcesFile]);
   const graph = useMemo(() => {
-    const graph = makeGraph(current, formulation, library, view, replacements.pairs, prefix);
+    const graph = makeGraph(current, formulation, registry, view, replacements.pairs, prefix);
     return {...graph, warnings: [...graph.warnings, ...replacements.warnings]};
   }, [current, formulation, view, replacements, prefix]);
   const resultsContext={index:showResults ? resultIndex : new Map(),prefix,inspect:setSelection,status:resultFile?.catalog.solve.status,specifiedTags,mode:resultFile?.catalog.mode,timeUnit:resultFile?.catalog.time_unit,timeDomains};
   function openWorkspace(workspace, filename) {
     const root = workspace.results.block_id;
-    setModels(previous => ({ ...previous, [root]: workspace.model_catalog }));
+    setModels(previous => ({ ...previous, [root]: workspace.model_document }));
     setResourcesFiles(previous => ({ ...previous, [root]: { name: `${filename} · resources`, records: workspace.resources } }));
     setResultFiles(previous => ({ ...previous, [root]: { name: `${filename} · results`, catalog: workspace.results } }));
     setFeedFiles(previous => ({ ...previous, [root]: workspace.feeds ? { name: `${filename} · feeds`, feeds: workspace.feeds } : null }));
-    setTrail([{ definition: library[root], bindings: {}, alias: root }]);
+    setTrail([{ definition: registry[root], bindings: {}, alias: root }]);
     setChoices({}); setSelection(null); setMode('diagram');
   }
   function loadResults(file) {
@@ -210,26 +210,26 @@ function App() {
   }
 
   const resourcesIndex = useMemo(() => indexResources(resourcesFile?.records ?? []), [resourcesFile]);
-  const unmatched = useMemo(() => [...resourcesIndex.keys()].filter(path => !findVariable(trail[0], path, library)), [resourcesIndex, trail[0]]);
+  const unmatched = useMemo(() => [...resourcesIndex.keys()].filter(path => !findVariable(trail[0], path, registry)), [resourcesIndex, trail[0]]);
   const resourcesContext = { index: resourcesIndex, prefix: trail.slice(1).map(item => item.alias).join('.'), inspect: setSelection };
   function setResources(file) { setResourcesFiles(previous => ({ ...previous, [rootId]: file })); setSelection(null); }
   function explore(data) { setTrail([...trail, { ...data.child, alias: data.title }]); setSelection(null); }
-  function updateModel(catalog) {
-    setModels(previous => ({ ...previous, [rootId]: catalog }));
+  function updateModel(document) {
+    setModels(previous => ({ ...previous, [rootId]: document }));
     setChoices({}); setSelection(null); setTrail([trail[0]]);
   }
   function inspectModel(aliases) {
     const next = [trail[0]];
-    let selected = model_catalog;
+    let selected = model_document;
     for (const alias of aliases) {
       const parent = next.at(-1);
       const reference = parent.definition.formulations[selected.formulation].blocks[alias];
-      next.push({ ...resolveReference(reference, parent.bindings ?? {}, library), alias });
+      next.push({ ...resolveReference(reference, parent.bindings ?? {}, registry), alias });
       selected = selected.subblocks[alias];
     }
     setTrail(next); setChoices({}); setSelection(null); setMode('diagram');
   }
-  function openRoot(id) { setTrail([{ definition: library[id], bindings: {}, alias: id }]); setSelection(null); }
+  function openRoot(id) { setTrail([{ definition: registry[id], bindings: {}, alias: id }]); setSelection(null); }
   const sidebarRef = useRef(null);
   const focusSelection = mode === 'diagram' && view === 'summary' && !!selection;
   useEffect(() => {
@@ -243,19 +243,19 @@ function App() {
       </div>;
   return <ResourceContext.Provider value={resourcesContext}><ResultsContext.Provider value={resultsContext}><main>
     <aside ref={sidebarRef}><div className="brand">◈ <span>MULTIFIDELITY</span></div><h1>Block explorer</h1>
-      {[...model_catalogStorageErrors, ...resourcesStorageErrors, ...resultStorageErrors, ...feedStorageErrors].map(message => <p key={message} className="upload-error" role="status">{message}</p>)}
+      {[...model_documentStorageErrors, ...resourcesStorageErrors, ...resultStorageErrors, ...feedStorageErrors].map(message => <p key={message} className="upload-error" role="status">{message}</p>)}
       {focusSelection && selectionDetails}
       <details className={`sidebar-controls ${focusSelection ? 'collapsed-controls' : 'expanded-controls'}`} open={!focusSelection}>
         <summary>Model controls &amp; help</summary>
-      <WorkspaceControls root={rootId} model_catalog={model_catalog} resources={resourcesFile?.records} results={resultFile?.catalog} feeds={feedFile?.feeds} library={library} onOpen={openWorkspace}/>
-      <label>Block library<select value={trail[0].definition.id} onChange={event => openRoot(event.target.value)}>{Object.keys(library).sort().map(id => <option key={id}>{id}</option>)}</select></label>
-      <button className="model_catalog-open" onClick={() => setMode('resources')}>Choose resources</button>
+      <WorkspaceControls root={rootId} model_document={model_document} resources={resourcesFile?.records} results={resultFile?.catalog} feeds={feedFile?.feeds} registry={registry} onOpen={openWorkspace}/>
+      <label>Block registry<select value={trail[0].definition.id} onChange={event => openRoot(event.target.value)}>{Object.keys(registry).sort().map(id => <option key={id}>{id}</option>)}</select></label>
+      <button className="model_document-open" onClick={() => setMode('resources')}>Choose resources</button>
       {resourcesFile && <p className="resources-file-status">{resourcesFile.name} · {resourcesFile.records.length} records</p>}
       {unmatched.length > 0 && <details className="unmatched"><summary>{unmatched.length} unmatched variable paths</summary><p>These paths were not found in the available block definitions.</p>{unmatched.map(path => <div key={path}>{path}</div>)}</details>}
       {resourcesFile && <p>Records in other formulations appear when you explore those blocks. No values are propagated along connections.</p>}
-      <button className="model_catalog-open" onClick={() => setMode('model_catalog')}>Choose model</button>
+      <button className="model_document-open" onClick={() => setMode('model_document')}>Choose model</button>
       <label>Preview formulation<select style={{ fontWeight: formulation === selectedModel?.formulation ? 700 : 400 }} value={formulation ?? ''} onChange={event => { setChoices({ ...choices, [path]: event.target.value }); setSelection(null); }}>{Object.keys(current.definition.formulations).map(name => <option key={name} value={name} style={{ fontWeight: name === selectedModel?.formulation ? 700 : 400 }}>{name}{name === selectedModel?.formulation ? ' (model)' : ''}</option>)}</select></label>
-      {formulation !== selectedModel?.formulation && <button className="model_catalog-open" onClick={() => inspectModel([])}>View selected model</button>}
+      {formulation !== selectedModel?.formulation && <button className="model_document-open" onClick={() => inspectModel([])}>View selected model</button>}
       <p className="description">{current.definition.description}</p>
       {Object.keys(current.definition.domains ?? {}).length > 0 && <div className="domain-info"><b>Index domains</b>{Object.entries(current.definition.domains).map(([name, domain]) => <div key={name}>{name} · {domain.kind}{current.domainBindings?.[name] && ` → parent.${current.domainBindings[name]}`}</div>)}<p>Indexed variables and equations are shown as families, without expanding time points or domain members.</p></div>}
       <div className="legend"><span>● Input struct</span><span>● Block</span><span>● Constraint</span><span>● Output struct</span></div>
@@ -264,10 +264,10 @@ function App() {
       {graph.warnings.length > 0 && <div className="warnings">{graph.warnings.map(message => <p key={message}>{message}</p>)}</div>}
       </details>
       {!focusSelection && selectionDetails}
-      <footer>Read-only · JSON definitions<br/>{Object.keys(library).length} blocks in library</footer>
+      <footer>Read-only · JSON definitions<br/>{Object.keys(registry).length} blocks in registry</footer>
     </aside>
-    <div className="workspace"><div className="workspace-tabs" role="group" aria-label="Workspace mode"><button aria-pressed={mode === 'diagram'} onClick={() => setMode('diagram')}>Diagram</button><button aria-pressed={mode === 'model_catalog'} onClick={() => setMode('model_catalog')}>Model</button><button aria-pressed={mode === 'resources'} onClick={() => setMode('resources')}>Resources</button><button aria-pressed={mode === 'results'} onClick={() => setMode('results')}>Results</button><button aria-pressed={mode === 'feeds'} onClick={() => setMode('feeds')}>Feeds</button></div><nav aria-label="Block breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
-      {mode === 'feeds' ? <FeedsPanel key={rootId} root={rootId} file={feedFile} resources={resourcesFile?.records} onChange={file => setFeedFiles(previous => ({ ...previous, [rootId]: file }))} onClear={() => setFeedFiles(previous => ({ ...previous, [rootId]: null }))}/> : mode === 'results' ? <ResultsPanel key={rootId} root={trail[0]} file={resultFile} model_catalog={model_catalog} library={library} resources={resourcesFile?.records} onChange={loadResults} onClear={()=>setResultFiles(previous=>({...previous,[rootId]:null}))} onUseModel={updateModel}/> : mode === 'resources' ? <ResourcesPanel key={rootId} root={trail[0]} file={resourcesFile} analysis={model_catalogAnalysis} library={library} onChange={setResources} uploadControl={<ResourceUpload key={rootId} file={resourcesFile} root={rootId} onLoad={setResources} onClear={() => setResources(null)}/>}/> : mode === 'model_catalog' ? <ModelPanel key={rootId} context={trail[0]} catalog={model_catalog} analysis={model_catalogAnalysis} library={library} onChange={updateModel} onInspect={inspectModel}/> : <>
+    <div className="workspace"><div className="workspace-tabs" role="group" aria-label="Workspace mode"><button aria-pressed={mode === 'diagram'} onClick={() => setMode('diagram')}>Blocks</button><button aria-pressed={mode === 'model_document'} onClick={() => setMode('model_document')}>Model</button><button aria-pressed={mode === 'resources'} onClick={() => setMode('resources')}>Resources</button><button aria-pressed={mode === 'results'} onClick={() => setMode('results')}>Results</button><button aria-pressed={mode === 'feeds'} onClick={() => setMode('feeds')}>Feeds</button></div><nav aria-label="Block breadcrumb">{trail.map((item, index) => <React.Fragment key={index}>{index > 0 && <span>/</span>}<button onClick={() => { setTrail(trail.slice(0, index + 1)); setSelection(null); }}>{item.alias}</button></React.Fragment>)}</nav>
+      {mode === 'feeds' ? <FeedsPanel key={rootId} root={rootId} file={feedFile} onChange={file => setFeedFiles(previous => ({ ...previous, [rootId]: file }))} onClear={() => setFeedFiles(previous => ({ ...previous, [rootId]: null }))}/> : mode === 'results' ? <ResultsPanel key={rootId} root={trail[0]} file={resultFile} model_document={model_document} registry={registry} resources={resourcesFile?.records} onChange={loadResults} onClear={()=>setResultFiles(previous=>({...previous,[rootId]:null}))} onUseModel={updateModel}/> : mode === 'resources' ? <ResourcesPanel key={rootId} root={trail[0]} file={resourcesFile} analysis={model_documentAnalysis} registry={registry} onChange={setResources} uploadControl={<ResourceUpload key={rootId} file={resourcesFile} root={rootId} onLoad={setResources} onClear={() => setResources(null)}/>}/> : mode === 'model_document' ? <ModelPanel key={rootId} context={trail[0]} document={model_document} analysis={model_documentAnalysis} registry={registry} onChange={updateModel} onInspect={inspectModel}/> : <>
       <div className="canvas-title"><div><small>FORMULATION</small><h2>{formulation ?? 'No formulations'}</h2></div><div className="view-toggle" role="group" aria-label="Diagram view">{['summary', 'detailed'].map(mode => <button key={mode} aria-pressed={view === mode} onClick={() => setView(mode)}>{mode === 'summary' ? 'Summary' : 'Detailed'}</button>)}</div><span>{graph.nodes.length} nodes · {visibleEdges(graph.edges, arrowVisibility).filter(edge => !edge.hidden).length} / {graph.edges.length} links</span></div>
       <div className="canvas"><SavedLayoutFlow key={`${path}:${formulation}:${view}:${JSON.stringify(replacements.pairs)}`} graph={graph} arrowVisibility={arrowVisibility} storageKey={layoutKey(current.definition.id, formulation, view)} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.15 }} minZoom={0.05} maxZoom={2} nodesConnectable={false} deleteKeyCode={null}
         selectionOnDrag selectionMode={SelectionMode.Partial} panOnDrag={[1, 2]} multiSelectionKeyCode={['Control', 'Meta']}

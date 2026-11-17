@@ -4,7 +4,7 @@ from pathlib import Path
 
 from pyomo.environ import Constraint, Var, units
 
-from multifidelity.model_language import BlockLibrary, build_model, required_inputs
+from multifidelity.model_language import BlockRegistry, build_model, required_inputs
 
 
 HERE = Path(__file__).parent
@@ -44,21 +44,21 @@ def build_pump(block, config):
     }
 
 
-def make_library():
-    library = BlockLibrary(HERE / "blocks")
-    library.register_provider("example.liquid_density", build_density,
+def make_registry():
+    registry = BlockRegistry(HERE / "blocks")
+    registry.register_provider("example.liquid_density", build_density,
                               initializer=initialize_density)
-    library.register_provider("example.pump", build_pump)
-    return library
+    registry.register_provider("example.pump", build_pump)
+    return registry
 
 
 if __name__ == "__main__":
-    library = make_library()
+    registry = make_registry()
     selection = HERE / "model_selection.json"
-    model = build_model("pump_flowsheet", selection, library=library)
+    model = build_model("pump_flowsheet", selection, registry=registry)
     print("Built pump with external density and pump symbolic providers; no solver called.")
     print("Required inputs:")
     for name, variable in required_inputs(
-        "pump_flowsheet", selection, library=library
+        "pump_flowsheet", selection, registry=registry
     ).items():
         print(f"  {name}: {variable.unit}")

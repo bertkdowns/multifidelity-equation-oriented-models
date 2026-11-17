@@ -5,37 +5,37 @@ import pytest
 from pyomo.environ import Constraint as PyomoConstraint, Var, value
 from pyomo.core.base.units_container import UnitsError
 from pyomo.util.check_units import assert_units_consistent
-from multifidelity.model_language import BlockLibrary, build_model, register_standard_providers
+from multifidelity.model_language import BlockRegistry, build_model, register_standard_providers
 from multifidelity.model_language.definitions import (
-    BlockCatalog,
+    BlockDefinition,
     Constraint,
     ConcreteBlockReference,
-    SlotBlockReference,
+    ArgumentBlockReference,
 )
 
 
-def select(library, model, formulation=None, parameters=None):
+def select(registry, model, formulation=None, parameters=None):
     parameters = parameters or {}
     if model == "heat_pump" and not parameters:
         parameters = {"HotSideProperties": "water_property_package", "ColdSideProperties": "water_property_package",
                       "RefrigerantProperties": "water_property_package"}
-    definition = library.get(model)
+    definition = registry.get(model)
     formulation = formulation or next(iter(definition.formulations))
     children = {}
     for name, ref in definition.formulations[formulation].blocks.items():
-        if isinstance(ref, SlotBlockReference):
-            child_model = parameters[ref.block_slot]
+        if isinstance(ref, ArgumentBlockReference):
+            child_model = parameters[ref.block_argument]
             child_parameters = {}
         else:
             child_model = ref.block
             child_parameters = {
                 key: arg.block
                 if isinstance(arg, ConcreteBlockReference)
-                else parameters[arg.block_slot]
+                else parameters[arg.block_argument]
                 for key, arg in ref.block_arguments.items()
             }
         children[name] = select(
-            library, child_model,
+            registry, child_model,
             formulation="detailed" if child_model == "milk_evaporator" else None,
             parameters=child_parameters,
         )
@@ -48,17 +48,17 @@ def heat_pump_flowsheet_selection(selection):
             "subblocks": {"heat_pump": selection}}
 
 
-def build_heat_pump(selection, *, library=None):
+def build_heat_pump(selection, *, registry=None):
     """Build through the concrete flowsheet and return its heat-pump block."""
     from pathlib import Path
 
     if isinstance(selection, Path):
         selection = json.loads(selection.read_text())
-    library = library or BlockLibrary()
-    if "standard.lmtd" not in library._providers:
-        register_standard_providers(library)
+    registry = registry or BlockRegistry()
+    if "standard.lmtd" not in registry._providers:
+        register_standard_providers(registry)
     model = build_model("heat_pump_flowsheet", heat_pump_flowsheet_selection(selection),
-                        library=library)
+                        registry=registry)
     return model.fs.root.formulation.blocks.heat_pump
 
 
@@ -70,24 +70,24 @@ def test_every_bundled_formulation_builds_without_solver():
             for alias, child in formulation.blocks.items()
         )
 
-    library = BlockLibrary()
-    for name, definition in library.blocks.items():
-        if definition.block_slots:
+    registry = BlockRegistry()
+    for name, definition in registry.blocks.items():
+        if definition.block_arguments:
             continue
         for formulation in definition.formulations:
-            selection = select(library, name, formulation)
+            selection = select(registry, name, formulation)
             # Native feeds have optional dependencies and their own tests;
             # the construction-only JSON contract below excludes their internals.
-            if uses_provider(library.resolve(name), selection):
+            if uses_provider(registry.resolve(name), selection):
                 continue
             if name == "milk_evaporator" and formulation == "aggregate":
                 with pytest.raises(ValueError, match="missing output determinations"):
                     build_model(
-                        name, select(library, name, formulation), library=library
+                        name, select(registry, name, formulation), registry=registry
                     )
                 continue
             model = build_model(
-                name, select(library, name, formulation), library=library
+                name, select(registry, name, formulation), registry=registry
             )
             assert_units_consistent(model)
             assert all((not v.fixed for v in model.component_data_objects(Var)))
@@ -96,10 +96,10 @@ def test_every_bundled_formulation_builds_without_solver():
 
 @pytest.mark.parametrize("formulation", ["aggregate", "cycle"])
 def test_heat_pump_cop_is_a_public_output(formulation):
-    library = BlockLibrary()
-    model = build_heat_pump(select(library, "heat_pump", formulation))
+    registry = BlockRegistry()
+    model = build_heat_pump(select(registry, "heat_pump", formulation))
     root = model
-    assert "parameters" not in library.get("heat_pump").structs
+    assert "parameters" not in registry.get("heat_pump").structs
     root.structs.performance.cop[0].set_value(4)
     root.structs.performance.electrical_power[0].set_value(1000)
     root.structs.performance.heating_duty[0].set_value(4000)
@@ -122,20 +122,20 @@ def test_heat_pump_property_packages_are_independent_and_connected(formulation):
     from copy import deepcopy
     from multifidelity.model_language import required_inputs
 
-    library = BlockLibrary()
-    alternative = deepcopy(library.get("water_property_package"))
+    registry = BlockRegistry()
+    alternative = deepcopy(registry.get("water_property_package"))
     alternative.id = "alternative_package"
     alternative.formulations["constant_properties"].constraints[
         "reference_temperature"
     ].rhs = "310 * units.K"
-    library.blocks[alternative.id] = alternative
-    reference = library.get("heat_pump_flowsheet").formulations["flowsheet"].blocks["heat_pump"]
+    registry.blocks[alternative.id] = alternative
+    reference = registry.get("heat_pump_flowsheet").formulations["flowsheet"].blocks["heat_pump"]
     reference.block_arguments["HotSideProperties"].block = alternative.id
-    selection = select(library, "heat_pump", formulation, parameters={
+    selection = select(registry, "heat_pump", formulation, parameters={
         "HotSideProperties": alternative.id, "ColdSideProperties": "water_property_package",
         "RefrigerantProperties": "water_property_package",
     })
-    resolved = library.resolve("heat_pump_flowsheet").formulations["flowsheet"].blocks["heat_pump"]
+    resolved = registry.resolve("heat_pump_flowsheet").formulations["flowsheet"].blocks["heat_pump"]
     states = resolved.formulations[formulation].blocks
     for stream in ("source_inlet", "source_outlet", "sink_inlet", "sink_outlet"):
         state = states[stream + "_state"]
@@ -143,7 +143,7 @@ def test_heat_pump_property_packages_are_independent_and_connected(formulation):
         assert state.block_arguments["FluidProperties"].id == (
             alternative.id if stream.startswith("sink") else "water_property_package"
         )
-    root = build_heat_pump(selection, library=library)
+    root = build_heat_pump(selection, registry=registry)
     from multifidelity.model_language.standard.initialization import seed_affine_state
     for stream in ("source_inlet", "source_outlet", "sink_inlet", "sink_outlet"):
         block = getattr(root.formulation.blocks, stream + "_state")
@@ -156,7 +156,7 @@ def test_heat_pump_property_packages_are_independent_and_connected(formulation):
             assert value(getattr(getattr(root.formulation.connections, stream + "_state"), field)[0].body) == pytest.approx(0)
         coefficient = block.formulation.blocks.fluid.formulation.blocks.water.structs.parameters.reference_temperature
         assert value(coefficient) == (310 if stream.startswith("sink") else 298.15)
-    required = required_inputs("heat_pump_flowsheet", heat_pump_flowsheet_selection(selection), library=library)
+    required = required_inputs("heat_pump_flowsheet", heat_pump_flowsheet_selection(selection), registry=registry)
     assert len(required) == (8 if formulation == "aggregate" else 13)
     assert not any("_state." in path for path in required)
     inlet = root.formulation.blocks.source_inlet_state.formulation.blocks.fluid.formulation.blocks.water
@@ -168,10 +168,10 @@ def test_heat_pump_property_packages_are_independent_and_connected(formulation):
 def test_parent_supplies_heat_pump_property_arguments():
     from multifidelity.model_language import required_inputs
 
-    library = BlockLibrary()
-    selection = heat_pump_flowsheet_selection(select(library, "heat_pump", "aggregate"))
-    build_model("heat_pump_flowsheet", selection, library=library)
-    required = required_inputs("heat_pump_flowsheet", selection, library=library)
+    registry = BlockRegistry()
+    selection = heat_pump_flowsheet_selection(select(registry, "heat_pump", "aggregate"))
+    build_model("heat_pump_flowsheet", selection, registry=registry)
+    required = required_inputs("heat_pump_flowsheet", selection, registry=registry)
     assert len(required) == 8
     assert not any("property_parameters" in path or "_state." in path for path in required)
 
@@ -180,30 +180,30 @@ def test_parent_supplies_heat_pump_property_arguments():
     "units.__class__", "units.K.__class__", "units.get_units", "units.not_a_unit",
 ])
 def test_unit_literals_reject_non_unit_attributes(expression):
-    library = BlockLibrary()
-    library.get("water_property_package").formulations["constant_properties"].constraints[
+    registry = BlockRegistry()
+    registry.get("water_property_package").formulations["constant_properties"].constraints[
         "reference_temperature"
     ].rhs = expression
     with pytest.raises(ValueError, match="unknown or inaccessible"):
-        build_model("water_property_package", select(library, "water_property_package"), library=library)
+        build_model("water_property_package", select(registry, "water_property_package"), registry=registry)
 
 
 def test_configured_property_package_checks_coefficient_units():
-    library = BlockLibrary()
-    library.get("water_property_package").formulations["constant_properties"].constraints[
+    registry = BlockRegistry()
+    registry.get("water_property_package").formulations["constant_properties"].constraints[
         "reference_temperature"
     ].rhs = "298.15 * units.Pa"
     with pytest.raises(UnitsError):
-        build_model("water_property_package", select(library, "water_property_package"), library=library)
+        build_model("water_property_package", select(registry, "water_property_package"), registry=registry)
 
 
 @pytest.mark.parametrize("change", ["missing", "extra", "incompatible"])
 def test_heat_pump_property_arguments_are_validated_on_parent_reference(change):
     from multifidelity.model_language import required_inputs
 
-    library = BlockLibrary()
-    selection = heat_pump_flowsheet_selection(select(library, "heat_pump", "aggregate"))
-    reference = library.get("heat_pump_flowsheet").formulations["flowsheet"].blocks["heat_pump"]
+    registry = BlockRegistry()
+    selection = heat_pump_flowsheet_selection(select(registry, "heat_pump", "aggregate"))
+    reference = registry.get("heat_pump_flowsheet").formulations["flowsheet"].blocks["heat_pump"]
     arguments = reference.block_arguments
     if change == "missing":
         del arguments["HotSideProperties"]
@@ -213,15 +213,15 @@ def test_heat_pump_property_arguments_are_validated_on_parent_reference(change):
         arguments["HotSideProperties"].block = "water_state"
     for method in (build_model, required_inputs):
         with pytest.raises(ValueError, match="block arguments|missing required variable"):
-            method("heat_pump_flowsheet", selection, library=library)
+            method("heat_pump_flowsheet", selection, registry=registry)
 
 
 def test_reused_definition_has_distinct_occurrences_and_connection_equations(tmp_path):
-    library = BlockLibrary()
-    selection = select(library, "heat_pump", "cycle")
+    registry = BlockRegistry()
+    selection = select(registry, "heat_pump", "cycle")
     path = tmp_path / "model_selection.json"
     path.write_text(json.dumps(selection))
-    model = build_heat_pump(path, library=library)
+    model = build_heat_pump(path, registry=registry)
     parts = model.formulation.blocks
     a, b = (
         parts.condenser.structs.hot_inlet.flow[0],
@@ -239,8 +239,8 @@ def test_reused_definition_has_distinct_occurrences_and_connection_equations(tmp
 
 @pytest.mark.parametrize("change", ["missing", "extra", "unknown"])
 def test_incomplete_or_invalid_selections_fail(change):
-    library = BlockLibrary()
-    selection = select(library, "heat_pump", "cycle")
+    registry = BlockRegistry()
+    selection = select(registry, "heat_pump", "cycle")
     if change == "missing":
         del selection["subblocks"]["compressor"]
     elif change == "extra":
@@ -248,7 +248,7 @@ def test_incomplete_or_invalid_selections_fail(change):
     else:
         selection["subblocks"]["compressor"]["formulation"] = "nonexistent"
     with pytest.raises(ValueError):
-        build_heat_pump(selection, library=library)
+        build_heat_pump(selection, registry=registry)
 
 
 @pytest.mark.parametrize(
@@ -256,22 +256,22 @@ def test_incomplete_or_invalid_selections_fail(change):
     ['__import__("os").getcwd()', "compressor.inlet.flow", "inlet.__class__"],
 )
 def test_expression_language_rejects_execution_and_out_of_scope_references(expression):
-    library = BlockLibrary()
-    library.blocks["valve"].formulations["isenthalpic"].constraints["bad"] = (
+    registry = BlockRegistry()
+    registry.blocks["valve"].formulations["isenthalpic"].constraints["bad"] = (
         Constraint.model_validate(
             {"for_each": {"t": "time"}, "lhs": 'outlet.flow[t]', "rhs": expression, "determines": 'outlet.flow[t]'}
         )
     )
     with pytest.raises(ValueError):
-        build_model("valve", select(library, "valve"), library=library)
+        build_model("valve", select(registry, "valve"), registry=registry)
 
 
 def test_unselected_formulation_is_not_loaded():
-    library = BlockLibrary()
-    library.blocks["heat_pump"].formulations["cycle"].blocks[
+    registry = BlockRegistry()
+    registry.blocks["heat_pump"].formulations["cycle"].blocks[
         "compressor"
     ].block = "absent"
-    model = build_heat_pump(select(library, "heat_pump", "aggregate"), library=library
+    model = build_heat_pump(select(registry, "heat_pump", "aggregate"), registry=registry
     )
     assert set(model.formulation.blocks.component_map()) == {
         "cop_model", "source_inlet_state", "source_outlet_state",
@@ -280,8 +280,8 @@ def test_unselected_formulation_is_not_loaded():
 
 
 def test_only_selected_child_interface_is_accessible():
-    library = BlockLibrary()
-    library.blocks["heat_pump"].formulations["cycle"].constraints["bad"] = (
+    registry = BlockRegistry()
+    registry.blocks["heat_pump"].formulations["cycle"].constraints["bad"] = (
         Constraint.model_validate(
             {"for_each": {"t": "time"},
                 "lhs": 'performance.heating_duty[t]',
@@ -291,15 +291,15 @@ def test_only_selected_child_interface_is_accessible():
         )
     )
     # Keep a single determination so this test isolates reference visibility.
-    del library.blocks["heat_pump"].formulations["cycle"].constraints["sink_heat_balance"]
+    del registry.blocks["heat_pump"].formulations["cycle"].constraints["sink_heat_balance"]
     with pytest.raises(ValueError, match="inaccessible"):
-        build_heat_pump(select(library, "heat_pump", "cycle"), library=library)
+        build_heat_pump(select(registry, "heat_pump", "cycle"), registry=registry)
 
 
 @pytest.mark.parametrize("change", ["fields", "direction", "units"])
 def test_incompatible_connections_fail(change):
-    library = BlockLibrary()
-    inlet = library.blocks["valve"].structs["inlet"]
+    registry = BlockRegistry()
+    inlet = registry.blocks["valve"].structs["inlet"]
     if change == "fields":
         del inlet.variables["enthalpy"]
     elif change == "direction":
@@ -307,43 +307,43 @@ def test_incompatible_connections_fail(change):
     else:
         inlet.variables["flow"].unit = "K"
     with pytest.raises(UnitsError if change == "units" else ValueError):
-        build_model("source_loop", select(library, "source_loop"), library=library)
+        build_model("source_loop", select(registry, "source_loop"), registry=registry)
 
 
-def test_library_rejects_duplicate_ids(tmp_path):
-    catalog = BlockLibrary().get("valve")
+def test_registry_rejects_duplicate_ids(tmp_path):
+    catalog = BlockRegistry().get("valve")
     for name in ["a", "b"]:
         (tmp_path / f"{name}.json").write_text(catalog.model_dump_json(by_alias=True))
     with pytest.raises(ValueError, match="Duplicate"):
-        BlockLibrary(tmp_path)
+        BlockRegistry(tmp_path)
 
 
 def test_missing_outputs_are_listed():
-    library = BlockLibrary()
-    constraints = library.blocks["valve"].formulations["isenthalpic"].constraints
+    registry = BlockRegistry()
+    constraints = registry.blocks["valve"].formulations["isenthalpic"].constraints
     del constraints["mass_balance"]
     del constraints["enthalpy_balance"]
     with pytest.raises(
         ValueError,
         match="valve.isenthalpic: missing output determinations: outlet.enthalpy, outlet.flow",
     ):
-        build_model("valve", select(library, "valve"), library=library)
+        build_model("valve", select(registry, "valve"), registry=registry)
 
 
 def test_duplicate_constraints_name_both_sources():
-    library = BlockLibrary()
-    constraints = library.blocks["valve"].formulations["isenthalpic"].constraints
+    registry = BlockRegistry()
+    constraints = registry.blocks["valve"].formulations["isenthalpic"].constraints
     constraints["another_flow"] = constraints["mass_balance"].model_copy()
     with pytest.raises(
         ValueError, match="duplicate determination.*outlet.flow.*mass_balance.*another_flow"
     ):
-        build_model("valve", select(library, "valve"), library=library)
+        build_model("valve", select(registry, "valve"), registry=registry)
 
 
 @pytest.mark.parametrize("kind", ["connection", "constraint"])
 def test_connections_share_determination_namespace(kind):
-    library = BlockLibrary()
-    formulation = library.blocks["heat_pump"].formulations["cycle"]
+    registry = BlockRegistry()
+    formulation = registry.blocks["heat_pump"].formulations["cycle"]
     if kind == "connection":
         formulation.connections["duplicate"] = formulation.connections[
             "link_1"
@@ -359,21 +359,21 @@ def test_connections_share_determination_namespace(kind):
     with pytest.raises(
         ValueError, match="duplicate determination.*condenser.hot_inlet.flow"
     ):
-        build_heat_pump(select(library, "heat_pump", "cycle"), library=library)
+        build_heat_pump(select(registry, "heat_pump", "cycle"), registry=registry)
 
 
 @pytest.mark.parametrize("target", ["inlet.flow", "missing.value"])
 def test_constraint_target_must_be_valid(target):
-    library = BlockLibrary()
-    equation = library.blocks["valve"].formulations["isenthalpic"].constraints["mass_balance"]
+    registry = BlockRegistry()
+    equation = registry.blocks["valve"].formulations["isenthalpic"].constraints["mass_balance"]
     equation.determines = target + "[t]"
     with pytest.raises(ValueError, match="invalid target"):
-        build_model("valve", select(library, "valve"), library=library)
+        build_model("valve", select(registry, "valve"), registry=registry)
 
 
 def test_child_output_cannot_be_determined_by_containing_formulation():
-    library = BlockLibrary()
-    library.blocks["heat_pump"].formulations["cycle"].constraints["bad"] = (
+    registry = BlockRegistry()
+    registry.blocks["heat_pump"].formulations["cycle"].constraints["bad"] = (
         Constraint.model_validate(
             {"for_each": {"t": "time"},
                 "lhs": 'compressor.outlet.flow[t]',
@@ -383,16 +383,16 @@ def test_child_output_cannot_be_determined_by_containing_formulation():
         )
     )
     with pytest.raises(ValueError, match="invalid target"):
-        build_heat_pump(select(library, "heat_pump", "cycle"), library=library)
+        build_heat_pump(select(registry, "heat_pump", "cycle"), registry=registry)
 
 
 def test_incomplete_milk_scaffold_reports_exact_missing_outputs():
-    library = BlockLibrary()
+    registry = BlockRegistry()
     with pytest.raises(ValueError) as error:
         build_model(
             "milk_evaporator",
-            select(library, "milk_evaporator", "aggregate"),
-            library=library,
+            select(registry, "milk_evaporator", "aggregate"),
+            registry=registry,
         )
     assert str(error.value).endswith(
         "milk_outlet.enthalpy, milk_outlet.flow, milk_outlet.pressure, water_outlet.pressure"
@@ -401,8 +401,8 @@ def test_incomplete_milk_scaffold_reports_exact_missing_outputs():
 
 @pytest.mark.parametrize("temperature,pressure", [(298.15, 101325), (308.15, 201325)])
 def test_water_state_property_equations(temperature, pressure):
-    library = BlockLibrary()
-    model = build_model("water_state", select(library, "water_state"), library=library)
+    registry = BlockRegistry()
+    model = build_model("water_state", select(registry, "water_state"), registry=registry)
     root = model.fs.root
     root.structs.state.temperature[0].set_value(temperature)
     root.structs.state.pressure[0].set_value(pressure)
@@ -441,15 +441,15 @@ def test_water_state_property_equations(temperature, pressure):
 def test_generic_property_arguments_create_distinct_state_occurrences():
     from copy import deepcopy
 
-    library = BlockLibrary()
-    refs = library.get("water_state_block").formulations["evaluate"].blocks
+    registry = BlockRegistry()
+    refs = registry.get("water_state_block").formulations["evaluate"].blocks
     refs["other_states"] = deepcopy(refs["states"])
     original = json.dumps(
-        {k: v.model_dump(by_alias=True) for k, v in library.blocks.items()},
+        {k: v.model_dump(by_alias=True) for k, v in registry.blocks.items()},
         sort_keys=True,
     )
     model = build_model(
-        "water_state_block", select(library, "water_state_block"), library=library
+        "water_state_block", select(registry, "water_state_block"), registry=registry
     )
     block = model.fs.root.formulation.blocks.states
     other = model.fs.root.formulation.blocks.other_states
@@ -467,19 +467,19 @@ def test_generic_property_arguments_create_distinct_state_occurrences():
     b = other.formulation.blocks.fluid.formulation.blocks.water.structs.parameters.density
     assert a is not b
     assert json.dumps(
-        {k: v.model_dump(by_alias=True) for k, v in library.blocks.items()},
+        {k: v.model_dump(by_alias=True) for k, v in registry.blocks.items()},
         sort_keys=True,
     ) == original
 
 
-def test_block_slot_forwarding():
-    library = BlockLibrary()
-    library.blocks["forwarder"] = BlockCatalog.model_validate(
+def test_block_argument_forwarding():
+    registry = BlockRegistry()
+    registry.blocks["forwarder"] = BlockDefinition.model_validate(
         {
             "id": "forwarder",
             "domains": {"time": {"kind": "time"}},
             "structs": {},
-            "block_slots": library.get("state_block").block_slots,
+            "block_arguments": registry.get("state_block").block_arguments,
             "formulations": {
                 "forward": {
                     "blocks": {
@@ -488,7 +488,7 @@ def test_block_slot_forwarding():
                             "domain_bindings": {"time": "time"},
                             "block_arguments": {
                                 "FluidProperties": {
-                                    "block_slot": "FluidProperties"
+                                    "block_argument": "FluidProperties"
                                 }
                             },
                         }
@@ -499,11 +499,11 @@ def test_block_slot_forwarding():
             },
         }
     )
-    library.blocks["water_state_block"].formulations["evaluate"].blocks[
+    registry.blocks["water_state_block"].formulations["evaluate"].blocks[
         "states"
     ].block = "forwarder"
     model = build_model(
-        "water_state_block", select(library, "water_state_block"), library=library
+        "water_state_block", select(registry, "water_state_block"), registry=registry
     )
     assert (
         model.fs.root.formulation.blocks.states.formulation.blocks.pair.formulation.blocks.fluid.structs.properties.temperature[0]
@@ -515,10 +515,10 @@ def test_block_slot_forwarding():
     "change", ["missing", "extra", "unknown_model", "unknown_parameter"]
 )
 def test_invalid_block_arguments_fail(change):
-    library = BlockLibrary()
-    selection = select(library, "water_state_block")
+    registry = BlockRegistry()
+    selection = select(registry, "water_state_block")
     ref = (
-        library.blocks["water_state_block"].formulations["evaluate"].blocks["states"]
+        registry.blocks["water_state_block"].formulations["evaluate"].blocks["states"]
     )
     if change == "missing":
         ref.block_arguments = {}
@@ -529,20 +529,20 @@ def test_invalid_block_arguments_fail(change):
     elif change == "unknown_model":
         ref.block_arguments["FluidProperties"].block = "absent"
     elif change == "unknown_parameter":
-        ref.block_arguments["FluidProperties"] = SlotBlockReference.model_validate(
-            {"block_slot": "Absent"}
+        ref.block_arguments["FluidProperties"] = ArgumentBlockReference.model_validate(
+            {"block_argument": "Absent"}
         )
     with pytest.raises(ValueError):
-        build_model("water_state_block", selection, library=library)
+        build_model("water_state_block", selection, registry=registry)
 
 
 @pytest.mark.parametrize(
     "change", ["struct", "direction", "variable", "unit", "dimensions"]
 )
 def test_generic_argument_interface_is_checked(change):
-    library = BlockLibrary()
-    selection = select(library, "water_state_block")
-    state = library.blocks["water_property_package"].structs
+    registry = BlockRegistry()
+    selection = select(registry, "water_state_block")
+    state = registry.blocks["water_property_package"].structs
     if change == "struct":
         del state["properties"]
     elif change == "direction":
@@ -558,7 +558,7 @@ def test_generic_argument_interface_is_checked(change):
         }[change]
         setattr(variable, key, val)
     with pytest.raises(ValueError, match="required|incompatible"):
-        build_model("water_state_block", selection, library=library)
+        build_model("water_state_block", selection, registry=registry)
 
 
 def test_generic_root_is_explicitly_unsupported():
@@ -569,32 +569,32 @@ def test_generic_root_is_explicitly_unsupported():
 
 
 def test_generic_argument_allows_extra_properties():
-    library = BlockLibrary()
+    registry = BlockRegistry()
     required = (
-        library.blocks["state_block"].block_slots["FluidProperties"].requires
+        registry.blocks["state_block"].block_arguments["FluidProperties"].requires
     )
     del required["properties"].variables["entropy"]
     del required["properties"].variables["heat_capacity"]
     build_model(
-        "water_state_block", select(library, "water_state_block"), library=library
+        "water_state_block", select(registry, "water_state_block"), registry=registry
     )
 
 
 def test_generic_arguments_are_local_to_each_occurrence():
     from copy import deepcopy
 
-    library = BlockLibrary()
-    alternative = deepcopy(library.get("water_property_package"))
+    registry = BlockRegistry()
+    alternative = deepcopy(registry.get("water_property_package"))
     alternative.id = "alternative_state"
     alternative.formulations["constant_properties"].constraints[
         "density"
     ].rhs = "1994 * units.kg / units.m**3"
-    library.blocks["alternative_state"] = alternative
-    refs = library.blocks["water_state_block"].formulations["evaluate"].blocks
+    registry.blocks["alternative_state"] = alternative
+    refs = registry.blocks["water_state_block"].formulations["evaluate"].blocks
     refs["other_states"] = deepcopy(refs["states"])
     refs["other_states"].block_arguments["FluidProperties"].block = "alternative_state"
     model = build_model(
-        "water_state_block", select(library, "water_state_block"), library=library
+        "water_state_block", select(registry, "water_state_block"), registry=registry
     )
     pairs = model.fs.root.formulation.blocks
     for pair, density in [(pairs.states, 997), (pairs.other_states, 1994)]:
@@ -606,20 +606,20 @@ def test_generic_arguments_are_local_to_each_occurrence():
 
 
 def test_child_selection_cannot_override_model_reference():
-    library = BlockLibrary()
-    selection = select(library, "water_state_block")
+    registry = BlockRegistry()
+    selection = select(registry, "water_state_block")
     selection["subblocks"]["states"]["subblocks"]["fluid"]["block"] = "valve"
     with pytest.raises(ValueError, match="Extra inputs are not permitted"):
-        build_model("water_state_block", selection, library=library)
+        build_model("water_state_block", selection, registry=registry)
 
 
 @pytest.mark.parametrize(
     "change", ["direction", "value_type", "determines", "reference", "name"]
 )
-def test_library_validates_catalog_shape_before_building(tmp_path, change):
+def test_registry_validates_catalog_shape_before_building(tmp_path, change):
     from pydantic import ValidationError
 
-    catalog = BlockLibrary().get("valve").model_dump(by_alias=True)
+    catalog = BlockRegistry().get("valve").model_dump(by_alias=True)
     if change == "direction":
         catalog["structs"]["inlet"]["direction"] = "sideways"
     elif change == "value_type":
@@ -631,20 +631,20 @@ def test_library_validates_catalog_shape_before_building(tmp_path, change):
     elif change == "reference":
         catalog["formulations"]["isenthalpic"]["blocks"]["bad"] = {
             "block": "valve",
-            "block_slot": "Fluid",
+            "block_argument": "Fluid",
         }
     else:
         catalog["structs"]["not.a.name"] = catalog["structs"].pop("inlet")
     (tmp_path / "valve.json").write_text(json.dumps(catalog))
     with pytest.raises(ValidationError):
-        BlockLibrary(tmp_path)
+        BlockRegistry(tmp_path)
 
 
-def test_library_exposes_typed_definitions():
-    library = BlockLibrary()
-    assert isinstance(library.get("water_state"), BlockCatalog)
+def test_registry_exposes_typed_definitions():
+    registry = BlockRegistry()
+    assert isinstance(registry.get("water_state"), BlockDefinition)
     assert (
-        library.blocks["water_state"].structs["state"].variables["pressure"].unit
+        registry.blocks["water_state"].structs["state"].variables["pressure"].unit
         == "Pa"
     )
 
@@ -653,10 +653,10 @@ def test_heat_pump_evaporator_example_connects_steam_and_serial_effects():
     from pathlib import Path
     from pyomo.core.expr.visitor import identify_variables
 
-    model_catalog = Path("examples/model_language/heat_pump_evaporator_flowsheet.json")
-    library = BlockLibrary()
-    register_standard_providers(library)
-    model = build_model("heat_pump_evaporator_flowsheet", model_catalog, library=library)
+    model_document = Path("examples/model_language/heat_pump_evaporator_flowsheet.json")
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    model = build_model("heat_pump_evaporator_flowsheet", model_document, registry=registry)
     assert_units_consistent(model)
     root = model.fs.root
     children = root.formulation.blocks
@@ -680,15 +680,15 @@ def test_heat_pump_evaporator_example_connects_steam_and_serial_effects():
 
 
 def test_superseded_property_and_sghp_models_are_removed():
-    assert not {"water_state_ps", "water_isentropic_package", "steam_generating_heat_pump", "water_flash"} & BlockLibrary().blocks.keys()
+    assert not {"water_state_ps", "water_isentropic_package", "steam_generating_heat_pump", "water_flash"} & BlockRegistry().blocks.keys()
 
 
 def test_evaporator_flowsheet_accepts_aggregate_steam_heat_pump():
     from pathlib import Path
 
-    model_catalog = json.loads(Path("examples/model_language/heat_pump_evaporator_flowsheet.json").read_text())
-    model_catalog["subblocks"]["heat_pump"]["subblocks"]["sghp"] = select(BlockLibrary(), "steam_generating_heat_pump_unit", "aggregate")
-    library = BlockLibrary()
-    register_standard_providers(library)
-    model = build_model("heat_pump_evaporator_flowsheet", model_catalog, library=library)
+    model_document = json.loads(Path("examples/model_language/heat_pump_evaporator_flowsheet.json").read_text())
+    model_document["subblocks"]["heat_pump"]["subblocks"]["sghp"] = select(BlockRegistry(), "steam_generating_heat_pump_unit", "aggregate")
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    model = build_model("heat_pump_evaporator_flowsheet", model_document, registry=registry)
     assert_units_consistent(model)

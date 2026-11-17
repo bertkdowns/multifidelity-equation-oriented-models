@@ -1,5 +1,5 @@
 {
-  "model_catalog": {
+  "model_document": {
     "formulation": "flowsheet",
     "subblocks": {
       "sghp": {
@@ -581,7 +581,7 @@
       "trust_rank": 2
     },
     {
-      "tag": "config_phnix_power_block_slots_electrical_power",
+      "tag": "config_phnix_power_model_parameters_electrical_power",
       "resource_type": "assumption",
       "variable_path": "phnix.power_model.parameters.electrical_power",
       "type": "constant",
@@ -591,7 +591,7 @@
       "trust_rank": 2
     },
     {
-      "tag": "config_phnix_cop_block_slots_cop",
+      "tag": "config_phnix_cop_model_parameters_cop",
       "resource_type": "equipment_parameter",
       "variable_path": "phnix.cop_model.parameters.cop",
       "type": "constant",
@@ -1056,7 +1056,7 @@
     "run_id": "d7e07409-788b-47f4-9776-66fa802d212f",
     "created_at": "2026-11-09T02:44:24.984266Z",
     "block_id": "steam_generating_heat_pump_system",
-    "model_catalog": {
+    "model_document": {
       "formulation": "flowsheet",
       "subblocks": {
         "sghp": {
@@ -1562,7 +1562,7 @@
         "config_hot_water_pump_parameters_efficiency",
         "config_makeup_inlet_pressure",
         "config_makeup_inlet_state_temperature",
-        "config_phnix_cop_block_slots_cop",
+        "config_phnix_cop_model_parameters_cop",
         "config_phnix_sink_inlet_state_temperature",
         "config_phnix_source_inlet_flow",
         "config_phnix_source_inlet_pressure",
@@ -1574,7 +1574,7 @@
         "config_source_pump_parameters_pressure_rise",
         "config_warm_water_pump_parameters_efficiency",
         "config_warm_water_pump_parameters_pressure_rise",
-        "config_phnix_power_block_slots_electrical_power",
+        "config_phnix_power_model_parameters_electrical_power",
         "common_sghp_power",
         "common_sghp_warm_duty",
         "config_sghp_condenser_parameters_conductance",

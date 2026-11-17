@@ -10,7 +10,7 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from idaes.core.util.scaling import get_scaling_factor
 from pyomo.environ import Var, Constraint
-from multifidelity.model_language import ResourceCatalog, ParameterCatalog, initialize_model
+from multifidelity.model_language import ResourceDocument, ParameterDocument, initialize_model
 from multifidelity.model_language.scaling import export_scaling
 from attempt_solve import build_attempt
 from diagnose_parameters import physical_residuals
@@ -19,7 +19,7 @@ HERE = Path(__file__).resolve().parent
 
 
 def load_raw_primal_for_diagnostics(model, solver, result):
-    # Private legacy IPOPT/AMPL adapter: deliberately confined to this example.
+    # Private IPOPT/AMPL adapter: deliberately confined to this example.
     lines = Path(solver._soln_file).read_text().splitlines()
     k = lines.index('Options') + 1
     nopts = int(lines[k])
@@ -41,8 +41,8 @@ def load_raw_primal_for_diagnostics(model, solver, result):
 if __name__ == '__main__':
     m = build_attempt()
     init = initialize_model(m,
-        resources=ResourceCatalog.load_json(HERE/'attempt_resources.json'),
-        parameters=ParameterCatalog.load_json(HERE/'attempt_parameters.json'))
+        resources=ResourceDocument.load_json(HERE/'attempt_resources.json'),
+        parameters=ParameterDocument.load_json(HERE/'attempt_parameters.json'))
     if init.stages[-1].status != 'numerical_rank_deficient':
         raise RuntimeError('Expected the root numerical-rank stop')
     export_scaling(m.fs.root)

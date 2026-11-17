@@ -1,7 +1,7 @@
 # How to connect a custom Pyomo or IDAES model
 
 For ready-made feeds and their block definitions, see the
-[standard symbolic block library](standard-blocks.md).
+[standard symbolic block registry](standard-blocks.md).
 
 A custom model uses the same public structs and model selections as a
 JSON model. Its selected formulation names a Python provider. The provider builds
@@ -21,7 +21,7 @@ constant properties, not a validated thermodynamic package.
 
 ## 1. Declare the public interface and external formulation
 
-Keep one JSON file per reusable model in a library directory. Public quantities
+Keep one JSON file per reusable model in a registry directory. Public quantities
 belong to the model; model details belong to its formulations.
 
 For example, a density model can expose one output:
@@ -162,24 +162,24 @@ return the new variable in the mapping.
 ## 3. Register and build
 
 ```python
-from multifidelity.model_language import BlockLibrary, build_model, required_inputs
+from multifidelity.model_language import BlockRegistry, build_model, required_inputs
 
-library = BlockLibrary("path/to/model_definitions")
-library.register_provider("example.liquid_density", build_density)
+registry = BlockRegistry("path/to/model_definitions")
+registry.register_provider("example.liquid_density", build_density)
 
 selection = {
 
     "formulation": "constant_python"
 }
 
-model = build_model("liquid_density", selection, library=library)
-inputs = required_inputs("liquid_density", selection, library=library)
+model = build_model("liquid_density", selection, registry=registry)
+inputs = required_inputs("liquid_density", selection, registry=registry)
 ```
 
-`BlockLibrary()` without a directory loads the bundled JSON library. The existing
-`library.blocks` dictionary can also hold additional typed `BlockCatalog` definitions.
+`BlockRegistry()` without a directory loads the bundled JSON registry. The existing
+`registry.blocks` dictionary can also hold additional typed `BlockDefinition` definitions.
 
-Registration belongs to that library instance. Duplicate provider names are
+Registration belongs to that registry instance. Duplicate provider names are
 rejected. Only feeds selected for construction need to be registered: loading
 definitions, navigating resolved blocks, and discovering required inputs do not
 call feeds. Selecting a JSON alternative does not require its Python alternative's
@@ -188,7 +188,7 @@ and retain the original exception as their cause.
 
 The model-catalog format is unchanged. An external formulation is a
 leaf and has no child selections. A provider does not receive public variables,
-the library, block slots, or a helper for building other registered blocks.
+the registry, block arguments, or a helper for building other registered blocks.
 
 ## 4. Compose dependencies with a JSON wrapper
 
@@ -197,12 +197,12 @@ pump input. Put both blocks inside an ordinary JSON formulation:
 
 ```text
 JSON pump wrapper
-  properties: FluidProperties block slot
+  properties: FluidProperties block argument
       properties.density -> core.inlet.density
   core: pump_core model, with a Python formulation
 ```
 
-The wrapper declares `FluidProperties` using the existing `block_slots`
+The wrapper declares `FluidProperties` using the existing `block_arguments`
 interface.
 
 The wrapper and its containing model both declare the `time` domain, and the
@@ -228,7 +228,7 @@ The wrapper's formulation declares its children normally:
 
 ```json
 "blocks": {
-  "properties": {"block_slot": "FluidProperties", "domain_bindings": {"time": "time"}},
+  "properties": {"block_argument": "FluidProperties", "domain_bindings": {"time": "time"}},
   "core": {"block": "pump_core", "domain_bindings": {"time": "time"}}
 }
 ```
@@ -247,7 +247,7 @@ entire source and destination structs have matching fields:
 }
 ```
 
-The existing model catalog chooses a formulation for each child:
+The existing model document chooses a formulation for each child:
 
 ```json
 {
@@ -321,7 +321,7 @@ def initialize_density(block, config):
         block.density.set_value(config.get("density_kg_m3", 997))
 
 
-library.register_provider(
+registry.register_provider(
     "example.liquid_density", build_density, initializer=initialize_density,
 )
 # After build_model(), and after discretization if series resources is used:
@@ -342,7 +342,7 @@ public variables. It restores the original variable fixity, fixed values, and
 constraint activation statuses; a failed callback also restores that slice's
 starting values. Previously completed slices retain their results. Callback
 exceptions propagate to the caller. Callbacks must not add/remove components,
-change bounds, alter block slots, or activate/deactivate whole blocks.
+change bounds, alter numerical parameters, or activate/deactivate whole blocks.
 
 Time-indexed feeds run once per existing time slice, including slices created
 by discretization. Metadata follows model cloning. Providers without callbacks
@@ -361,7 +361,7 @@ def scale_pump(block, config):
     set_scaling_factor(block.pressure_rise, 0.01)  # native kPa
     set_scaling_factor(block.work, 0.1)            # native kW
 
-library.register_provider("example.pump", build_pump, scaler=scale_pump)
+registry.register_provider("example.pump", build_pump, scaler=scale_pump)
 ```
 
 The callback assigns variable factors only: it must not change values, fixity,

@@ -5,16 +5,16 @@ from pathlib import Path
 from build import build, HERE
 from saved_state_guesses import seed_snapshot, refresh_properties
 from diagnose_parameters import physical_residuals
-from multifidelity.model_language import ResourceCatalog, ParameterCatalog, apply_parameters, get_variable, export_results, WorkspaceCatalog
+from multifidelity.model_language import ResourceDocument, ParameterDocument, apply_parameters, get_variable, export_results, WorkspaceDocument
 from multifidelity.model_language.scaling import apply_scaling, scaled_jacobian, export_scaling
 from multifidelity.model_language.selection import _partition
 from idaes.core.solvers import get_solver
 m=build('cycle','aggregate')
-info=ResourceCatalog.load_json(HERE/'cycle_attempt_resources.json')
-spec=ParameterCatalog.load_json(HERE/'cycle_attempt_parameters.json')
+info=ResourceDocument.load_json(HERE/'cycle_attempt_resources.json')
+spec=ParameterDocument.load_json(HERE/'cycle_attempt_parameters.json')
 power_id = next(i for i in spec.parameters
                 if info.get(i).variable_path == 'sghp.performance.electrical_power')
-info = ResourceCatalog([r.model_copy(update={'value': 15200.05442832877, 'unit': 'W'})
+info = ResourceDocument([r.model_copy(update={'value': 15200.05442832877, 'unit': 'W'})
                             if r.tag == power_id else r for r in info.records])
 apply_parameters(m,spec,info)
 seed_snapshot(m,HERE/'cycle_parameters_relaxation_coherent_results.json')
@@ -29,5 +29,5 @@ if len(sol.solution):
  r['values']={p:get_variable(m,p)[0].value for p in ['steam_outlet.flow','makeup_state.state.flow','sghp.performance.electrical_power','sghp.performance.cop','sghp.source_inlet.flow']}
 snapshot = export_results(m,status='optimal' if r['termination']=='optimal' and r.get('max_scaled_violation',1)<1e-6 else 'failed',solver='ipopt',termination_condition=r['termination'],parameters=spec,message='Control trial: SGHP electrical power fixed at 15.200054 kW.')
 snapshot.write_json(HERE/'cycle_power_control_results.json')
-WorkspaceCatalog.from_results(snapshot, info).write_json(HERE / 'cycle_power_control_workspace.json')
+WorkspaceDocument.from_results(snapshot, info).write_json(HERE / 'cycle_power_control_workspace.json')
 (HERE/'cycle_power_control_result.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r,indent=2))

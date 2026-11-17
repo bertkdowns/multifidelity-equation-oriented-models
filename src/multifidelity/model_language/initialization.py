@@ -4,16 +4,16 @@ from copy import deepcopy
 import math
 from pathlib import Path
 
-from .resources import ResourceCatalog
-from .parameters import ParameterCatalog
+from .resources import ResourceDocument
+from .parameters import ParameterDocument
 
 
-def apply_starting_values(model, resources: ResourceCatalog, parameters=None,
+def apply_starting_values(model, resources: ResourceDocument, parameters=None,
                           *, excluded_record_tags=()):
     """Seed free public entries from unused resources, without fixing them.
 
     Highest trust wins (tag breaks ties). Unknown paths belong to other selected
-    modelCatalogs and are ignored. Explicit exclusions support held-out data.
+    model documents and are ignored. Explicit exclusions support held-out data.
     Selected parameters/initial-condition records are excluded. Validate all
     applicable guesses before writing; return the IDs actually used.
     """
@@ -23,14 +23,14 @@ def apply_starting_values(model, resources: ResourceCatalog, parameters=None,
     registry = getattr(model, '_model_language_variables', None)
     if registry is None:
         raise ValueError('Model must be constructed by model_language.build_model')
-    if not isinstance(resources, ResourceCatalog):
-        raise TypeError('resources must be an ResourceCatalog')
+    if not isinstance(resources, ResourceDocument):
+        raise TypeError('resources must be an ResourceDocument')
     excluded = set(excluded_record_tags)
     if parameters is not None:
         if isinstance(parameters, (str, Path)):
-            parameters = ParameterCatalog.load_json(parameters)
-        elif not isinstance(parameters, ParameterCatalog):
-            parameters = ParameterCatalog.model_validate(parameters)
+            parameters = ParameterDocument.load_json(parameters)
+        elif not isinstance(parameters, ParameterDocument):
+            parameters = ParameterDocument.model_validate(parameters)
         excluded.update(parameters.parameters + parameters.initial_values)
     prepared, used = [], []
     for path, component in registry.items():

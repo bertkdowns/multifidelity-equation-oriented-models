@@ -5,14 +5,14 @@ from typing import TextIO
 import sys
 
 from .definitions import Variable
-from .model_selection import ModelCatalog
+from .model_selection import ModelDocument
 from .indexing import derivative_variables
-from .resolution import BlockLibrary
+from .resolution import BlockRegistry
 from ._traversal import _walk_model
 
 
-def _selected_occurrences(block_id, model_catalog, library):
-    library = library or BlockLibrary()
+def _selected_occurrences(block_id, model_document, registry):
+    registry = registry or BlockRegistry()
     occurrences = []
 
     def collect(occurrence, parent, alias):
@@ -21,15 +21,15 @@ def _selected_occurrences(block_id, model_catalog, library):
             occurrence.prefix, occurrence.supplied,
         ))
 
-    _walk_model(library.resolve(block_id), model_catalog, collect)
+    _walk_model(registry.resolve(block_id), model_document, collect)
     return occurrences
 
 
 def required_inputs(
     block_id: str,
-    model_catalog: ModelCatalog | dict | str | Path,
+    model_document: ModelDocument | dict | str | Path,
     *,
-    library: BlockLibrary | None = None,
+    registry: BlockRegistry | None = None,
 ) -> dict[str, Variable]:
     """Return required input families, retaining dimensions, by root-relative path.
 
@@ -37,7 +37,7 @@ def required_inputs(
     declaration coverage, not solvability or initial-state requirements.
     """
     required = {}
-    for model, _, prefix, supplied in _selected_occurrences(block_id, model_catalog, library):
+    for model, _, prefix, supplied in _selected_occurrences(block_id, model_document, registry):
         for struct_id, struct in model.structs.items():
             if struct.direction == "input":
                 for name, variable in struct.variables.items():
@@ -49,9 +49,9 @@ def required_inputs(
 
 def required_initial_values(
     block_id: str,
-    model_catalog: ModelCatalog | dict | str | Path,
+    model_document: ModelDocument | dict | str | Path,
     *,
-    library: BlockLibrary | None = None,
+    registry: BlockRegistry | None = None,
 ) -> dict[str, Variable]:
     """Default dynamic initial parameters: the output of each derivative.
 
@@ -59,7 +59,7 @@ def required_initial_values(
     convention, not proof that all parameters are independent in a DAE.
     """
     required = {}
-    for model, formulation, prefix, _ in _selected_occurrences(block_id, model_catalog, library):
+    for model, formulation, prefix, _ in _selected_occurrences(block_id, model_document, registry):
         for derivative in formulation.derivatives.values():
             state, rate = derivative_variables(model, derivative)
             required[prefix + derivative.determines] = (
@@ -70,14 +70,14 @@ def required_initial_values(
 
 def print_required_inputs(
     block_id: str,
-    model_catalog,
+    model_document,
     *,
-    library: BlockLibrary | None = None,
+    registry: BlockRegistry | None = None,
     file: TextIO | None = None,
 ) -> None:
     """Print one required variable path and declared unit per line."""
     for path, variable in required_inputs(
-        block_id, model_catalog, library=library
+        block_id, model_document, registry=registry
     ).items():
         print(
             f"{path} [{variable.unit}]", file=file if file is not None else sys.stdout

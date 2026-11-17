@@ -1,5 +1,5 @@
 {
-  "model_catalog": "aggregate_aggregate",
+  "model_document": "aggregate_aggregate",
   "conditions_SI": {
     "source_tank.parameters.heat_duty": 0,
     "steam_outlet.pressure": 100000,

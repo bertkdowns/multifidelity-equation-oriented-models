@@ -63,7 +63,7 @@ def test_detailed_formulation_turns_source_warming_into_extra_steam(solver, tmp_
     assert report['solved'] and report['max_scaled_violation']<1e-6
     assert not any(report['structure'].values())
     assert result['block_id']=='steam_generating_heat_pump_system_thermal'
-    assert result['model_catalog']['subblocks']['sghp']['formulation']=='cycle'
+    assert result['model_document']['subblocks']['sghp']['formulation']=='cycle'
     assert 'thermal_sghp_cop' not in spec['parameters']
     assert 'thermal_sghp_pressure_rise' in spec['parameters']
     variables={r['variable_path']:r['entries'] for r in result['variables']}

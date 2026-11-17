@@ -8,9 +8,9 @@ from pydantic import ValidationError
 from pyomo.environ import Var, value, units
 from pyomo.util.check_units import assert_units_consistent
 
-from examples.custom_blocks.build import HERE, build_pump, make_library
-from multifidelity.model_language import BlockLibrary, build_model, required_inputs
-from multifidelity.model_language.definitions import BlockCatalog, Formulation
+from examples.custom_blocks.build import HERE, build_pump, make_registry
+from multifidelity.model_language import BlockRegistry, build_model, required_inputs
+from multifidelity.model_language.definitions import BlockDefinition, Formulation
 
 
 def selection():
@@ -18,11 +18,11 @@ def selection():
 
 
 def test_wrapper_composes_generic_property_model_and_external_pump():
-    library = make_library()
+    registry = make_registry()
     chosen = selection()
-    model = build_model("pump_flowsheet", chosen, library=library)
+    model = build_model("pump_flowsheet", chosen, registry=registry)
     assert_units_consistent(model)
-    assert set(required_inputs("pump_flowsheet", chosen, library=library)) == {
+    assert set(required_inputs("pump_flowsheet", chosen, registry=registry)) == {
         "pump.inlet.flow",
         "pump.parameters.pressure_rise",
         "pump.parameters.efficiency",
@@ -45,21 +45,21 @@ def test_wrapper_composes_generic_property_model_and_external_pump():
 
 
 def test_inspection_requires_no_registered_provider_and_json_alternative_still_builds():
-    library = BlockLibrary(HERE / "blocks")
+    registry = BlockRegistry(HERE / "blocks")
     chosen = selection()
-    assert len(required_inputs("pump_flowsheet", chosen, library=library)) == 3
-    assert library.resolve("liquid_density").structs["properties"].direction == "output"
+    assert len(required_inputs("pump_flowsheet", chosen, registry=registry)) == 3
+    assert registry.resolve("liquid_density").structs["properties"].direction == "output"
     # The absent density provider is irrelevant when its JSON alternative is selected.
     chosen["subblocks"]["pump"]["subblocks"]["properties"]["formulation"] = (
         "constant_json"
     )
-    library.register_provider("example.pump", build_pump)
-    build_model("pump_flowsheet", chosen, library=library)
+    registry.register_provider("example.pump", build_pump)
+    build_model("pump_flowsheet", chosen, registry=registry)
 
 
 def test_repeated_occurrences_get_fresh_blocks_and_config():
-    library = BlockLibrary(HERE / "blocks")
-    library.blocks["pair"] = BlockCatalog.model_validate(
+    registry = BlockRegistry(HERE / "blocks")
+    registry.blocks["pair"] = BlockDefinition.model_validate(
         {
             "id": "pair",
             "domains": {"time": {"kind": "time"}},
@@ -82,7 +82,7 @@ def test_repeated_occurrences_get_fresh_blocks_and_config():
         block.rho = Var(units=units.kg / units.m**3)
         return {"properties.density": block.rho}
 
-    library.register_provider("example.liquid_density", density)
+    registry.register_provider("example.liquid_density", density)
     model = build_model(
         "pair",
         {
@@ -93,7 +93,7 @@ def test_repeated_occurrences_get_fresh_blocks_and_config():
                 "second": {"formulation": "constant_python"},
             },
         },
-        library=library,
+        registry=registry,
     )
     children = model.fs.root.formulation.blocks
     assert (
@@ -102,14 +102,14 @@ def test_repeated_occurrences_get_fresh_blocks_and_config():
     )
     assert configs == [{"density_kg_m3": 997}, {"density_kg_m3": 997}]
     # No equation was supplied: authored dependency declarations are trusted.
-    assert library.get("liquid_density").formulations[
+    assert registry.get("liquid_density").formulations[
         "constant_python"
     ].external.config == {"density_kg_m3": 997}
 
 
 def test_declared_dependencies_support_parent_inverse_determination():
-    library = make_library()
-    library.blocks["inverse"] = BlockCatalog.model_validate(
+    registry = make_registry()
+    registry.blocks["inverse"] = BlockDefinition.model_validate(
         {
             "id": "inverse",
             "domains": {"time": {"kind": "time"}},
@@ -134,16 +134,16 @@ def test_declared_dependencies_support_parent_inverse_determination():
         "formulation": "evaluate",
         "subblocks": {"core": {"formulation": "python"}},
     }
-    model = build_model("inverse", chosen, library=library)
+    model = build_model("inverse", chosen, registry=registry)
     assert_units_consistent(model)
     assert "core.parameters.pressure_rise" not in required_inputs(
-        "inverse", chosen, library=library
+        "inverse", chosen, registry=registry
     )
 
 
 @pytest.mark.parametrize("kind", ["missing", "extra", "expression", "units"])
 def test_invalid_interface_mappings_include_occurrence_and_provider(kind):
-    library = BlockLibrary(HERE / "blocks")
+    registry = BlockRegistry(HERE / "blocks")
 
     def invalid(block, config):
         block.x = Var(units=units.s if kind == "units" else units.kg / units.m**3)
@@ -153,7 +153,7 @@ def test_invalid_interface_mappings_include_occurrence_and_provider(kind):
             return {"properties.density": block.x, "unknown": block.x}
         return {"properties.density": block.x + 1 if kind == "expression" else block.x}
 
-    library.register_provider("example.liquid_density", invalid)
+    registry.register_provider("example.liquid_density", invalid)
     with pytest.raises(
         ValueError,
         match=r"liquid_density.constant_python\[0.0\]: provider 'example.liquid_density'",
@@ -161,26 +161,26 @@ def test_invalid_interface_mappings_include_occurrence_and_provider(kind):
         build_model(
             "liquid_density",
             {"formulation": "constant_python"},
-            library=library,
+            registry=registry,
         )
 
 
 def test_missing_duplicate_and_failing_providers():
-    library = BlockLibrary(HERE / "blocks")
+    registry = BlockRegistry(HERE / "blocks")
     chosen = {"formulation": "constant_python"}
     with pytest.raises(ValueError, match="Unknown provider: example.liquid_density"):
-        build_model("liquid_density", chosen, library=library)
+        build_model("liquid_density", chosen, registry=registry)
 
     def broken(block, config):
         raise RuntimeError("bad artifact")
 
-    library.register_provider("example.liquid_density", broken)
+    registry.register_provider("example.liquid_density", broken)
     with pytest.raises(ValueError, match="Duplicate provider"):
-        library.register_provider("example.liquid_density", broken)
+        registry.register_provider("example.liquid_density", broken)
     with pytest.raises(
         ValueError, match="liquid_density.constant_python.*bad artifact"
     ) as error:
-        build_model("liquid_density", chosen, library=library)
+        build_model("liquid_density", chosen, registry=registry)
     assert isinstance(error.value.__cause__, RuntimeError)
 
 
@@ -200,9 +200,9 @@ def test_external_and_json_composition_are_exclusive(field, contents):
 
 
 def test_external_definitions_round_trip_and_default_config():
-    model = BlockCatalog.model_validate_json((HERE / "blocks/pump_core.json").read_text())
+    model = BlockDefinition.model_validate_json((HERE / "blocks/pump_core.json").read_text())
     assert model.formulations["python"].external.config == {}
-    assert BlockCatalog.model_validate(model.model_dump(by_alias=True)) == model
+    assert BlockDefinition.model_validate(model.model_dump(by_alias=True)) == model
 
 
 @pytest.mark.parametrize(
@@ -210,27 +210,27 @@ def test_external_definitions_round_trip_and_default_config():
     [{}, {"unknown.output": []}, {"properties.density": ["unknown.input"]}],
 )
 def test_dependency_declarations_use_public_paths(dependencies):
-    library = BlockLibrary(HERE / "blocks")
-    library.get("liquid_density").formulations[
+    registry = BlockRegistry(HERE / "blocks")
+    registry.get("liquid_density").formulations[
         "constant_python"
     ].external.dependencies = dependencies
     with pytest.raises(ValueError, match="dependencies"):
         required_inputs(
             "liquid_density",
             {"formulation": "constant_python"},
-            library=library,
+            registry=registry,
         )
 
 
 def test_inspection_does_not_call_registered_providers():
-    library = BlockLibrary(HERE / "blocks")
+    registry = BlockRegistry(HERE / "blocks")
 
     def forbidden(block, config):
         raise AssertionError("Inspection must not construct feeds")
 
-    library.register_provider("example.pump", forbidden)
-    library.register_provider("example.liquid_density", forbidden)
-    assert len(required_inputs("pump_flowsheet", selection(), library=library)) == 3
+    registry.register_provider("example.pump", forbidden)
+    registry.register_provider("example.liquid_density", forbidden)
+    assert len(required_inputs("pump_flowsheet", selection(), registry=registry)) == 3
 
 
 def test_scalar_provider_contract_remains_supported(tmp_path):
@@ -244,9 +244,9 @@ def test_scalar_provider_contract_remains_supported(tmp_path):
     }
     (tmp_path / 'scalar.json').write_text(json.dumps(definition))
     from examples.custom_blocks.build import build_density
-    library = BlockLibrary(tmp_path)
-    library.register_provider('example.liquid_density', build_density)
-    m = build_model('scalar', {'formulation': 'python'}, library=library)
+    registry = BlockRegistry(tmp_path)
+    registry.register_provider('example.liquid_density', build_density)
+    m = build_model('scalar', {'formulation': 'python'}, registry=registry)
     assert not m.fs.root.structs.properties.density.is_indexed()
     assert hasattr(m.fs.root.formulation, 'provider')
     assert len(m.fs.root.formulation.bindings) == 1
@@ -267,7 +267,7 @@ def test_provider_time_slices_share_scalar_inputs_and_expand(tmp_path):
         }}},
     }
     (tmp_path / 'scaled.json').write_text(json.dumps(definition))
-    library = BlockLibrary(tmp_path)
+    registry = BlockRegistry(tmp_path)
     configs = []
 
     def provider(block, config):
@@ -280,8 +280,8 @@ def test_provider_time_slices_share_scalar_inputs_and_expand(tmp_path):
         block.equation = Constraint(expr=block.y == block.factor * block.x)
         return {'settings.factor': block.factor, 'source.x': block.x, 'result.y': block.y}
 
-    library.register_provider('scale', provider)
-    m = build_model('scaled', {'formulation': 'python'}, library=library,
+    registry.register_provider('scale', provider)
+    m = build_model('scaled', {'formulation': 'python'}, registry=registry,
                     mode='dynamic', domain_values={'time': [0, 10]})
     from pyomo.environ import TransformationFactory
     from pyomo.core.expr.visitor import identify_variables
@@ -304,8 +304,8 @@ def test_provider_time_slices_share_scalar_inputs_and_expand(tmp_path):
 
 @pytest.mark.parametrize('shape', ['space', 'time_space', 'scalar_output'])
 def test_provider_shape_errors_are_detected_without_construction(shape):
-    library = make_library()
-    definition = library.get('pump_core')
+    registry = make_registry()
+    definition = registry.get('pump_core')
     if shape == 'space':
         from multifidelity.model_language.definitions import Domain
         definition.domains['cells'] = Domain(kind='discrete')
@@ -317,4 +317,4 @@ def test_provider_shape_errors_are_detected_without_construction(shape):
     else:
         definition.structs['performance'].variables['work'].dimensions = []
     with pytest.raises(ValueError, match='scalar or time-indexed|time-indexed outputs'):
-        required_inputs('pump_core', {'formulation': 'python'}, library=library)
+        required_inputs('pump_core', {'formulation': 'python'}, registry=registry)

@@ -8,7 +8,7 @@ from pyomo.environ import ConcreteModel, TransformationFactory, value
 from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import (
-    ResourceCatalog, BlockLibrary, BlockCatalog, ParameterCatalog,
+    ResourceDocument, BlockRegistry, BlockDefinition, ParameterDocument,
     apply_parameters, build_model, get_variable,
 )
 
@@ -21,7 +21,7 @@ def valve():
 
 
 def resources(path="inlet.pressure", **changes):
-    return ResourceCatalog([{
+    return ResourceDocument([{
         "tag": "reading", "resource_type": "sensor_reading",
         "variable_path": path, "value": 200, "unit": "kPa", "trust_rank": 10,
         "standard_deviation": 0.5, **changes,
@@ -33,8 +33,8 @@ def catalog(record_tag="reading"):
 
 
 def test_catalog_round_trip_and_minimal_shape():
-    spec = ParameterCatalog.load_json(EXAMPLE / "parameters.json")
-    assert ParameterCatalog.from_json(spec.model_dump_json()) == spec
+    spec = ParameterDocument.load_json(EXAMPLE / "parameters.json")
+    assert ParameterDocument.from_json(spec.model_dump_json()) == spec
     assert set(spec.model_dump()) == {"parameters", "replacements", "initial_values"}
     assert spec.parameters[0] == "inlet_flow"
     with pytest.raises(ValidationError):
@@ -52,7 +52,7 @@ def test_catalog_round_trip_and_minimal_shape():
 ])
 def test_invalid_catalog_shapes(data):
     with pytest.raises(ValidationError):
-        ParameterCatalog.model_validate(data)
+        ParameterDocument.model_validate(data)
 
 
 def test_application_converts_and_fixes_without_changing_resources():
@@ -115,8 +115,8 @@ def test_bounds_and_existing_fixations_are_rejected_without_overwriting():
 
 
 def test_selected_child_paths_and_cloned_models():
-    library = BlockLibrary()
-    library.blocks["wrapper"] = BlockCatalog.model_validate({
+    registry = BlockRegistry()
+    registry.blocks["wrapper"] = BlockDefinition.model_validate({
         "id": "wrapper", "structs": {}, "domains": {"time": {"kind": "time"}},
         "formulations": {"pair": {"blocks": {
             name: {"block": "valve", "domain_bindings": {"time": "time"}}
@@ -127,7 +127,7 @@ def test_selected_child_paths_and_cloned_models():
          "formulation": "pair", "subblocks": {
             name: {"formulation": "isenthalpic"} for name in ("first", "second")
         },
-    }, library=library)
+    }, registry=registry)
     cloned = model.clone()
     path = "second.inlet.pressure"
     apply_parameters(cloned, catalog(), resources(path))
@@ -181,8 +181,8 @@ def test_example_fully_specifies_and_solves(solver):
 
 
 def test_multidimensional_series_convert_in_declared_axis_order():
-    library = BlockLibrary()
-    library.blocks["grid"] = BlockCatalog.model_validate({
+    registry = BlockRegistry()
+    registry.blocks["grid"] = BlockDefinition.model_validate({
         "id": "grid", "domains": {"time": {"kind": "time"}, "cells": {"kind": "discrete"}},
         "structs": {"feed": {"direction": "input", "variables": {
             "flow": {"unit": "g/s", "dimensions": ["cells", "time"]},
@@ -190,7 +190,7 @@ def test_multidimensional_series_convert_in_declared_axis_order():
         "formulations": {"specified": {}},
     })
     model = build_model("grid", {"formulation": "specified"},
-                        library=library, domain_values={"cells": ["b", "a"], "time": [0, 10]})
+                        registry=registry, domain_values={"cells": ["b", "a"], "time": [0, 10]})
     path = "feed.flow"
     apply_parameters(model, catalog(), resources(
         path, type="series", value=[[1, 2], [3, 4]], unit="kg/s",
@@ -240,7 +240,7 @@ def test_different_records_for_same_variable_are_rejected_atomically():
     pressure.set_value(123)
     table = resources()
     table.add(table.get("reading").model_copy(update={"tag": "fallback", "value": 190}))
-    spec = ParameterCatalog.model_validate({"parameters": [
+    spec = ParameterDocument.model_validate({"parameters": [
         "reading", "fallback",
     ]})
     with pytest.raises(ValueError, match="Multiple resource records specify variable"):
@@ -259,10 +259,10 @@ def test_public_variable_lookup_returns_live_families_and_checks_context():
 
 
 def test_both_lists_default_to_empty_and_round_trip():
-    assert ParameterCatalog().parameters == ()
-    assert ParameterCatalog().initial_values == ()
-    catalog = ParameterCatalog(initial_values=["start"])
-    assert ParameterCatalog.from_json(catalog.model_dump_json()) == catalog
+    assert ParameterDocument().parameters == ()
+    assert ParameterDocument().initial_values == ()
+    catalog = ParameterDocument(initial_values=["start"])
+    assert ParameterDocument.from_json(catalog.model_dump_json()) == catalog
     assert catalog.model_dump(mode="json") == {
         "parameters": [], "replacements": {}, "initial_values": ["start"],
     }
@@ -276,7 +276,7 @@ def test_both_lists_default_to_empty_and_round_trip():
 ])
 def test_invalid_initial_record_selections(data):
     with pytest.raises(ValidationError):
-        ParameterCatalog.model_validate(data)
+        ParameterDocument.model_validate(data)
 
 
 def dynamic_tank():
@@ -351,20 +351,20 @@ def test_initial_values_reject_steady_models_and_overlapping_families():
                                          ["cells", "time", "bands"]])
 @pytest.mark.parametrize("kind", ["constant", "series"])
 def test_initial_profiles_keep_non_time_axes_and_convert_units(dimensions, kind):
-    library = BlockLibrary()
+    registry = BlockRegistry()
     domain_values = {"time": [0, 10], "cells": ["a", "b"]}
     domains = {"time": {"kind": "time"}, "cells": {"kind": "discrete"}}
     if "bands" in dimensions:
         domain_values["bands"] = ["x", "y"]
         domains["bands"] = {"kind": "discrete"}
-    library.blocks["profile"] = BlockCatalog.model_validate({
+    registry.blocks["profile"] = BlockDefinition.model_validate({
         "id": "profile", "domains": domains, "structs": {
             "state": {"direction": "input", "variables": {
                 "height": {"unit": "m", "dimensions": dimensions},
             }},
         }, "formulations": {"given": {}},
     })
-    model = build_model("profile", {"formulation": "given"}, library=library,
+    model = build_model("profile", {"formulation": "given"}, registry=registry,
                         mode="dynamic", domain_values=domain_values)
     profile = (100 if kind == "constant" else [[100, 200], [300, 400]]
                if "bands" in dimensions else [100, 300])

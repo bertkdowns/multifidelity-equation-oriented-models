@@ -8,12 +8,12 @@ parameters and resources-gated refinement directions in
 recorded in the [model-language README](../src/multifidelity/model_language/README.md#resources-model).
 
 Terminology follows the [model-language glossary](../src/multifidelity/model_language/terminology.md).
-A parameters plan is the content of a parameters catalog, not another type.
+A parameters plan is the content of a parameter document, not another type.
 
 The [canonical-variable replacement proposal](canonical-variable-replacement.md)
 adds a physical explanation requirement to the intended parameters workflow:
 every fixed variable must be an unsupplied input, or explicitly name the
-unsupplied input it replaces. Chosen pairs belong in the parameters catalog,
+unsupplied input it replaces. Chosen pairs belong in the parameter document,
 so a saved plan explains, for example, temperature instead of enthalpy. The current
 DM selector now records these pairs through automatic post-selection pairing:
 use DM/matching analysis to find admissible
@@ -30,12 +30,12 @@ a separate future study, rather than a prerequisite for this proposal.
    fix to obtain a structurally determined model, then assess numerical solution
    and prediction quality. Keep fidelity choices fixed within each comparison.
 2. **Measurement-directed fidelity selection:** Given the same resources and
-   quantities of interest, choose a model catalog. Start simple, expand one
+   quantities of interest, choose a model document. Start simple, expand one
    branch, inspect the changed resources requirements, and repeat. Use a fixed
-   parameters policy to assess candidate modelCatalogs so that changes in
+   parameters policy to assess candidate model documents so that changes in
    selection behavior are not confounded with changes in instance construction.
 
-A selected model determines which equations exist. A parameters catalog
+A selected model determines which equations exist. A parameter document
 chooses how to use resources to specify those equations. The two decisions
 interact, but neither algorithm's effectiveness should be inferred from the
 other's results. Initialization algorithms remain a separate, deferred study.
@@ -94,7 +94,7 @@ quantity-of-interest parameters. No fidelity changes occur within this algorithm
    parameters make them determined. Do not fix every variable from the initial
    underconstrained set.
 6. Stop when no structural deficiency remains, or no applicable candidate can
-   reduce it. Return a parameters catalog and separate complete/incomplete diagnostics.
+   reduce it. Return a parameter document and separate complete/incomplete diagnostics.
    In the latter case, list unresolved regions and missing eligible resources, rather than
    inventing values or fixing the prediction target.
 7. For structurally complete plans, attempt a numerical solve using a common,
@@ -122,9 +122,9 @@ feasibility, uniqueness or physical adequacy.
 DM references: [Pyomo decomposition catalogation](https://pyomo.readthedocs.io/en/6.9.3/api/pyomo.contrib.incidence_analysis.dulmage_mendelsohn.dulmage_mendelsohn.html)
 and [IDAES structural-singularity example](https://idaes-examples.readthedocs.io/en/2.6.0/docs/diagnostics/structural_singularity_doc.html).
 
-## Parameter catalog and separate algorithm diagnostics
+## Parameter document and separate algorithm diagnostics
 
-The implemented [parameters catalog](../src/multifidelity/model_language/README.md#parameters-catalogs)
+The implemented [parameter document](../src/multifidelity/model_language/README.md#parameters-catalogs)
 contains selected resources-record tags and a `replacements` mapping from
 selected operating IDs to canonical input paths. Each resource record supplies
 the fixed target path, value and unit. The catalog has no
@@ -133,7 +133,7 @@ fields. Application receives the numerical model and resource table separately.
 The initial trust-ranked selection loop is implemented in
 `model_language/selection.py`; it returns the catalog and separate diagnostics.
 
-The algorithm should return the parameters catalog alongside separate diagnostics
+The algorithm should return the parameter document alongside separate diagnostics
 that record:
 
 - Model/model identity, quantities of interest, resource records used,

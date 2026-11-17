@@ -8,16 +8,16 @@ from pyomo.core.expr.visitor import identify_variables
 from pyomo.environ import Constraint, Var, value
 from pyomo.util.check_units import assert_units_consistent
 
-from multifidelity.model_language import BlockLibrary, build_model as _build_model, get_variable, register_standard_providers
-from multifidelity.model_language import ResourceCatalog, apply_parameters, select_parameters
+from multifidelity.model_language import BlockRegistry, build_model as _build_model, get_variable, register_standard_providers
+from multifidelity.model_language import ResourceDocument, apply_parameters, select_parameters
 
 EXAMPLES = Path(__file__).parents[1] / 'examples/steam_generating_heat_pump_system'
 
 
 def build_model(*args, **kwargs):
-    library = kwargs.pop('library', None) or BlockLibrary()
-    register_standard_providers(library)
-    return _build_model(*args, library=library, **kwargs)
+    registry = kwargs.pop('registry', None) or BlockRegistry()
+    register_standard_providers(registry)
+    return _build_model(*args, registry=registry, **kwargs)
 
 
 @pytest.mark.parametrize('sghp', ['aggregate', 'cycle'])
@@ -29,16 +29,16 @@ def test_independent_choices_preserve_plant_connections(sghp, phnix):
     assert_units_consistent(model)
     plant = model.fs.root.formulation
     assert not hasattr(plant.blocks, 'source_heater')
-    connection = BlockLibrary().get('steam_generating_heat_pump_system').formulations['flowsheet'].connections['source_evaporator_feed']
+    connection = BlockRegistry().get('steam_generating_heat_pump_system').formulations['flowsheet'].connections['source_evaporator_feed']
     assert connection.from_ == 'source_mass_recycle.outlet'
-    recycle_feed = BlockLibrary().get('steam_generating_heat_pump_system').formulations['flowsheet'].connections['source_mass_recycle_feed']
+    recycle_feed = BlockRegistry().get('steam_generating_heat_pump_system').formulations['flowsheet'].connections['source_mass_recycle_feed']
     assert recycle_feed.from_ == 'phnix.sink_outlet'
     assert recycle_feed.to == 'source_mass_recycle.inlet'
     assert connection.to == 'sghp.source_inlet'
     assert hasattr(plant.blocks.sghp.formulation.blocks, 'compressor') == (sghp == 'cycle')
     assert hasattr(plant.blocks.phnix.formulation.blocks, 'compressor') == (phnix == 'cycle')
     if sghp == 'cycle':
-        cycle = BlockLibrary().get('steam_generating_heat_pump_unit').formulations['cycle']
+        cycle = BlockRegistry().get('steam_generating_heat_pump_unit').formulations['cycle']
         assert cycle.connections['link_22'].to == 'refrigerant_mass_recycle.inlet'
         feed = cycle.connections['refrigerant_compressor_feed']
         assert feed.from_ == 'refrigerant_mass_recycle.outlet'
@@ -54,7 +54,7 @@ def test_independent_choices_preserve_plant_connections(sghp, phnix):
         assert not recycle.structs.flow_definition.flow[0].fixed
     # Check every plant connection against its actual variable objects, including
     # the three recycles, all three SGHP water circuits, and steam export.
-    definition = BlockLibrary().get('steam_generating_heat_pump_system')
+    definition = BlockRegistry().get('steam_generating_heat_pump_system')
     assert not any(struct.direction == 'input' for struct in definition.structs.values())
     for name in ['makeup_state', 'phnix_source_state', 'cooling_water_state']:
         assert set(definition.formulations['flowsheet'].blocks[name].block_arguments) == {'FluidProperties'}
@@ -78,8 +78,8 @@ def test_independent_choices_preserve_plant_connections(sghp, phnix):
 
 
 def test_aggregate_sghp_conserves_energy_across_all_three_circuits():
-    model_catalog = json.loads((EXAMPLES / 'aggregate_aggregate.json').read_text())['subblocks']['sghp']
-    model = build_model('steam_generating_heat_pump_unit', model_catalog)
+    model_document = json.loads((EXAMPLES / 'aggregate_aggregate.json').read_text())['subblocks']['sghp']
+    model = build_model('steam_generating_heat_pump_unit', model_document)
     values = {
         'performance.electrical_power': 10000,
         'performance.cop': 4,
@@ -136,9 +136,9 @@ def test_flash_separates_outlet_enthalpies_and_conserves_energy(solver):
 
 
 def test_reference_records_have_traceable_sources_and_applicable_paths():
-    resources = ResourceCatalog.load_json(EXAMPLES / 'resources.json')
-    observations = ResourceCatalog.load_json(EXAMPLES / 'reference_observations.json')
-    replay = ResourceCatalog.load_json(EXAMPLES / 'sghp_replay_resources.json')
+    resources = ResourceDocument.load_json(EXAMPLES / 'resources.json')
+    observations = ResourceDocument.load_json(EXAMPLES / 'reference_observations.json')
+    replay = ResourceDocument.load_json(EXAMPLES / 'sghp_replay_resources.json')
     reference = json.loads((EXAMPLES / 'ahuora_reference.json').read_text())
     provenance = json.loads((EXAMPLES / 'value_provenance.json').read_text())['records']
     source_ids = {v['id'] for o in reference['objects'] for p in o['properties'] for v in p['values']}
@@ -164,7 +164,7 @@ def test_reference_records_have_traceable_sources_and_applicable_paths():
 
 def test_reference_configuration_is_partial_and_converts_units():
     model = build_model('steam_generating_heat_pump_system', EXAMPLES / 'cycle_aggregate.json')
-    resources = ResourceCatalog.load_json(EXAMPLES / 'resources.json')
+    resources = ResourceDocument.load_json(EXAMPLES / 'resources.json')
     selection = select_parameters(model, resources,
                                     prediction_targets=['steam_outlet.flow'])
     assert not selection.complete
@@ -194,7 +194,7 @@ def test_captured_sghp_unit_replay_solves_without_fixing_outlets(solver):
     from pyomo.environ import units
 
     model, _, outputs = replay(solver)
-    observations = ResourceCatalog.load_json(EXAMPLES / 'reference_observations.json')
+    observations = ResourceDocument.load_json(EXAMPLES / 'reference_observations.json')
     records = {r.variable_path: r for r in observations.records}
     assert value(get_variable(model, 'source_inlet_state.properties.temperature')[0]) == pytest.approx(350.15)
     assert not get_variable(model, 'source_inlet.enthalpy')[0].fixed

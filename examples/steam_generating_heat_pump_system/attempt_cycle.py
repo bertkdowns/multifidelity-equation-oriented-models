@@ -9,8 +9,8 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from idaes.core.util.model_statistics import degrees_of_freedom
 from multifidelity.model_language import (
-    ResourceCatalog, ParameterCatalog, apply_parameters,
-    initialize_model, export_results, WorkspaceCatalog, pair_parameters,
+    ResourceDocument, ParameterDocument, apply_parameters,
+    initialize_model, export_results, WorkspaceDocument, pair_parameters,
 )
 from build import build
 
@@ -24,8 +24,8 @@ if __name__ == '__main__':
     if args.power_kw is not None and (not math.isfinite(args.power_kw) or args.power_kw <= 0):
         parser.error('--power-kw must be finite and positive')
     model = build('cycle', 'aggregate')
-    resources = ResourceCatalog.load_json(HERE / 'attempt_resources.json')
-    observations = ResourceCatalog.load_json(HERE / 'reference_observations.json')
+    resources = ResourceDocument.load_json(HERE / 'attempt_resources.json')
+    observations = ResourceDocument.load_json(HERE / 'reference_observations.json')
     pressure_rise = observations.get('reference_sghp_compressor_parameters_pressure_rise')
     # A frozen captured output, explicitly used as an operating assumption here.
     power = observations.get('reference_sghp_performance_electrical_power')
@@ -34,10 +34,10 @@ if __name__ == '__main__':
             'tag': 'attempt_sghp_operating_power',
             'value': args.power_kw, 'unit': 'kW', 'trust_rank': 8,
         })
-    resources = ResourceCatalog(root=(*resources.records, pressure_rise, power))
+    resources = ResourceDocument(root=(*resources.records, pressure_rise, power))
     resources_path = HERE / 'cycle_attempt_resources.json'
     resources_path.write_text(resources.model_dump_json(indent=2) + '\n')
-    base = ParameterCatalog.load_json(HERE / 'attempt_parameters.json')
+    base = ParameterDocument.load_json(HERE / 'attempt_parameters.json')
     # COP is predicted by the cycle; replace the aggregate-only COP parameter
     # with captured exchanger conductances and compressor efficiency.
     tags = [i for i in base.parameters if i not in {'attempt_sghp_operating_cop', 'attempt_makeup_mass_flow'}]
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     tags += ['config_sghp_compressor_parameters_efficiency',
             'reference_sghp_compressor_parameters_pressure_rise',
             power.tag]
-    parameters = pair_parameters(model, ParameterCatalog(parameters=tags), resources)
+    parameters = pair_parameters(model, ParameterDocument(parameters=tags), resources)
     (HERE / 'cycle_attempt_parameters.json').write_text(parameters.model_dump_json(indent=2) + '\n')
     apply_parameters(model, parameters, resources)
     print(f'Degrees of freedom: {degrees_of_freedom(model)}', flush=True)
@@ -57,7 +57,7 @@ if __name__ == '__main__':
             'linear_system_scaling': 'none',
         }),
     )
-    report = {'model_catalog': 'cycle_aggregate', 'degrees_of_freedom': degrees_of_freedom(model), **asdict(result)}
+    report = {'model_document': 'cycle_aggregate', 'degrees_of_freedom': degrees_of_freedom(model), **asdict(result)}
     (HERE / 'cycle_attempt_result.json').write_text(json.dumps(report, indent=2) + '\n')
     if not result.success:
         from multifidelity.model_language.hierarchical_initialization import _constraint_violation
@@ -102,6 +102,6 @@ if __name__ == '__main__':
                    message=None if solved else result.stages[-1].error, parameters=parameters,
                    )
     snapshot.write_json(HERE / 'cycle_results.json')
-    WorkspaceCatalog.from_results(snapshot, resources).write_json(HERE / 'cycle_workspace.json')
+    WorkspaceDocument.from_results(snapshot, resources).write_json(HERE / 'cycle_workspace.json')
     print(json.dumps(report, indent=2), flush=True)
     raise SystemExit(0 if solved else 1)

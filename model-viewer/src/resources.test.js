@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { parseResources, indexResources, resourcePreview, findVariable, appendResource } from './resources.js';
 const fixture = { tag: 'r', resource_type: 'sensor_reading', variable_path: 'inlet.pressure', value: 200, unit: 'kPa', trust_rank: 8 };
 const directory = new URL('../../src/multifidelity/model_language/blocks/', import.meta.url);
-const library = Object.fromEntries(readdirSync(directory).filter(name => name.endsWith('.json')).map(name => {
+const registry = Object.fromEntries(readdirSync(directory).filter(name => name.endsWith('.json')).map(name => {
   const model = JSON.parse(readFileSync(new URL(name, directory), 'utf8')); return [model.id, model];
 }));
 
@@ -21,7 +21,7 @@ test('real example files load and alternatives retain their original values and 
 });
 
 test('invalid records are rejected atomically', () => {
-  for (const value of [{}, [fixture, fixture], [{ ...fixture, trust_rank: true }], [{ ...fixture, unit: '' }], [{ ...fixture, value: [1] }], [{ ...fixture, type: 'series', value: 1 }], [{ ...fixture, type: 'series', value: [[1], [2, 3]] }], [{ ...fixture, value: true }], [{ ...fixture, standard_deviation: -1 }], [{ ...fixture, extra: 'unknown' }], [{ ...fixture, id: 'legacy_id' }]])
+  for (const value of [{}, [fixture, fixture], [{ ...fixture, trust_rank: true }], [{ ...fixture, unit: '' }], [{ ...fixture, value: [1] }], [{ ...fixture, type: 'series', value: 1 }], [{ ...fixture, type: 'series', value: [[1], [2, 3]] }], [{ ...fixture, value: true }], [{ ...fixture, standard_deviation: -1 }], [{ ...fixture, extra: 'unknown' }], [{ ...fixture, id: 'unsupported_id' }]])
     assert.throws(() => parseResources(JSON.stringify(value)));
   assert.throws(() => parseResources('{broken'));
 });
@@ -32,15 +32,15 @@ test('series previews show shape without inventing time coordinates', () => {
 });
 
 test('paths match the root and nested occurrences independently, across formulations', () => {
-  const context = { definition: library.steam_generating_heat_pump_unit, bindings: {} };
-  assert.equal(findVariable(context, 'condenser.parameters.conductance', library).unit, 'W/K');
-  assert.equal(findVariable(context, 'cop_model.parameters.cop', library).unit, 'dimensionless');
-  assert.equal(findVariable(context, 'wrong.parameters.conductance', library), undefined);
+  const context = { definition: registry.steam_generating_heat_pump_unit, bindings: {} };
+  assert.equal(findVariable(context, 'condenser.parameters.conductance', registry).unit, 'W/K');
+  assert.equal(findVariable(context, 'cop_model.parameters.cop', registry).unit, 'dimensionless');
+  assert.equal(findVariable(context, 'wrong.parameters.conductance', registry), undefined);
   const index = indexResources([{ ...fixture, variable_path: 'a.inlet.pressure' }, { ...fixture, tag: 'other', variable_path: 'b.inlet.pressure', value: 300 }]);
   assert.equal(index.get('a.inlet.pressure')[0].value, 200);
   assert.equal(index.get('b.inlet.pressure')[0].value, 300);
-  const tank = { definition: library.tank, bindings: {} };
-  assert.deepEqual(findVariable(tank, 'inventory.level', library).dimensions, ['time']);
+  const tank = { definition: registry.tank, bindings: {} };
+  assert.deepEqual(findVariable(tank, 'inventory.level', registry).dimensions, ['time']);
 });
 
 const draft = { tag: 'new', variable_path: 'inlet.pressure', resource_type: 'sensor_reading', type: 'constant', value: '220.5', unit: 'kPa', trust_rank: '10', standard_deviation: '' };

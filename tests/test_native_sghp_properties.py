@@ -8,7 +8,7 @@ from idaes.core.util.model_statistics import degrees_of_freedom
 from idaes.models.properties.general_helmholtz import AmountBasis, HelmholtzThermoExpressions
 from idaes.models.properties.general_helmholtz.components.parameters import get_parameter_path
 
-from multifidelity.model_language import BlockLibrary, build_model, register_standard_providers
+from multifidelity.model_language import BlockRegistry, build_model, register_standard_providers
 from multifidelity.model_language.standard.thermo import _fluid_data
 
 
@@ -21,9 +21,9 @@ def test_native_refrigerant_isentropic_compression(
     fluid, package, temperature, pressure, outlet_pressure, efficiency, solver,
 ):
     original_path = get_parameter_path()
-    library = BlockLibrary()
-    register_standard_providers(library)
-    ref = library.get('compressor_flowsheet').formulations['flowsheet'].blocks['compressor']
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    ref = registry.get('compressor_flowsheet').formulations['flowsheet'].blocks['compressor']
     ref.block_arguments['FluidProperties'].block = package
     selection = {'formulation': 'flowsheet', 'subblocks': {'compressor': {
         'formulation': 'isentropic', 'subblocks': {
@@ -32,7 +32,7 @@ def test_native_refrigerant_isentropic_compression(
             for name in ['inlet_state', 'isentropic_state', 'outlet_state']
         },
     }}}
-    model = build_model('compressor_flowsheet', selection, library=library)
+    model = build_model('compressor_flowsheet', selection, registry=registry)
     compressor = model.fs.root.formulation.blocks.compressor
     states = compressor.formulation.blocks
     assert get_parameter_path() == original_path
@@ -104,9 +104,9 @@ def test_native_refrigerant_isentropic_compression(
 
 
 def test_system_refrigerants_resolve_to_one_package_per_fluid():
-    library = BlockLibrary()
-    assert set(library.get('compressor').block_slots) == {'FluidProperties'}
-    system = library.resolve('steam_generating_heat_pump_system').formulations['flowsheet'].blocks
+    registry = BlockRegistry()
+    assert set(registry.get('compressor').block_arguments) == {'FluidProperties'}
+    system = registry.resolve('steam_generating_heat_pump_system').formulations['flowsheet'].blocks
     for name, package in [('sghp', 'helmholtz_butane_ph'), ('phnix', 'helmholtz_propane_ph')]:
         states = system[name].formulations['cycle'].blocks['compressor'].formulations['isentropic'].blocks
         assert states['isentropic_state'].id == package

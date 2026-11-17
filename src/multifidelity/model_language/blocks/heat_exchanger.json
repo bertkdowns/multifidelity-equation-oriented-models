@@ -152,7 +152,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "HotSideProperties"
+              "block_argument": "HotSideProperties"
             }
           }
         },
@@ -163,7 +163,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "HotSideProperties"
+              "block_argument": "HotSideProperties"
             }
           }
         },
@@ -174,7 +174,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "ColdSideProperties"
+              "block_argument": "ColdSideProperties"
             }
           }
         },
@@ -185,7 +185,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "ColdSideProperties"
+              "block_argument": "ColdSideProperties"
             }
           }
         },
@@ -295,7 +295,7 @@
       "kind": "time"
     }
   },
-  "block_slots": {
+  "block_arguments": {
     "HotSideProperties": {
       "requires": {
         "state": {

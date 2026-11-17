@@ -1,5 +1,5 @@
 {
-  "model_catalog": {
+  "model_document": {
     "formulation": "flowsheet",
     "subblocks": {
       "sghp": {
@@ -378,7 +378,7 @@
       "trust_rank": 2
     },
     {
-      "tag": "config_phnix_power_block_slots_electrical_power",
+      "tag": "config_phnix_power_model_parameters_electrical_power",
       "resource_type": "assumption",
       "variable_path": "phnix.power_model.parameters.electrical_power",
       "type": "constant",
@@ -388,7 +388,7 @@
       "trust_rank": 2
     },
     {
-      "tag": "config_phnix_cop_block_slots_cop",
+      "tag": "config_phnix_cop_model_parameters_cop",
       "resource_type": "equipment_parameter",
       "variable_path": "phnix.cop_model.parameters.cop",
       "type": "constant",
@@ -843,7 +843,7 @@
     "run_id": "040222f8-1296-4d27-bf31-866ff7075831",
     "created_at": "2026-11-09T02:35:44.488136Z",
     "block_id": "steam_generating_heat_pump_system",
-    "model_catalog": {
+    "model_document": {
       "formulation": "flowsheet",
       "subblocks": {
         "sghp": {

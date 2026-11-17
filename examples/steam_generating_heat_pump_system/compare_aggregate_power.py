@@ -5,8 +5,8 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from idaes.core.util.model_statistics import degrees_of_freedom
 from multifidelity.model_language import (
-    ResourceCatalog, ParameterCatalog, apply_parameters,
-    pair_parameters, get_variable, export_results, WorkspaceCatalog,
+    ResourceDocument, ParameterDocument, apply_parameters,
+    pair_parameters, get_variable, export_results, WorkspaceDocument,
 )
 from multifidelity.model_language.scaling import apply_scaling, scaled_jacobian, export_scaling, rank_inputs
 from multifidelity.model_language.selection import _partition
@@ -19,27 +19,27 @@ HERE = Path(__file__).resolve().parent
 if __name__ == '__main__':
     cycle = json.loads((HERE / 'cycle_results.json').read_text())
     cycle_values = {r['variable_path']: r['entries'][0]['value'] for r in cycle['variables']}
-    base_info = ResourceCatalog.load_json(HERE / 'attempt_resources.json')
-    cycle_info = ResourceCatalog.load_json(HERE / 'cycle_attempt_resources.json')
+    base_info = ResourceDocument.load_json(HERE / 'attempt_resources.json')
+    cycle_info = ResourceDocument.load_json(HERE / 'cycle_attempt_resources.json')
     power = cycle_info.get('attempt_sghp_operating_power')
-    base_spec = ParameterCatalog.load_json(HERE / 'attempt_parameters.json')
+    base_spec = ParameterDocument.load_json(HERE / 'attempt_parameters.json')
     reports = []
     for label, cop in [('cop4', 4.0), ('matched_cop', cycle_values['sghp.performance.cop']),
                        ('cycle_point', cycle_values['sghp.performance.cop'])]:
         model = build('aggregate', 'aggregate')
         records = [r.model_copy(update={'value': cop}) if r.tag == 'attempt_sghp_operating_cop' else r
                    for r in base_info.records]
-        resources = ResourceCatalog(root=(*records, power))
+        resources = ResourceDocument(root=(*records, power))
         tags = [i for i in base_spec.parameters if i != 'attempt_makeup_mass_flow'] + [power.tag]
         pairing_error = None
         try:
-            parameters = pair_parameters(model, ParameterCatalog(parameters=tags), resources)
+            parameters = pair_parameters(model, ParameterDocument(parameters=tags), resources)
         except ValueError as error:
             pairing_error = str(error)
             # Diagnostic only: apply the admissible partial parameters, then
             # impose the rejected power fixation explicitly to inspect its DM
             # partition and equations. This is not an accepted parameters.
-            parameters = pair_parameters(model, ParameterCatalog(
+            parameters = pair_parameters(model, ParameterDocument(
                 parameters=[i for i in tags if i != power.tag]), resources)
         prefix = f'aggregate_power_{label}'
         (HERE / f'{prefix}_resources.json').write_text(resources.model_dump_json(indent=2)+'\n')
@@ -102,7 +102,7 @@ if __name__ == '__main__':
                        termination_condition=report['termination'], parameters=parameters if pairing_error is None else None,
                        message='Diagnostic only: rejected parameters pattern; compatible COP leaves heat allocation undetermined. Cycle snapshot used only as starting values.' if pairing_error else 'Aggregate comparison.')
         snapshot.write_json(HERE / f'{prefix}_results.json')
-        WorkspaceCatalog.from_results(snapshot, resources).write_json(HERE / f'{prefix}_workspace.json')
+        WorkspaceDocument.from_results(snapshot, resources).write_json(HERE / f'{prefix}_workspace.json')
         (HERE / f'{prefix}_report.json').write_text(json.dumps(report, indent=2)+'\n')
         reports.append(report)
     (HERE / 'aggregate_power_comparison.json').write_text(json.dumps(reports, indent=2)+'\n')

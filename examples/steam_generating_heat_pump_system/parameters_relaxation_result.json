@@ -341,7 +341,7 @@
       "penalty": 6.282187108490225e-18
     },
     {
-      "record_tag": "config_phnix_cop_block_slots_cop",
+      "record_tag": "config_phnix_cop_model_parameters_cop",
       "variable_path": "phnix.cop_model.parameters.cop",
       "index": 0.0,
       "target": 2.0,
@@ -354,7 +354,7 @@
       "penalty": 6.974263377706971e-20
     },
     {
-      "record_tag": "config_phnix_power_block_slots_electrical_power",
+      "record_tag": "config_phnix_power_model_parameters_electrical_power",
       "variable_path": "phnix.power_model.parameters.electrical_power",
       "index": 0.0,
       "target": 27328.109273268703,

@@ -1,5 +1,5 @@
 {
-  "model_catalog": "cycle_aggregate",
+  "model_document": "cycle_aggregate",
   "initialization": {
     "success": false,
     "stages": [
@@ -7500,7 +7500,7 @@
       "penalty": 2.2046551294810666
     },
     {
-      "record_tag": "config_phnix_cop_block_slots_cop",
+      "record_tag": "config_phnix_cop_model_parameters_cop",
       "variable_path": "phnix.cop_model.parameters.cop",
       "index": 0.0,
       "target": 2.0,
@@ -7630,7 +7630,7 @@
       "penalty": 0.1449557305493476
     },
     {
-      "record_tag": "config_phnix_power_block_slots_electrical_power",
+      "record_tag": "config_phnix_power_model_parameters_electrical_power",
       "variable_path": "phnix.power_model.parameters.electrical_power",
       "index": 0.0,
       "target": 27328.109273268703,

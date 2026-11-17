@@ -14,10 +14,10 @@ from pyomo.util.check_units import assert_units_consistent
 
 from examples.dynamic_tank.run import specify_tank, set_initial_guesses, make_tank, simulate
 from multifidelity.model_language import (
-    BlockLibrary, build_model, required_initial_values, required_inputs,
-    ResourceCatalog, apply_parameters, get_variable,
+    BlockRegistry, build_model, required_initial_values, required_inputs,
+    ResourceDocument, apply_parameters, get_variable,
 )
-from multifidelity.model_language.definitions import BlockCatalog
+from multifidelity.model_language.definitions import BlockDefinition
 
 TANK_SELECTION = Path("examples/model_language/tank_mixed.json")
 
@@ -33,7 +33,7 @@ def with_initial_values(model, entries):
             "resource_type": "assumption", "trust_rank": 5,
             **entry, "unit": unit,
         })
-    resources = ResourceCatalog(records)
+    resources = ResourceDocument(records)
     apply_parameters(model, {"initial_values": [r.tag for r in resources.records]}, resources)
     return model
 
@@ -60,16 +60,16 @@ def integration_definition(*, differentiate=False):
     }
 
 
-def make_library(tmp_path, definition):
+def make_registry(tmp_path, definition):
     (tmp_path / 'model.json').write_text(json.dumps(definition))
-    return BlockLibrary(tmp_path)
+    return BlockRegistry(tmp_path)
 
 
 def build_integrator(tmp_path, definition=None, **kwargs):
     definition = definition or integration_definition()
     return build_model(
         "integrator", {"formulation": "integrate"},
-        library=make_library(tmp_path, definition), **kwargs,
+        registry=make_registry(tmp_path, definition), **kwargs,
     )
 
 
@@ -217,9 +217,9 @@ def test_time_and_rate_unit_scaling(tmp_path, solver, time_unit, rate_unit, rate
 
 def test_differentiation_direction_and_uncovered_endpoint(tmp_path, solver):
     definition = integration_definition(differentiate=True)
-    library = make_library(tmp_path, definition)
+    registry = make_registry(tmp_path, definition)
     selection = {'formulation': 'integrate'}
-    assert set(required_initial_values('integrator', selection, library=library)) == {'signal.rate'}
+    assert set(required_initial_values('integrator', selection, registry=registry)) == {'signal.rate'}
     m = with_initial_values(build_integrator(tmp_path, definition, mode='dynamic', domain_values={'time': [0, 10]}), [{'variable_path': 'signal.rate', 'value': 7}])
     pyo.TransformationFactory('dae.finite_difference').apply_to(
         m, wrt=m.fs.time, nfe=5, scheme='BACKWARD',
@@ -306,8 +306,8 @@ def test_initial_values_are_optional_during_construction_and_overlap_is_rejected
 
 
 def test_bundled_tank_round_trips():
-    tank = BlockLibrary().get('tank')
-    assert BlockCatalog.model_validate_json(tank.model_dump_json(by_alias=True)) == tank
+    tank = BlockRegistry().get('tank')
+    assert BlockDefinition.model_validate_json(tank.model_dump_json(by_alias=True)) == tank
 
 
 def test_initial_profiles_with_time_as_second_axis(tmp_path, solver):
@@ -343,14 +343,14 @@ def test_nested_derivative_and_initial_paths(tmp_path):
         },
     }}
     (tmp_path / 'parent.json').write_text(json.dumps(parent))
-    library = make_library(tmp_path, child)
+    registry = make_registry(tmp_path, child)
     selection = {'formulation': 'wrap', 'subblocks': {
         'integrator': {'formulation': 'integrate'},
     }}
-    assert set(required_initial_values('parent', selection, library=library)) == {
+    assert set(required_initial_values('parent', selection, registry=registry)) == {
         'integrator.state.level',
     }
-    m = with_initial_values(build_model('parent', selection, library=library, mode='dynamic',
+    m = with_initial_values(build_model('parent', selection, registry=registry, mode='dynamic',
                     domain_values={'time': [0, 10]}), [
                         {'variable_path': 'integrator.state.level', 'value': 2},
                     ])

@@ -7,11 +7,11 @@ from typing import Annotated
 from pydantic import ConfigDict, Field, model_validator
 
 from .definitions import Definition
-from .resources import ResourceCatalog
+from .resources import ResourceDocument
 from .variables import get_variable
 
 
-class ParameterCatalog(Definition):
+class ParameterDocument(Definition):
     """Only parameter choices; context and diagnostics are supplied separately."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -32,13 +32,13 @@ class ParameterCatalog(Definition):
         return self
 
 
-def _catalog(parameters):
+def _document(parameters):
     if isinstance(parameters, (str, Path)):
-        return ParameterCatalog.load_json(parameters)
-    if not isinstance(parameters, ParameterCatalog):
-        return ParameterCatalog.model_validate(parameters)
-    # Revalidate editable nested mappings and model_copy(update=...) catalogs.
-    return ParameterCatalog.model_validate(parameters.model_dump())
+        return ParameterDocument.load_json(parameters)
+    if not isinstance(parameters, ParameterDocument):
+        return ParameterDocument.model_validate(parameters)
+    # Revalidate editable nested mappings and model_copy(update=...) documents.
+    return ParameterDocument.model_validate(parameters.model_dump())
 
 
 def _initial_values_for(record, component, model):
@@ -62,13 +62,13 @@ def _initial_values_for(record, component, model):
 
 
 def _prepare(model, parameters, resources):
-    # Keep catalog parsing independent of the optional numerical backend.
+    # Keep document parsing independent of the optional numerical backend.
     from pyomo.environ import units
     from .builder import _expression
 
-    parameters = _catalog(parameters)
-    if not isinstance(resources, ResourceCatalog):
-        raise TypeError("resources must be an ResourceCatalog")
+    parameters = _document(parameters)
+    if not isinstance(resources, ResourceDocument):
+        raise TypeError("resources must be an ResourceDocument")
     registry = getattr(model, "_model_language_variables", None)
     if registry is None:
         raise ValueError("Model must be constructed by model_language.build_model")
@@ -116,13 +116,13 @@ def apply_parameters(model, parameters, resources) -> None:
     """Apply direct input fixes or explicitly paired operating replacements.
 
     Validation failure leaves values and fixed/free statuses unchanged. The
-    resources catalog is read only. No solver or initialization is invoked.
+    resource document is read only. No solver or initialization is invoked.
     Reapplying to already fixed variables is an error, including equal values.
     Initial values require dynamic time-indexed variables. Constants broadcast
     over non-time axes; series give initial profiles in non-time dimension order.
     """
     from .replacement import _validate_slots, audit_fixations
-    parameters = _catalog(parameters)
+    parameters = _document(parameters)
     prepared = _prepare(model, parameters, resources)
     audit_fixations(model)
     slots = _validate_slots(model, parameters, resources)

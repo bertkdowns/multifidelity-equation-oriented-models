@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="570" viewBox="0 0 1200 570" role="img" aria-labelledby="title desc">
+<title id="title">From external data to model results</title>
+<desc id="desc">An external data source supplies values through a feed to an existing resource document. Selected resource values are applied as parameters to a numerical instance. Solving and exporting a snapshot produces a results document. Future publishing sends results to external systems.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 10 5 0 10z" fill="#62758b"/></marker></defs>
+<style>text{font-family:system-ui,sans-serif;fill:#26354b}.title{font-size:25px;font-weight:700}.name{font-size:19px;font-weight:650;text-anchor:middle}.detail{font-size:14px;fill:#526982;text-anchor:middle}.label{font-size:15px;fill:#526982;text-anchor:middle}.box{fill:#edf3fc;stroke:#8ca8cc;stroke-width:1.5;rx:10}.edge{fill:none;stroke:#62758b;stroke-width:2;marker-end:url(#arrow)}.future{stroke-dasharray:7 6}</style>
+<rect width="1200" height="570" fill="#f7f9fc"/>
+<text x="40" y="50" class="title">Data flow</text>
+<rect x="40" y="130" width="245" height="100" class="box"/>
+<text x="162" y="174" class="name">External data source</text>
+<text x="162" y="202" class="detail">CSV, API, SQL, …</text>
+<rect x="465" y="130" width="270" height="100" class="box"/>
+<text x="600" y="174" class="name">ResourceDocument</text>
+<text x="600" y="202" class="detail">Evidence and its metadata</text>
+<rect x="915" y="130" width="245" height="100" class="box" style="fill:#eaf5f0;stroke:#79aa97"/>
+<text x="1037" y="174" class="name">Numerical instance</text>
+<text x="1037" y="202" class="detail">Live model equations</text>
+<path d="M285 180 H465" class="edge"/>
+<text x="375" y="151" class="label">Via feed</text>
+<text x="375" y="207" class="detail">Refresh values</text>
+<path d="M735 180 H915" class="edge"/>
+<text x="825" y="148" class="label">Select and apply</text>
+<text x="825" y="170" class="label">parameters</text>
+<rect x="915" y="355" width="245" height="100" class="box"/>
+<text x="1037" y="400" class="name">ResultsDocument</text>
+<text x="1037" y="428" class="detail">Numerical snapshot + status</text>
+<path d="M1037 230 V355" class="edge"/>
+<text x="1037" y="283" class="label">Solve, then</text>
+<text x="1037" y="307" class="label">export snapshot</text>
+<rect x="465" y="355" width="270" height="100" class="box future" style="fill:#fff"/>
+<text x="600" y="400" class="name">External systems</text>
+<text x="600" y="428" class="detail">Future work</text>
+<path d="M915 405 H735" class="edge future"/>
+<text x="825" y="374" class="label">Via publisher</text>
+<text x="825" y="435" class="detail">Future work</text>
+<text x="40" y="510" style="font-size:14px;fill:#526982">Feeds refresh existing resource records. Static resources can also be entered or loaded directly.</text>
+<text x="40" y="539" style="font-size:14px;fill:#526982">Model construction and configuration are omitted here. Parameter selection, application, solving and export are separate operations.</text>
+</svg>

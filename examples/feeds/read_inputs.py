@@ -1,40 +1,18 @@
-"""Get external values into a model without coupling the model to a CSV file.
+"""Read CSV evidence through an explicitly registered feed plugin.
 
-Overall flow
-------------
-An resources catalog already describes the evidence available to a model:
-record tags, model variable paths, units, uncertainty, trust, and saved values.
-A feed supplies fresh values for some of those existing record tags. The
-registry routes the requests and returns a new resources catalog, keeping
-all of its metadata and any static records intact.
+Overall flow: register the CSV plugin, load its instance configuration from a
+FeedDocument, construct runtime feeds, then refresh an existing ResourceDocument.
+The registry describes available code; the document describes which instances a
+case uses. Neither registration nor document loading opens the CSV file.
 
-This example uses a CSV feed to refresh inlet flow and pressure for a valve:
-
-    inputs.csv -> CSVFeed.read(tags) -> fresh ResourceCatalog
-                                                |
-                                     parameters selection
-                                                |
-                                       workspace.json
-
-The feed has a typed configuration that can also be saved as ordinary JSON.
-We export it, reload it, and explicitly reconstruct the feed to show how
-settings edited in the viewer can be used by a Python application. Loading JSON
-alone never imports or runs connector code.
-
-Finally, we select parameters and export an UNSOLVED workspace. Acquisition
-provides evidence; selecting that evidence, applying it, and solving the model
-are separate operations. No numerical solver or external service is needed here.
+The example exports an UNSOLVED workspace. Acquiring values, choosing parameters,
+applying them and solving are separate operations. No numerical solver is needed.
 
 Run from the repository root:
-    .venv/bin/python examples/feeds/read_inputs.py
+    .venv/bin/python examples/feeds/read_inputs.py [output-folder]
 
-The example prints the refreshed values and writes feeds.json and
-workspace.json to /tmp/multifidelity-feed-example. To choose another folder:
-    .venv/bin/python examples/feeds/read_inputs.py /tmp/my-feed-example
-
-Open workspace.json in the model viewer, then choose Feeds to inspect the
-configuration and supplied records. Resource shows the refreshed values;
-Results correctly reports that the model has not been solved.
+The default output folder is /tmp/multifidelity-feed-example. Open workspace.json
+in the viewer to inspect the configured plugin and refreshed resource values.
 """
 import csv
 from pathlib import Path
@@ -43,7 +21,7 @@ import sys
 from pydantic import BaseModel
 
 from multifidelity.model_language import (
-    FeedRegistry, ResourceCatalog, FeedCatalog, build_model,
+    FeedRegistry, ResourceDocument, FeedDocument, build_model,
     export_workspace, select_parameters,
 )
 
@@ -70,19 +48,19 @@ class CSVConfig(BaseModel):
 # get_config() exposes settings, get_tags() discovers available records, and
 # read(tags) supplies their values in bulk.
 class CSVFeed:
-    """Adapt a CSV file to the registry's record-tag-to-value interface."""
+    """Adapt a CSV file to the feed tag-to-value interface."""
 
     def __init__(self, config: CSVConfig):
         self.config = config
 
     def get_config(self) -> CSVConfig:
-        # The registry serializes this model for the catalogue and the viewer.
+        # The runtime collection serializes this model for the document and viewer.
         # Asking for configuration does not open the CSV or acquire any data.
         return self.config
 
     def get_tags(self):
         # Discover the available tags from the file rather than duplicating a
-        # fixed list at registration. This runs again for each registry read,
+        # fixed list at registration. This runs again for each collection read,
         # so additions/removals in the CSV are reflected in the next request.
         with Path(self.config.path).open(newline="", encoding="utf-8") as file:
             return tuple(row[self.config.tag_column] for row in csv.DictReader(file))
@@ -95,7 +73,7 @@ class CSVFeed:
                     for row in csv.DictReader(file)}
 
         # Return exactly the requested record tags. These are the same tags used
-        # in the resources catalog; no additional identifier or binding is needed.
+        # in the resource document; no additional identifier or binding is needed.
         # Missing rows raise an error; we never silently reuse a saved value.
         # The CSV values must already be in their resource records' units.
         return {tag: rows[tag] for tag in tags}
@@ -104,45 +82,38 @@ class CSVFeed:
 def main(output: Path):
     output.mkdir(parents=True, exist_ok=True)
 
-    # 3. Register the feed. It owns its available tags through get_tags().
-    # FeedRegistry is the router between resources tags and Python feeds.
-    # "plant_csv" names the feed for inspection; it is not a measurement tag.
-    # Each record tag can belong to only one feed. Records not registered
-    # with a feed keep their static resources values.
-    config = CSVConfig(path=str(HERE / "inputs.csv"))
-    feed = CSVFeed(config)
-    data = FeedRegistry()
-    data.register_feed("plant_csv", feed)
+    # 3. Make a trusted plugin available. The registry stores the class, not a
+    # configured CSVFeed. It infers CSVConfig from get_config()'s return type.
+    # A second workspace can reuse this plugin with entirely different settings.
+    registry = FeedRegistry()
+    registry.register("csv", CSVFeed)
 
-    # 4. Export and reload the connection settings, without fetching values.
-    # describe() returns a FeedCatalog: portable declarations containing
-    # feed names, provider types, supplied tags and JSON configuration.
-    # The viewer can display/edit this catalogue without running Python.
-    data.describe().write_json(output / "feeds.json")
-    saved = FeedCatalog.load_json(output / "feeds.json").root[0]
+    # 4. Declare one configured instance. provider_type selects a registered
+    # plugin name; config is ordinary JSON validated as CSVConfig during loading.
+    # Tags are not repeated here: the configured CSVFeed discovers them itself.
+    document = FeedDocument(feeds=[{
+        "name": "plant_csv", "provider_type": "csv",
+        "config": CSVConfig(path=str(HERE / "inputs.csv")).model_dump(mode="json"),
+    }])
+    document.write_json(output / "feeds.json")
+    saved = FeedDocument.load_json(output / "feeds.json")
 
-    # This round trip is optional in a normal run; data is already ready to use.
-    # We include it to show the application boundary: the application chooses a
-    # trusted feed class and validates the saved JSON with its config model.
-    # The catalogue's provider_type is descriptive, not an import command.
-    restored_config = CSVConfig.model_validate(saved.config)
-    restored = FeedRegistry()
-    # Saved tags describe the previous discovery; the feed discovers its
-    # current tags again instead of using that list as a fixed assignment.
-    restored.register_feed(saved.name, CSVFeed(restored_config))
+    # create_feeds() checks every plugin name and config before constructing any
+    # feed. It returns a FeedCollection, which owns the runtime instances and
+    # performs discovery and bulk reads. Loading the document alone runs no code.
+    feeds = registry.create_feeds(saved)
 
     # 5. Acquire fresh evidence while preserving the resources layer.
-    # ResourceCatalog holds the record metadata and saved values. Its `tag`
+    # ResourceDocument holds the record metadata and saved values. Its `tag`
     # identifies evidence; `variable_path` says which model variable it describes.
     # We reuse the valve example's resources, which includes static parameters
     # and alternative observations as well as the two connected measurements.
-    resources = ResourceCatalog.load_json(HERE.parent / "parameters/resources.json")
+    resources = ResourceDocument.load_json(HERE.parent / "parameters/resources.json")
 
     # read() discovers current tags, then calls the feed once with both tags,
-    # validates its response, and
-    # returns a NEW catalog. The original table and its saved values are intact.
+    # validates its response, and returns a new catalog. The original table and its saved values are intact.
     # Only values change: units, paths, uncertainty and trust stay with records.
-    fresh = restored.read(resources)
+    fresh = feeds.read(resources)
 
     # 6. Use the refreshed resources with the existing model workflow.
     # build_model chooses the valve's isenthalpic equation formulation.
@@ -153,16 +124,16 @@ def main(output: Path):
 
     # 7. Bundle the case so its data and connections can be inspected together.
     # A workspace contains selected formulation choices, resources and a numerical
-    # snapshot, with the feed catalogue included here as optional metadata.
+    # snapshot, with the feed document included here as optional metadata.
     # We save the selection for inspection but do NOT apply it or solve. A real
     # solve would check selection.complete, apply selection.parameters using
     # apply_parameters(), and then call the numerical solver before exporting
     # results with the actual solve status. The default here is "not_solved".
-    export_workspace(model, fresh, feeds=restored.describe(),
+    export_workspace(model, fresh, feeds=feeds.get_document(),
                      parameters=selection.parameters).write_json(output / "workspace.json")
 
     print(f"Read {fresh.get('inlet_flow').value} kg/s and {fresh.get('pressure_measurement').value} kPa")
-    print(f"Catalogue and unsolved workspace: {output}")
+    print(f"Feed document and unsolved workspace: {output}")
 
 
 if __name__ == "__main__":

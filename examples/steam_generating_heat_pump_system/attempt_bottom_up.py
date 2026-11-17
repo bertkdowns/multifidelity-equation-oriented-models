@@ -11,7 +11,7 @@ from pathlib import Path
 
 from idaes.core.solvers import get_solver
 from multifidelity.model_language import (
-    ResourceCatalog, ParameterCatalog, get_variable, initialize_model, export_results, WorkspaceCatalog,
+    ResourceDocument, ParameterDocument, get_variable, initialize_model, export_results, WorkspaceDocument,
 )
 from attempt_solve import build_attempt
 
@@ -22,8 +22,8 @@ if __name__ == '__main__':
     model = build_attempt()
     result = initialize_model(
         model,
-        resources=ResourceCatalog.load_json(HERE / 'attempt_resources.json'),
-        parameters=ParameterCatalog.load_json(HERE / 'attempt_parameters.json'),
+        resources=ResourceDocument.load_json(HERE / 'attempt_resources.json'),
+        parameters=ParameterDocument.load_json(HERE / 'attempt_parameters.json'),
         solver=get_solver('ipopt', options={
             'max_iter': 500, 'tol': 1e-8, 'max_cpu_time': 60,
             'linear_system_scaling': 'none',
@@ -36,9 +36,9 @@ if __name__ == '__main__':
         parameters=HERE / 'attempt_parameters.json',
     )
     snapshot.write_json(HERE / 'results.json')
-    WorkspaceCatalog.from_results(snapshot, HERE / 'attempt_resources.json').write_json(HERE / 'workspace.json')
+    WorkspaceDocument.from_results(snapshot, HERE / 'attempt_resources.json').write_json(HERE / 'workspace.json')
     report = {
-        'model_catalog': 'aggregate_aggregate',
+        'model_document': 'aggregate_aggregate',
         'parameters': 'attempt_parameters.json',
         'resources': 'attempt_resources.json',
         **asdict(result),

@@ -5,13 +5,13 @@ function storage() {
   const entries = new Map();
   return { get length() { return entries.size; }, key: index => [...entries.keys()][index], getItem: key => entries.get(key) ?? null, setItem: (key, value) => entries.set(key, value), removeItem: key => entries.delete(key) };
 }
-const model_catalog = { formulation: 'isenthalpic', subblocks: {} };
+const model_document = { formulation: 'isenthalpic', subblocks: {} };
 const resources = { name: 'resources.json', records: [{ tag: 'p', resource_type: 'sensor_reading', variable_path: 'inlet.pressure', type: 'constant', value: 200, unit: 'kPa', trust_rank: 8 }] };
-const results = { name: 'results.json', catalog: { schema_version: 1, run_id: 'r', created_at: '2026-11-05T00:00:00Z', block_id: 'valve', model_catalog, mode: 'steady', time_unit: 's', solve: { status: 'optimal' }, variables: [] } };
+const results = { name: 'results.json', catalog: { schema_version: 1, run_id: 'r', created_at: '2026-11-05T00:00:00Z', block_id: 'valve', model_document, mode: 'steady', time_unit: 's', solve: { status: 'optimal' }, variables: [] } };
 
-test('model_catalog, resources and results survive refresh independently by root', () => {
+test('model_document, resources and results survive refresh independently by root', () => {
   const local = storage();
-  for (const [kind, value] of [['model_catalog', model_catalog], ['resources', resources], ['results', results]]) {
+  for (const [kind, value] of [['model_document', model_document], ['resources', resources], ['results', results]]) {
     assert.deepEqual(persistCatalogs(kind, { valve: value }, {}, local).errors, []);
     assert.deepEqual(loadCatalogs(kind, local), { catalogs: { valve: value }, errors: [] });
   }
@@ -19,7 +19,7 @@ test('model_catalog, resources and results survive refresh independently by root
   persistCatalogs('resources', { valve: changed, pump: resources }, { valve: resources }, local);
   assert.equal(loadCatalogs('resources', local).catalogs.valve.records.length, 2);
   assert.equal(loadCatalogs('resources', local).catalogs.pump.records.length, 1);
-  assert.deepEqual(loadCatalogs('model_catalog', local).catalogs.valve, model_catalog);
+  assert.deepEqual(loadCatalogs('model_document', local).catalogs.valve, model_document);
   assert.deepEqual(loadCatalogs('results', local).catalogs.valve, results);
 });
 
@@ -44,11 +44,11 @@ test('malformed catalogs are skipped without losing valid catalogs', () => {
   assert.equal(loadCatalogs('results', local).errors.length, 1);
 });
 
-test('incomplete model_catalog drafts can be restored and corrected in editor', () => {
+test('incomplete model_document drafts can be restored and corrected in editor', () => {
   const local = storage();
   const draft = { formulation: 'r', subblocks: { child: { formulation: '', subblocks: {} } } };
-  persistCatalogs('model_catalog', { draft }, {}, local);
-  assert.deepEqual(loadCatalogs('model_catalog', local).catalogs.draft, draft);
+  persistCatalogs('model_document', { draft }, {}, local);
+  assert.deepEqual(loadCatalogs('model_document', local).catalogs.draft, draft);
 });
 
 test('full or disabled storage reports failure and retains in-memory catalogs', () => {
@@ -62,7 +62,7 @@ test('full or disabled storage reports failure and retains in-memory catalogs', 
 });
 
 
-test('refresh reopens the last root and falls back if it is no longer in the library', () => {
+test('refresh reopens the last root and falls back if it is no longer in the registry', () => {
   const local = storage();
   saveActiveBlock('valve', local);
   assert.equal(loadActiveBlock({ valve: {} }, 'default', local), 'valve');

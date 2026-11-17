@@ -16,9 +16,9 @@ from idaes.models.properties.general_helmholtz import (
 )
 
 from multifidelity.model_language import (
-    ResourceCatalog,
-    BlockLibrary,
-    ParameterCatalog,
+    ResourceDocument,
+    BlockRegistry,
+    ParameterDocument,
     apply_parameters,
     build_model,
     export_workspace,
@@ -85,7 +85,7 @@ def fit_response(grid, data, *, water_only, workspace_path=None):
         model, wrt=model.fs.time, nfe=len(grid) - 1, scheme="BACKWARD",
     )
     paths = {"water": "boundary.water", "ambient": "boundary.ambient", "suction": "state.suction"}
-    resources = ResourceCatalog([
+    resources = ResourceDocument([
         dict(tag=name, resource_type="sensor_reading",
              variable_path=paths[name], type="series", value=data[:, channel - 1] + KELVIN,
              unit="K", trust_rank=5)
@@ -94,7 +94,7 @@ def fit_response(grid, data, *, water_only, workspace_path=None):
     resources.add(dict(tag="initial", resource_type="sensor_reading",
                          variable_path=paths["suction"], value=data[0, 0] + KELVIN,
                          unit="K", trust_rank=5))
-    parameters = ParameterCatalog(parameters=("water", "ambient"), initial_values=("initial",))
+    parameters = ParameterDocument(parameters=("water", "ambient"), initial_values=("initial",))
     apply_parameters(model, parameters, resources)
     suction = get_variable(model, paths["suction"])
     target = resources.get("suction").values_for(suction)
@@ -172,8 +172,8 @@ def saturation(thermo, celsius):
 
 
 def export_cycle_workspace(values, pressure_enthalpy, efficiency, densities, workspace_path):
-    library = BlockLibrary()
-    register_standard_providers(library)
+    registry = BlockRegistry()
+    register_standard_providers(registry)
     helmholtz = {"formulation": "helmholtz"}
     state_block = {"formulation": "evaluate", "subblocks": {"fluid": helmholtz}}
     pipe_with_state = {"formulation": "pass_through_with_state", "subblocks": {"state": state_block}}
@@ -193,7 +193,7 @@ def export_cycle_workspace(values, pressure_enthalpy, efficiency, densities, wor
              "pre_capillary": pipe_with_state,
              "post_capillary": pipe_with_state,
          }},
-        library=library,
+        registry=registry,
     )
     p_low, p_high, h1, h2, h3 = pressure_enthalpy
     high_ml, low_ml, low_fraction, shell_g = BASE_INVENTORY
@@ -215,12 +215,12 @@ def export_cycle_workspace(values, pressure_enthalpy, efficiency, densities, wor
         "inventory_inputs.high_liquid_density": (high_liquid, "kg/m**3"),
         "inventory_inputs.high_vapour_density": (high_vapour, "kg/m**3"),
     }
-    resources = ResourceCatalog([
+    resources = ResourceDocument([
         dict(tag=path, resource_type="equipment_parameter" if path == "inventory_inputs.charge" else "assumption",
              variable_path=path, value=value, unit=unit, trust_rank=8 if path == "inventory_inputs.charge" else 3)
         for path, (value, unit) in inputs.items()
     ])
-    parameters = ParameterCatalog(
+    parameters = ParameterDocument(
         parameters=tuple(inputs),
         replacements={
             "compressor.inlet.pressure": "capillary_valve.parameters.pressure_drop",

@@ -1,7 +1,7 @@
 {
   "id": "state_block",
   "description": "A single stream state with flow, pressure and enthalpy, and thermodynamic properties from a configured package.",
-  "block_slots": {
+  "block_arguments": {
     "FluidProperties": {
       "requires": {
         "state": {
@@ -167,7 +167,7 @@
     "evaluate": {
       "blocks": {
         "fluid": {
-          "block_slot": "FluidProperties",
+          "block_argument": "FluidProperties",
           "domain_bindings": {
             "time": "time"
           }

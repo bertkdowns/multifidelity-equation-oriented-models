@@ -1,6 +1,6 @@
 {
   "id": "pump",
-  "block_slots": {
+  "block_arguments": {
     "FluidProperties": {
       "requires": {
         "properties": {
@@ -65,7 +65,7 @@
     "composed": {
       "blocks": {
         "properties": {
-          "block_slot": "FluidProperties",
+          "block_argument": "FluidProperties",
           "domain_bindings": {
             "time": "time"
           }

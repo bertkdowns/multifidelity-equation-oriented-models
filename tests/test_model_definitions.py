@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from multifidelity.model_language.definitions import Connection, BlockCatalog, Formulation
+from multifidelity.model_language.definitions import Connection, BlockDefinition, Formulation
 
 
 MODELS = Path(__file__).parents[1] / "src/multifidelity/model_language/blocks"
@@ -13,16 +13,16 @@ MODELS = Path(__file__).parents[1] / "src/multifidelity/model_language/blocks"
 
 @pytest.mark.parametrize("path", sorted(MODELS.glob("*.json")), ids=lambda p: p.stem)
 def test_bundled_definitions_parse_and_round_trip(path):
-    model = BlockCatalog.model_validate_json(path.read_text())
-    assert BlockCatalog.model_validate(model.model_dump(by_alias=True)) == model
+    model = BlockDefinition.model_validate_json(path.read_text())
+    assert BlockDefinition.model_validate(model.model_dump(by_alias=True)) == model
     assert model.id == path.stem
 
 
 def test_definition_navigation_preserves_generic_references():
-    model = BlockCatalog.model_validate_json((MODELS / "state_block.json").read_text())
+    model = BlockDefinition.model_validate_json((MODELS / "state_block.json").read_text())
     assert model.structs["state"].variables["pressure"].unit == "Pa"
     assert (
-        model.formulations["evaluate"].blocks["fluid"].block_slot
+        model.formulations["evaluate"].blocks["fluid"].block_argument
         == "FluidProperties"
     )
 
@@ -31,8 +31,8 @@ def test_definition_navigation_preserves_generic_references():
     "reference",
     [
         {},
-        {"block": "water_state", "block_slot": "Fluid"},
-        {"block_slot": "Fluid", "block_arguments": {}},
+        {"block": "water_state", "block_argument": "Fluid"},
+        {"block_argument": "Fluid", "block_arguments": {}},
     ],
 )
 def test_reference_kinds_are_exclusive(reference):

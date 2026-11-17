@@ -1,4 +1,4 @@
-"""BlockLibrary pipe fidelity selection and mixed-inventory response."""
+"""BlockRegistry pipe fidelity selection and mixed-inventory response."""
 import json
 import math
 from pathlib import Path
@@ -7,7 +7,7 @@ import pyomo.environ as pyo
 import pytest
 from pyomo.util.check_units import assert_units_consistent
 
-from multifidelity.model_language import build_model, required_initial_values, required_inputs, BlockLibrary
+from multifidelity.model_language import build_model, required_initial_values, required_inputs, BlockRegistry
 
 EXAMPLES = Path(__file__).parents[1] / 'examples/model_language'
 
@@ -34,14 +34,14 @@ def test_ideal_pipe_has_no_inventory_or_geometry(solver):
 def test_lumped_pipe_geometry_and_thermal_response(mode, variable_density, solver):
     chosen = selection('lumped')
     assert set(required_initial_values('pipe_flowsheet', chosen)) == {'pipe.contents.inventory.energy', 'pipe.contents.rates.mass'}
-    library = BlockLibrary()
+    registry = BlockRegistry()
     if variable_density:
-        library.get('water_state_ph').formulations['constant_properties'].constraints['density'].rhs = (
+        registry.get('water_state_ph').formulations['constant_properties'].constraints['density'].rhs = (
             'parameters.density * (1 - parameters.thermal_expansion * '
             '(properties.temperature[t] - parameters.reference_temperature))')
     initial_temperature = 298.15 + (1000 - 104920.1198085 - (1e5-101325)/997)/4180
     mass = 997*(1-.000257*(initial_temperature-298.15)) if variable_density else 997
-    m = build_model('pipe_flowsheet', chosen, library=library, mode=mode, domain_values={'time': [0, 10]} if mode == 'dynamic' else None)
+    m = build_model('pipe_flowsheet', chosen, registry=registry, mode=mode, domain_values={'time': [0, 10]} if mode == 'dynamic' else None)
     if mode == 'dynamic':
         pyo.TransformationFactory('dae.finite_difference').apply_to(m, wrt=m.fs.time, nfe=100, scheme='BACKWARD')
     b = m.fs.root.formulation.blocks.pipe.structs

@@ -11,7 +11,7 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from idaes.core.util.model_statistics import degrees_of_freedom
 from multifidelity.model_language import (
-    ResourceCatalog, BlockLibrary, ParameterCatalog, apply_parameters,
+    ResourceDocument, BlockRegistry, ParameterDocument, apply_parameters,
     build_model, register_standard_providers,
 )
 
@@ -19,13 +19,13 @@ HERE = Path(__file__).resolve().parent
 
 
 def build_attempt():
-    library = BlockLibrary()
-    register_standard_providers(library)
+    registry = BlockRegistry()
+    register_standard_providers(registry)
     model = build_model('steam_generating_heat_pump_system',
-                        HERE / 'aggregate_aggregate.json', library=library)
+                        HERE / 'aggregate_aggregate.json', registry=registry)
     apply_parameters(model,
-                        ParameterCatalog.load_json(HERE / 'attempt_parameters.json'),
-                        ResourceCatalog.load_json(HERE / 'attempt_resources.json'))
+                        ParameterDocument.load_json(HERE / 'attempt_parameters.json'),
+                        ResourceDocument.load_json(HERE / 'attempt_resources.json'))
     return model
 
 

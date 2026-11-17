@@ -8,8 +8,8 @@ from pydantic import ValidationError
 from pyomo.environ import value
 from pyomo.util.check_units import assert_units_consistent
 
-from multifidelity.model_language import BlockLibrary, build_model, required_inputs
-from multifidelity.model_language.definitions import BlockCatalog
+from multifidelity.model_language import BlockRegistry, build_model, required_inputs
+from multifidelity.model_language.definitions import BlockDefinition
 
 
 def pipe_definition():
@@ -34,25 +34,25 @@ def pipe_definition():
     }
 
 
-def library_for(tmp_path, *definitions):
+def registry_for(tmp_path, *definitions):
     for definition in definitions:
         (tmp_path / f"{definition['id']}.json").write_text(json.dumps(definition))
-    return BlockLibrary(tmp_path)
+    return BlockRegistry(tmp_path)
 
 
 def build_pipe(tmp_path, definition=None, **kwargs):
     definition = definition or pipe_definition()
     return build_model(
         definition["id"], {"formulation": "pass_through"},
-        library=library_for(tmp_path, definition), **kwargs,
+        registry=registry_for(tmp_path, definition), **kwargs,
     )
 
 
 def test_time_indexed_pipe_and_required_input_family(tmp_path):
     definition = pipe_definition()
-    library = library_for(tmp_path, definition)
+    registry = registry_for(tmp_path, definition)
     selection = {"formulation": "pass_through"}
-    m = build_model("indexed_pipe", selection, library=library,
+    m = build_model("indexed_pipe", selection, registry=registry,
                     domain_values={"time": [0, 10, 30]})
     b = m.fs.root
     assert b.structs.inlet.flow.index_set() is m.fs.time
@@ -64,12 +64,12 @@ def test_time_indexed_pipe_and_required_input_family(tmp_path):
         assert value(b.formulation.constraints.flow[t].body) == 0
         assert not b.structs.inlet.flow[t].fixed
     assert_units_consistent(m)
-    assert required_inputs("indexed_pipe", selection, library=library)[
+    assert required_inputs("indexed_pipe", selection, registry=registry)[
         "inlet.flow"
     ].dimensions == ["time"]
     assert list(build_pipe(tmp_path).fs.time) == [0]
-    parsed = BlockCatalog.model_validate(definition)
-    assert BlockCatalog.model_validate_json(parsed.model_dump_json(by_alias=True)) == parsed
+    parsed = BlockDefinition.model_validate(definition)
+    assert BlockDefinition.model_validate_json(parsed.model_dump_json(by_alias=True)) == parsed
 
 
 def test_two_dimensions_with_scalar_parameter_and_named_members(tmp_path):
@@ -116,13 +116,13 @@ def hierarchy():
 
 def test_shared_time_domain_and_indexed_connections(tmp_path):
     parent, child, selection = hierarchy()
-    library = library_for(tmp_path, parent, child)
-    m = build_model("network", selection, library=library, domain_values={"time": [0, 1, 2]})
+    registry = registry_for(tmp_path, parent, child)
+    m = build_model("network", selection, registry=registry, domain_values={"time": [0, 1, 2]})
     b = m.fs.root
     pipe = b.formulation.blocks.pipe
     assert pipe.structs.inlet.flow.index_set() is b.structs.inlet.flow.index_set()
     assert len(b.formulation.connections.inlet.flow) == 3
-    assert set(required_inputs("network", selection, library=library)) == {"inlet.flow"}
+    assert set(required_inputs("network", selection, registry=registry)) == {"inlet.flow"}
     for t in m.fs.time:
         b.structs.inlet.flow[t].set_value(2)
         pipe.structs.inlet.flow[t].set_value(2)
@@ -142,8 +142,8 @@ def test_child_domain_alias_and_equation_determining_child_input(tmp_path):
         "for_each": {"t": "time"}, "lhs": "pipe.inlet.flow[t]",
         "rhs": "inlet.flow[t]", "determines": "pipe.inlet.flow[t]",
     }}
-    library = library_for(tmp_path, parent, child)
-    m = build_model("network", selection, library=library, domain_values={"time": [0, 1]})
+    registry = registry_for(tmp_path, parent, child)
+    m = build_model("network", selection, registry=registry, domain_values={"time": [0, 1]})
     assert len(m.fs.root.formulation.constraints.feed) == 2
 
 
@@ -201,7 +201,7 @@ def test_bad_domain_bindings(tmp_path, binding, message):
     parent, child, selection = hierarchy()
     parent["formulations"]["network"]["blocks"]["pipe"]["domain_bindings"] = binding
     with pytest.raises(ValueError, match=message):
-        build_model("network", selection, library=library_for(tmp_path, parent, child))
+        build_model("network", selection, registry=registry_for(tmp_path, parent, child))
 
 
 @pytest.mark.parametrize("points", [[], [1, 0], [0, 0], [True], [float("nan")], ["now"]])
@@ -223,7 +223,7 @@ def test_duplicate_dimensions_rejected():
     definition = pipe_definition()
     definition["structs"]["inlet"]["variables"]["flow"]["dimensions"] = ["time", "time"]
     with pytest.raises(ValidationError, match="distinct"):
-        BlockCatalog.model_validate(definition)
+        BlockDefinition.model_validate(definition)
 
 
 def test_local_discrete_domains_are_owned_by_each_occurrence(tmp_path):
@@ -239,10 +239,10 @@ def test_local_discrete_domains_are_owned_by_each_occurrence(tmp_path):
     selection = {"formulation": "pair", "subblocks": {
         "a": {"formulation": "empty"}, "b": {"formulation": "empty"},
     }}
-    library = library_for(tmp_path, parent, child)
+    registry = registry_for(tmp_path, parent, child)
     with pytest.raises(ValueError, match="Missing domain_values"):
-        build_model("parent", selection, library=library)
-    m = build_model("parent", selection, library=library, domain_values={
+        build_model("parent", selection, registry=registry)
+    m = build_model("parent", selection, registry=registry, domain_values={
         "parent.a.cells": [0, 1], "parent.b.cells": [0, 1],
     })
     a, b = m.fs.root.formulation.blocks.a, m.fs.root.formulation.blocks.b
@@ -255,7 +255,7 @@ def test_indexed_connections_convert_units(tmp_path):
     parent, child, selection = hierarchy()
     for struct in child["structs"].values():
         struct["variables"]["flow"]["unit"] = "g/s"
-    m = build_model("network", selection, library=library_for(tmp_path, parent, child),
+    m = build_model("network", selection, registry=registry_for(tmp_path, parent, child),
                     domain_values={"time": [0, 1]})
     b = m.fs.root
     b.structs.inlet.flow[1].set_value(2)
@@ -268,7 +268,7 @@ def test_connections_reject_equal_members_on_different_domains(tmp_path):
     parent["domains"]["other"] = {"kind": "discrete"}
     parent["structs"]["inlet"]["variables"]["flow"]["dimensions"] = ["other"]
     with pytest.raises(ValueError, match="connection dimensions differ"):
-        build_model("network", selection, library=library_for(tmp_path, parent, child),
+        build_model("network", selection, registry=registry_for(tmp_path, parent, child),
                     domain_values={"other": [0]})
 
 
@@ -285,9 +285,9 @@ def test_generic_child_keeps_occurrence_domain_bindings(tmp_path):
     root, child, selection = hierarchy()
     wrapper = deepcopy(root)
     wrapper["id"] = "wrapper"
-    wrapper["block_slots"] = {"Pipe": {"requires": child["structs"]}}
+    wrapper["block_arguments"] = {"Pipe": {"requires": child["structs"]}}
     wrapper["formulations"]["network"]["blocks"]["pipe"] = {
-        "block_slot": "Pipe", "domain_bindings": {"time": "time"},
+        "block_argument": "Pipe", "domain_bindings": {"time": "time"},
     }
     root["formulations"]["network"]["blocks"]["pipe"] = {
         "block": "wrapper", "block_arguments": {"Pipe": {"block": "indexed_pipe"}},
@@ -296,7 +296,7 @@ def test_generic_child_keeps_occurrence_domain_bindings(tmp_path):
     selection["subblocks"]["pipe"] = {
         "formulation": "network", "subblocks": {"pipe": {"formulation": "pass_through"}},
     }
-    m = build_model("network", selection, library=library_for(tmp_path, root, wrapper, child),
+    m = build_model("network", selection, registry=registry_for(tmp_path, root, wrapper, child),
                     domain_values={"time": [0, 1]})
     nested = m.fs.root.formulation.blocks.pipe.formulation.blocks.pipe
     assert nested.structs.inlet.flow.index_set() is m.fs.time
@@ -309,7 +309,7 @@ def test_bound_discrete_domains_share_set_identity(tmp_path):
                      for d in (parent, child)]
     for definition in (parent, child):
         definition["domains"]["cells"]["kind"] = "discrete"
-    m = build_model("network", selection, library=library_for(tmp_path, parent, child),
+    m = build_model("network", selection, registry=registry_for(tmp_path, parent, child),
                     domain_values={"cells": [0, 1]})
     root = m.fs.root
     assert root.formulation.blocks.pipe.structs.inlet.flow.index_set() is root.domains.cells

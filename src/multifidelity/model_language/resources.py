@@ -134,8 +134,8 @@ class Resource(BaseModel):
         return dict(zip(keys, entries(self.value), strict=True))
 
 
-class ResourceCatalog(RootModel[tuple[Resource, ...]]):
-    """Pydantic array catalog retaining alternative records for one case.
+class ResourceDocument(RootModel[tuple[Resource, ...]]):
+    """Pydantic array document retaining alternative records for one case.
 
     Serialization uses the same JSON array as loading. Records and the root tuple
     cannot be mutated in place; add() validates a replacement tuple atomically.
@@ -153,11 +153,11 @@ class ResourceCatalog(RootModel[tuple[Resource, ...]]):
         return records
 
     @classmethod
-    def from_json(cls, text: str | bytes) -> "ResourceCatalog":
+    def from_json(cls, text: str | bytes) -> "ResourceDocument":
         return cls.model_validate_json(text)
 
     @classmethod
-    def load_json(cls, path: str | Path) -> "ResourceCatalog":
+    def load_json(cls, path: str | Path) -> "ResourceDocument":
         return cls.from_json(Path(path).read_text(encoding="utf-8"))
 
     @property

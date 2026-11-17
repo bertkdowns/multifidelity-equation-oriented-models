@@ -7,8 +7,8 @@ from pathlib import Path
 from idaes.core.solvers import get_solver
 from pyomo.opt import check_optimal_termination
 from multifidelity.model_language import (
-    ResourceCatalog, ParameterCatalog, apply_parameters,
-    initialize_model, relax_parameters, get_variable, export_results, WorkspaceCatalog,
+    ResourceDocument, ParameterDocument, apply_parameters,
+    initialize_model, relax_parameters, get_variable, export_results, WorkspaceDocument,
     Resource,
 )
 from multifidelity.model_language.scaling import scaled_jacobian, export_scaling
@@ -27,9 +27,9 @@ if __name__ == '__main__':
         args.reference_guesses = True
         name = 'cycle_parameters_relaxation_coherent'
     model = build('cycle', 'aggregate')
-    resources = ResourceCatalog.load_json(HERE / 'cycle_flow_target_resources.json')
+    resources = ResourceDocument.load_json(HERE / 'cycle_flow_target_resources.json')
     base_resources = resources
-    parameters = ParameterCatalog.load_json(HERE / 'cycle_flow_target_parameters.json')
+    parameters = ParameterDocument.load_json(HERE / 'cycle_flow_target_parameters.json')
     if args.reference_guesses:
         capture = json.loads((HERE / 'ahuora_reference.json').read_text())
         objects = {o['id']: o for o in capture['objects']}
@@ -66,7 +66,7 @@ if __name__ == '__main__':
                                      unit='kg/s' if path.endswith('.flow') else 'Pa' if path.endswith(('.pressure', '.pressure_drop')) else 'J/kg',
                                      trust_rank=1)
                    for i, (path, number) in enumerate(guesses.items())]
-        resources = ResourceCatalog(root=(*resources.records, *records))
+        resources = ResourceDocument(root=(*resources.records, *records))
     apply_parameters(model, parameters, resources)
     initialized = initialize_model(model, resources=base_resources if args.coherent_guesses else resources,
                                    parameters=parameters)
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         'max_iter': 1500, 'tol': 1e-8, 'max_cpu_time': 90,
         'nlp_scaling_method': 'user-scaling', 'linear_system_scaling': 'none',
     }).solve(relaxed.model, tee=True, load_solutions=False)
-    report = dict(model_catalog='cycle_aggregate', initialization=asdict(initialized),
+    report = dict(model_document='cycle_aggregate', initialization=asdict(initialized),
                   termination=str(result.solver.termination_condition),
                   optimal=check_optimal_termination(result),
                   weights='Variable scales; weight 1 for each selected parameters')
@@ -110,7 +110,7 @@ if __name__ == '__main__':
                    message='Parameter-relaxation diagnostic: selected parameters are soft.',
                    parameters=parameters)
     snapshot.write_json(HERE / f'{name}_results.json')
-    WorkspaceCatalog.from_results(snapshot, resources).write_json(HERE / f'{name}_workspace.json')
+    WorkspaceDocument.from_results(snapshot, resources).write_json(HERE / f'{name}_workspace.json')
     if report['usable_ranking'] and args.coherent_guesses:
         checks = []
         for entry in relaxed.entries:

@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from pyomo.environ import Constraint, Var
 
 from multifidelity.model_language import (
-    ResourceCatalog, BlockLibrary, BlockCatalog, ParameterCatalog,
+    ResourceDocument, BlockRegistry, BlockDefinition, ParameterDocument,
     apply_parameters, audit_fixations, build_model, canonical_inputs,
     get_variable, pair_parameters, select_parameters, parameter_slots,
 )
@@ -13,7 +13,7 @@ from multifidelity.model_language import (
 
 def algebra(tmp_path, *, grid=False, mode="steady"):
     dimensions = ['time'] if grid else []
-    library = BlockLibrary(tmp_path)
+    registry = BlockRegistry(tmp_path)
     def variables(names):
         return {n: {'dimensions': dimensions, 'default': 1} for n in names}
 
@@ -21,7 +21,7 @@ def algebra(tmp_path, *, grid=False, mode="steady"):
         return dict(lhs=lhs + ('[t]' if grid else ''), rhs=rhs,
                     determines=lhs + ('[t]' if grid else ''),
                     **({'for_each': {'t': 'time'}} if grid else {}))
-    library.blocks['algebra'] = BlockCatalog.model_validate({
+    registry.blocks['algebra'] = BlockDefinition.model_validate({
         'id': 'algebra', 'domains': {'time': {'kind': 'time'}} if grid else {},
         'structs': {
             'input': {'direction': 'input', 'variables': variables(['x', 'y', 'isolated'])},
@@ -31,12 +31,12 @@ def algebra(tmp_path, *, grid=False, mode="steady"):
             'b': equation('output.b', 'input.x[t] + input.y[t]' if grid else 'input.x + input.y'),
         }}},
     })
-    return build_model('algebra', {'formulation': 'equations'}, library=library,
+    return build_model('algebra', {'formulation': 'equations'}, registry=registry,
                        domain_values={'time': [0, 10]} if grid else None, mode=mode)
 
 
 def records(**paths):
-    return ResourceCatalog([dict(tag=i, resource_type='sensor_reading',
+    return ResourceDocument([dict(tag=i, resource_type='sensor_reading',
                                     variable_path=p, value=2, unit='dimensionless', trust_rank=10)
                                 for i, p in paths.items()])
 
@@ -44,9 +44,9 @@ def records(**paths):
 def test_manual_pair_is_portable_and_retains_equations(tmp_path):
     model = algebra(tmp_path)
     info = records(measurement='output.b')
-    spec = ParameterCatalog(parameters=['measurement'],
+    spec = ParameterDocument(parameters=['measurement'],
                                  replacements={'measurement': 'input.y'})
-    assert ParameterCatalog.from_json(spec.model_dump_json()) == spec
+    assert ParameterDocument.from_json(spec.model_dump_json()) == spec
     equations = list(model.component_data_objects(Constraint))
     apply_parameters(model, spec, info)
     assert get_variable(model, 'output.b').fixed
@@ -150,12 +150,12 @@ def test_audit_detects_unmanaged_fixes_and_refixed_replaced_inputs(tmp_path):
 ])
 def test_replacement_catalog_shape_is_explicit(data):
     with pytest.raises(ValidationError):
-        ParameterCatalog.model_validate(data)
+        ParameterDocument.model_validate(data)
 
 
 def test_locality_uses_occurrence_structure_and_saved_results_keep_pairs(tmp_path):
-    from multifidelity.model_language import export_results, ResultsCatalog
-    library = BlockLibrary(tmp_path)
+    from multifidelity.model_language import export_results, ResultsDocument
+    registry = BlockRegistry(tmp_path)
     # Reuse an algebraic definition behind a hierarchy, without domain metadata.
     definition = {
         'id': 'leaf', 'structs': {
@@ -164,20 +164,20 @@ def test_locality_uses_occurrence_structure_and_saved_results_keep_pairs(tmp_pat
         }, 'formulations': {'sum': {'constraints': {
             'sum': {'lhs': 'output.z', 'rhs': 'input.x + input.y', 'determines': 'output.z'}}}},
     }
-    library.blocks['leaf'] = BlockCatalog.model_validate(definition)
-    library.blocks['root'] = BlockCatalog.model_validate({
+    registry.blocks['leaf'] = BlockDefinition.model_validate(definition)
+    registry.blocks['root'] = BlockDefinition.model_validate({
         'id': 'root', 'structs': {'feed': {'direction': 'input', 'variables': {'x': {}}}},
         'formulations': {'link': {'blocks': {'child': {'block': 'leaf'}}, 'constraints': {
             'feed': {'lhs': 'child.input.x', 'rhs': 'feed.x', 'determines': 'child.input.x'}}}},
     })
-    model = build_model('root', {'formulation': 'link', 'subblocks': {'child': {'formulation': 'sum'}}}, library=library)
+    model = build_model('root', {'formulation': 'link', 'subblocks': {'child': {'formulation': 'sum'}}}, registry=registry)
     info = records(value='child.output.z')
     spec = pair_parameters(model, {'parameters': ['value']}, info)
     assert spec.replacements == {'value': 'child.input.y'}
     assert not any(v.fixed for v in model.component_data_objects(Var))
     apply_parameters(model, spec, info)
     snapshot = export_results(model, parameters=spec)
-    assert ResultsCatalog.from_json(snapshot.model_dump_json()).parameters == spec
+    assert ResultsDocument.from_json(snapshot.model_dump_json()).parameters == spec
     assert parameter_slots(model.clone()) == parameter_slots(model)
 
 
@@ -194,7 +194,7 @@ def test_initial_slice_cannot_refill_a_replaced_operating_input(tmp_path):
 
 def test_edited_catalog_mapping_is_revalidated_before_application(tmp_path):
     model = algebra(tmp_path)
-    spec = ParameterCatalog(parameters=['a'], replacements={'a': 'input.x'})
+    spec = ParameterDocument(parameters=['a'], replacements={'a': 'input.x'})
     spec.replacements['absent'] = 'input.y'
     with pytest.raises(ValidationError, match='selected operating'):
         apply_parameters(model, spec, records(a='output.a'))

@@ -5,12 +5,12 @@ from pathlib import Path
 import pytest
 from pyomo.environ import Constraint, value
 
-from multifidelity.model_language import build_model as _build_model, required_inputs, BlockLibrary, register_standard_providers
+from multifidelity.model_language import build_model as _build_model, required_inputs, BlockRegistry, register_standard_providers
 
 def build_model(*args, **kwargs):
-    library = kwargs.pop("library", None) or BlockLibrary()
-    register_standard_providers(library)
-    return _build_model(*args, library=library, **kwargs)
+    registry = kwargs.pop("registry", None) or BlockRegistry()
+    register_standard_providers(registry)
+    return _build_model(*args, registry=registry, **kwargs)
 
 EXAMPLES = Path(__file__).parents[1] / "examples/model_language"
 

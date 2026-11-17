@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from pyomo.environ import Constraint, TransformationFactory, Var, units
 
 from multifidelity.model_language import (
-    ResourceCatalog, BlockLibrary, BlockCatalog, apply_parameters,
+    ResourceDocument, BlockRegistry, BlockDefinition, apply_parameters,
     apply_starting_values, build_model, get_variable, initialize_custom_models,
 )
 from multifidelity.model_language.definitions import Variable
@@ -16,10 +16,10 @@ def record(tag, path, value, unit='kPa', trust_rank=5):
 
 
 def test_defaults_broadcast_and_survive_discretization():
-    library = BlockLibrary()
-    library.blocks['valve'].structs['inlet'].variables['pressure'].default = 200000
-    library.blocks['valve'].structs['outlet'].variables['pressure'].default = None
-    model = build_model('valve', {'formulation': 'isenthalpic'}, library=library,
+    registry = BlockRegistry()
+    registry.blocks['valve'].structs['inlet'].variables['pressure'].default = 200000
+    registry.blocks['valve'].structs['outlet'].variables['pressure'].default = None
+    model = build_model('valve', {'formulation': 'isenthalpic'}, registry=registry,
                         mode='dynamic', domain_values={'time': [0, 1]})
     TransformationFactory('dae.finite_difference').apply_to(model, wrt=model.fs.time, nfe=4)
     assert all(v.value == 200000 and not v.fixed
@@ -35,12 +35,12 @@ def test_invalid_default(guess):
 
 def test_resources_rank_units_exclusions_and_fixed_parameters():
     model = build_model('valve', {'formulation': 'isenthalpic'})
-    info = ResourceCatalog([
+    info = ResourceDocument([
         record('fixed', 'inlet.pressure', 200),
         record('out_low', 'outlet.pressure', 100),
         record('out_high', 'outlet.pressure', 150, trust_rank=8),
         record('held_out', 'outlet.pressure', 999, trust_rank=10),
-        record('other_model_catalog', 'not_here.x', 10),
+        record('other_model_document', 'not_here.x', 10),
     ])
     spec = {'parameters': ['fixed']}
     apply_parameters(model, spec, info)
@@ -55,7 +55,7 @@ def test_resources_rank_units_exclusions_and_fixed_parameters():
 def test_resources_validation_is_atomic():
     model = build_model('valve', {'formulation': 'isenthalpic'})
     get_variable(model, 'inlet.pressure')[0].set_value(123)
-    info = ResourceCatalog([
+    info = ResourceDocument([
         record('good', 'inlet.pressure', 200),
         record('bad', 'outlet.pressure', 1, unit='kg'),
     ])
@@ -65,8 +65,8 @@ def test_resources_validation_is_atomic():
 
 
 def custom(callback):
-    library = BlockLibrary()
-    library.blocks['custom'] = BlockCatalog.model_validate({
+    registry = BlockRegistry()
+    registry.blocks['custom'] = BlockDefinition.model_validate({
         'id': 'custom', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'pressure': {'unit': 'Pa', 'default': 200000}}},
             'outlet': {'direction': 'output', 'variables': {'pressure': {'unit': 'Pa'}}},
@@ -78,8 +78,8 @@ def custom(callback):
         block.q = Var(units=units.kPa)
         block.balance = Constraint(expr=block.q == block.p)
         return {'inlet.pressure': block.p, 'outlet.pressure': block.q}
-    library.register_provider('test', provider, initializer=callback)
-    return build_model('custom', {'formulation': 'native'}, library=library)
+    registry.register_provider('test', provider, initializer=callback)
+    return build_model('custom', {'formulation': 'native'}, registry=registry)
 
 
 def test_callback_is_explicit_and_transfers_units_restoring_temporary_changes():
@@ -133,7 +133,7 @@ def test_series_guesses_preserve_fixed_dynamic_initial_entry():
                         mode='dynamic', domain_values={'time': [0, 1, 2]})
     family = get_variable(model, 'inlet.pressure')
     family[0].fix(200000)
-    info = ResourceCatalog([
+    info = ResourceDocument([
         {**record('profile', 'inlet.pressure', [100, 150, 180]), 'type': 'series'},
     ])
     assert apply_starting_values(model, info) == ['profile']
@@ -147,7 +147,7 @@ def test_callback_receives_fixed_output_and_preserves_its_parameters():
         block.p.set_value(block.q.value)
     model = custom(callback)
     outlet = get_variable(model, 'outlet.pressure')
-    info = ResourceCatalog([record('outlet', 'outlet.pressure', 250)])
+    info = ResourceDocument([record('outlet', 'outlet.pressure', 250)])
     apply_parameters(model, {'parameters': ['outlet'],
                                 'replacements': {'outlet': 'inlet.pressure'}}, info)
     initialize_custom_models(model)
@@ -156,9 +156,9 @@ def test_callback_receives_fixed_output_and_preserves_its_parameters():
 
 
 def test_custom_callbacks_include_new_discretization_slices():
-    from examples.custom_blocks.build import HERE, make_library
+    from examples.custom_blocks.build import HERE, make_registry
     model = build_model('pump_flowsheet', HERE / 'model_selection.json',
-                        library=make_library(), mode='dynamic',
+                        registry=make_registry(), mode='dynamic',
                         domain_values={'time': [0, 1]})
     TransformationFactory('dae.finite_difference').apply_to(model, wrt=model.fs.time, nfe=4)
     completed = initialize_custom_models(model)

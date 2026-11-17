@@ -6,10 +6,10 @@ import { parseResults } from './results.js';
 const prefix = kind => `multifidelity:catalog:v1:${kind}:`;
 export const catalogKey = (kind, root) => prefix(kind) + encodeURIComponent(root);
 const activeBlockKey = 'multifidelity:active-block:v1';
-export function loadActiveBlock(library, fallback, storage) {
+export function loadActiveBlock(registry, fallback, storage) {
   try {
     const root = (storage ?? globalThis.localStorage).getItem(activeBlockKey);
-    return Object.hasOwn(library, root) ? root : fallback;
+    return Object.hasOwn(registry, root) ? root : fallback;
   } catch { return fallback; }
 }
 export function saveActiveBlock(root, storage) {
@@ -18,7 +18,7 @@ export function saveActiveBlock(root, storage) {
 }
 
 function validate(kind, value, root) {
-  if (kind === 'model_catalog') return parseModel(JSON.stringify(value), { allowIncomplete: true });
+  if (kind === 'model_document') return parseModel(JSON.stringify(value), { allowIncomplete: true });
   if (!value || typeof value.name !== 'string') throw Error('Missing filename.');
   if (kind === 'feeds') return { name: value.name, feeds: parseFeeds(JSON.stringify(value.feeds)) };
   if (kind === 'resources') return { name: value.name, records: parseResources(JSON.stringify(value.records)) };

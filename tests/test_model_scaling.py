@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from pyomo.environ import ConcreteModel, Constraint, Expr_if, TransformationFactory, Var, units
 
 from multifidelity.model_language import (
-    BlockLibrary, BlockCatalog, apply_scaling, build_model, get_variable,
+    BlockRegistry, BlockDefinition, apply_scaling, build_model, get_variable,
     initialize_model, register_standard_providers,
 )
 from multifidelity.model_language.definitions import Variable
@@ -35,11 +35,11 @@ def test_scales_survive_discretization_and_cloning_without_changing_values():
 
 
 def native_model(tmp_path, *, declared=True):
-    library = BlockLibrary(tmp_path)
+    registry = BlockRegistry(tmp_path)
     variable = {'unit': 'Pa', 'default': 200000}
     if declared:
         variable['scale'] = 1e-5
-    library.blocks['native'] = BlockCatalog.model_validate({
+    registry.blocks['native'] = BlockDefinition.model_validate({
         'id': 'native', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'pressure': variable}},
             'outlet': {'direction': 'output', 'variables': {'pressure': {'unit': 'Pa'}}},
@@ -56,8 +56,8 @@ def native_model(tmp_path, *, declared=True):
         calls.append(block.name)
         set_scaling_factor(block.p, 0.02)
         set_scaling_factor(block.q, 0.01)
-    library.register_provider('test', provider, scaler=scaler)
-    return build_model('native', {'formulation': 'native'}, library=library), calls
+    registry.register_provider('test', provider, scaler=scaler)
+    return build_model('native', {'formulation': 'native'}, registry=registry), calls
 
 
 def test_native_scaler_unit_conversion_and_public_declaration_priority(tmp_path):
@@ -137,21 +137,21 @@ def test_piecewise_derivative_uses_current_branch():
 
 
 def test_numerical_degeneracy_is_reported_without_extra_fixes(tmp_path):
-    library = BlockLibrary(tmp_path)
-    library.blocks['singular'] = BlockCatalog.model_validate({
+    registry = BlockRegistry(tmp_path)
+    registry.blocks['singular'] = BlockDefinition.model_validate({
         'id': 'singular', 'structs': {
             'inlet': {'direction': 'input', 'variables': {'x': {'default': 0}}},
             'outlet': {'direction': 'output', 'variables': {'y': {'default': 0}}},
         }, 'formulations': {'eq': {'constraints': {
             'eq': {'lhs': 'outlet.y ** 2', 'rhs': 'inlet.x ** 2', 'determines': 'outlet.y'}}}},
     })
-    library.blocks['wrapper'] = BlockCatalog.model_validate({
+    registry.blocks['wrapper'] = BlockDefinition.model_validate({
         'id': 'wrapper', 'structs': {}, 'formulations': {'eq': {
             'blocks': {'child': {'block': 'singular'}}, 'constraints': {
                 'input': {'lhs': 'child.inlet.x', 'rhs': '1', 'determines': 'child.inlet.x'}}}},
     })
     model = build_model('wrapper', {'formulation': 'eq', 'subblocks': {
-        'child': {'formulation': 'eq'}}}, library=library)
+        'child': {'formulation': 'eq'}}}, registry=registry)
     result = initialize_model(model)
     assert not result.success
     stage = result.stages[0]
@@ -165,17 +165,17 @@ def test_helmholtz_temperature_parameters_leaves_enthalpy_free(solver):
     from idaes.models.properties.general_helmholtz import helmholtz_available
     if not helmholtz_available():
         pytest.skip('Helmholtz functions unavailable')
-    library = BlockLibrary()
-    register_standard_providers(library)
+    registry = BlockRegistry()
+    register_standard_providers(registry)
     from multifidelity.model_language.definitions import Constraint as ModelConstraint
-    library.blocks['helmholtz_water_state_block'].formulations['evaluate'].constraints['pressure'] = ModelConstraint(
+    registry.blocks['helmholtz_water_state_block'].formulations['evaluate'].constraints['pressure'] = ModelConstraint(
         lhs='states.state.pressure[t]', rhs='200000 * units.Pa',
         determines='states.state.pressure[t]', for_each={'t': 'time'})
     model = build_model('helmholtz_water_state_block', {'formulation': 'evaluate', 'subblocks': {
         'states': {'formulation': 'evaluate', 'subblocks': {'fluid': {'formulation': 'helmholtz'}}},
-    }}, library=library)
-    from multifidelity.model_language import ResourceCatalog, apply_parameters
-    resources = ResourceCatalog([dict(
+    }}, registry=registry)
+    from multifidelity.model_language import ResourceDocument, apply_parameters
+    resources = ResourceDocument([dict(
         tag='temperature', resource_type='assumption',
         variable_path='states.properties.temperature', value=350.15, unit='K', trust_rank=5)])
     apply_parameters(model, {'parameters': ['temperature'],

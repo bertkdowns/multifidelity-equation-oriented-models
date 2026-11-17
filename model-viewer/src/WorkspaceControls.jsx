@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { parseWorkspace } from './workspace.js';
 
-export default function WorkspaceControls({ root, model_catalog, resources, results, feeds, library, onOpen }) {
+export default function WorkspaceControls({ root, model_document, resources, results, feeds, registry, onOpen }) {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -10,9 +10,9 @@ export default function WorkspaceControls({ root, model_catalog, resources, resu
     if (!results) return { problem: 'Load results to save a workspace.' };
     try {
       if (results.block_id !== root) throw Error('Results must belong to this root model.');
-      return { catalog: parseWorkspace(JSON.stringify({ model_catalog, resources: resources ?? [], results, ...(feeds ? { feeds } : {}) })) };
+      return { catalog: parseWorkspace(JSON.stringify({ model_document, resources: resources ?? [], results, ...(feeds ? { feeds } : {}) })) };
     } catch (error) { return { problem: error.message }; }
-  }, [root, model_catalog, resources, results, feeds]);
+  }, [root, model_document, resources, results, feeds]);
   useEffect(() => {
     if (!bundle.catalog) { setUrl(''); return; }
     const next = URL.createObjectURL(new Blob([JSON.stringify(bundle.catalog, null, 2) + '\n'], { type: 'application/json' }));
@@ -25,7 +25,7 @@ export default function WorkspaceControls({ root, model_catalog, resources, resu
     try {
       if (file.size > 40 * 1024 * 1024) throw Error('Please use a workspace smaller than 40 MB.');
       const workspace = parseWorkspace(await file.text());
-      if (!Object.hasOwn(library, workspace.results.block_id)) throw Error(`Model ${workspace.results.block_id} is not in the library.`);
+      if (!Object.hasOwn(registry, workspace.results.block_id)) throw Error(`Model ${workspace.results.block_id} is not in the registry.`);
       onOpen(workspace, file.name);
       setMessage(`Opened ${file.name}`);
     } catch (error) { setError(error.message); }

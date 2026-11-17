@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from .model_selection import ModelCatalog
+from .model_selection import ModelDocument
 from .resolution import BlockView, FormulationView
 from ._validation import determination_sources
 
@@ -17,19 +17,19 @@ class _Occurrence:
     supplied: frozenset[str]
 
 
-def _walk_model(root, model_catalog, enter, leave=None):
+def _walk_model(root, model_document, enter, leave=None):
     """Validate and visit only selected occurrences, in one recursive traversal.
 
     enter(occurrence, parent_context, alias) prepares per-occurrence context.
     leave(occurrence, context, child_results) optionally runs after descendants.
     Requirements collect metadata on entry; the backend creates variables on
-    entry and equations on exit. No selected tree or public model_catalog type
+    entry and equations on exit. No selected tree or public model_document type
     is introduced, and unselected alternatives are never traversed.
     """
-    if isinstance(model_catalog, (str, Path)):
-        model_catalog = ModelCatalog.load_json(model_catalog)
-    elif not isinstance(model_catalog, ModelCatalog):
-        model_catalog = ModelCatalog.model_validate(model_catalog)
+    if isinstance(model_document, (str, Path)):
+        model_document = ModelDocument.load_json(model_document)
+    elif not isinstance(model_document, ModelDocument):
+        model_document = ModelDocument.model_validate(model_document)
 
     def visit(model, selection, prefix, supplied, parent, alias):
         formulation_id = selection.formulation
@@ -55,4 +55,4 @@ def _walk_model(root, model_catalog, enter, leave=None):
             )
         return leave(occurrence, context, children) if leave is not None else context
 
-    return visit(root, model_catalog, "", frozenset(), None, None)
+    return visit(root, model_document, "", frozenset(), None, None)

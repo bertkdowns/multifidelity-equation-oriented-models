@@ -11,7 +11,7 @@ from pyomo.util.calc_var_value import calculate_variable_from_constraint
 from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import (
-    BlockLibrary,
+    BlockRegistry,
     build_model,
     register_standard_providers,
     required_inputs,
@@ -41,14 +41,14 @@ def test_registration_and_inspection_do_not_construct_optional_providers(monkeyp
 
     for name in ("build_compressor_map", "build_helmholtz_ph", "build_humid_air"):
         monkeypatch.setattr(standard, name, forbidden)
-    library = BlockLibrary()
-    register_standard_providers(library)
-    assert library.get_provider("standard.humid_air") is forbidden
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    assert registry.get_provider("standard.humid_air") is forbidden
     assert set(
         required_inputs(
             "mapped_propane_compressor",
             choose("mapped_propane_compressor"),
-            library=library,
+            registry=registry,
         )
     ) == {
         "compressor.inlet.pressure",
@@ -57,22 +57,22 @@ def test_registration_and_inspection_do_not_construct_optional_providers(monkeyp
         "compressor.parameters.motor_efficiency",
     }
     assert set(
-        required_inputs("humid_air_state", choose("humid_air_state"), library=library)
+        required_inputs("humid_air_state", choose("humid_air_state"), registry=registry)
     ) == {"state.temperature", "state.pressure", "state.water_mole_fraction"}
 
 
 def test_richer_helmholtz_interface_satisfies_existing_state_block():
     require_helmholtz()
-    library = BlockLibrary()
-    register_standard_providers(library)
+    registry = BlockRegistry()
+    register_standard_providers(registry)
     selection = choose("helmholtz_water_state_block")
-    model = build_model("helmholtz_water_state_block", selection, library=library)
+    model = build_model("helmholtz_water_state_block", selection, registry=registry)
     assert_units_consistent(model)
     assert degrees_of_freedom(model) == 2
     # Flow is a required stream input but thermodynamic equations do not use it.
     assert (
         len(
-            required_inputs("helmholtz_water_state_block", selection, library=library)
+            required_inputs("helmholtz_water_state_block", selection, registry=registry)
         )
         == 3
     )
@@ -82,41 +82,41 @@ def test_richer_helmholtz_interface_satisfies_existing_state_block():
     assert not hasattr(pair.structs.properties, "viscosity")
     assert (
         "temperature_dew"
-        in library.get("helmholtz_water_ph").structs["properties"].variables
+        in registry.get("helmholtz_water_ph").structs["properties"].variables
     )
 
 
 def test_mapped_compressor_rejects_property_model_without_saturation():
-    library = BlockLibrary()
+    registry = BlockRegistry()
     reference = (
-        library.get("mapped_propane_compressor")
+        registry.get("mapped_propane_compressor")
         .formulations["evaluate"]
         .blocks["compressor"]
     )
     reference.block_arguments["FluidProperties"].block = "water_property_package"
-    del library.get("water_property_package").structs["properties"].variables["temperature_bubble"]
+    del registry.get("water_property_package").structs["properties"].variables["temperature_bubble"]
     with pytest.raises(
         ValueError, match="missing required variable properties.temperature_bubble"
     ):
         required_inputs(
             "mapped_propane_compressor",
             choose("mapped_propane_compressor"),
-            library=library,
+            registry=registry,
         )
 
 
 def test_affine_water_exposes_liquid_fraction_and_saturation_temperatures():
-    library = BlockLibrary()
+    registry = BlockRegistry()
     assert (
         "temperature_dew"
-        in library.get("water_property_package").structs["properties"].variables
+        in registry.get("water_property_package").structs["properties"].variables
     )
     assert (
         len(
             required_inputs(
                 "water_state_block",
                 EXAMPLES / "water_state_block_evaluate.json",
-                library=library,
+                registry=registry,
             )
         )
         == 3
@@ -181,12 +181,12 @@ def test_standard_catalogs_build_with_only_declared_operating_inputs(name, input
         require_helmholtz()
     if name == "humid_air_state":
         pytest.importorskip("ahuora_property_packages")
-    library = BlockLibrary()
-    register_standard_providers(library)
-    model = build_model(name, choose(name), library=library)
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    model = build_model(name, choose(name), registry=registry)
     assert_units_consistent(model)
     assert degrees_of_freedom(model) == inputs
-    assert len(required_inputs(name, choose(name), library=library)) == inputs
+    assert len(required_inputs(name, choose(name), registry=registry)) == inputs
     public = [v for v in model.component_data_objects(Var) if ".structs." in v.name]
     assert all(not v.fixed for v in public)
 
@@ -216,12 +216,12 @@ def test_composed_compressor_matches_source_rating_and_energy_balance():
         AmountBasis,
     )
 
-    library = BlockLibrary()
-    register_standard_providers(library)
+    registry = BlockRegistry()
+    register_standard_providers(registry)
     model = build_model(
         "mapped_propane_compressor",
         choose("mapped_propane_compressor"),
-        library=library,
+        registry=registry,
     )
     compressor = model.fs.root.formulation.blocks.compressor
     inlet_provider = compressor.formulation.blocks.inlet_state.formulation.blocks.fluid.formulation.slices[0].provider

@@ -11,7 +11,7 @@ from pyomo.core.base.var import VarData
 from pyomo.environ import Block, ConcreteModel, Constraint, ConstraintList, Var, units
 from pyomo.util.check_units import assert_units_consistent
 
-from .resolution import BlockLibrary
+from .resolution import BlockRegistry
 from ._validation import connection_endpoints
 from ._traversal import _walk_model
 from .domains import BuildDomains
@@ -28,11 +28,11 @@ _BINARY = {
 }
 
 
-def _build_external_slice(active, external, variables, library, path):
+def _build_external_slice(active, external, variables, registry, path):
     """Keep provider construction and interface binding out of JSON compilation."""
     active.provider = Block()
     try:
-        provider = library.get_provider(external.provider)
+        provider = registry.get_provider(external.provider)
         mapping = provider(active.provider, deepcopy(external.config))
         if not isinstance(mapping, Mapping) or set(mapping) != set(variables):
             raise ValueError(
@@ -49,18 +49,18 @@ def _build_external_slice(active, external, variables, library, path):
                 public == units.convert(internal, to_units=units.get_units(public))
             )
         active._model_language_initialization = (
-            library.get_initializer(external.provider), deepcopy(external.config),
+            registry.get_initializer(external.provider), deepcopy(external.config),
             dict(variables), dict(mapping), set(external.dependencies),
         )
         active._model_language_scaling = (
-            library.get_scaler(external.provider), deepcopy(external.config),
+            registry.get_scaler(external.provider), deepcopy(external.config),
             dict(variables), dict(mapping),
         )
     except Exception as error:
         raise ValueError(f"{path}: provider {external.provider!r}: {error}") from error
 
 
-def _build_external(active, external, variables, library, path):
+def _build_external(active, external, variables, registry, path):
     """Lift the scalar provider protocol over a shared time domain.
 
     A Block rule constructs new slices when DAE discretization inserts points.
@@ -68,13 +68,13 @@ def _build_external(active, external, variables, library, path):
     """
     indexed = [v for v in variables.values() if v.is_indexed()]
     if not indexed:
-        _build_external_slice(active, external, variables, library, path)
+        _build_external_slice(active, external, variables, registry, path)
         return
     time = indexed[0].index_set()
 
     def rule(block, t):
         public = {name: v[t] if v.is_indexed() else v for name, v in variables.items()}
-        _build_external_slice(block, external, public, library, f"{path}[{t}]")
+        _build_external_slice(block, external, public, registry, f"{path}[{t}]")
 
     active.slices = Block(time, rule=rule)
 
@@ -120,24 +120,24 @@ def _expression(text, resolve, indices=None, index_domains=None):
     return visit(ast.parse(text, mode="eval").body)
 
 
-def build_model(block_id, model_catalog, *, library=None, domain_values=None,
+def build_model(block_id, model_document, *, registry=None, domain_values=None,
                 mode="steady", time_unit="s"):
     """Construct a steady or dynamic tree without solving or fixing operating inputs.
 
-    model_catalog is a ModelCatalog, dict or JSON file path. Every selected formulation must
+    model_document is a ModelDocument, dict or JSON file path. Every selected formulation must
     specify exactly its declared subblocks, recursively. Recursive definitions
     are permitted only when the supplied selection terminates. All values and
     fixations, including initial conditions, are applied separately. Declared
     defaults supply unfixed starting guesses during construction.
     """
-    from .model_selection import ModelCatalog
+    from .model_selection import ModelDocument
     from pathlib import Path
-    if isinstance(model_catalog, (str, Path)):
-        model_catalog = ModelCatalog.load_json(model_catalog)
-    elif not isinstance(model_catalog, ModelCatalog):
-        model_catalog = ModelCatalog.model_validate(model_catalog)
-    library = library or BlockLibrary()
-    root = library.resolve(block_id)
+    if isinstance(model_document, (str, Path)):
+        model_document = ModelDocument.load_json(model_document)
+    elif not isinstance(model_document, ModelDocument):
+        model_document = ModelDocument.model_validate(model_document)
+    registry = registry or BlockRegistry()
+    root = registry.resolve(block_id)
     build_domains = BuildDomains(root, domain_values, mode)
 
     def parse_unit(text):
@@ -150,7 +150,7 @@ def build_model(block_id, model_catalog, *, library=None, domain_values=None,
     model.fs = FlowsheetBlock(dynamic=mode == "dynamic", time_set=build_domains.time_points,
                               time_units=time_units)
     model.fs.root = Block()
-    registry = {}
+    variable_map = {}
     initialization_order = []
 
     def enter(occurrence, parent, alias):
@@ -187,13 +187,13 @@ def build_model(block_id, model_catalog, *, library=None, domain_values=None,
                     from idaes.core.util.scaling import set_scaling_factor
                     set_scaling_factor(var, variable.scale)
                 variables[f"{struct_id}.{variable_id}"] = var
-                registry[occurrence.prefix + f"{struct_id}.{variable_id}"] = var
+                variable_map[occurrence.prefix + f"{struct_id}.{variable_id}"] = var
         block.formulation = Block()
         active = block.formulation
         external = formulation.definition.external
         if external is not None:
             _build_external(
-                active, external, variables, library,
+                active, external, variables, registry,
                 f"{path}.{occurrence.formulation_id}",
             )
         else:
@@ -308,15 +308,15 @@ def build_model(block_id, model_catalog, *, library=None, domain_values=None,
         # containing formulation resolves references to this occurrence.
         return variables
 
-    _walk_model(root, model_catalog, enter, leave)
+    _walk_model(root, model_document, enter, leave)
     build_domains.check_unused()
     # Check the complete equation tree without fixing values or calling a solver.
     assert_units_consistent(model)
     # Retain the same occurrence-path lookup for later parameters application.
     # Components stay live as discretization adds entries to indexed variables.
     model._model_language_block_id = block_id
-    model._model_language_model_catalog = model_catalog.model_copy(deep=True)
-    model._model_language_variables = registry
+    model._model_language_model_document = model_document.model_copy(deep=True)
+    model._model_language_variables = variable_map
     model._model_language_initialization_order = initialization_order
     model._model_language_canonical_inputs = tuple(sorted(
         model.fs.root._model_language_open_initialization_inputs))

@@ -1,10 +1,11 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Data exchange proposal</title><style>
 body{margin:0;background:#f7f9fc;color:#26354b;font:15px/1.6 system-ui,sans-serif}main{max-width:1080px;margin:auto;padding:36px 32px}h1{font-size:28px;margin:0}h2{font-size:19px;margin:30px 0 10px}p{margin:10px 0}pre{padding:18px;background:white;border:1px solid #dbe4ee;border-radius:6px;overflow:auto;font:12px/1.7 ui-monospace,monospace}code{font-family:ui-monospace,monospace;font-size:.9em}li{margin:9px 0}img{width:100%;border:1px solid #dbe4ee;border-radius:6px}a{color:#345f8b}.muted{font-size:12px;color:#708097}strong{font-weight:650}</style><main><h1>Feeds supply resources for a model</h1>
 <p class="muted">Revised 17 November 2026 · Feeds implemented; output channels remain proposed</p>
-<p>External data enters through feeds. Each feed discovers the tags it can supply and reads their values in bulk. The registry combines those values with the resource metadata already held by the application, producing a fresh resource catalog.</p>
+<p>External data enters through feeds. Each feed discovers the tags it can supply and reads their values in bulk. The configured runtime collection combines those values with the resource metadata already held by the application, producing a fresh resource document.</p>
 <p>A resource carries a tag, model variable path, value, units, trust and optional uncertainty. Some resources are selected as parameters to constrain a model. Fetching a resource does not automatically select it or fix a variable.</p>
+<figure style="margin:24px 0"><img src="data-flow-overview.svg" alt="Data flow from external sources through feeds, resources and a numerical instance to results, with future publishing to external systems"><figcaption class="muted">Data flow overview; publishing remains future work. <a href="data-flow-overview.svg">Open full-size diagram</a>.</figcaption></figure>
 <pre><code>from pydantic import BaseModel
-from multifidelity.model_language import FeedRegistry
+from multifidelity.model_language import FeedRegistry, FeedDocument
 
 class PlantConfig(BaseModel):
     columns: dict[str, str]
@@ -24,23 +25,27 @@ class PlantFeed:
         values = self.client.read_many([columns[tag] for tag in tags])
         return {tag: values[columns[tag]] for tag in tags}
 
-feeds = FeedRegistry()
-feeds.register_feed(&quot;plant&quot;, PlantFeed(PlantConfig(columns={
-    &quot;inlet_flow&quot;: &quot;FT101&quot;, &quot;pressure_measurement&quot;: &quot;PT101&quot;,
-}), client))
+registry = FeedRegistry()
+registry.register(&quot;plant_api&quot;, lambda config: PlantFeed(config, client),
+                  config_type=PlantConfig)
+document = FeedDocument(feeds=[{
+    &quot;name&quot;: &quot;plant&quot;, &quot;provider_type&quot;: &quot;plant_api&quot;,
+    &quot;config&quot;: {&quot;columns&quot;: {&quot;inlet_flow&quot;: &quot;FT101&quot;}},
+}])
+feeds = registry.create_feeds(document)
 resources = feeds.read(resources)
-feeds.describe().write_json(&quot;feeds.json&quot;)
+feeds.get_document().write_json(&quot;feeds.json&quot;)
 </code></pre>
 <h2>Configuration stays typed in Python</h2>
-<p>Each feed defines its own Pydantic config model and returns it from get_config(). The registry serializes that configuration as JSON for storage and display. Runtime clients and credentials stay outside exported configuration.</p>
-<p>The live FeedRegistry contains executable feed objects. Its FeedCatalog is a portable snapshot: each entry contains a name, provider_type, discovered tags and config. The provider_type field names the Python class for inspection; loading it never imports code. Tags are rediscovered for each read, so configuration or source changes can alter the next request.</p>
+<p>Each feed defines its own Pydantic config model and returns it from get_config(). The runtime collection serializes that configuration as JSON for storage and display. Runtime clients and credentials stay outside exported configuration.</p>
+<p>FeedRegistry lists available plugins under stable names and exposes their config schemas. Registration does not construct a feed or discover tags. FeedDocument contains a feeds array: each entry names an instance, selects its provider_type and supplies JSON config. create_feeds() validates all plugin names and configs before constructing a FeedCollection. That collection discovers tags and routes bulk reads; tags are not duplicated in the document.</p>
 <h2>Blocks, models and parameters</h2>
-<p>A block defines an interface and offers alternative formulations. A root block with a formulation selected at each participating occurrence defines a model. ModelCatalog stores those recursive choices; build_model() combines it with the root block to construct a live numerical instance.</p>
-<p>ParameterCatalog records which resource tags constrain that model, including initial conditions and any replacements of canonical inputs. Selection, application and numerical solving remain separate operations. ResultsCatalog records the resulting numerical snapshot and its explicit solve status.</p>
+<p>A block defines an interface and offers alternative formulations. A root block with a formulation selected at each participating occurrence defines a model. ModelDocument stores those recursive choices; build_model() combines it with the root block to construct a live numerical instance.</p>
+<p>ParameterDocument records which resource tags constrain that model, including initial conditions and any replacements of canonical inputs. Selection, application and numerical solving remain separate operations. ResultsDocument records the resulting numerical snapshot and its explicit solve status.</p>
 <h2>Connections have their own tabs</h2>
-<p>The Feeds tab lists registered feed types, configuration as JSON, and discovered tags. Configuration is editable; tags are read-only discovery snapshots refreshed by exporting a new catalog from Python. The other implemented tabs are Diagram, Model, Resources and Results.</p>
-<img src="connections.svg" alt="Feeds tab concept with configuration and discovered resource tags">
+<p>The Feeds tab lists configured instance names and plugin types, with a JSON configuration editor. Python validates typed settings and discovers tags when the configured plugins run. The other implemented tabs are Blocks, Model, Resources and Results.</p>
+<img src="connections.svg" alt="Feeds tab showing configured plugin instances and JSON settings">
 <p>Output channels remain a proposed addition. A channel would subscribe to variable paths and receive one dictionary through write(values) after a successful solve. Naming and formatting for its destination would stay in its Python code; a delivery failure would be reported separately from solve status.</p>
 <img src="run-audit.svg" alt="Proposed output channels tab, which is not yet implemented">
-<p>WorkspaceCatalog bundles model_catalog, resources, results and optional feeds. These catalogs can be inspected offline. Re-execution requires the application to supply the registered feed classes and their runtime dependencies.</p>
+<p>WorkspaceDocument bundles model_document, resources, results and optional feeds. These artifacts can be inspected offline. Re-execution requires the application to supply the registered feed classes and their runtime dependencies.</p>
 <p class="muted">Feeds and the Feeds tab are implemented. Output channels and an automatic Simulation.solve() wrapper are not implemented.</p></main></html>

@@ -5,7 +5,7 @@ from pathlib import Path
 from pyomo.environ import Constraint, Var
 
 from multifidelity.model_language import (
-    ResourceCatalog, apply_parameters, build_model, get_variable,
+    ResourceDocument, apply_parameters, build_model, get_variable,
     select_parameters,
 )
 
@@ -19,7 +19,7 @@ def valve():
 
 def test_valve_selects_subset_without_mutating_model():
     model = valve()
-    table = ResourceCatalog.load_json(EXAMPLE / 'resources.json')
+    table = ResourceDocument.load_json(EXAMPLE / 'resources.json')
     before = [(v, v.value, v.fixed) for v in model.component_data_objects(Var)]
     result = select_parameters(model, table)
     assert result.complete
@@ -33,18 +33,18 @@ def test_valve_selects_subset_without_mutating_model():
 
 
 def test_outputs_can_replace_inputs_and_ties_are_deterministic():
-    table = ResourceCatalog.load_json(EXAMPLE / 'resources.json')
+    table = ResourceDocument.load_json(EXAMPLE / 'resources.json')
     records = [r.model_copy(update={'trust_rank': 10}) for r in table.records
                if r.tag != 'inlet_flow']
-    first = select_parameters(valve(), ResourceCatalog(records))
-    second = select_parameters(valve(), ResourceCatalog(reversed(records)))
+    first = select_parameters(valve(), ResourceDocument(records))
+    second = select_parameters(valve(), ResourceDocument(reversed(records)))
     assert first.complete
     assert first.parameters == second.parameters
     assert 'outlet_flow_check' in first.parameters.parameters
 
 
 def test_reserved_targets_and_insufficient_resources():
-    table = ResourceCatalog.load_json(EXAMPLE / 'resources.json')
+    table = ResourceDocument.load_json(EXAMPLE / 'resources.json')
     result = select_parameters(valve(), table,
                                   prediction_targets=['outlet.flow'],
                                   excluded_record_tags=['inlet_flow'])
@@ -57,12 +57,12 @@ def test_reserved_targets_and_insufficient_resources():
 def test_isolated_variables_and_local_overconstraint_are_not_hidden():
     model = valve()
     model.isolated = Var()
-    result = select_parameters(model, ResourceCatalog([]))
+    result = select_parameters(model, ResourceDocument([]))
     assert result.remaining_deficiency == 5
     assert 'isolated' in result.unresolved_variables
     model.extra = Constraint(expr=get_variable(model, 'inlet.flow')[0] == 1)
     model.duplicate = Constraint(expr=get_variable(model, 'inlet.flow')[0] == 2)
-    result = select_parameters(model, ResourceCatalog.load_json(EXAMPLE / 'resources.json'))
+    result = select_parameters(model, ResourceDocument.load_json(EXAMPLE / 'resources.json'))
     assert not result.complete
     assert result.overconstrained_constraints
     assert not result.parameters.parameters
@@ -75,7 +75,7 @@ def test_incompatible_preferred_record_falls_back_and_setpoints_need_assumption(
                     variable_path='inlet.pressure', value=200, unit='kPa', trust_rank=9),
                dict(tag='fallback', resource_type='assumption',
                     variable_path='inlet.pressure', value=190, unit='kPa', trust_rank=1)]
-    table = ResourceCatalog(records)
+    table = ResourceDocument(records)
     result = select_parameters(valve(), table)
     assert result.parameters.parameters == ('fallback',)
     result = select_parameters(valve(), table, achieved_setpoint_tags=['setpoint'])
@@ -87,7 +87,7 @@ def test_family_trial_rejected_if_one_entry_is_already_determined():
     model.profile = Var([0, 1])
     model.profile_equation = Constraint(expr=model.profile[0] == 1)
     model._model_language_variables['profile'] = model.profile
-    table = ResourceCatalog([dict(
+    table = ResourceDocument([dict(
         tag='profile', resource_type='assumption',
         variable_path='profile', value=1, unit='dimensionless', trust_rank=10)])
     result = select_parameters(model, table)

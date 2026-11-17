@@ -6,13 +6,13 @@ Reviewed 4 November 2026. This is a focused, exploratory review, not a systemati
 
 The project sits at the intersection of several established research areas: goal-oriented model adaptivity, grey-box model structure selection, process-data observability/reconciliation, and continuation-based initialization. The strongest opportunity is to investigate how these ideas interact in a reusable process-model hierarchy: **which representation and independent parameters are justified by the available evidence for a particular engineering prediction?** The broad idea of starting simple and adding useful detail already has substantial prior art.
 
-Three especially close starting points are Domschke et al. on selective physical-model refinement in gas networks; Bacher and Madsen on data-supported selection through a thermal-model hierarchy; and Liu and Cai on limiting heat-pump block slots to what sparse measurements can support. Parker et al. supplies the directly relevant DM foundation. These should be central references, rather than treating the work simply as another surrogate-model multifidelity study.
+Three especially close starting points are Domschke et al. on selective physical-model refinement in gas networks; Bacher and Madsen on data-supported selection through a thermal-model hierarchy; and Liu and Cai on limiting heat-pump parameters to what sparse measurements can support. Parker et al. supplies the directly relevant DM foundation. These should be central references, rather than treating the work simply as another surrogate-model multifidelity study.
 
 ## Scope and reading record
 
 Searches covered primary publisher records, author manuscripts, university repositories, arXiv and official framework catalogation. Search-result dates were not treated as publication dates. “Full-text sections” below means the accessible paper was opened and relevant methods/application passages were read; it does not mean every proof or every page was studied. Abstract-only sources support narrower conclusions. No inaccessible paper is represented as fully read.
 
-The repository distinguishes selecting a model catalog, choosing parameters, initializing a numerical instance, and assessing predictions. This review preserves those distinctions. In particular, the present trust ranks are ordinal preferences, not measurement variances, and DM completeness is not statistical identifiability or numerical solvability.
+The repository distinguishes selecting a model document, choosing parameters, initializing a numerical instance, and assessing predictions. This review preserves those distinctions. In particular, the present trust ranks are ordinal preferences, not measurement variances, and DM completeness is not statistical identifiability or numerical solvability.
 
 ## Closest methodological literature
 
@@ -44,7 +44,7 @@ This study constructs a hierarchy of thermal grey-box blocks and applies forward
 
 **Liu and Cai (2021), “A robust gray-box modeling methodology for variable-speed direct-expansion systems with limited training data,” International Journal of Refrigeration 129, 128–138.** DOI [10.1016/j.ijrefrig.2021.05.007](https://doi.org/10.1016/j.ijrefrig.2021.05.007); [publisher abstract and introduction](https://www.sciencedirect.com/science/article/abs/pii/S0140700721001705); [author manuscript](https://jcai.oucreate.com/wp-content/uploads/2022/07/paper_V20-no-marked-changes.pdf). **Read:** publisher abstract/introduction; manuscript fetch timed out.
 
-Component blocks are trained separately and then coupled through continuity constraints for system-level training. Sensitivity ranking and decorrelation reduce the fitted parameter set according to data quality. A variable-speed heat-pump case examines different training-set sizes. This directly addresses the risk that extra block slots exceed available resources. [Source](https://www.sciencedirect.com/science/article/abs/pii/S0140700721001705)
+Component blocks are trained separately and then coupled through continuity constraints for system-level training. Sensitivity ranking and decorrelation reduce the fitted parameter set according to data quality. A variable-speed heat-pump case examines different training-set sizes. This directly addresses the risk that extra numerical parameters exceed available resources. [Source](https://www.sciencedirect.com/science/article/abs/pii/S0140700721001705)
 
 **Project implication:** distinguish physical representation selection from parameter-subset selection. Include a detailed model with a small, supported fitted parameter set as a baseline; otherwise a selector might appear successful merely because the detailed comparator is overparameterized. The paper motivates testing data coverage and correlation, not measurement count alone.
 
@@ -78,7 +78,7 @@ The survey organizes multifidelity methods into adaptation, fusion and filtering
 
 **Parker, Nicholson, Siirola and Biegler (2023), “Applications of the Dulmage–Mendelsohn decomposition for debugging nonlinear optimization problems,” Computers & Chemical Engineering 178, 108383.** DOI [10.1016/j.compchemeng.2023.108383](https://doi.org/10.1016/j.compchemeng.2023.108383); [repository manuscript](https://www.osti.gov/servlets/purl/1996187). **Read:** publisher abstract/highlights; repository full-text retrieval failed.
 
-The paper uses equation–variable bipartite graphs to expose structurally underdetermined and overdetermined subsets and catalogs Pyomo/JuMP modelCatalogs. It is directly relevant to the repository's existing incidence-analysis machinery. [Source](https://www.sciencedirect.com/science/article/pii/S0098135423002533)
+The paper uses equation–variable bipartite graphs to expose structurally underdetermined and overdetermined subsets and catalogs Pyomo/JuMP model documents. It is directly relevant to the repository's existing incidence-analysis machinery. [Source](https://www.sciencedirect.com/science/article/pii/S0098135423002533)
 
 **Project implication:** cite DM parameters selection as an application built on established structural analysis. The remaining experimental question is whether trust-prioritized admissible choices improve useful parameters, assumption use or predictive performance. Structural matching alone does not establish that the nonlinear Jacobian has adequate numerical rank at the operating point.
 
@@ -116,7 +116,7 @@ The inspected strategy simplifies nonlinear equations and breaks critical equati
 
 **Lee et al. (2021), “The IDAES process modeling framework and block library—Flexibility for process simulation and optimization.”** DOI [10.1002/amp2.10095](https://doi.org/10.1002/amp2.10095). **Read:** official article description and publisher hierarchy passages, not full paper. IDAES already provides compositional process modeling and a model-library framework. [Official publication page](https://idaes.org/the-idaes-process-modeling-framework-and-model-library-flexibility-for-process-simulation-and-optimization/)
 
-For a model catalog baseline, inspect the official [IDAES block triangularization initializer](https://idaes-pse.readthedocs.io/en/2.8.0/reference_guides/initialization/bt_initializer.html). The repository itself already identifies this comparator. Reuse native unit initialization expertise rather than attributing benefits from those routines to a new hierarchy algorithm.
+For a model document baseline, inspect the official [IDAES block triangularization initializer](https://idaes-pse.readthedocs.io/en/2.8.0/reference_guides/initialization/bt_initializer.html). The repository itself already identifies this comparator. Reuse native unit initialization expertise rather than attributing benefits from those routines to a new hierarchy algorithm.
 
 ## Applications with a concrete reason to use these techniques
 

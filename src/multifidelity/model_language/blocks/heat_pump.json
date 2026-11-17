@@ -172,7 +172,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "ColdSideProperties"
+              "block_argument": "ColdSideProperties"
             }
           }
         },
@@ -183,7 +183,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "ColdSideProperties"
+              "block_argument": "ColdSideProperties"
             }
           }
         },
@@ -194,7 +194,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "HotSideProperties"
+              "block_argument": "HotSideProperties"
             }
           }
         },
@@ -205,7 +205,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "HotSideProperties"
+              "block_argument": "HotSideProperties"
             }
           }
         },
@@ -323,7 +323,7 @@
           "block": "compressor",
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "RefrigerantProperties"
+              "block_argument": "RefrigerantProperties"
             }
           },
           "domain_bindings": {
@@ -337,10 +337,10 @@
           },
           "block_arguments": {
             "HotSideProperties": {
-              "block_slot": "RefrigerantProperties"
+              "block_argument": "RefrigerantProperties"
             },
             "ColdSideProperties": {
-              "block_slot": "HotSideProperties"
+              "block_argument": "HotSideProperties"
             }
           }
         },
@@ -351,10 +351,10 @@
           },
           "block_arguments": {
             "HotSideProperties": {
-              "block_slot": "RefrigerantProperties"
+              "block_argument": "RefrigerantProperties"
             },
             "ColdSideProperties": {
-              "block_slot": "HotSideProperties"
+              "block_argument": "HotSideProperties"
             }
           }
         },
@@ -365,10 +365,10 @@
           },
           "block_arguments": {
             "HotSideProperties": {
-              "block_slot": "RefrigerantProperties"
+              "block_argument": "RefrigerantProperties"
             },
             "ColdSideProperties": {
-              "block_slot": "RefrigerantProperties"
+              "block_argument": "RefrigerantProperties"
             }
           }
         },
@@ -385,10 +385,10 @@
           },
           "block_arguments": {
             "HotSideProperties": {
-              "block_slot": "ColdSideProperties"
+              "block_argument": "ColdSideProperties"
             },
             "ColdSideProperties": {
-              "block_slot": "RefrigerantProperties"
+              "block_argument": "RefrigerantProperties"
             }
           }
         },
@@ -399,7 +399,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "ColdSideProperties"
+              "block_argument": "ColdSideProperties"
             }
           }
         },
@@ -410,7 +410,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "ColdSideProperties"
+              "block_argument": "ColdSideProperties"
             }
           }
         },
@@ -421,7 +421,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "HotSideProperties"
+              "block_argument": "HotSideProperties"
             }
           }
         },
@@ -432,7 +432,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "HotSideProperties"
+              "block_argument": "HotSideProperties"
             }
           }
         }
@@ -539,7 +539,7 @@
       }
     }
   },
-  "block_slots": {
+  "block_arguments": {
     "HotSideProperties": {
       "requires": {
         "state": {

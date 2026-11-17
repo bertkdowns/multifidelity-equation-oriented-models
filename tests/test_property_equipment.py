@@ -7,7 +7,7 @@ import pytest
 from pyomo.environ import TransformationFactory, assert_optimal_termination, value
 from pyomo.util.check_units import assert_units_consistent
 
-from multifidelity.model_language import BlockLibrary, build_model, register_standard_providers, get_variable
+from multifidelity.model_language import BlockRegistry, build_model, register_standard_providers, get_variable
 from multifidelity.model_language.standard.initialization import seed_affine_state
 
 EXAMPLES = Path(__file__).parents[1] / 'examples/model_language'
@@ -15,9 +15,9 @@ EXAMPLES = Path(__file__).parents[1] / 'examples/model_language'
 
 @pytest.mark.parametrize('cold_flow', [1, 2])
 def test_countercurrent_exchanger_matches_effectiveness_and_equal_end_limit(cold_flow, solver):
-    library = BlockLibrary()
-    register_standard_providers(library)
-    model = build_model('heat_exchanger_flowsheet', EXAMPLES / 'heat_exchanger_lumped.json', library=library)
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    model = build_model('heat_exchanger_flowsheet', EXAMPLES / 'heat_exchanger_lumped.json', registry=registry)
     exchanger = model.fs.root.formulation.blocks.heat_exchanger
     b = exchanger.structs
     cp, pressure, conductance = 4180, 200000, 500
@@ -60,13 +60,13 @@ def test_countercurrent_exchanger_matches_effectiveness_and_equal_end_limit(cold
 def test_tank_variable_density_changes_level_without_creating_mass(solver):
     from examples.dynamic_tank.run import make_tank, specify_tank, set_initial_guesses
 
-    library = BlockLibrary()
+    registry = BlockRegistry()
     # A liquid approximation with temperature-dependent density, using the same
     # PH interface. This tests the tank's conservation independently of EOS data.
-    library.get('water_state_ph').formulations['constant_properties'].constraints['density'].rhs = (
+    registry.get('water_state_ph').formulations['constant_properties'].constraints['density'].rhs = (
         'parameters.density * (1 - parameters.thermal_expansion * '
         '(properties.temperature[t] - parameters.reference_temperature))')
-    model = make_tank(horizon=100, library=library)
+    model = make_tank(horizon=100, registry=registry)
     TransformationFactory('dae.finite_difference').apply_to(model, wrt=model.fs.time, nfe=10, scheme='BACKWARD')
     specify_tank(model, initial_values=['tank_level'])
     b = model.fs.root.formulation.blocks.tank.structs
@@ -86,8 +86,8 @@ def test_tank_variable_density_changes_level_without_creating_mass(solver):
 
 
 def test_simple_water_phase_metadata_matches_if97_reference_points(solver):
-    library = BlockLibrary()
-    model = build_model('water_property_package', EXAMPLES / 'water_property_package_constant_properties.json', library=library)
+    registry = BlockRegistry()
+    model = build_model('water_property_package', EXAMPLES / 'water_property_package_constant_properties.json', registry=registry)
     # Seed coefficients and the PH calculation before varying pressure.
     seed_affine_state(model.fs.root, 100000, 100000)
     model.fs.root.structs.state.enthalpy.fix(100000)
@@ -104,9 +104,9 @@ def test_simple_water_phase_metadata_matches_if97_reference_points(solver):
 def test_generic_flash_uses_propane_properties_and_conserves_energy(solver):
     from examples.steam_generating_heat_pump_system.replay import replay_flash
 
-    library = BlockLibrary()
-    register_standard_providers(library)
-    model = build_model('helmholtz_propane_ph', {'formulation': 'helmholtz'}, library=library)
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    model = build_model('helmholtz_propane_ph', {'formulation': 'helmholtz'}, registry=registry)
     provider = model.fs.root.formulation.slices[0].provider
     provider.states[0].pressure.set_value(200000)
     # The property output variables are equations; evaluate the native expressions

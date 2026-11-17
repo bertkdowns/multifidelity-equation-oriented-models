@@ -14,7 +14,7 @@ class SymbolicProvider(Protocol):
     """Build fresh symbolic objects under block and map every public variable.
 
     Configuration contains JSON construction options, not operating inputs or
-    block slots. The provider must not solve or fix operating inputs.
+    numerical parameters. The provider must not solve or fix operating inputs.
     The backend repeats this scalar callable per time point for time-indexed
     public interfaces, including points inserted by DAE discretization.
     """
@@ -28,7 +28,7 @@ class Initializer(Protocol):
     """Seed or solve an existing native block after parameters.
 
     Temporary fixes and constraint activation are restored by the framework.
-    Do not change topology, components, bounds, or block slots.
+    Do not change topology, components, bounds, or numerical parameters.
     """
 
     def __call__(self, block: "BlockData", config: dict[str, JsonValue]) -> None: ...

@@ -9,13 +9,13 @@ export function replaceSelection(catalog, path, replacement) {
   return { ...catalog, subblocks: { ...catalog.subblocks, [alias]: replaceSelection(catalog.subblocks[alias], rest, replacement) } };
 }
 
-export function defaultModel(context, library, formulationName, ancestors = new Set(), budget = { remaining: 1500 }) {
+export function defaultModel(context, registry, formulationName, ancestors = new Set(), budget = { remaining: 1500 }) {
   if (context.unresolved || ancestors.has(context.definition.id) || --budget.remaining < 0) return { formulation: '', subblocks: {} };
   const formulation = formulationName ?? Object.keys(context.definition.formulations)[0] ?? '';
   const next = new Set([...ancestors, context.definition.id]);
   const children = context.definition.formulations[formulation]?.blocks ?? {};
   return { formulation, subblocks: Object.fromEntries(Object.entries(children).map(([alias, reference]) => {
-    try { return [alias, defaultModel(resolveReference(reference, context.bindings ?? {}, library), library, undefined, next, budget)]; }
+    try { return [alias, defaultModel(resolveReference(reference, context.bindings ?? {}, registry), registry, undefined, next, budget)]; }
     catch { return [alias, { formulation: '', subblocks: {} }]; }
   })) };
 }
@@ -36,19 +36,19 @@ export function parseModel(text, { allowIncomplete = false } = {}) {
 
 // Declaration coverage, matching requirements.py: only the parent can supply a
 // child's input. This does not compile equations, convert units or solve a model.
-export function analyzeModel(context, catalog, library) {
+export function analyzeModel(context, catalog, registry) {
   const inputs = [], initial = [], occurrences = [], errors = [];
   let remaining = 1500;
   function visit(model, selection, path, supplied, depth) {
     const location = path.length ? path.join('.') : model.definition.id;
-    if (--remaining < 0 || depth > 50) { errors.push(`${location}: model_catalog is too large or deeply nested.`); return; }
+    if (--remaining < 0 || depth > 50) { errors.push(`${location}: model_document is too large or deeply nested.`); return; }
     if (model.unresolved) { errors.push(`${location}: unbound generic block. Choose a concrete root wrapper.`); return; }
     const formulation = model.definition.formulations[selection?.formulation];
     occurrences.push({ path, context: model, selection });
     if (!formulation) { errors.push(`${location}: choose a valid formulation.`); return; }
     const children = {};
     for (const [alias, reference] of Object.entries(formulation.blocks ?? {})) {
-      try { children[alias] = resolveReference(reference, model.bindings ?? {}, library); }
+      try { children[alias] = resolveReference(reference, model.bindings ?? {}, registry); }
       catch (error) { errors.push(`${location}.${alias}: ${error.message}`); }
     }
     const expected = Object.keys(formulation.blocks ?? {}).sort();

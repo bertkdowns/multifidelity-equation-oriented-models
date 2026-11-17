@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {parseResults,indexResults,resultNumber,resultPreview,sameModel,fixedFirst} from './results.js';
-const fixture=()=>({schema_version:1,run_id:'run-1',created_at:'2026-11-05T00:00:00Z',block_id:'valve',model_catalog:{formulation:'isenthalpic',subblocks:{}},mode:'steady',time_unit:'s',solve:{status:'optimal',termination_condition:'optimal'},variables:[{variable_path:'inlet.pressure',unit:'Pa',dimensions:['time'],entries:[{index:[0],value:200000,fixed:true,issue:null}]}]});
+const fixture=()=>({schema_version:1,run_id:'run-1',created_at:'2026-11-05T00:00:00Z',block_id:'valve',model_document:{formulation:'isenthalpic',subblocks:{}},mode:'steady',time_unit:'s',solve:{status:'optimal',termination_condition:'optimal'},variables:[{variable_path:'inlet.pressure',unit:'Pa',dimensions:['time'],entries:[{index:[0],value:200000,fixed:true,issue:null}]}]});
 
 test('actual Python SGHP export loads with occurrence paths and fixed/free values',()=>{
   const doc=parseResults(readFileSync(new URL('../../examples/steam_generating_heat_pump_system/results.json',import.meta.url),'utf8'));
@@ -32,7 +32,7 @@ test('malformed snapshots and diagnostic-report files are rejected',()=>{
   assert.throws(()=>parseResults(JSON.stringify({success:true,stages:[]})));
 });
 
-test('failed snapshots stay failed and model_catalog comparison ignores object ordering',()=>{
+test('failed snapshots stay failed and model_document comparison ignores object ordering',()=>{
   const doc=fixture();doc.solve.status='failed';assert.equal(parseResults(JSON.stringify(doc)).solve.status,'failed');
   assert.ok(sameModel({formulation:'r',subblocks:{a:{formulation:'x'},b:{formulation:'y'}}},{formulation:'r',subblocks:{b:{formulation:'y',subblocks:{}},a:{formulation:'x'}}}));
   assert.ok(!sameModel({formulation:'r'},{formulation:'x'}));

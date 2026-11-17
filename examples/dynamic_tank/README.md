@@ -12,8 +12,8 @@ The example uses the [shared model-language terminology](../../src/multifidelity
 For a dynamic run, `simulate()` discretizes the equations, calls `specify_tank()`
 to apply all fixations, then sets numerical guesses separately and solves.
 
-The resources catalog holds all operating assumptions and starting values.
-The dynamic parameters catalog selects their IDs and pairs operating replacements:
+The resource document holds all operating assumptions and starting values.
+The dynamic parameter document selects their IDs and pairs operating replacements:
 
 ```json
 {
@@ -32,12 +32,12 @@ time point. Later states remain free. The initial temperature follows from the
 energy/level relation and is 303.15 K. Whole-family and initial conditions are
 validated together before any fixing occurs.
 
-The steady parameters catalog instead fixes the tank level as an ordinary
+The steady parameter document instead fixes the tank level as an ordinary
 operating condition, with no initial values. Withdrawal flow and temperature are
 calculated from the steady balances. Its replacement mapping pairs `tank_level`
 with `tank.withdrawal.flow` and `inlet_temperature` with `tank.inlet.enthalpy`.
 The same resource record can therefore
-serve different roles in separate parameters catalogs.
+serve different roles in separate parameter documents.
 
 The `inflow`, `outflow` and `loss` options in `specify_tank()` override assumptions
 for bounded experiments; all values still go through resources-record validation
@@ -49,9 +49,8 @@ Expected default results: steady level 1 m and temperature 333.15 K; the dynamic
 backward-Euler run ends at level 1 m and temperature about 322.092 K after 1000 s.
 PETSc approaches the continuous solution, about 322.147 K.
 
-The former `initial_values.json` and `build_model(initial_values=...)` workflow is
-removed. See the [initial parameters API](../../src/multifidelity/model_language/README.md#initial-parameters)
-for non-time-dimensional initial profiles and migration details.
+See the [initial parameters API](../../src/multifidelity/model_language/README.md#initial-parameters)
+for selecting initial conditions, including profiles over non-time dimensions.
 
 The generic tank uses PH ports and differentiated mass/internal-energy inventories.
 `make_tank()` builds the concrete `tank_flowsheet` wrapper, with the tank at `tank`.

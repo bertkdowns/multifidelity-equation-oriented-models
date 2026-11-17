@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import math
 from numbers import Real
 
-from .parameters import ParameterCatalog, _prepare, _catalog
+from .parameters import ParameterDocument, _prepare, _document
 from .scaling import _factor
 from .replacement import audit_fixations
 
@@ -45,7 +45,7 @@ def relax_parameters(model, parameters, resources, *, weights=None):
     """
     from pyomo.environ import Block, Constraint, Objective, Var, units
     from idaes.core.util.scaling import set_scaling_factor
-    parameters = _catalog(parameters)
+    parameters = _document(parameters)
     weights = dict(weights or {})
     selected = parameters.parameters + parameters.initial_values
     if not selected:
@@ -68,7 +68,7 @@ def relax_parameters(model, parameters, resources, *, weights=None):
     try:
         for record_tag in selected:
             record = resources.get(record_tag)
-            single = ParameterCatalog(replacements=({record_tag: parameters.replacements[record_tag]}
+            single = ParameterDocument(replacements=({record_tag: parameters.replacements[record_tag]}
                                                        if record_tag in parameters.replacements else {}), **{
                 'initial_values' if record_tag in parameters.initial_values else 'parameters': [record_tag]})
             for variable, target in _prepare(clone, single, resources):

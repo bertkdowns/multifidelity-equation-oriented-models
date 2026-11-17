@@ -129,8 +129,8 @@ closures or claim that the complete recirculating plant has been solved.
 `flash_separator.phase_split` takes a `FluidProperties` argument and has one
 inlet and two outlets. This system selects Helmholtz water; the model itself
 also works with other pure-fluid packages supplying phase enthalpies and quality.
-The routing and phase-energy balances are JSON equations; they no longer build
-a water-specific native separator. Outlet PH states use the selected package.
+JSON equations express the routing and phase-energy balances. Outlet PH states
+use the selected property package.
 
 The two inputs are fractions of **each inlet phase routed to the outlet named
 `liquid`**:
@@ -294,11 +294,11 @@ Makeup is about 55.9892 kg/h versus 72.9501 kg/h steam. A consistent complete
 steady operating parameters is still needed to close that mismatch.
 
 The reference has no holdup tank; its `Heater1` is a separate refrigerant state
-calculation. The local source tank remains, while the previously included inline
-electric heater has been removed to match the real plant. Exchangers use supplied conductance with LMTD
+calculation. The local model includes a source tank and omits an inline electric
+heater to match the real plant. Exchangers use supplied conductance with LMTD
 calculated from the four property-package temperatures. The captured IHX hot/cold
 names are opposite the local convention, so the stored temperature-difference
-observation is sign-adjusted for comparison; it is no longer an exchanger input. Bypasses, detailed refrigerant
+observation is sign-adjusted for comparison and used as a diagnostic. Bypasses, detailed refrigerant
 inventory, relief devices and control dynamics remain omitted or lumped.
 Using actual refrigerant properties improves the thermodynamics; it does not
 make the complete selected cycle a numerically validated plant model.
@@ -443,7 +443,7 @@ additional changes have not been applied in this trial.
 ## Viewing the saved numerical solution
 
 `attempt_bottom_up.py` now also exports `results.json` using the reusable
-`ResultsCatalog` format. It contains all 671 public variable families with
+`ResultsDocument` format. It contains all 671 public variable families with
 values, units, coordinates and fixed/free state, the chosen model,
 parameters IDs and explicit solve status. Upload it in the viewer's
 **Results** tab. The other result JSON files in this folder remain diagnostic
@@ -514,7 +514,7 @@ Default guesses and captured-butane guesses alone both reached iteration limits,
 so their slack rankings are explicitly marked unusable. The coherent diagnostic
 uses the successful aggregate `results.json` for shared public starting values,
 captured butane PH states, and direct evaluation of native property definitions.
-These are diagnostic starting values, not a new library initialization procedure
+These are diagnostic starting values, not a new registry initialization procedure
 or additional fixed parameters. Existing aggregate results and operating
 resources are unchanged.
 
@@ -575,7 +575,7 @@ The preceding flow-target diagnostic remains reproducible using preserved
 `cycle_flow_target_resources.json` and `cycle_flow_target_parameters.json`.
 The example-only `saved_state_guesses.py` shares snapshot guesses and native
 property evaluation between these attempts; it changes no model equations or
-fixity and is not a new library initialization algorithm.
+fixity and is not a new registry initialization algorithm.
 
 ## Current working cycle demonstration: 15.20 kW
 

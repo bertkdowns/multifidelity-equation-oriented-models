@@ -184,19 +184,19 @@
     "phase_split": {
       "blocks": {
         "inlet_state": {
-          "block_slot": "FluidProperties",
+          "block_argument": "FluidProperties",
           "domain_bindings": {
             "time": "time"
           }
         },
         "liquid_state": {
-          "block_slot": "FluidProperties",
+          "block_argument": "FluidProperties",
           "domain_bindings": {
             "time": "time"
           }
         },
         "vapor_state": {
-          "block_slot": "FluidProperties",
+          "block_argument": "FluidProperties",
           "domain_bindings": {
             "time": "time"
           }
@@ -427,7 +427,7 @@
       "connections": {}
     }
   },
-  "block_slots": {
+  "block_arguments": {
     "FluidProperties": {
       "requires": {
         "state": {

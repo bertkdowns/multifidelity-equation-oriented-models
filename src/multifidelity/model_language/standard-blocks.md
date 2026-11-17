@@ -1,19 +1,19 @@
 # Standard symbolic blocks
 
-The block library includes reusable Helmholtz and humid-air wrappers, an extracted
+The block registry includes reusable Helmholtz and humid-air wrappers, an extracted
 EN 12900 compressor performance map, and a JSON compressor composition. Register
 their feeds explicitly before building:
 
 ```python
 from multifidelity.model_language import (
-    BlockLibrary, build_model, register_standard_providers, required_inputs,
+    BlockRegistry, build_model, register_standard_providers, required_inputs,
 )
 
-library = BlockLibrary()
-register_standard_providers(library)
+registry = BlockRegistry()
+register_standard_providers(registry)
 selection = "examples/model_language/mapped_propane_compressor.json"
-model = build_model("mapped_propane_compressor", selection, library=library)
-inputs = required_inputs("mapped_propane_compressor", selection, library=library)
+model = build_model("mapped_propane_compressor", selection, registry=registry)
+inputs = required_inputs("mapped_propane_compressor", selection, registry=registry)
 ```
 
 Registration only associates names with functions. Providers load their native
@@ -30,7 +30,7 @@ map outputs. The default steady build has one point, so access values with
 
 ```python
 model = build_model(
-    "mapped_propane_compressor", selection, library=library,
+    "mapped_propane_compressor", selection, registry=registry,
     mode="dynamic", domain_values={"time": [0, 60]},
 )
 compressor = model.fs.root.formulation.blocks.compressor
@@ -72,9 +72,9 @@ The command-line interface supports the same feeds:
 | `mapped_propane_compressor` | `evaluate` | Concrete wrapper supplying propane properties and map |
 | `helmholtz_water_state_block` | `evaluate` | Single stream state with Helmholtz water properties |
 
-Each concrete model has a model catalog catalog in `examples/model_language/`.
+Each concrete model has a model document in `examples/model_language/`.
 Use the [custom-model guide](custom-blocks.md) to add feeds or other configured
-definitions. `BlockLibrary(custom_directory)` continues to load only that directory;
+definitions. `BlockRegistry(custom_directory)` continues to load only that directory;
 provider registration does not insert block definitions.
 
 ## Helmholtz pressure–enthalpy state
@@ -200,7 +200,7 @@ diagnostic output, not an extra compressor energy-balance equation.
 
 ## JSON compressor composition and generic properties
 
-`mapped_compressor` declares two block slots:
+`mapped_compressor` declares two block arguments:
 
 - `FluidProperties` requires a PH state interface and temperature plus bubble/dew
   temperature outputs.

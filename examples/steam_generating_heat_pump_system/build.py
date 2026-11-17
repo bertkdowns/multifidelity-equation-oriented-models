@@ -8,8 +8,8 @@ from pyomo.environ import Constraint, Var
 from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import (
-    ResourceCatalog, apply_parameters, build_model, required_inputs,
-    select_parameters, BlockLibrary, register_standard_providers, export_workspace,
+    ResourceDocument, apply_parameters, build_model, required_inputs,
+    select_parameters, BlockRegistry, register_standard_providers, export_workspace,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -17,10 +17,10 @@ MODEL = 'steam_generating_heat_pump_system'
 
 
 def build(sghp='aggregate', phnix='aggregate'):
-    model_catalog = HERE / f'{sghp}_{phnix}.json'
-    library = BlockLibrary()
-    register_standard_providers(library)
-    model = build_model(MODEL, model_catalog, library=library)
+    model_document = HERE / f'{sghp}_{phnix}.json'
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    model = build_model(MODEL, model_document, registry=registry)
     assert_units_consistent(model)
     return model
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         'status': 'constructed; no operating values applied or numerical solve attempted',
     }
     if args.apply_reference:
-        resources = ResourceCatalog.load_json(HERE / 'resources.json')
+        resources = ResourceDocument.load_json(HERE / 'resources.json')
         selection = select_parameters(
             model, resources,
             prediction_targets=['performance.electrical_power', 'steam_outlet.flow'],

@@ -6,12 +6,12 @@ import {routeDetailedEdges} from './edge-routing.js';
 import {readFileSync, readdirSync} from 'node:fs';
 
 const directory=new URL('../../src/multifidelity/model_language/blocks/',import.meta.url);
-const library=Object.fromEntries(readdirSync(directory).filter(name=>name.endsWith('.json')).map(name=>{
+const registry=Object.fromEntries(readdirSync(directory).filter(name=>name.endsWith('.json')).map(name=>{
   const definition=JSON.parse(readFileSync(new URL(name,directory),'utf8'));return [definition.id,definition];
 }));
 const records=[{tag:'chosen',variable_path:'outlet.pressure',value:200,unit:'kPa'}];
 const parameters={parameters:['chosen'],replacements:{chosen:'parameters.pressure_drop'}};
-const context={definition:library.valve,bindings:{}};
+const context={definition:registry.valve,bindings:{}};
 
 test('saved records resolve fixed-to-replaced direction, without inferring missing data',()=>{
   assert.deepEqual(replacementPairs(parameters,records),{pairs:[{recordTag:'chosen',from:'outlet.pressure',to:'parameters.pressure_drop'}],warnings:[]});
@@ -20,8 +20,8 @@ test('saved records resolve fixed-to-replaced direction, without inferring missi
 });
 
 test('detailed feedback arrows point to input handles and do not alter process layout',()=>{
-  const plain=makeGraph(context,'isenthalpic',library);
-  const graph=makeGraph(context,'isenthalpic',library,'detailed',replacementPairs(parameters,records).pairs);
+  const plain=makeGraph(context,'isenthalpic',registry);
+  const graph=makeGraph(context,'isenthalpic',registry,'detailed',replacementPairs(parameters,records).pairs);
   const edge=graph.edges.find(edge=>edge.data.kind==='replacement');
   assert.equal(edge.source,'struct:outlet');assert.equal(edge.target,'struct:parameters');
   assert.equal(edge.sourceHandle,'outlet.pressure:out');assert.equal(edge.targetHandle,'parameters.pressure_drop:in');
@@ -30,22 +30,22 @@ test('detailed feedback arrows point to input handles and do not alter process l
 });
 
 test('descendant pairs trace to visible blocks and drill down to variable rows',()=>{
-  const root={definition:library.heat_pump_flowsheet,bindings:{}};
+  const root={definition:registry.heat_pump_flowsheet,bindings:{}};
   const pair={recordTag:'temperature',from:'heat_pump.sink_inlet_state.properties.temperature',to:'heat_pump.sink_inlet.enthalpy'};
-  const graph=makeGraph(root,'flowsheet',library,'detailed',[pair]);
+  const graph=makeGraph(root,'flowsheet',registry,'detailed',[pair]);
   const edge=graph.edges.find(edge=>edge.data.kind==='replacement');
   assert.equal(edge.source,'block:heat_pump');assert.equal(edge.target,'block:heat_pump');
   assert.ok(graph.nodes.find(node=>node.id===edge.source).data.replacementPorts.includes('replacement:heat_pump.sink_inlet_state.properties.temperature'));
   const routed=routeDetailedEdges(graph.nodes,graph.edges).find(edge=>edge.data.kind==='replacement');
   assert.ok(routed.targetHandle.endsWith(':in-right'));
-  const child=resolveReference(root.definition.formulations.flowsheet.blocks.heat_pump,{},library);
-  const nested=makeGraph(child,'aggregate',library,'detailed',[pair],'heat_pump');
+  const child=resolveReference(root.definition.formulations.flowsheet.blocks.heat_pump,{},registry);
+  const nested=makeGraph(child,'aggregate',registry,'detailed',[pair],'heat_pump');
   const nestedEdge=nested.edges.find(edge=>edge.data.kind==='replacement');
   assert.equal(nestedEdge.source,'block:sink_inlet_state');
   assert.equal(nestedEdge.sourceHandle,'properties.temperature:out');
   assert.equal(nestedEdge.target,'struct:sink_inlet');
   assert.equal(nestedEdge.targetHandle,'sink_inlet.enthalpy:in');
-  const local=makeGraph(context,'isenthalpic',library,'detailed',[
+  const local=makeGraph(context,'isenthalpic',registry,'detailed',[
     {recordTag:'a',from:'unit.outlet.pressure',to:'unit.parameters.pressure_drop'},
     {recordTag:'external',from:'other.outlet.pressure',to:'unit.inlet.pressure'},
   ],'unit');
@@ -55,7 +55,7 @@ test('descendant pairs trace to visible blocks and drill down to variable rows',
 
 test('summary feedback ends get distinct ports and stay attached through rotation',()=>{
   const pair={recordTag:'inside',from:'heat_pump.sink_inlet_state.properties.temperature',to:'heat_pump.sink_inlet.enthalpy'};
-  const graph=makeGraph({definition:library.heat_pump_flowsheet,bindings:{}},'flowsheet',library,'summary',[pair]);
+  const graph=makeGraph({definition:registry.heat_pump_flowsheet,bindings:{}},'flowsheet',registry,'summary',[pair]);
   const edge=graph.edges.find(edge=>edge.data.kind==='replacement');
   const node=graph.nodes.find(node=>node.id===edge.source);
   const start=node.data.summaryPorts.find(port=>port.id===edge.sourceHandle);

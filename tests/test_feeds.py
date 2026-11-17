@@ -1,25 +1,25 @@
-"""The acquisition seam: bulk reads, typed config, validation, and portability."""
-import json
-
+"""Plugin registration, document loading and runtime acquisition boundaries."""
 import pytest
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from multifidelity.model_language import (
-    FeedRegistry, ResourceCatalog, FeedCatalog, WorkspaceCatalog,
+    FeedRegistry, FeedDocument, ResourceDocument, WorkspaceDocument,
     build_model, export_workspace,
 )
 
 
 class Config(BaseModel):
-    columns: dict[str, str] = {"flow": "FT101", "pressure": "PT101"}
+    model_config = ConfigDict(extra="forbid")
+    values: dict[str, float | list[float]]
 
 
-class Feed:
-    def __init__(self, values, *, tags=None):
-        self.tags = list(values) if tags is None else tags
+class TestFeed:
+    __test__ = False
+
+    def __init__(self, config: Config):
+        self.config = config
+        self.tags = list(config.values)
         self.tag_calls = 0
-        self.config = Config()
-        self.values = values
         self.calls = []
 
     def get_config(self) -> Config:
@@ -31,11 +31,16 @@ class Feed:
 
     def read(self, tags):
         self.calls.append(tags)
-        return {tag: self.values[tag] for tag in tags}
+        return {tag: self.config.values[tag] for tag in tags}
+
+
+def document(*entries):
+    return FeedDocument(feeds=[dict(name=name, provider_type=plugin, config=config)
+                               for name, plugin, config in entries])
 
 
 def resources():
-    return ResourceCatalog([
+    return ResourceDocument([
         dict(tag="flow", resource_type="sensor_reading", variable_path="inlet.flow",
              unit="kg/s", value=1, trust_rank=8, standard_deviation=0.1),
         dict(tag="pressure", resource_type="sensor_reading", variable_path="inlet.pressure",
@@ -45,183 +50,149 @@ def resources():
     ])
 
 
-def test_bulk_read_keeps_metadata_order_and_original_resources():
-    table = resources()
+def setup_feeds(*values):
     registry = FeedRegistry()
-    feed = Feed({"flow": 2, "pressure": 200}, tags=["pressure", "flow"])
-    registry.register_feed("plant", feed)
-    refreshed = registry.read(table)
-    assert feed.calls == [("pressure", "flow")]
-    assert [r.tag for r in refreshed.root] == ["flow", "pressure", "fallback"]
+    instances = []
+    def factory(config):
+        feed = TestFeed(config)
+        instances.append(feed)
+        return feed
+    registry.register("test", factory, config_type=Config)
+    feeds = registry.create_feeds(document(*[(str(i), "test", {"values": v}) for i, v in enumerate(values)]))
+    return registry, feeds, instances
+
+
+def test_registry_describes_available_plugins_without_constructing_or_discovering():
+    class Offline(TestFeed):
+        def __init__(self, config):
+            raise AssertionError("Registration must not construct feeds")
+    registry = FeedRegistry()
+    registry.register("csv", Offline)
+    assert registry.describe() == {"csv": Config.model_json_schema()}
+    assert registry.create_feeds(FeedDocument()).read(resources()) == resources()
+    with pytest.raises(ValueError, match="Duplicate feed plugin"):
+        registry.register("csv", TestFeed)
+    for name, factory in [("", TestFeed), ("bad", object()), ("missing", type("Missing", (), {}))]:
+        with pytest.raises((TypeError, ValueError)):
+            registry.register(name, factory)
+    assert list(registry.describe()) == ["csv"]
+
+
+def test_document_is_configuration_not_plugin_availability_or_tag_snapshot(tmp_path):
+    registry, feeds, instances = setup_feeds({"flow": 2})
+    saved = feeds.get_document()
+    assert saved.model_dump() == {"feeds": ({"name": "0", "provider_type": "test", "config": {"values": {"flow": 2.0}}},)}
+    assert instances[0].tag_calls == 0
+    path = tmp_path / "feeds.json"
+    saved.write_json(path)
+    assert FeedDocument.load_json(path) == saved
+    restored = registry.create_feeds(path)
+    assert restored.read(resources()).get("flow").value == 2
+    saved.feeds[0].config["values"]["flow"] = 999
+    assert feeds.get_document().feeds[0].config["values"]["flow"] == 2
+    assert list(registry.describe()) == ["test"]
+
+
+def test_all_configs_and_plugin_names_are_validated_before_construction():
+    constructed = []
+    registry = FeedRegistry()
+    registry.register("test", lambda config: constructed.append(config), config_type=Config)
+    for bad in [("unknown", {"values": {}}), ("test", {"values": {"flow": "bad"}}), ("test", {"values": {}, "extra": 1})]:
+        doc = document(("valid", "test", {"values": {}}), ("invalid", *bad))
+        with pytest.raises(ValueError, match="invalid"):
+            registry.create_feeds(doc)
+        assert constructed == []
+
+
+@pytest.mark.parametrize("value", [[], {"feeds": [{"name": "p", "provider_type": "test", "config": {}, "tags": []}]},
+    {"feeds": [{"name": "p", "provider_type": "test", "config": []}]},
+    {"feeds": [{"name": "p", "provider_type": "test", "config": {"x": float('inf')}}]}])
+def test_invalid_documents_rejected(value):
+    with pytest.raises((ValidationError, ValueError)):
+        FeedDocument.model_validate(value)
+
+
+def test_duplicate_instance_names_rejected_but_plugin_can_be_used_twice():
+    with pytest.raises(ValueError, match="Duplicate feed name"):
+        document(("same", "test", {}), ("same", "test", {}))
+    _, feeds, _ = setup_feeds({"flow": 2}, {"pressure": 200})
+    assert feeds.read(resources()).get("pressure").value == 200
+
+
+def test_bulk_read_preserves_metadata_static_values_and_original_table():
+    _, feeds, instances = setup_feeds({"pressure": 200, "flow": 2})
+    table = resources()
+    refreshed = feeds.read(table)
+    assert instances[0].calls == [("pressure", "flow")]
     assert [r.value for r in refreshed.root] == [2, 200, 90]
     assert [r.value for r in table.root] == [1, 100, 90]
     assert refreshed.get("flow").model_dump(exclude={"value"}) == table.get("flow").model_dump(exclude={"value"})
-    assert FeedRegistry().read(table) == table
-    feed.values["flow"] = 3
-    assert registry.read(table).get("flow").value == 3
-    assert refreshed.get("flow").value == 2
 
 
-def test_registration_conflicts_are_atomic_and_static_records_are_unclaimed():
-    registry = FeedRegistry()
-    feed = Feed({"flow": 2})
-    registry.register_feed("plant", feed)
-    before = registry.describe()
-    for name, tags in [("plant", ["pressure"]), ("other", ["flow"]), ("other", ["pressure", "pressure"]), ("", ["pressure"]), ("other", [""])]:
-        with pytest.raises(ValueError):
-            registry.register_feed(name, Feed({}, tags=tags))
-        assert registry.describe() == before
-    with pytest.raises(TypeError, match="not a string"):
-        registry.register_feed("other", Feed({}, tags="pressure"))
-    registry.register_feed("other", Feed({"pressure": 250}, tags=["pressure"]))
-    assert registry.read(resources()).get("fallback").value == 90
-
-
-def test_unknown_tags_are_checked_before_any_read_and_empty_feeds_are_skipped():
-    registry = FeedRegistry()
-    feed = Feed({"flow": 2})
-    registry.register_feed("plant", feed)
-    registry.register_feed("unknown", Feed({}, tags=["absent"]))
-    with pytest.raises(ValueError, match="Unknown resource record tags"):
-        registry.read(resources())
-    assert feed.calls == []
-    registry = FeedRegistry()
-    registry.register_feed("unused", Feed({}, tags=[]))
-    assert registry.read(resources()) == resources()
-    assert feed.calls == []
+def test_dynamic_claims_snapshotted_once_and_conflicts_checked_before_read():
+    _, feeds, instances = setup_feeds({"flow": 2}, {"pressure": 200})
+    first, second = instances
+    for tags in [["flow"], ["absent"], ["pressure", "pressure"], "pressure", [""]]:
+        second.tags = tags
+        with pytest.raises((TypeError, ValueError)):
+            feeds.read(resources())
+        assert first.calls == second.calls == []
+    second.tags = ["pressure"]
+    first.tag_calls = second.tag_calls = 0
+    assert feeds.read(resources()).get("pressure").value == 200
+    assert first.tag_calls == second.tag_calls == 1
+    first.tags = []
+    assert feeds.read(resources()).get("flow").value == 1
 
 
 @pytest.mark.parametrize("response", [None, {}, {"pressure": 3}, {"flow": 2, "extra": 3}, {"flow": True}, {"flow": float("nan")}, {"flow": [1, 2]}])
-def test_invalid_responses_do_not_mutate_resources_or_use_saved_values(response):
-    class Bad(Feed):
-        def read(self, tags):
-            return response
+def test_bad_responses_never_mutate_or_fall_back(response):
+    _, feeds, instances = setup_feeds({"flow": 2})
+    instances[0].read = lambda tags: response
     table = resources()
     before = table.model_dump_json()
-    registry = FeedRegistry()
-    registry.register_feed("good", Feed({"pressure": 200}, tags=["pressure"]))
-    registry.register_feed("bad", Bad({}, tags=["flow"]))
-    with pytest.raises(ValueError, match="Feed 'bad'"):
-        registry.read(table)
+    with pytest.raises(ValueError, match="Feed '0'"):
+        feeds.read(table)
     assert table.model_dump_json() == before
 
 
-def test_feed_error_retains_context_and_cause():
-    class Broken(Feed):
-        def read(self, tags):
-            raise TimeoutError("historian unavailable")
-    registry = FeedRegistry()
-    registry.register_feed("plant", Broken({}, tags=["flow"]))
-    with pytest.raises(ValueError, match="plant.*historian unavailable") as error:
-        registry.read(resources())
+def test_read_errors_retain_context_and_cause():
+    _, feeds, instances = setup_feeds({"flow": 2})
+    def broken(tags):
+        raise TimeoutError("offline")
+    instances[0].read = broken
+    with pytest.raises(ValueError, match="Feed '0'.*offline") as error:
+        feeds.read(resources())
     assert isinstance(error.value.__cause__, TimeoutError)
 
 
-def test_series_shape_is_preserved_and_returned_arrays_are_copied():
-    values = [2, 3]
-    table = ResourceCatalog([dict(tag="profile", resource_type="sensor_reading",
-        variable_path="inlet.flow", unit="kg/s", type="series", value=[1, 1], trust_rank=8)])
-    registry = FeedRegistry()
-    feed = Feed({"profile": values})
-    registry.register_feed("plant", feed)
-    result = registry.read(table)
-    values[0] = 999
+def test_series_shape_and_detachment():
+    _, feeds, instances = setup_feeds({"profile": [2, 3]})
+    table = ResourceDocument([dict(tag="profile", resource_type="sensor_reading", variable_path="inlet.flow",
+        unit="kg/s", type="series", value=[1, 1], trust_rank=8)])
+    result = feeds.read(table)
+    instances[0].config.values["profile"][0] = 999
     assert result.get("profile").value == (2, 3)
-    feed.values["profile"] = [2, 3, 4]
+    instances[0].config.values["profile"] = [2, 3, 4]
     with pytest.raises(ValueError, match="shape"):
-        registry.read(table)
+        feeds.read(table)
 
 
-def test_typed_config_catalogue_is_detached_and_roundtrips_without_reading(tmp_path):
-    feed = Feed({}, tags=["flow"])
+def test_invalid_factory_products_fail_with_instance_context():
     registry = FeedRegistry()
-    registry.register_feed("plant", feed)
-    catalog = registry.describe()
-    assert feed.calls == []
-    assert catalog.root[0].provider_type.endswith(".Feed")
-    assert catalog.root[0].config == feed.config.model_dump(mode="json")
-    catalog.root[0].config["columns"]["flow"] = "changed"
-    assert registry.describe().root[0].config["columns"]["flow"] == "FT101"
-    path = tmp_path / "feeds.json"
-    registry.describe().write_json(path)
-    restored = FeedCatalog.load_json(path)
-    assert restored == registry.describe()
-    config = Config.model_validate(restored.root[0].config)
-    assert isinstance(config, Config)
-    assert feed.calls == []
+    registry.register("bad", lambda config: object(), config_type=Config)
+    with pytest.raises(ValueError, match="plant.*get_config"):
+        registry.create_feeds(document(("plant", "bad", {"values": {}})))
 
 
-def test_invalid_configuration_or_protocol_is_rejected_before_registration():
-    class Untyped(Feed):
-        def get_config(self):
-            return {}
-    class Nonfinite(Feed):
-        def get_config(self):
-            class BadConfig(BaseModel):
-                value: float = float("inf")
-            return BadConfig()
-    class MissingTags:
-        def get_config(self):
-            return Config()
-
-        def read(self, tags):
-            return {}
-
-    registry = FeedRegistry()
-    for feed in [object(), MissingTags(), Untyped({}), Nonfinite({})]:
-        with pytest.raises((TypeError, ValueError)):
-            registry.register_feed("bad", feed)
-    assert registry.describe().root == ()
-    for data in [[dict(name="p", provider_type="module.Class", tags=["flow"], config=[])],
-                 [dict(name="p", provider_type="module.Class", tags=["flow"], config={}, code="exec")]]:
-        with pytest.raises(ValidationError):
-            FeedCatalog.model_validate(data)
-
-
-def test_workspace_catalogue_is_optional_portable_and_detached(tmp_path):
-    registry = FeedRegistry()
-    registry.register_feed("plant", Feed({}, tags=["flow", "pressure"]))
+def test_workspace_embeds_document_without_live_plugins(tmp_path):
+    registry, feeds, _ = setup_feeds({"flow": 2})
     model = build_model("valve", {"formulation": "isenthalpic"})
-    legacy = export_workspace(model, resources())
-    assert set(legacy.model_dump()) == {"model_catalog", "resources", "results"}
-    workspace = WorkspaceCatalog.from_results(legacy.results, resources(), feeds=registry.describe())
+    plain = export_workspace(model, resources())
+    assert "feeds" not in plain.model_dump()
+    workspace = WorkspaceDocument.from_results(plain.results, resources(), feeds=feeds.get_document())
     path = tmp_path / "workspace.json"
     workspace.write_json(path)
-    assert WorkspaceCatalog.load_json(path) == workspace
-    assert isinstance(json.loads(path.read_text())["feeds"], list)
-    assert workspace.results.run_id == legacy.results.run_id
-    assert export_workspace(model, resources(), feeds=registry.describe()).feeds == registry.describe()
-
-
-def test_dynamic_tags_are_refreshed_and_snapshotted_once_per_read():
-    feed = Feed({"flow": 2})
-    registry = FeedRegistry()
-    registry.register_feed("plant", feed)
-    assert registry.describe().root[0].tags == ("flow",)
-    feed.tags.append("pressure")
-    feed.values["pressure"] = 210
-    assert registry.describe().root[0].tags == ("flow", "pressure")
-    feed.tag_calls = 0
-    fresh = registry.read(resources())
-    assert feed.tag_calls == 1
-    assert feed.calls == [("flow", "pressure")]
-    assert fresh.get("pressure").value == 210
-    feed.tags.remove("flow")
-    fresh = registry.read(resources())
-    assert fresh.get("flow").value == resources().get("flow").value
-    assert feed.calls[-1] == ("pressure",)
-
-
-def test_dynamic_conflicts_and_unknown_tags_fail_before_any_value_reads():
-    first = Feed({"flow": 2})
-    second = Feed({"pressure": 210})
-    registry = FeedRegistry()
-    registry.register_feed("first", first)
-    registry.register_feed("second", second)
-    for bad_tags in [["flow"], ["absent"], ["pressure", "pressure"], "pressure"]:
-        second.tags = bad_tags
-        with pytest.raises((TypeError, ValueError)):
-            registry.read(resources())
-        assert first.calls == second.calls == []
-    second.tags = ["pressure"]
-    assert registry.read(resources()).get("pressure").value == 210
+    loaded = WorkspaceDocument.load_json(path)
+    assert loaded == workspace
+    assert registry.create_feeds(loaded.feeds).read(resources()).get("flow").value == 2

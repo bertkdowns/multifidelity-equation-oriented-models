@@ -1,6 +1,6 @@
 {
   "id": "steam_generating_heat_pump_system",
-  "description": "SGHP demonstration plant main process paths from SGHP P&ID V22 (27 July 2026). Independently selectable SGHP and PHNIX source heat pumps; source, warm-water and hot-water recirculation, cooling-water boundary, makeup and steam export. Valves lump line losses; bypasses, relief devices, controls, refrigerant charge and tank dynamics are omitted. Configuration values live in separate resources catalogs.",
+  "description": "SGHP demonstration plant main process paths from SGHP P&ID V22 (27 July 2026). Independently selectable SGHP and PHNIX source heat pumps; source, warm-water and hot-water recirculation, cooling-water boundary, makeup and steam export. Valves lump line losses; bypasses, relief devices, controls, refrigerant charge and tank dynamics are omitted. Configuration values live in separate resource documents.",
   "domains": {
     "time": {
       "kind": "time"

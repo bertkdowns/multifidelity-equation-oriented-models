@@ -12,9 +12,9 @@ from pyomo.core.expr.calculus.derivatives import differentiate
 from pyomo.core.expr.visitor import identify_variables
 from pyomo.util.check_units import assert_units_consistent
 from multifidelity.model_language import (
-    BlockLibrary, ResourceCatalog, Resource, ParameterCatalog,
+    BlockRegistry, ResourceDocument, Resource, ParameterDocument,
     build_model, register_standard_providers, pair_parameters, apply_parameters,
-    get_variable, export_results, WorkspaceCatalog,
+    get_variable, export_results, WorkspaceDocument,
 )
 from multifidelity.model_language.scaling import apply_scaling, export_scaling, _branch_expression
 from multifidelity.model_language.selection import _partition
@@ -34,21 +34,21 @@ def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, sghp="ag
     steady = {r['variable_path']: r['entries'][0]['value'] for r in snapshot['variables']}
     if sghp == 'cycle' and pressure_rise is None:
         pressure_rise = steady['sghp.compressor.parameters.pressure_rise']
-    library = BlockLibrary(); register_standard_providers(library)
+    registry = BlockRegistry(); register_standard_providers(registry)
     grid = [horizon*i/nfe for i in range(nfe+1)]
     if not any(abs(t-step_time) < 1e-8 for t in grid):
         raise ValueError('Step time must lie on the time grid')
     model = build_model('steam_generating_heat_pump_system_thermal', HERE / f'thermal_{sghp}.json',
-                        library=library, mode='dynamic', domain_values={'time': grid})
+                        registry=registry, mode='dynamic', domain_values={'time': grid})
     pyo.TransformationFactory('dae.finite_difference').apply_to(
         model, wrt=model.fs.time, nfe=nfe, scheme='BACKWARD')
     assert_units_consistent(model)
-    records = list(ResourceCatalog.load_json(HERE / 'common_operating_resources.json').records)
-    tags = list(ParameterCatalog.load_json(HERE / 'common_aggregate_aggregate_parameters.json').parameters)
+    records = list(ResourceDocument.load_json(HERE / 'common_operating_resources.json').records)
+    tags = list(ParameterDocument.load_json(HERE / 'common_aggregate_aggregate_parameters.json').parameters)
     removed = {'attempt_source_tank_adiabatic', 'config_phnix_sink_inlet_pressure',
                'attempt_warm_water_pressure', 'config_phnix_sink_inlet_state_temperature',
                'config_sghp_source_inlet_state_temperature', 'config_sghp_warm_inlet_state_temperature',
-               'config_sghp_hot_inlet_flow', 'config_phnix_power_block_slots_electrical_power'}
+               'config_sghp_hot_inlet_flow', 'config_phnix_power_model_parameters_electrical_power'}
     tags = [i for i in tags if i not in removed]
     initial = []
     def add(name, path, number, unit, *, initial_only=False, series=False):
@@ -86,8 +86,8 @@ def build_case(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, sghp="ag
             add('thermal_'+alias+'_'+suffix.replace('.','_'),alias+'.'+suffix,number,unit)
         for suffix, number, unit in [('inventory.mass',mass,'kg'),('inventory.energy',energy,'J')]:
             add('initial_'+alias+'_'+suffix.split('.')[-1],alias+'.'+suffix,number,unit,initial_only=True)
-    resources = ResourceCatalog(root=tuple(records))
-    spec = pair_parameters(model, ParameterCatalog(parameters=tags, initial_values=initial), resources)
+    resources = ResourceDocument(root=tuple(records))
+    spec = pair_parameters(model, ParameterDocument(parameters=tags, initial_values=initial), resources)
     apply_parameters(model,spec,resources)
     for path, family in model._model_language_variables.items():
         if path in steady:
@@ -157,7 +157,7 @@ def run(*, nfe=10, horizon=600, step_time=120, step_fraction=.1, prefix=None, sg
         termination_condition=report['termination'],parameters=spec,
         message=f'Three initial 100-litre water inventories; aggregate PHNIX, {sghp} SGHP; constant circulation and algebraic flash.')
     snapshot.write_json(HERE/f'{prefix}_results.json')
-    WorkspaceCatalog.from_results(snapshot,info).write_json(HERE/f'{prefix}_workspace.json')
+    WorkspaceDocument.from_results(snapshot,info).write_json(HERE/f'{prefix}_workspace.json')
     print(json.dumps(report,indent=2),flush=True)
     return report
 

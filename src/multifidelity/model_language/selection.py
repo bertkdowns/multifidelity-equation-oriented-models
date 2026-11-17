@@ -1,9 +1,9 @@
-"""Trust-ranked structural parameters for a fixed numerical model_catalog."""
+"""Trust-ranked structural parameters for a fixed numerical model_document."""
 
 from dataclasses import dataclass
 
-from .resources import ResourceCatalog
-from .parameters import ParameterCatalog, _prepare
+from .resources import ResourceDocument
+from .parameters import ParameterDocument, _prepare
 from .replacement import pair_parameters, audit_fixations
 from .variables import get_variable
 
@@ -12,7 +12,7 @@ from .variables import get_variable
 class ParameterSelection:
     """Parameter choices and separate structural diagnostics (not a solve)."""
 
-    parameters: ParameterCatalog
+    parameters: ParameterDocument
     complete: bool
     initial_deficiency: int
     remaining_deficiency: int
@@ -36,7 +36,7 @@ def _partition(model):
     )
 
 
-def select_parameters(model, resources: ResourceCatalog, *,
+def select_parameters(model, resources: ResourceDocument, *,
                          prediction_targets=(), excluded_record_tags=(),
                          achieved_setpoint_tags=()) -> ParameterSelection:
     """Choose independent whole-family fixations using trust-ranked DM trials.
@@ -46,10 +46,10 @@ def select_parameters(model, resources: ResourceCatalog, *,
     reserved; control setpoints require explicit achieved-setpoint authorization.
     Other physical/operating applicability must be filtered by the caller.
     Initial conditions, inequalities, numerical rank and solving are outside
-    this structural policy. Apply the returned catalog separately.
+    this structural policy. Apply the returned document separately.
     """
-    if not isinstance(resources, ResourceCatalog):
-        raise TypeError("resources must be an ResourceCatalog")
+    if not isinstance(resources, ResourceDocument):
+        raise TypeError("resources must be an ResourceDocument")
     if not hasattr(model, "_model_language_variables"):
         raise ValueError("Model must be constructed by model_language.build_model")
     audit_fixations(model)
@@ -79,9 +79,9 @@ def select_parameters(model, resources: ResourceCatalog, *,
         elif record.variable_path in {resources.get(i).variable_path for i in selected}:
             reason = "lower-ranked alternative"
         else:
-            catalog = ParameterCatalog(parameters=[record.tag])
+            document = ParameterDocument(parameters=[record.tag])
             try:
-                prepared = _prepare(work, catalog, resources)
+                prepared = _prepare(work, document, resources)
             except (ValueError, TypeError) as error:
                 reason = str(error)
             else:
@@ -115,7 +115,7 @@ def select_parameters(model, resources: ResourceCatalog, *,
             "selected": reason is None, "reason": reason,
             "deficiency_before": before, "deficiency_after": len(vp.unmatched),
         })
-    parameters = ParameterCatalog(parameters=selected)
+    parameters = ParameterDocument(parameters=selected)
     pairing_error = None
     try:
         parameters = pair_parameters(model, parameters, resources)

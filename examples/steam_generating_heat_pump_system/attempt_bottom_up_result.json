@@ -1,5 +1,5 @@
 {
-  "model_catalog": "aggregate_aggregate",
+  "model_document": "aggregate_aggregate",
   "parameters": "attempt_parameters.json",
   "resources": "attempt_resources.json",
   "success": true,

@@ -1,7 +1,7 @@
 {
   "id": "mapped_compressor",
   "description": "JSON compressor composition with replaceable PH thermodynamics and performance map. Predicts flow from dew temperatures, preserves Ahuora motor/adiabatic balance and superheat metrics. Map must match fluid; rated capacity is diagnostic, not imposed as duty.",
-  "block_slots": {
+  "block_arguments": {
     "FluidProperties": {
       "requires": {
         "state": {
@@ -309,7 +309,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "FluidProperties"
+              "block_argument": "FluidProperties"
             }
           }
         },
@@ -320,12 +320,12 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "FluidProperties"
+              "block_argument": "FluidProperties"
             }
           }
         },
         "map": {
-          "block_slot": "PerformanceMap",
+          "block_argument": "PerformanceMap",
           "domain_bindings": {
             "time": "time"
           }

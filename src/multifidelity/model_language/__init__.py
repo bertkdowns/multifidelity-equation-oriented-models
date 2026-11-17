@@ -1,13 +1,13 @@
 """Load declarative block definitions and build explicitly selected IDAES structures."""
 
-from .definitions import BlockCatalog
-from .model_selection import ModelCatalog, FormulationSelection
-from .resolution import BlockLibrary, BlockView, FormulationView
+from .definitions import BlockDefinition
+from .model_selection import ModelDocument, FormulationSelection
+from .resolution import BlockRegistry, BlockView, FormulationView
 from .requirements import required_inputs, print_required_inputs, required_initial_values
-from .resources import Resource, ResourceCatalog, ResourceType
-from .feeds import Feed, FeedRegistry, FeedCatalog, FeedDescription
+from .resources import Resource, ResourceDocument, ResourceType
+from .feeds import Feed, FeedRegistry, FeedCollection, FeedDocument, FeedDescription
 from .parameters import (
-    ParameterCatalog,
+    ParameterDocument,
     apply_parameters,
 )
 from .selection import ParameterSelection, select_parameters
@@ -17,33 +17,34 @@ from .initialization import apply_starting_values, initialize_custom_models
 from .hierarchical_initialization import initialize_model, InitializationResult, InitializationStage
 from .scaling import apply_scaling, ScalingReport
 from .reconciliation import relax_parameters, ParameterRelaxation
-from .results import ResultsCatalog, export_results
-from .workspace import WorkspaceCatalog, export_workspace
+from .results import ResultsDocument, export_results
+from .workspace import WorkspaceDocument, export_workspace
 from .standard import register_standard_providers
 
 
-def build_model(block_id, model_catalog, *, library=None, domain_values=None,
+def build_model(block_id, model_document, *, registry=None, domain_values=None,
                 mode="steady", time_unit="s"):
     """Convert a selected model using the Pyomo backend on demand."""
     from .builder import build_model as build
 
-    return build(block_id, model_catalog, library=library, domain_values=domain_values,
+    return build(block_id, model_document, registry=registry, domain_values=domain_values,
                  mode=mode, time_unit=time_unit)
 
 
 __all__ = [
-    "BlockLibrary",
-    "BlockCatalog",
-    "ModelCatalog",
+    "BlockRegistry",
+    "BlockDefinition",
+    "ModelDocument",
     "FormulationSelection",
     "Resource",
-    "ResourceCatalog",
+    "ResourceDocument",
     "ResourceType",
     "Feed",
     "FeedRegistry",
-    "FeedCatalog",
+    "FeedCollection",
+    "FeedDocument",
     "FeedDescription",
-    "ParameterCatalog",
+    "ParameterDocument",
     "apply_parameters",
     "apply_starting_values",
     "initialize_custom_models",
@@ -64,9 +65,9 @@ __all__ = [
     "FormulationView",
     "build_model",
     "get_variable",
-    "ResultsCatalog",
+    "ResultsDocument",
     "export_results",
-    "WorkspaceCatalog",
+    "WorkspaceDocument",
     "export_workspace",
     "required_inputs",
     "required_initial_values",

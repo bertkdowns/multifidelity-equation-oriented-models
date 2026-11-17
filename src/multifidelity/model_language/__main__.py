@@ -2,14 +2,14 @@
 
 import argparse
 
-from . import BlockLibrary, build_model, print_required_inputs, register_standard_providers
+from . import BlockRegistry, build_model, print_required_inputs, register_standard_providers
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("block", help="Root block ID")
-    parser.add_argument("model_catalog", help="Model catalog with explicit recursive formulation choices")
-    parser.add_argument("--library", help="Directory containing block catalogs")
+    parser.add_argument("model_document", help="Model document with explicit recursive formulation choices")
+    parser.add_argument("--registry", help="Directory containing block definitions")
     parser.add_argument(
         "--standard-providers",
         action="store_true",
@@ -21,13 +21,13 @@ def main():
         help="List required variable paths and units instead of building Pyomo",
     )
     args = parser.parse_args()
-    library = BlockLibrary(args.library)
+    registry = BlockRegistry(args.registry)
     if args.required_inputs:
-        print_required_inputs(args.block, args.model_catalog, library=library)
+        print_required_inputs(args.block, args.model_document, registry=registry)
         return
     if args.standard_providers:
-        register_standard_providers(library)
-    model = build_model(args.block, args.model_catalog, library=library)
+        register_standard_providers(registry)
+    model = build_model(args.block, args.model_document, registry=registry)
     model.pprint()
 
 

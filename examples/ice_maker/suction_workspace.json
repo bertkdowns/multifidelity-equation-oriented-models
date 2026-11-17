@@ -1,5 +1,5 @@
 {
-  "model_catalog": {
+  "model_document": {
     "formulation": "lumped",
     "subblocks": {}
   },
@@ -374,7 +374,7 @@
     "run_id": "f8bf40a8-d8d1-43d8-b943-33e6d809138e",
     "created_at": "2026-11-10T21:11:11.421570Z",
     "block_id": "suction_response",
-    "model_catalog": {
+    "model_document": {
       "formulation": "lumped",
       "subblocks": {}
     },

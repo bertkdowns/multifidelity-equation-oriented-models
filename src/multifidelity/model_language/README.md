@@ -1,10 +1,10 @@
-# JSON block slots language
+# JSON block and model language
 
-This is a model catalog of the model language discussed
+This is the implementation of the model language discussed
 for recursive multifidelity modelling. It builds a selected equation hierarchy
 inside an **IDAES** `FlowsheetBlock`, using Pyomo blocks, variables and constraints.
-The builder does not solve; declared defaults supply unfixed starting guesses. Parameter catalogs can
-be applied separately to fix values from an resources catalog.
+The builder does not solve; declared defaults supply unfixed starting guesses. Parameter documents can
+be applied separately to fix values from an resource document.
 Construction leaves all public variables free, with values only where defaults are declared. Operating
 parameters and initial conditions are both applied through `apply_parameters()`.
 Here "build" means creating Python modelling objects, not numerical initialization.
@@ -15,9 +15,9 @@ Pyomo/IDAES blocks behind the same public structs. See the
 dependency declarations, and composition with replaceable property blocks. A
 runnable example is in [`examples/custom_blocks`](../../../examples/custom_blocks).
 
-The [standard symbolic block library](standard-blocks.md) supplies Helmholtz and
+The [standard symbolic block registry](standard-blocks.md) supplies Helmholtz and
 humid-air property wrappers, an extracted EN 12900 compressor map, and a JSON
-compressor composition. Call `register_standard_providers(library)` before building
+compressor composition. Call `register_standard_providers(registry)` before building
 their external formulations, or use the CLI's `--standard-providers` option.
 
 ## Property-package configuration decision
@@ -45,11 +45,11 @@ JSON is the source of truth: one file per reusable model, readable and reviewabl
 in Git. Model IDs are independent of filenames. No database is required. A future
 editor or SQLite index can operate on the same conceptual definitions.
 
-This language is the repository's primary modeling approach. Custom Python feeds may supply symbolic modelCatalogs behind the same JSON interfaces. The language uses the vocabulary and ownership below, including separate boundary variables joined by equations in composites.
+This language is the repository's primary modeling approach. Custom Python symbolic providers may supply equations behind the same JSON interfaces. The language uses the vocabulary and ownership below, including separate boundary variables joined by equations in composites.
 
 ## Vocabulary and ownership
 
-The authoritative [model-language glossary](terminology.md) defines all catalog,
+The authoritative [model-language glossary](terminology.md) defines all document,
 model, resources, parameters and numerical-instance terms.
 
 Models are reusable types. Two references to `heat_exchanger` do not copy its JSON
@@ -68,47 +68,48 @@ them: callers cannot reach through a child to its grandchildren. Formulations
 own no variables. Extra internal quantities must be declared on a model's struct,
 possibly on a dedicated internal block referenced by the formulation.
 
-## Typed definition catalogs
+## Typed block definitions
 
 `definitions.py` defines Pydantic types matching the JSON definitions. They can
 be parsed and navigated without constructing solver objects:
 
 ```python
 from pathlib import Path
-from multifidelity.model_language.definitions import BlockCatalog
+from multifidelity.model_language.definitions import BlockDefinition
 
-model = BlockCatalog.model_validate_json(Path("my_model.json").read_text())
+model = BlockDefinition.model_validate_json(Path("my_model.json").read_text())
 model.structs["inlet"].variables["pressure"].unit
 model.formulations["basic"].blocks
 ```
 
-`BlockLibrary` loads every JSON catalog into these types. Both `library.blocks["valve"]`
-and `library.get("valve")` return a `BlockCatalog`, and the builder consumes its typed
-structs, formulations and reference variants directly. Definition catalogs retain model IDs and generic references for serialization.
+`BlockRegistry` loads every JSON block definition into these types. Both `registry.blocks["valve"]`
+and `registry.get("valve")` return a `BlockDefinition`, and the builder consumes its typed
+structs, formulations and reference variants directly. Block definitions retain model IDs and generic references for serialization.
 Model-view navigation is supplied separately by `resolution.py`; it does not unroll
-a tree or select modelCatalogs.
+a tree or select model documents.
 
-Catalog-shape validation rejects unknown fields, invalid component names,
+Document-shape validation rejects unknown fields, invalid component names,
 missing required fields, unsupported variable types, invalid directions and
 ambiguous reference kinds at load time, including in unselected alternatives.
 Scope, generic interface compatibility, dimensions supported by the backend,
 equation units and determination checks remain in the builder and apply to the
-selected model. Model catalogs have typed selection classes, described below.
+selected model. Model documents have typed selection classes, described below.
 Serialize definitions with `model_dump(by_alias=True)` or
 `model_dump_json(by_alias=True)` to preserve JSON names (`Connection.from_` in
 Python is `from` in JSON). Instance types remain deferred; model types are described below.
 
-## Model-view navigation
+## Block-view navigation
 
-`resolution.py` owns library loading, model-reference resolution and generic
-interface checks. `builder.py` consumes these same model views when constructing
-Pyomo objects; it no longer contains its own generic resolver.
+`resolution.py` owns registry loading, model-reference resolution and generic
+interface checks. `builder.py` consumes these same block views when constructing Pyomo objects.
+Keeping resolution in one place gives navigation and construction identical
+reference and interface checks.
 
 ```python
-from multifidelity.model_language.resolution import BlockLibrary
+from multifidelity.model_language.resolution import BlockRegistry
 
-library = BlockLibrary()
-root = library.resolve("water_state_block")
+registry = BlockRegistry()
+root = registry.resolve("water_state_block")
 block = root.formulations["evaluate"].blocks["states"]
 fluid = block.formulations["evaluate"].blocks["fluid"]
 fluid.id  # "water_property_package"
@@ -128,7 +129,7 @@ or generic interfaces surface when the corresponding children are accessed.
 The builder accesses only its selected formulation at each level.
 
 Treat definitions as unchanged while using a model view. After editing the
-library, call `library.resolve(...)` again to obtain a fresh view. Model views
+registry, call `registry.resolve(...)` again to obtain a fresh view. Model views
 are navigation objects, not simulation instances: repeated references share their
 definition, while the backend still creates distinct solver variables per occurrence.
 
@@ -136,7 +137,7 @@ Unit compatibility uses Pint here, without importing Pyomo in the resolution
 module. Equation compilation, determination checks and Pyomo-specific validation
 remain in the builder. Root generics remain unsupported.
 
-## Catalogs
+## Documents
 
 A model contains `id`, optional `description`, `structs`, and `formulations`:
 
@@ -202,7 +203,7 @@ selected model are ignored. Use `excluded_record_tags` for held-out
 measurements or other records that must not influence initialisation. A control
 setpoint used this way is only a guess, not evidence that the setpoint was achieved.
 The function returns the IDs used and never fixes variables. Resource guesses
-override declaration defaults; no separate initial-guesses catalog is needed.
+override declaration defaults; no separate initial-guesses document is needed.
 The existing parameters `initial_values` list still means fixed dynamic
 initial conditions, not solver guesses.
 
@@ -320,7 +321,7 @@ two connections, or a constraint and a connection targeting the same variable
 are rejected with both source names. Missing outputs are listed together.
 Validation is local to each selected formulation and is repeated recursively;
 unselected alternatives do not undergo determination validation during a build
-(their catalog shape is still validated when the library loads).
+(their document shape is still validated when the registry loads).
 
 Child inputs without a determination are permitted: they remain parameters
 for a future instance to supply. This check neither fixes them nor proves that
@@ -389,7 +390,7 @@ Binding keys are child domain names and values are parent domain names. Names
 may differ, but kinds must match. Every child time domain requires a binding;
 bound domains reuse the very same Pyomo set. Discrete domains may instead be
 local to an occurrence. Two local sets with identical members do not imply a
-shared domain. Bindings are also supported on `block_slot` references.
+shared domain. Bindings are also supported on `block_argument` references.
 
 Connections expand field by field and index by index, retaining unit conversion.
 They require matching ordered domain signatures after binding; there is no
@@ -398,7 +399,7 @@ explicitly in an indexed equation, as `settings.factor` is above.
 
 ```python
 model = build_model(
-    "network", model_catalog, library=library,
+    "network", model_document, registry=registry,
     domain_values={
         "time": [0, 10, 30],
         "components": ["water", "salt"],
@@ -418,7 +419,7 @@ continue to compare ordered dimension declarations. External symbolic providers
 use one scalar provider instance per time point; see the
 [custom-model guide](custom-blocks.md).
 
-### BlockLibrary-wide time convention
+### BlockRegistry-wide time convention
 
 Every bundled model declares a time domain, including wrappers with no public
 structs. Streams, property states and reported properties, performance quantities,
@@ -454,7 +455,7 @@ in steady mode remain independent operating points.
 The [PI controller](pi-controller.md) provides ideal tracking and dynamic PI
 formulations using normalized signals.
 
-The library examples, including `pipe` and `tank`, demonstrate time-indexed variables.
+The registry examples, including `pipe` and `tank`, demonstrate time-indexed variables.
 Spatial derivatives and indexed collections of child occurrences remain future
 work.
 
@@ -511,7 +512,7 @@ does not transfer values between blocks automatically.
 
 ### Initial parameters
 
-`required_initial_values(block_id, model_catalog, library=...)` returns the
+`required_initial_values(block_id, model_document, registry=...)` returns the
 root-relative output family of each selected derivative relation. This is the
 default authoring convention: supply an initial value for what the derivative
 relation determines. Families with other dimensions need a starting profile.
@@ -519,14 +520,14 @@ It describes parameters requirements, not DAE index or numerical solvability.
 
 Initial values belong to instance data, not block definitions or model
 selections. They are selected by the `initial_values` list of a parameters
-catalog, alongside ordinary `parameters`. Both lists contain resources-record
-IDs; paths, values, units and uncertainty stay in the resources catalog.
+document, alongside ordinary `parameters`. Both lists contain resources-record
+IDs; paths, values, units and uncertainty stay in the resource document.
 
 ```python
 from pathlib import Path
 from multifidelity.model_language import (
-    build_model, required_initial_values, ResourceCatalog,
-    ParameterCatalog, apply_parameters,
+    build_model, required_initial_values, ResourceDocument,
+    ParameterDocument, apply_parameters,
 )
 from pyomo.environ import TransformationFactory
 
@@ -540,8 +541,8 @@ TransformationFactory("dae.finite_difference").apply_to(
     model, wrt=model.fs.time, nfe=100, scheme="BACKWARD",
 )
 folder = Path("examples/dynamic_tank")
-resources = ResourceCatalog.load_json(folder / "resources.json")
-parameters = ParameterCatalog.load_json(folder / "parameters.json")
+resources = ResourceDocument.load_json(folder / "resources.json")
+parameters = ParameterDocument.load_json(folder / "parameters.json")
 apply_parameters(model, parameters, resources)
 ```
 
@@ -553,16 +554,16 @@ record supplies an initial profile with a shape matching only the non-time axes,
 in their declared order. For dimensions `[cells, time]`, an initial series `[1, 3]`
 supplies two cells at the initial time; it is not a full time trajectory.
 
-Both lists are validated together before any values are fixed. Duplicate record
-IDs, different records targeting the same variable, existing fixations, incompatible
+Both lists are validated together before any values are fixed. Duplicate resource
+tags, different records targeting the same variable, existing fixations, incompatible
 units, shape errors and bound violations are rejected atomically. Initial conditions
 may also be applied before discretization when the initial profile grid is final;
 new time points remain free. Apply whole-time series after finalizing the time grid.
 
-The builder never fixes values and no longer accepts `initial_values`. The old
-`InitialValue` / `apply_initial_values` format and its optional `at` selectors are
-removed. Resource records require an explicit unit. Use an array-valued record
-for a full initial profile rather than separate sparse cell selectors.
+The builder constructs equations without fixing values. Apply initial conditions
+through `ParameterDocument.initial_values` and `apply_parameters()`. Resources
+require an explicit unit; an array-valued resource represents a full initial
+profile in the declared non-time dimensions.
 
 The application API does not require every default initial output to be fixed.
 An alternative set, such as initial level and temperature instead of level and
@@ -649,14 +650,14 @@ have exactly the same field names with dimensionally compatible units. Connectio
 convert units as needed. General equations require authors to use consistent units; construction
 checks dimensional consistency. Connecting structs does not fix either endpoint.
 
-## Generic block parameters
+## Generic block arguments
 
 A model can declare named dependencies on other block definitions. These select
-**definitions**, while block catalogs still select **formulations**.
+**definitions**, while block definitions still select **formulations**.
 For example, a generic state block declares:
 
 ```json
-"block_slots": {
+"block_arguments": {
   "FluidProperties": {
     "requires": {
       "state": {
@@ -679,7 +680,7 @@ Formulations use that dependency through named block references:
 
 ```json
 "blocks": {
-  "fluid": {"block_slot": "FluidProperties", "domain_bindings": {"time": "time"}}
+  "fluid": {"block_argument": "FluidProperties", "domain_bindings": {"time": "time"}}
 }
 ```
 
@@ -701,11 +702,11 @@ A generic containing model can forward its own argument instead:
 
 ```json
 "block_arguments": {
-  "FluidProperties": {"block_slot": "SourceFluid"}
+  "FluidProperties": {"block_argument": "SourceFluid"}
 }
 ```
 
-Every reference must specify exactly one of `model` or `block_slot`.
+Every reference must specify exactly one of `block` or `block_argument`.
 Arguments must exactly match the target's declarations; missing or extra arguments
 and unknown parameter names are errors. A forwarded parameter already carries its
 resolved arguments and cannot be given replacement `block_arguments`. Concrete
@@ -749,7 +750,7 @@ and connect the inlet stream to `<block>.state`. Temperature can then be specifi
 at `<block>.properties.temperature` and enthalpy determined by the solver.
 The standalone SGHP unit uses this pattern for its equipment inlet ports. The old `property_pair`, `water_property_pair` and
 `helmholtz_water_property_pair` IDs and their two-state interfaces have been removed;
-external modelCatalogs must migrate to the new IDs and single `fluid` child.
+external model documents must migrate to the new IDs and single `fluid` child.
 
 
 For a flowsheet boundary, use `state_block` directly as a child: its `state` input
@@ -770,7 +771,7 @@ inlet interfaces remain unchanged.
 
 ## Models and construction
 
-`model_selection.py` defines the Pydantic `ModelCatalog` root and recursive
+`model_selection.py` defines the Pydantic `ModelDocument` root and recursive
 `FormulationSelection` type. Every node requires an explicit `formulation`;
 `subblocks` maps local child reference names to further selections. No node
 contains a model ID: the caller supplies the root block ID to `build_model()` or
@@ -778,18 +779,18 @@ the requirement queries, and child block references determine the descendants.
 Leaves omit `subblocks`, which defaults to an empty map.
 
 ```python
-from multifidelity.model_language.model_selection import ModelCatalog
+from multifidelity.model_language.model_selection import ModelDocument
 
-model_catalog = ModelCatalog.model_validate_json(model_catalog_json)
-model_catalog.subblocks["states"].subblocks["fluid"].formulation
+model_document = ModelDocument.model_validate_json(model_document_json)
+model_document.subblocks["states"].subblocks["fluid"].formulation
 ```
 
-These types check catalog shape only. They do not resolve references, check that
+These types check document shape only. They do not resolve references, check that
 all children of a selected formulation are present, choose formulations
 implicitly, or specify numerical values. Instance types remain deferred. The
-builder accepts an `ModelCatalog`, a dictionary, or a JSON file path.
+builder accepts a `ModelDocument`, a dictionary, or a JSON file path.
 
-The internal `_traversal.py` helper handles catalog parsing, selected formulation
+The internal `_traversal.py` helper handles document parsing, selected formulation
 and child checks, and recursive occurrence traversal for both construction and
 requirement queries. It calls the shared checks in `_validation.py`. The backend
 creates variables on entry and equations after visiting children; requirement
@@ -797,7 +798,7 @@ queries collect metadata without creating numerical objects. No additional publi
 `Model` class is required.
 
 
-A model catalog chooses formulations for a separately supplied model:
+A model document chooses formulations for a separately supplied model:
 
 ```json
 {
@@ -904,12 +905,12 @@ From the repository root:
 Or in Python:
 
 ```python
-from multifidelity.model_language import BlockLibrary, build_model
+from multifidelity.model_language import BlockRegistry, build_model
 
 model = build_model(
     "heat_pump_flowsheet",
     "examples/model_language/heat_pump_cycle.json",
-    library=BlockLibrary(),  # Bundled definitions; or BlockLibrary("my/blocks")
+    registry=BlockRegistry(),  # Bundled definitions; or BlockRegistry("my/blocks")
 )
 model.pprint()
 ```
@@ -959,8 +960,8 @@ The same listing is available from the command line:
 ```
 
 It prints entries such as `states.state.pressure [Pa]`, one variable per
-line. Both methods accept a typed `ModelCatalog`, a dictionary, or a JSON file
-path, and an optional `library`. `print_required_inputs` accepts `file` for writing
+line. Both methods accept a typed `ModelDocument`, a dictionary, or a JSON file
+path, and an optional `registry`. `print_required_inputs` accepts `file` for writing
 to a stream. Paths use local model-reference aliases and omit the root block ID.
 
 Every root input is required. At each selected formulation, its constraints'
@@ -984,7 +985,7 @@ create solver objects, fix variables, or fill any values. It relies on declared
 `determines` targets. Targets may be implicit and need not occur in their
 equations; users are responsible for mathematical determination and controllability. An incomplete definition such as the aggregate milk scaffold raises
 its missing-output error instead of returning a misleading requirements list.
-Apply operating values separately using the [parameters API](#parameters-catalogs).
+Apply operating values separately using the [parameters API](#parameter-documents).
 
 ## Bundled blocks and provenance
 
@@ -1197,11 +1198,11 @@ above. It does not establish numerical solvability of the full milk scaffold.
 Record available evidence separately from the block definitions and from decisions
 about how to specify or estimate a particular instance. `resources.py` implements
 record validation, loading, insertion and trust-ordered candidate lookup. Applying
-records to model instances is supported by parameters catalogs; the
+records to model instances is supported by parameter documents; the
 initial trust-ranked DM parameters selector is implemented; further selection
 research remains proposed.
 
-Resource is a **list of records**, not a dictionary keyed by variable path.
+A `ResourceDocument` is a **list of records**, not a dictionary keyed by variable path.
 Multiple records may target the same variable: for example, a sensor reading,
 control setpoint and assumption may all refer to the same temperature. Preserve
 those records independently rather than overwriting one with another.
@@ -1219,12 +1220,9 @@ Each record has:
 | `standard_deviation` | Optional nonnegative uncertainty in the same unit as `value` |
 | `trust_rank` | Integer from 1 to 10; higher ranks are prioritized when selecting parameters |
 
-Each record has one unique `tag`, separate from its model variable path.
-The tag is the key used by feeds and parameters catalogs. In older
-resources and workspace JSON files, rename the record's `id` key to `tag`,
-keeping its value unchanged. SymbolicProvider catalogue `ids` lists are now `tags`;
-selector options and diagnostics use `record_tags` / `record_tag` terminology.
-Model IDs and numerical run IDs are unchanged.
+Each resource has one unique `tag`, separate from its model variable path.
+Feeds and parameter documents use that tag to identify the resource. Selector
+options and diagnostics refer to resource tags.
 
 For now, use variable paths directly. Assume shared public variables retain their
 paths and physical meanings across fidelity choices; do not introduce a separate
@@ -1281,7 +1279,7 @@ uncertainty retained in the audit trail. Fallback estimates used to close the
 model are fixed assumptions, distinct from solver initial guesses.
 
 See the [trust-ranked DM parameters algorithm and separate experiment outlines](../../../research-ideas/resources-directed-parameters.md)
-for structural candidate selection, auditable parameters catalogs, and future
+for structural candidate selection, auditable parameter documents, and future
 noise/conditioning studies. The initial structural loop is implemented by `select_parameters()`; see
 the automatic structural parameters selection section below.
 Series use the numerical grid's index order. They do not carry separate timestamps,
@@ -1341,18 +1339,18 @@ discretized tank inlet without changing any model values.
 
 ### Resource-table interface
 
-`ResourceCatalog` is a Pydantic `RootModel` whose root is a tuple of
+`ResourceDocument` is a Pydantic `RootModel` whose root is a tuple of
 `Resource` objects. Its JSON representation remains an array. Like model,
-model and parameters catalogs, it supports `model_validate()`,
+model and parameter documents, it supports `model_validate()`,
 `model_validate_json()`, `model_dump_json()`, `from_json()` and `load_json()`.
 
 
 ```python
-from multifidelity.model_language import Resource, ResourceCatalog
+from multifidelity.model_language import Resource, ResourceDocument
 
 # JSON files contain an array of records, as above.
-table = ResourceCatalog.load_json("resources.json")
-# Or parse JSON text directly: ResourceCatalog.from_json(json_text).
+table = ResourceDocument.load_json("resources.json")
+# Or parse JSON text directly: ResourceDocument.from_json(json_text).
 
 table.add(Resource(
     tag="sink_temperature_assumption",
@@ -1401,9 +1399,9 @@ Scalar families return scalar Pyomo variables; indexed families are indexed by t
 caller. The lookup follows cloning and discretization. Unknown paths and blocks
 not built by `build_model()` raise `ValueError`.
 
-## Parameter catalogs
+## Parameter documents
 
-A `ParameterCatalog` selects resources-record tags and records which
+A `ParameterDocument` selects resources-record tags and records which
 canonical input each noncanonical operating fixation replaces:
 
 ```json
@@ -1414,11 +1412,11 @@ canonical input each noncanonical operating fixation replaces:
 }
 ```
 
-The resources catalog supplies paths, values, units, trust and uncertainty.
+The resource document supplies paths, values, units, trust and uncertainty.
 In this example, `inlet_pressure` targets `state.pressure` directly, while
 `measured_temperature` targets `properties.temperature`. Fix temperature and leave
 `state.enthalpy` free. The model and its selected model supply the
-equations and canonical inputs; none are embedded in this catalog.
+equations and canonical inputs; none are embedded in this document.
 
 A **canonical input** is a public input not supplied by a selected parent
 constraint, connection or derivative. `canonical_inputs(model)` returns these
@@ -1429,7 +1427,7 @@ keys must be selected operating record tags; values are canonical variable paths
 not other record tags. Paired families must use the same index domains and grid.
 Physical equations, connection directions and `determines` remain unchanged.
 
-All three fields default to empty. Old direct-input catalogs remain valid;
+All three fields default to empty. Old direct-input documents remain valid;
 output or supplied-input fixations need pairs. Generate them without changing
 the chosen records using:
 
@@ -1461,26 +1459,26 @@ across the two lists, are rejected. Paths name families without index selectors.
 
 ```python
 from multifidelity.model_language import (
-    ResourceCatalog, ParameterCatalog,
+    ResourceDocument, ParameterDocument,
     apply_parameters,
 )
 
-resources = ResourceCatalog.load_json("resources.json")
-parameters = ParameterCatalog.load_json("parameters.json")
+resources = ResourceDocument.load_json("resources.json")
+parameters = ParameterDocument.load_json("parameters.json")
 # model is the object returned by build_model(...).
 apply_parameters(model, parameters, resources)
 ```
 
 The method also accepts a parameters dictionary or JSON file path.
-`ParameterCatalog.from_json(text)` parses JSON text, and
-`model_dump_json()` serializes the catalog. The resources argument must be an
-`ResourceCatalog`. Numerical blocks must come from `build_model()`.
+`ParameterDocument.from_json(text)` parses JSON text, and
+`model_dump_json()` serializes the document. The resources argument must be an
+`ResourceDocument`. Numerical blocks must come from `build_model()`.
 
 Application validates all paths, record references, duplicate targets, array shapes,
 unit conversions, finite converted values, variable bounds, existing fixations,
 slot ownership, connectivity and structural exchange admissibility before fixing
 any variable. It updates the model in place and returns `None`. A validation error leaves all values and fixation statuses
-unchanged. Existing fixations are rejected, even if equal; applying a new catalog
+unchanged. Existing fixations are rejected, even if equal; applying a new document
 does not silently replace an earlier parameters or an initial condition.
 
 For ordinary parameters, constants broadcast over the current grid and series
@@ -1492,9 +1490,9 @@ application; there is no automatic interpolation or reapplication after discreti
 Selected central values are fixed even for uncertain records. The source records,
 including uncertainty and trust rank, remain unchanged. The API does not rank
 resources, determine whether a control setpoint is achieved, protect prediction
-targets, assess structural completeness or solve the model. Partial catalogs
+targets, assess structural completeness or solve the model. Partial documents
 are allowed; selection policy belongs to the caller or `select_parameters()`.
-Structural diagnostics and solver results remain separate from the catalog.
+Structural diagnostics and solver results remain separate from the document.
 
 `parameter_slots(model)` reports applied canonical paths, fixed target paths
 and record tags. `audit_fixations(model)` rejects unexplained public noncanonical
@@ -1503,11 +1501,11 @@ hierarchical initialisation call this audit at entry. Native model
 configuration and first-slice initial conditions have separate scopes. For direct
 calls to an external Pyomo solver, call the audit explicitly if raw `.fix()` calls
 might have bypassed parameters application. To change a saved pair, edit the
-catalog and apply it to a freshly built model; application never silently undoes
+document and apply it to a freshly built model; application never silently undoes
 an already applied parameters.
 
 The [complete valve example](../../../examples/parameters/README.md) loads all
-three catalogs, fully specifies the model and solves it with IPOPT.
+three documents, fully specifies the model and solves it with IPOPT.
 
 ## Proposed quantity-of-interest parameters
 
@@ -1528,7 +1526,7 @@ retain their meaning across fidelity choices. Paths must exist in the model used
 for the analysis; the example does not imply every model exposes both quantities.
 
 Omit tolerances, accuracy requirements and uncertainty thresholds for now. The
-parameters does not select a model catalog, fix target values, reference a
+parameters does not select a model document, fix target values, reference a
 model, or contain references to resource records. Combining it with the model
 and resource table defines the analysis task; no separate analysis-task data
 structure is introduced here. This section records the agreed shape only, not an
@@ -1574,7 +1572,7 @@ or prerequisites for the initial bounded experiments.
 
 - Continuous spatial domains and derivatives; automatic backend discretization
   configuration (time dynamics can use Pyomo's existing transformations).
-- General fixed/free instance catalogs and automatic starting-value propagation.
+- General fixed/free instance documents and automatic starting-value propagation.
 - Numerical recovery and extensions beyond the initial DM parameters selector.
 - Detailed thermodynamics, component mixtures, shared material data, configurable
   equipment property dependencies, validated detailed equations and calibration.
@@ -1583,7 +1581,7 @@ or prerequisites for the initial bounded experiments.
 
 The builder checks selected references, scope, names, directions, connection fields,
 equation units, explicit determination targets, duplicate determinations and missing
-outputs. It is not yet a comprehensive catalog-schema validator.
+outputs. It is not yet a comprehensive document-schema validator.
 
 ## Heat-pump milk-evaporator flowsheet
 
@@ -1630,19 +1628,19 @@ an overconstrained region. Existing fixations are mandatory context. Invalid
 records are skipped with reasons, allowing lower-ranked alternatives to be tried.
 Control setpoints require explicit inclusion in `achieved_setpoint_tags`; callers
 must filter other operating-context applicability using `excluded_record_tags`
-or a filtered resources catalog. Prediction target paths are reserved.
+or a filtered resource document. Prediction target paths are reserved.
 
-The result contains the parameters catalog, `complete`, initial and remaining
+The result contains the parameter document, `complete`, initial and remaining
 deficiency, unresolved variable names, overconstrained constraint names, and
 per-record decisions including values, units, uncertainty and deficiency changes.
 An initially overconstrained model returns incomplete diagnostics without adding
-fixations. A partial catalog is returned when evidence is insufficient.
+fixations. A partial document is returned when evidence is insufficient.
 
 After choosing records, the selector automatically generates replacement pairs
 without changing the selected resources set. `decisions` includes `replaces`
 for chosen records; `pairing_error` is `None` when pairing succeeds. If a selected
 set cannot be paired, `complete` is false and `pairing_error` explains why. Do not
-apply an unresolved catalog. A successfully paired partial catalog may still
+apply an unresolved document. A successfully paired partial document may still
 be applied while its remaining structural deficiency is reported separately.
 
 This is structural selection, not a numerical solvability or uniqueness check.
@@ -1666,7 +1664,7 @@ parameters. The SGHP and PHNIX cycles use butane and propane Helmholtz
 properties respectively, including their exchanger states.
 
 See [the demonstration guide](../../../examples/steam_generating_heat_pump_system/README.md)
-for four block catalogs, construction commands, P&ID provenance,
+for four block definitions, construction commands, P&ID provenance,
 resources paths, copied Ahuora configuration with provenance, and limitations.
 All four plant representations construct; the aggregate SGHP unit also has an
 IPOPT replay calibrated at the captured point. The full closed plant still needs
@@ -1757,14 +1755,14 @@ separate flow input free so the loop energy balances determine circulation.
 nested block occurrences, after values have been loaded into a built model:
 
 ```python
-from multifidelity.model_language import export_results, ResultsCatalog
+from multifidelity.model_language import export_results, ResultsDocument
 
 snapshot = export_results(
     model, status="optimal", solver="ipopt", termination_condition="optimal",
     parameters=parameters,
 )
 snapshot.write_json("results.json")
-loaded = ResultsCatalog.load_json("results.json")
+loaded = ResultsDocument.load_json("results.json")
 ```
 
 Export does not solve, change values/fixity, infer convergence or validate
@@ -1772,33 +1770,33 @@ physical applicability. Status is explicit and defaults to `not_solved`.
 Use `failed` for an unsuccessful attempt; retained values may then be guesses or
 partial initialization states. Internal native-provider variables are excluded.
 
-The version 1 catalog includes a run ID, timezone-aware creation timestamp,
+The version 1 document includes a run ID, timezone-aware creation timestamp,
 root block ID, full model choice tree, steady/dynamic mode, time unit,
 solve metadata, optional parameters IDs, and variable families keyed by
 root-relative occurrence path. Each family records its numerical unit, declared
 dimension order, and entries with explicit index coordinates, value and fixed/free
 state. Scalars use an empty coordinate list; discretized variables include the
 actual post-discretization grid. Unset and nonfinite values use JSON `null` with
-an explicit `issue` marker. Units are not converted for display. The catalog is
+an explicit `issue` marker. Units are not converted for display. The document is
 separate from resource records, which describe observations and assumptions.
 
 Upload this file in the model viewer's **Results** tab to inspect values and,
-when modelCatalogs match, show saved values on diagram rows. The SGHP
+when model documents match, show saved values on diagram rows. The SGHP
 `attempt_bottom_up.py` example now writes `results.json` alongside its diagnostic
-report. Model identity and model are recorded, but the catalog does
-not embed or fingerprint the library's equation definitions.
+report. Model identity and model are recorded, but the document does
+not embed or fingerprint the registry's equation definitions.
 
 ### Portable viewer workspaces
 
-A `WorkspaceCatalog` bundles the three required fields: `model_catalog`, `resources`
-(the resources-record array), and `results` (a complete `ResultsCatalog`). It
+A `WorkspaceDocument` bundles the three required fields: `model_document`, `resources`
+(the resources-record array), and `results` (a complete `ResultsDocument`). It
 contains no separate root-model field, block definitions, layouts, rotations,
 flips, current view or navigation state. The existing `results.block_id` identifies
-the model when opening it in the viewer; that definition must be in the library.
+the model when opening it in the viewer; that definition must be in the registry.
 The model must match the model already captured in the snapshot.
 
 ```python
-from multifidelity.model_language import export_workspace, WorkspaceCatalog
+from multifidelity.model_language import export_workspace, WorkspaceDocument
 
 # After solving, using the actual resources including case-specific overrides:
 export_workspace(
@@ -1807,27 +1805,40 @@ export_workspace(
 ).write_json("workspace.json")
 
 # Or package an existing snapshot without changing its run ID, timestamp or status:
-WorkspaceCatalog.from_results("results.json", "resources.json").write_json("workspace.json")
+WorkspaceDocument.from_results("results.json", "resources.json").write_json("workspace.json")
 ```
 
 Export never solves or infers convergence. Explicit status has the same meaning as
 `export_results`; defaults remain `not_solved`. Failed/unset values retain their
-snapshot diagnostics. `WorkspaceCatalog.load_json()` reads the same portable file.
-Loading a workspace in the viewer replaces the three catalogs for its model and
+snapshot diagnostics. `WorkspaceDocument.load_json()` reads the same portable file.
+Loading a workspace in the viewer replaces the three documents for its model and
 uses the existing local-storage behavior. It leaves diagram layout/orientation
 preferences untouched.
 
 ## Input data feeds
 
-`FeedRegistry` acquires values for existing resource record tags. This is
-separate from the symbolic formulation feeds registered with `BlockLibrary`.
-Each data feed implements `get_config()` returning its own Pydantic model,
-`get_tags()` returning its current available tags, and `read(tags)` returning
-a mapping keyed by exactly those requested tags.
+The [visual data-flow diagram](../../../docs/data-exchange/data-flow.svg) shows
+external sources feeding the resource document, parameters applied to the numerical
+instance, solving and result export. Publishing to external systems is future work.
+
+![Model and data flow](../../../docs/data-exchange/data-flow.svg)
+
+The [data exchange proposal](../../../docs/data-exchange/proposal.html) shows the
+simpler data acquisition and results flow.
+
+`FeedRegistry` lists the trusted feed plugins available to an application.
+`FeedDocument` describes which configured instances a case uses. A plugin name
+such as `csv` is a stable registry key, not a Python import path. Loading a
+feed document validates its structure without executing plugin code.
+
+Each plugin implements `get_config()` returning its own Pydantic model,
+`get_tags()` discovering current resource tags, and `read(tags)` supplying a
+mapping keyed by exactly the requested tags. A class accepts its typed config
+as its constructor argument:
 
 ```python
 from pydantic import BaseModel
-from multifidelity.model_language import FeedRegistry, ResourceCatalog
+from multifidelity.model_language import FeedRegistry, FeedDocument, ResourceDocument
 
 class PlantConfig(BaseModel):
     columns: dict[str, str]
@@ -1847,68 +1858,57 @@ class PlantFeed:
         values = self.client.read_many([columns[tag] for tag in tags])
         return {tag: values[columns[tag]] for tag in tags}
 
-data = FeedRegistry()
-data.register_feed("plant", PlantFeed(PlantConfig(columns={
-    "inlet_flow": "FT101", "pressure_measurement": "PT101",
-}), client))
-resources = ResourceCatalog.load_json("examples/parameters/resources.json")
-fresh_resources = data.read(resources)
-data.describe().write_json("feeds.json")
+registry = FeedRegistry()
+# Factories can capture runtime clients; clients and credentials stay out of JSON.
+registry.register("plant_api", lambda config: PlantFeed(config, client),
+                  config_type=PlantConfig)
+# For a class taking only config: registry.register("csv", CSVFeed).
+# Its config model is inferred from get_config()'s return annotation.
+
+document = FeedDocument(feeds=[{
+    "name": "plant", "provider_type": "plant_api",
+    "config": {"columns": {"inlet_flow": "FT101", "pressure_measurement": "PT101"}},
+}])
+document.write_json("feeds.json")
+feeds = registry.create_feeds(FeedDocument.load_json("feeds.json"))
+resources = ResourceDocument.load_json("examples/parameters/resources.json")
+fresh_resources = feeds.read(resources)
 ```
 
-Values must be in each record's declared unit; series must retain the template's
-shape and final grid order. Feeds own external naming, conversion, time
-selection and resampling. The registry validates numbers, arrays, shape, exact
-response keys and unique provider claims. At registration, and again for each
-`describe()` or `read()`, it calls `get_tags()` to discover the current tags.
-Each read freezes one tag list per provider, checks conflicts and record existence
-before any value read, then calls each nonempty provider's `read(tags)` once and
-returns a new resources catalog. Dynamic tag changes take effect on the next
-operation; empty feeds are skipped. Discovery may perform connector-specific
-metadata I/O, but does not invoke `read()`. Static
-records and all metadata are retained. A provider error stops acquisition without
-changing the original table; saved values are never substituted for failed reads.
-External read side effects cannot be rolled back. Calls are synchronous and
-sequential; provider modelCatalogs own client timeouts and connection lifetime.
+`registry.describe()` returns a mapping of available plugin names to JSON config
+schemas, suitable for frontend inspection. It neither constructs feeds nor calls
+`get_tags()`. `create_feeds()` rejects unknown plugins and validates all configs
+before constructing any instances. Factories may acquire external resources;
+construction side effects cannot be rolled back if a later factory fails.
 
-Use `fresh_resources` with the existing `select_parameters()` and
-`apply_parameters()` workflow, then call your numerical solver. This feature
-does not introduce a `Simulation` wrapper or output channels.
+The returned `FeedCollection` owns configured runtime instances. `get_tags()`
+returns discovered tags by instance name. Every `read(resources)` snapshots tags
+once per feed, rejects duplicate claims and unknown resource tags before any
+value reads, and calls each nonempty feed once. Responses must contain exactly
+the requested tags. Values must use each resource's units and preserve its
+series shape and final grid order. Static resources and metadata stay intact;
+errors never substitute saved values or mutate the original resource document.
+Feeds own conversion, resampling, timeouts and runtime client lifetimes.
 
-`data.describe()` returns a `FeedCatalog` Pydantic catalog. Its JSON is an
-array of declarations containing `name`, `provider_type`, `tags` and `config`.
-`provider_type` is the feed class's qualified Python name, used for display;
-loading a catalogue never imports that name or instantiates connector code.
-Configurations must serialize to finite JSON objects. Keep credentials and
-runtime clients outside configuration blocks: config is exported for inspection.
+`feeds.get_document()` exports current configuration without discovering tags or
+reading values. Its shape is `{"feeds": [{"name": ..., "provider_type": ...,
+"config": {...}}]}`. Configs must be finite JSON objects. Tags are runtime discovery
+results and do not belong in the document.
+
+Use fresh resources with `select_parameters()` and `apply_parameters()`, then
+invoke the numerical solver. To save connection settings alongside results:
 
 ```python
-from multifidelity.model_language import FeedCatalog, export_workspace
-
-saved = FeedCatalog.load_json("feeds.json").root[0]
-# The application explicitly chooses the connector type and supplies its client.
-config = PlantConfig.model_validate(saved.config)
-restored = FeedRegistry()
-restored.register_feed(saved.name, PlantFeed(config, client))
-
-export_workspace(model, fresh_resources, feeds=data.describe(),
+export_workspace(model, fresh_resources, feeds=feeds.get_document(),
                  status="optimal", parameters=selection.parameters).write_json("workspace.json")
 ```
 
-Workspaces may include an optional `feeds` catalogue. Without it, serialization
-retains the original three-field shape. New readers accept both shapes; older
-readers will reject the additional field. Feed configuration describes the
-registered connections, not a history of individual external reads. Catalogue
-tags are discovery snapshots; restoring a feed uses its config and lets
-`get_tags()` discover its current tags again.
+The optional workspace `feeds` field contains a `FeedDocument`. The viewer's
+**Feeds** tab imports that document, displays plugin names and edits JSON config.
+It checks document structure and unique instance names; Python validates each
+plugin's typed settings during construction. The viewer does not execute plugins
+or discover tags. Edits persist per root block and can be downloaded or included
+in a workspace. Output channels and automatic solve orchestration are separate.
 
-The viewer's **Feeds** tab imports catalogues, displays JSON configuration,
-and edits configuration. Advertised tags are read-only snapshots of
-`get_tags()`; re-export a catalogue from Python to refresh them after config
-changes. It validates JSON and unique claims; the concrete Python config model validates type-specific fields when
-the application reconstructs a feed. Catalogue edits remain declarations,
-with no live network calls or execution in the viewer. They persist per root block
-in browser storage and are included when saving a loaded workspace.
-
-Run `.venv/bin/python examples/feeds/read_inputs.py` for a runnable CSV
-example that exports a catalogue and an explicitly unsolved workspace to `/tmp`.
+Run `.venv/bin/python examples/feeds/read_inputs.py` for a CSV example introducing
+each concept and exporting a feed document and an explicitly unsolved workspace.

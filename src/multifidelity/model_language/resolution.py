@@ -7,10 +7,10 @@ from pathlib import Path
 import pint
 
 from .definitions import (
-    BlockCatalog,
-    BlockSlot,
+    BlockDefinition,
+    BlockArgument,
     BlockReference,
-    SlotBlockReference,
+    ArgumentBlockReference,
     Formulation,
 )
 from .providers import Initializer, SymbolicProvider, Scaler
@@ -20,7 +20,7 @@ from .providers import Initializer, SymbolicProvider, Scaler
 _UNITS = pint.UnitRegistry()
 
 
-def _check_interface(definition: BlockCatalog, requirement: BlockSlot, path: str):
+def _check_interface(definition: BlockDefinition, requirement: BlockArgument, path: str):
     for struct_id, expected in requirement.requires.items():
         actual = definition.structs.get(struct_id)
         if actual is None or actual.direction != expected.direction:
@@ -48,20 +48,20 @@ def _check_interface(definition: BlockCatalog, requirement: BlockSlot, path: str
                 raise ValueError(f"{path}: incompatible units for {struct_id}.{name}")
 
 
-class BlockLibrary:
-    """An ID-indexed library of typed catalogs with resolved navigation views."""
+class BlockRegistry:
+    """An ID-indexed registry of typed block definitions with resolved navigation views."""
 
     def __init__(self, directory=None):
         directory = Path(directory) if directory else Path(__file__).parent / "blocks"
-        self.blocks: dict[str, BlockCatalog] = {}
+        self.blocks: dict[str, BlockDefinition] = {}
         self._providers: dict[str, SymbolicProvider] = {}
         self._initializers: dict[str, Initializer] = {}
         self._scalers: dict[str, Scaler] = {}
         for path in sorted(directory.glob("*.json")):
-            catalog = BlockCatalog.load_json(path)
-            if catalog.id in self.blocks:
-                raise ValueError(f"Duplicate model ID: {catalog.id}")
-            self.blocks[catalog.id] = catalog
+            definition = BlockDefinition.load_json(path)
+            if definition.id in self.blocks:
+                raise ValueError(f"Duplicate block ID: {definition.id}")
+            self.blocks[definition.id] = definition
 
     def register_provider(self, name: str, provider: SymbolicProvider, *,
                           initializer: Initializer | None = None,
@@ -89,7 +89,7 @@ class BlockLibrary:
         except KeyError:
             raise ValueError(f"Unknown provider: {name}") from None
 
-    def get(self, name: str) -> BlockCatalog:
+    def get(self, name: str) -> BlockDefinition:
         try:
             return self.blocks[name]
         except KeyError:
@@ -99,29 +99,29 @@ class BlockLibrary:
         """Open a concrete root; resolve descendants automatically as accessed.
 
         Each call creates a fresh navigation view. Treat definitions as unchanged
-        while using that view; open a new view after editing library catalogs.
+        while using that view; open a new view after editing registered definitions.
         """
         definition = self.get(name)
-        if definition.block_slots:
+        if definition.block_arguments:
             raise ValueError(
                 "Root generic blocks are not supported; use a concrete wrapper"
             )
         return BlockView(definition, {}, self, name)
 
     def _reference(
-        self, reference: BlockReference, parameters, path: str
+        self, reference: BlockReference, bindings, path: str
     ) -> "BlockView":
-        if isinstance(reference, SlotBlockReference):
-            name = reference.block_slot
-            if name not in parameters:
-                raise ValueError(f"{path}: unknown block slot {name!r}")
-            argument = parameters[name]
+        if isinstance(reference, ArgumentBlockReference):
+            name = reference.block_argument
+            if name not in bindings:
+                raise ValueError(f"{path}: unknown block argument {name!r}")
+            argument = bindings[name]
             return BlockView(
                 argument.definition, argument.block_arguments, self, path,
                 dict(reference.domain_bindings),
             )
         definition = self.get(reference.block)
-        declarations = definition.block_slots
+        declarations = definition.block_arguments
         if set(reference.block_arguments) != set(declarations):
             raise ValueError(
                 f"{path}: block arguments must be exactly {sorted(declarations)}"
@@ -129,7 +129,7 @@ class BlockLibrary:
         arguments = {}
         for name, requirement in declarations.items():
             argument = self._reference(
-                reference.block_arguments[name], parameters, f"{path}<{name}>"
+                reference.block_arguments[name], bindings, f"{path}<{name}>"
             )
             _check_interface(argument.definition, requirement, f"{path}<{name}>")
             arguments[name] = argument
@@ -140,9 +140,9 @@ class BlockLibrary:
 class BlockView:
     """A shared definition viewed in one generic-argument and reference context."""
 
-    definition: BlockCatalog
+    definition: BlockDefinition
     block_arguments: dict[str, "BlockView"]
-    _library: BlockLibrary
+    _registry: BlockRegistry
     path: str
     domain_bindings: dict[str, str] = field(default_factory=dict)
 
@@ -185,7 +185,7 @@ class FormulationView:
     def blocks(self) -> dict[str, BlockView]:
         parent = self._parent
         children = {
-            alias: parent._library._reference(
+            alias: parent._registry._reference(
                 reference, parent.block_arguments, f"{parent.path}.{alias}"
             )
             for alias, reference in self.definition.blocks.items()

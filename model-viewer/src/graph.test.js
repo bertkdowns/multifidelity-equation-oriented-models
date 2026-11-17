@@ -4,15 +4,15 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { makeGraph, resolveReference, variableLabel } from './graph.js';
 
 const directory = new URL('../../src/multifidelity/model_language/blocks/', import.meta.url);
-const library = Object.fromEntries(readdirSync(directory).filter(name => name.endsWith('.json')).map(name => {
+const registry = Object.fromEntries(readdirSync(directory).filter(name => name.endsWith('.json')).map(name => {
   const model = JSON.parse(readFileSync(new URL(name, directory), 'utf8'));
   return [model.id, model];
 }));
 
 test('every formulation renders all declarations and valid edge endpoints', () => {
-  for (const definition of Object.values(library)) {
+  for (const definition of Object.values(registry)) {
     for (const [name, formulation] of Object.entries(definition.formulations)) {
-      const graph = makeGraph({ definition, bindings: {} }, name, library);
+      const graph = makeGraph({ definition, bindings: {} }, name, registry);
       assert.equal(graph.nodes.length, Object.keys(definition.structs).length + Object.keys(formulation.blocks ?? {}).length + Object.keys(formulation.constraints ?? {}).length + Object.keys(formulation.derivatives ?? {}).length);
       const ids = new Set(graph.nodes.map(node => node.id));
       for (const edge of graph.edges) {
@@ -29,9 +29,9 @@ test('every formulation renders all declarations and valid edge endpoints', () =
 });
 
 test('concrete wrapper binds generics through drill down', () => {
-  const wrapper = library.pump_flowsheet;
-  const pump = resolveReference(wrapper.formulations.flowsheet.blocks.pump, {}, library);
-  const graph = makeGraph(pump, 'incompressible', library);
+  const wrapper = registry.pump_flowsheet;
+  const pump = resolveReference(wrapper.formulations.flowsheet.blocks.pump, {}, registry);
+  const graph = makeGraph(pump, 'incompressible', registry);
   assert.deepEqual(graph.warnings, []);
   assert.equal(graph.nodes.find(node => node.id === 'block:outlet_state').data.child.definition.id, 'state_block');
   const energy = graph.edges.filter(edge => edge.source === 'constraint:energy_balance');
@@ -40,8 +40,8 @@ test('concrete wrapper binds generics through drill down', () => {
 });
 
 test('struct connections can read a parent outlet to supply a child state input', () => {
-  const pump = resolveReference(library.pump_flowsheet.formulations.flowsheet.blocks.pump, {}, library);
-  const graph = makeGraph(pump, 'incompressible', library);
+  const pump = resolveReference(registry.pump_flowsheet.formulations.flowsheet.blocks.pump, {}, registry);
+  const graph = makeGraph(pump, 'incompressible', registry);
   const edge = graph.edges.find(edge => edge.id === 'connection:outlet_state');
   assert.equal(edge.source, 'struct:outlet');
   assert.equal(edge.target, 'block:outlet_state');
@@ -51,8 +51,8 @@ test('struct connections can read a parent outlet to supply a child state input'
 });
 
 test('summary gives every edge a distinct, evenly spaced attachment on each side', () => {
-  const pump = resolveReference(library.pump_flowsheet.formulations.flowsheet.blocks.pump, {}, library);
-  const graph = makeGraph(pump, 'incompressible', library, 'summary');
+  const pump = resolveReference(registry.pump_flowsheet.formulations.flowsheet.blocks.pump, {}, registry);
+  const graph = makeGraph(pump, 'incompressible', registry, 'summary');
   for (const node of graph.nodes) {
     for (const type of ['source', 'target']) {
       const ports = node.data.summaryPorts.filter(port => port.type === type);
@@ -78,7 +78,7 @@ test('summary heat exchanger ports follow struct order even when connections are
       } },
     },
   };
-  const graph = makeGraph({ definition, bindings: {} }, 'flowsheet', library, 'summary');
+  const graph = makeGraph({ definition, bindings: {} }, 'flowsheet', registry, 'summary');
   const node = graph.nodes.find(node => node.id === 'block:exchanger');
   for (const [type, expected] of [['target', ['hot_inlet:in', 'cold_inlet:in']], ['source', ['hot_outlet:out', 'cold_outlet:out']]]) {
     const ordered = node.data.summaryPorts.filter(port => port.type === type).map(port => {
@@ -91,7 +91,7 @@ test('summary heat exchanger ports follow struct order even when connections are
 
 test('dynamic tank connects indexed equations and both derivative relations without unresolved ports', () => {
   for (const view of ['summary', 'detailed']) {
-    const graph = makeGraph(resolveReference(library.tank_flowsheet.formulations.flowsheet.blocks.tank, {}, library), 'mixed', library, view);
+    const graph = makeGraph(resolveReference(registry.tank_flowsheet.formulations.flowsheet.blocks.tank, {}, registry), 'mixed', registry, view);
     assert.deepEqual(graph.warnings, []);
     const derivative = graph.nodes.find(node => node.id === 'constraint:derivative:mass');
     assert.equal(derivative.data.equation.derivative.with_respect_to, 'time');

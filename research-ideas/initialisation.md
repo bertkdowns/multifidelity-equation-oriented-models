@@ -220,7 +220,7 @@ Two alternative factorisations are future research directions:
 - **Direct constrained QR of the Jacobian:** retain internal variables and
   outputs as mandatory unknowns, and select only among eligible boundary inputs
   without explicitly constructing a null-space basis. Investigate sparse
-  modelCatalogs for larger coupled problems.
+  model documents for larger coupled problems.
 
 Compare these with the implemented method using the same final operating
 parameters and guesses. Include factorisation cost and numerical robustness;

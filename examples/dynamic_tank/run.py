@@ -14,7 +14,7 @@ from idaes.core.solvers import get_solver
 from pyomo.util.check_units import assert_units_consistent
 
 from multifidelity.model_language import (
-    ResourceCatalog, ParameterCatalog, apply_parameters, build_model,
+    ResourceDocument, ParameterDocument, apply_parameters, build_model,
     get_variable, export_workspace,
 )
 
@@ -22,9 +22,9 @@ IMPLEMENTATION = Path(__file__).parents[1] / "model_language/tank_mixed.json"
 HERE = Path(__file__).parent
 
 
-def make_tank(*, mode="dynamic", horizon=1000, time_unit="s", library=None):
+def make_tank(*, mode="dynamic", horizon=1000, time_unit="s", registry=None):
     return build_model(
-        "tank_flowsheet", IMPLEMENTATION, mode=mode, time_unit=time_unit, library=library,
+        "tank_flowsheet", IMPLEMENTATION, mode=mode, time_unit=time_unit, registry=registry,
         domain_values={"time": [0, horizon]} if mode == "dynamic" else None,
     )
 
@@ -36,16 +36,16 @@ def specify_tank(model, *, inflow=1, outflow=1, loss=0,
     Experiments may override three operating assumptions or supply alternative
     initial-record tags. Passing [] omits the default initial conditions.
     """
-    resources = ResourceCatalog.load_json(HERE / "resources.json")
+    resources = ResourceDocument.load_json(HERE / "resources.json")
     overrides = {"inlet_flow": inflow, "withdrawal_flow": outflow, "heat_loss": loss}
-    resources = ResourceCatalog([
+    resources = ResourceDocument([
         {**record.model_dump(), "value": overrides.get(record.tag, record.value)}
         for record in resources.records
     ])
     name = "parameters.json" if model.fs.config.dynamic else "steady_parameters.json"
-    parameters = ParameterCatalog.load_json(HERE / name)
+    parameters = ParameterDocument.load_json(HERE / name)
     if initial_values is not None:
-        parameters = ParameterCatalog.model_validate({
+        parameters = ParameterDocument.model_validate({
             **parameters.model_dump(), "initial_values": initial_values,
         })
     apply_parameters(model, parameters, resources)

@@ -8,7 +8,7 @@ The 6 November export contains 2,161 one-second frames from logger AO012/780. Th
 
 The export has an isolated 89 °C suction spike at 5:06 elapsed with the other channels near room temperature. The hot run starts with erratic measurements and includes a −270 °C recorder value, treated as missing. The selected fit and validation windows lie in later, contiguous episodes. The model uses a 5 s grid interpolated from the actual logger timestamps. The shaded plot regions show the chosen windows. Validation starts from the measured suction temperature at the beginning of each window.
 
-The model-library definition [suction_response.json](../../src/multifidelity/model_language/blocks/suction_response.json) fits the measured suction probe with a single time constant:
+The model-registry definition [suction_response.json](../../src/multifidelity/model_language/blocks/suction_response.json) fits the measured suction probe with a single time constant:
 
 ```text
 τ dT_suction/dt = T_ambient + w (T_water − T_ambient) + b − T_suction
@@ -86,13 +86,13 @@ Atmospheric steam is a separate condenser design condition. Sustained boiling wi
 
 ## Estimation in this framework
 
-The runnable example builds the dynamic Pyomo model from JSON. It loads the observations through `ResourceCatalog`, fixes water, air and the initial suction state through `ParameterCatalog`, and adds a soft suction objective with an unweighted sum of squares. IPOPT estimates the free scalar parameters. For multiple comparable experiments, Pyomo 6.9.2 Parmest can fit shared parameters across independently initialized and labeled model instances. A trajectory belongs in one experiment block. A separate calibration plan can specify free parameter paths, hard inputs, soft observations, weights and fit/validation windows without changing the block definitions.
+The runnable example builds the dynamic Pyomo model from JSON. It loads the observations through `ResourceDocument`, fixes water, air and the initial suction state through `ParameterDocument`, and adds a soft suction objective with an unweighted sum of squares. IPOPT estimates the free scalar parameters. For multiple comparable experiments, Pyomo 6.9.2 Parmest can fit shared parameters across independently initialized and labeled model instances. A trajectory belongs in one experiment block. A separate calibration plan can specify free parameter paths, hard inputs, soft observations, weights and fit/validation windows without changing the block definitions.
 
 The dynamic inventory tier would reuse the framework's pipe holdup mass and energy balances, with pressure–enthalpy states, fixed geometry, independent wall heat capacities and a sealed total charge constraint. For fitting that tier, the most useful additional evidence is paired suction and discharge pressures, compressor status and event timing, nameplate charge and internal volumes, and a water-side heat balance. The [parameter estimation research note](../../research-ideas/ice-maker-parameter-estimation.md) describes the IDAES examples, pinned Parmest API and calibration design.
 
 ## Open in the model viewer
 
-Use **Open workspace** in the viewer sidebar and select either of these files. The viewer selects the matching library model automatically.
+Use **Open workspace** in the viewer sidebar and select either of these files. The viewer selects the matching registry model automatically.
 
 - [workspace.json](workspace.json) opens **ice_maker_refrigeration_loop** at the hot discharge peak. Follow **compressor → condenser cooler → pre-capillary pipe → capillary valve → post-capillary pipe → evaporator heater → refrigerant mass recycle → compressor**. Both pipes use the pass-through formulation with state evaluation. Their ports show flow, pressure and enthalpy. Open each pipe's **state** child to see its R600a temperature and vapour fraction.
 - The workspace resource records specify the recycle flow and compressor efficiency directly on those units. The saved parameters fixes compressor inlet and outlet pressures in place of the valve pressure drop and compressor pressure rise. It fixes the cooler and heater outlet enthalpies in place of their heat duties. The unit equations solve for those pressure changes and duties.

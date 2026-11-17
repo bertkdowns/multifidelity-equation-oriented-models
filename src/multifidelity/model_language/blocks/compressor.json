@@ -1,7 +1,7 @@
 {
   "id": "compressor",
   "description": "Adiabatic efficiency-based compressor. One PH FluidProperties model is instantiated for inlet, outlet and isentropic reference states. The reference entropy equals inlet entropy at outlet pressure; the equation-oriented solver determines reference enthalpy.",
-  "block_slots": {
+  "block_arguments": {
     "FluidProperties": {
       "requires": {
         "state": {
@@ -191,7 +191,7 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "FluidProperties"
+              "block_argument": "FluidProperties"
             }
           }
         },
@@ -202,12 +202,12 @@
           },
           "block_arguments": {
             "FluidProperties": {
-              "block_slot": "FluidProperties"
+              "block_argument": "FluidProperties"
             }
           }
         },
         "isentropic_state": {
-          "block_slot": "FluidProperties",
+          "block_argument": "FluidProperties",
           "domain_bindings": {
             "time": "time"
           }

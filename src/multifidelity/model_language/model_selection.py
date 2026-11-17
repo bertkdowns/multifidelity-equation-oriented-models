@@ -12,9 +12,9 @@ class FormulationSelection(Definition):
     subblocks: dict[Name, "FormulationSelection"] = Field(default_factory=dict)
 
 
-class ModelCatalog(FormulationSelection):
+class ModelDocument(FormulationSelection):
     """Portable selection tree, interpreted against a separately supplied root block.
 
-    Parsing checks shape. BlockLibrary-dependent selection checks remain in the
+    Parsing checks shape. BlockRegistry-dependent selection checks remain in the
     builder and requirement queries. No block IDs or operating values are stored.
     """

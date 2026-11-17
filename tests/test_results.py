@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 from pyomo.environ import TransformationFactory
 from multifidelity.model_language import (
-    BlockLibrary, BlockCatalog, ResultsCatalog, build_model, export_results, get_variable,
+    BlockRegistry, BlockDefinition, ResultsDocument, build_model, export_results, get_variable,
 )
 
 
@@ -16,14 +16,14 @@ def test_snapshot_roundtrip_identity_units_fixity_and_clone(tmp_path):
                             parameters={'parameters':['pressure_record']})
     pressure.set_value(100000)
     assert snapshot.block_id=='valve'
-    assert snapshot.model_catalog.formulation=='isenthalpic'
+    assert snapshot.model_document.formulation=='isenthalpic'
     assert snapshot.solve.status=='optimal'
     entry=next(v for v in snapshot.variables if v.variable_path=='inlet.pressure')
     assert entry.unit=='Pa' and entry.dimensions==('time',)
     assert entry.entries[0].index==(0.0,)
     assert entry.entries[0].fixed and entry.entries[0].value==230000
     path=tmp_path/'results.json';snapshot.write_json(path)
-    assert ResultsCatalog.load_json(path)==snapshot
+    assert ResultsDocument.load_json(path)==snapshot
     assert not pressure.value==entry.entries[0].value
 
 
@@ -39,10 +39,10 @@ def test_discretized_grid_is_exported_with_explicit_coordinates():
 
 
 def test_multidimensional_and_scalar_missing_values():
-    library=BlockLibrary()
+    registry=BlockRegistry()
     variables={'pressure':{'unit':'Pa','dimensions':['time','zone'],'default':200000},
                'scalar':{'unit':'dimensionless'}}
-    library.blocks['result_grid']=BlockCatalog.model_validate({
+    registry.blocks['result_grid']=BlockDefinition.model_validate({
         'id':'result_grid','domains':{'time':{'kind':'time'},'zone':{'kind':'discrete'}},
         'structs':{'inlet':{'direction':'input','variables':variables},
                    'outlet':{'direction':'output','variables':variables}},
@@ -51,7 +51,7 @@ def test_multidimensional_and_scalar_missing_values():
                  'determines':'outlet.pressure[t,j]','for_each':{'t':'time','j':'zone'}},
             's':{'lhs':'outlet.scalar','rhs':'inlet.scalar','determines':'outlet.scalar'}}}},
     })
-    model=build_model('result_grid',{'formulation':'copy'},library=library,
+    model=build_model('result_grid',{'formulation':'copy'},registry=registry,
                       domain_values={'time':[0,10],'zone':['A','B']})
     get_variable(model,'inlet.pressure')[0,'A'].set_value(math.inf,skip_validation=True)
     rows={v.variable_path:v for v in export_results(model,status='failed').variables}
@@ -73,4 +73,4 @@ def test_invalid_results_are_rejected():
                    lambda d:d['variables'][0]['entries'][0].update(fixed='yes'),
                    lambda d:d['variables'][0]['entries'][0].update(value=float('inf'))]:
         candidate=json.loads(json.dumps(doc));mutate(candidate)
-        with pytest.raises(ValidationError):ResultsCatalog.model_validate(candidate)
+        with pytest.raises(ValidationError):ResultsDocument.model_validate(candidate)

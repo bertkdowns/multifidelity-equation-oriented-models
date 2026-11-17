@@ -4,16 +4,16 @@ from pathlib import Path
 
 import pytest
 
-from multifidelity.model_language import BlockLibrary, required_inputs, print_required_inputs
+from multifidelity.model_language import BlockRegistry, required_inputs, print_required_inputs
 from multifidelity.model_language.definitions import Constraint, Connection
-from multifidelity.model_language.model_selection import ModelCatalog
+from multifidelity.model_language.model_selection import ModelDocument
 
 
 EXAMPLES = Path(__file__).parents[1] / "examples/model_language"
 
 
 def test_leaf_requires_all_inputs_and_no_outputs(capsys):
-    selection = ModelCatalog(formulation="isenthalpic")
+    selection = ModelDocument(formulation="isenthalpic")
     required = required_inputs("valve", selection)
     assert set(required) == {
         "inlet.flow",
@@ -38,12 +38,12 @@ def test_recursive_connections_do_not_duplicate_parameter_requirements(monkeypat
         raise AssertionError("Input discovery must not construct Pyomo")
 
     monkeypatch.setattr(builder, "ConcreteModel", forbidden)
-    library = BlockLibrary()
-    before = {name: model.model_dump() for name, model in library.blocks.items()}
+    registry = BlockRegistry()
+    before = {name: model.model_dump() for name, model in registry.blocks.items()}
     required = required_inputs(
         "water_state_block",
         EXAMPLES / "water_state_block_evaluate.json",
-        library=library,
+        registry=registry,
     )
     assert set(required) == {
         "states.state.flow",
@@ -51,7 +51,7 @@ def test_recursive_connections_do_not_duplicate_parameter_requirements(monkeypat
         "states.state.enthalpy",
     }
     assert {
-        name: model.model_dump() for name, model in library.blocks.items()
+        name: model.model_dump() for name, model in registry.blocks.items()
     } == before
 
 
@@ -77,8 +77,8 @@ def test_configured_water_package_only_requires_state():
 
 
 def test_partial_child_struct_still_lists_other_inputs():
-    library = BlockLibrary()
-    rel = library.get("water_state_block").formulations["evaluate"]
+    registry = BlockRegistry()
+    rel = registry.get("water_state_block").formulations["evaluate"]
     rel.constraints["pressure"] = Constraint(for_each={"t": "time"},
         lhs='states.state.pressure[t]',
         rhs='100000 * units.Pa',
@@ -87,7 +87,7 @@ def test_partial_child_struct_still_lists_other_inputs():
     required = required_inputs(
         "water_state_block",
         EXAMPLES / "water_state_block_evaluate.json",
-        library=library,
+        registry=registry,
     )
     assert "states.state.pressure" not in required
     assert "states.state.enthalpy" in required
@@ -95,12 +95,12 @@ def test_partial_child_struct_still_lists_other_inputs():
 
 
 def test_only_selected_formulations_are_traversed():
-    library = BlockLibrary()
-    library.get("heat_pump").formulations["cycle"].blocks[
+    registry = BlockRegistry()
+    registry.get("heat_pump").formulations["cycle"].blocks[
         "compressor"
     ].block = "absent"
     required = required_inputs(
-        "heat_pump_flowsheet", EXAMPLES / "heat_pump_aggregate.json", library=library
+        "heat_pump_flowsheet", EXAMPLES / "heat_pump_aggregate.json", registry=registry
     )
     assert len(required) == 8
     assert "heat_pump.cop_model.parameters.cop" in required
@@ -115,8 +115,8 @@ def test_only_selected_formulations_are_traversed():
         "unknown_formulation",
     ],
 )
-def test_invalid_modelCatalogs_do_not_produce_incomplete_lists(change):
-    selection = ModelCatalog.model_validate_json(
+def test_invalid_model_documents_do_not_produce_incomplete_lists(change):
+    selection = ModelDocument.model_validate_json(
         (EXAMPLES / "water_state_block_evaluate.json").read_text()
     )
     if change == "missing_child":
@@ -131,11 +131,11 @@ def test_invalid_modelCatalogs_do_not_produce_incomplete_lists(change):
 
 @pytest.mark.parametrize("kind", ["constraint", "connection"])
 def test_duplicate_determinations_are_rejected(kind):
-    library = BlockLibrary()
-    rel = library.get("state_block").formulations["evaluate"]
+    registry = BlockRegistry()
+    rel = registry.get("state_block").formulations["evaluate"]
     if kind == "connection":
         # Match the concrete package fields to isolate duplicate-target validation.
-        library.get("state_block").structs["properties"].variables["viscosity"] = library.get("water_property_package").structs["properties"].variables["viscosity"]
+        registry.get("state_block").structs["properties"].variables["viscosity"] = registry.get("water_property_package").structs["properties"].variables["viscosity"]
         rel.connections["duplicate"] = Connection(from_="fluid.properties", to="properties")
     else:
         rel.constraints["duplicate"] = Constraint(for_each={"t": "time"},
@@ -147,7 +147,7 @@ def test_duplicate_determinations_are_rejected(kind):
         required_inputs(
             "water_state_block",
             EXAMPLES / "water_state_block_evaluate.json",
-            library=library,
+            registry=registry,
         )
 
 

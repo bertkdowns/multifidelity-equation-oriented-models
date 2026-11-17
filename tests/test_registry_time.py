@@ -1,4 +1,4 @@
-"""The shipped library shares one time domain in steady and dynamic contexts."""
+"""The shipped registry shares one time domain in steady and dynamic contexts."""
 
 import json
 from pathlib import Path
@@ -8,7 +8,7 @@ import pyomo.environ as pyo
 from pyomo.core.expr.visitor import identify_variables
 from pyomo.util.check_units import assert_units_consistent
 
-from multifidelity.model_language import BlockLibrary, build_model, register_standard_providers, required_inputs, ResourceCatalog, apply_parameters
+from multifidelity.model_language import BlockRegistry, build_model, register_standard_providers, required_inputs, ResourceDocument, apply_parameters
 
 EXAMPLES = Path(__file__).parents[1] / 'examples/model_language'
 SELECTIONS = sorted(p for p in EXAMPLES.glob('*.json') if p.name != 'milk_evaporator_aggregate.json')
@@ -56,10 +56,10 @@ def require_dependencies(model, selection):
 def test_every_example_uses_shared_time_and_expands(path, mode):
     selection = json.loads(path.read_text())
     block_id = EXAMPLE_MODELS[path.stem]
-    library = BlockLibrary()
-    register_standard_providers(library)
-    require_dependencies(library.resolve(block_id), selection)
-    m = build_model(block_id, selection, library=library, mode=mode,
+    registry = BlockRegistry()
+    register_standard_providers(registry)
+    require_dependencies(registry.resolve(block_id), selection)
+    m = build_model(block_id, selection, registry=registry, mode=mode,
                     domain_values={'time': [0, 10]})
     if mode == 'dynamic':
         pyo.TransformationFactory('dae.finite_difference').apply_to(
@@ -73,13 +73,13 @@ def test_every_example_uses_shared_time_and_expands(path, mode):
         assert list(v) == list(m.fs.time)
         assert all(not x.fixed for x in v.values())
     # Input discovery still describes families, independent of numerical points.
-    assert required_inputs(block_id, selection, library=library) is not None
+    assert required_inputs(block_id, selection, registry=registry) is not None
 
 
-def test_library_operating_interfaces_and_fixed_coefficients():
-    library = BlockLibrary()
-    assert len(library.blocks) >= 32
-    for name, model in library.blocks.items():
+def test_registry_operating_interfaces_and_fixed_coefficients():
+    registry = BlockRegistry()
+    assert len(registry.blocks) >= 32
+    for name, model in registry.blocks.items():
         assert model.domains['time'].kind == 'time'
         for sid, struct in model.structs.items():
             for field, variable in struct.variables.items():
@@ -90,7 +90,7 @@ def test_library_operating_interfaces_and_fixed_coefficients():
                              name == 'ice_maker_refrigeration_loop' and sid == 'inventory_inputs'
                          )
                 assert variable.dimensions == ([] if fixed else ['time']), (name, sid, field)
-        for parameter in model.block_slots.values():
+        for parameter in model.block_arguments.values():
             for struct in parameter.requires.values():
                 assert all(v.dimensions == ['time'] for v in struct.variables.values())
 
@@ -140,14 +140,14 @@ def test_dynamic_map_drives_energy_accumulator(tmp_path, solver):
             }},
         }},
     }
-    library = BlockLibrary()
-    from multifidelity.model_language.definitions import BlockCatalog
-    library.blocks['meter'] = BlockCatalog.model_validate(definition)
-    register_standard_providers(library)
+    registry = BlockRegistry()
+    from multifidelity.model_language.definitions import BlockDefinition
+    registry.blocks['meter'] = BlockDefinition.model_validate(definition)
+    register_standard_providers(registry)
     m = build_model('meter', {'formulation': 'metered',
                               'subblocks': {'map': {'formulation': 'cooling_60rps'}}},
-                    library=library, mode='dynamic', domain_values={'time': [0, 10]})
-    apply_parameters(m, {'initial_values': ['starting_energy']}, ResourceCatalog([{
+                    registry=registry, mode='dynamic', domain_values={'time': [0, 10]})
+    apply_parameters(m, {'initial_values': ['starting_energy']}, ResourceDocument([{
         'tag': 'starting_energy', 'resource_type': 'assumption',
         'trust_rank': 5, 'variable_path': 'inventory.energy', 'value': 0, 'unit': 'J',
     }]))

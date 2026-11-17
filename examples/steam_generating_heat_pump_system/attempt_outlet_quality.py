@@ -8,7 +8,7 @@ import json
 from idaes.core.solvers import get_solver
 from pyomo.environ import units
 from multifidelity.model_language import (
-    initialize_model, ResourceCatalog, ParameterCatalog, get_variable,
+    initialize_model, ResourceDocument, ParameterDocument, get_variable,
 )
 from multifidelity.model_language.scaling import rank_inputs, export_scaling
 from attempt_solve import build_attempt, HERE
@@ -19,8 +19,8 @@ if __name__ == '__main__':
     model = build_attempt()
     initialization = initialize_model(
         model,
-        resources=ResourceCatalog.load_json(HERE/'attempt_resources.json'),
-        parameters=ParameterCatalog.load_json(HERE/'attempt_parameters.json'),
+        resources=ResourceDocument.load_json(HERE/'attempt_resources.json'),
+        parameters=ParameterDocument.load_json(HERE/'attempt_parameters.json'),
     )
     _, diagnostic = rank_inputs(model.fs.root, [], 0)
     report = dict(initialization_stop=initialization.failed_model,

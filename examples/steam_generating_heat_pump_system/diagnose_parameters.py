@@ -12,7 +12,7 @@ from idaes.core.util.scaling import get_scaling_factor, set_scaling_factor
 from pyomo.environ import Constraint, value, units
 from pyomo.opt import check_optimal_termination
 from multifidelity.model_language import (
-    ResourceCatalog, ParameterCatalog, initialize_model, relax_parameters, get_variable,
+    ResourceDocument, ParameterDocument, initialize_model, relax_parameters, get_variable,
 )
 from multifidelity.model_language.scaling import export_scaling
 from attempt_solve import build_attempt
@@ -40,8 +40,8 @@ if __name__ == '__main__':
     if args.vapor_enthalpy_scale is not None and not 0 < args.vapor_enthalpy_scale < float('inf'):
         parser.error('Equation scale must be finite and positive')
     m = build_attempt()
-    resources = ResourceCatalog.load_json(HERE/'attempt_resources.json')
-    parameters = ParameterCatalog.load_json(HERE/'attempt_parameters.json')
+    resources = ResourceDocument.load_json(HERE/'attempt_resources.json')
+    parameters = ParameterDocument.load_json(HERE/'attempt_parameters.json')
     initialization = initialize_model(m, resources=resources, parameters=parameters)
     if any(s.status != 'initialized' for s in initialization.stages[:-1]):
         raise RuntimeError('A component failed to initialize')
